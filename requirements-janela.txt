@@ -1,0 +1,6 @@
+# OPCIONAL: janela nativa (em vez do modo aplicativo do navegador).
+# Windows/macOS: usa o componente web do próprio sistema (leve).
+# Linux: precisa do Qt (~150 MB). Em máquinas modestas, prefira o modo
+# aplicativo, que reaproveita o Chrome/Chromium/Edge já instalado.
+pywebview>=5.0 ; sys_platform != "linux"
+pywebview[qt]>=5.0 ; sys_platform == "linux"

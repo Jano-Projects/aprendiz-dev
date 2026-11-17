@@ -1,0 +1,118 @@
+# =============================================================================
+# Integração contínua: a cada push, o GitHub instala e testa o Aprendiz do
+# jeito que um usuário faria (usando os próprios scripts instalar.*), em:
+#
+#   • Windows com Python 3.10 e 3.14 já instalados
+#   • Windows SEM Python: o instalador baixa e instala o Python sozinho
+#   • Ubuntu LTS, Ubuntu mais recente, Fedora mais recente e Debian estável,
+#     partindo de contêineres SEM Python: o instalador instala o Python
+#     da própria distribuição pelo gerenciador de pacotes
+#
+# Em tags "v*" (ex.: v0.1.0) também gera os executáveis de Windows e Linux
+# e os anexa como artefatos.
+# =============================================================================
+name: Testes
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  windows:
+    name: Windows · Python ${{ matrix.python }}
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.10", "3.14"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Instalar (instalar.bat)
+        shell: cmd
+        env:
+          PYTHON: python   # usa exatamente a versão da matriz
+        run: instalar.bat --dev
+      - name: Testes
+        shell: cmd
+        run: .venv\Scripts\python -m pytest -q
+      - name: Verificar instalação
+        shell: cmd
+        run: .venv\Scripts\python ferramentas\verificar.py
+
+  windows-sem-python:
+    name: Windows · instalação automática do Python
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Instalar (baixa e instala o Python do python.org)
+        shell: cmd
+        run: instalar.bat --instalar-python --dev
+      - name: Testes
+        shell: cmd
+        run: .venv\Scripts\python -m pytest -q
+      - name: Verificar instalação
+        shell: cmd
+        run: .venv\Scripts\python ferramentas\verificar.py
+
+  linux:
+    name: ${{ matrix.imagem }}
+    runs-on: ubuntu-latest
+    container: ${{ matrix.imagem }}
+    strategy:
+      fail-fast: false
+      matrix:
+        imagem:
+          - ubuntu:latest     # LTS mais recente
+          - ubuntu:rolling    # versão mais recente do Ubuntu
+          - fedora:latest
+          - debian:stable
+    steps:
+      - name: Ferramentas que o checkout usa (tar/gzip)
+        run: |
+          if ! command -v tar >/dev/null; then
+            if command -v dnf >/dev/null; then dnf install -y tar gzip
+            else apt-get update && apt-get install -y tar gzip; fi
+          fi
+      - uses: actions/checkout@v4
+      - name: Instalar (instalar.sh instala o Python da distribuição sozinho)
+        run: bash instalar.sh --dev
+      - name: Testes
+        run: .venv/bin/python -m pytest -q
+      - name: Verificar instalação
+        run: .venv/bin/python ferramentas/verificar.py
+
+  executaveis:
+    name: Executável · ${{ matrix.os }}
+    if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
+    needs: [windows, windows-sem-python, linux]
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-22.04]   # 22.04: executável roda em distros mais antigas também
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Empacotar (Windows)
+        if: runner.os == 'Windows'
+        shell: cmd
+        run: instalar.bat && empacotar.bat
+      - name: Empacotar (Linux)
+        if: runner.os == 'Linux'
+        run: bash instalar.sh && bash empacotar.sh
+      - name: Verificar executável (Windows)
+        if: runner.os == 'Windows'
+        run: python ferramentas/verificar.py --executavel dist/Aprendiz/Aprendiz.exe
+      - name: Verificar executável (Linux)
+        if: runner.os == 'Linux'
+        run: python ferramentas/verificar.py --executavel dist/Aprendiz/Aprendiz
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Aprendiz-${{ runner.os }}
+          path: dist/Aprendiz

@@ -1,0 +1,43 @@
+{
+  "conhecimentos": [
+    {"id": "farmacia", "pergunta": "horário da farmácia", "conteudo": "8h às 20h, de segunda a sábado."},
+    {"id": "wifi", "pergunta": "senha do wifi", "conteudo": "A senha do wifi é casa123."},
+    {"id": "lixo", "pergunta": "dia do lixo", "conteudo": "O lixo passa às terças e sextas, de manhã."},
+    {"id": "placa", "pergunta": "placa do carro", "conteudo": "A placa do carro é XYZ-0A00."},
+    {"id": "oleo", "pergunta": "troca de óleo do carro", "conteudo": "Trocar o óleo do carro a cada 10 mil km ou a cada 12 meses."},
+    {"id": "pneu", "pergunta": "calibragem dos pneus", "conteudo": "35 psi na frente e 33 psi atrás."},
+    {"id": "medico", "pergunta": "telefone do médico", "conteudo": "Clínica Exemplo: (00) 0000-0000."},
+    {"id": "remedio", "pergunta": "horário do remédio da vó", "conteudo": "Às 8h e às 20h, depois das refeições."},
+    {"id": "aniversario", "pergunta": "aniversário da prima", "conteudo": "A prima faz aniversário em 14 de agosto."},
+    {"id": "chave", "pergunta": "onde fica a chave reserva", "conteudo": "A chave reserva fica na gaveta da cozinha."},
+    {"id": "boleto", "pergunta": "vencimento do condomínio", "conteudo": "O boleto do condomínio vence todo dia 10."},
+    {"id": "academia", "pergunta": "horário da academia", "conteudo": "A academia abre às 6h e fecha às 23h."},
+    {"id": "vet", "pergunta": "veterinário do cachorro", "conteudo": "Clínica Veterinária Exemplo, Rua Fictícia, 100."},
+    {"id": "reuniao", "conteudo": "A reunião de condomínio acontece na primeira segunda-feira de cada mês, às 19h, no salão de festas."}
+  ],
+  "testes": [
+    {"pergunta": "qual o horário da farmácia?", "esperado": "farmacia"},
+    {"pergunta": "que horas a farmácia abre", "esperado": "farmacia"},
+    {"pergunta": "a farmasia funciona até que horas?", "esperado": "farmacia"},
+    {"pergunta": "qual a senha do wifi", "esperado": "wifi"},
+    {"pergunta": "vc sabe a senha da internet wifi?", "esperado": "wifi"},
+    {"pergunta": "quando passa o lixo?", "esperado": "lixo"},
+    {"pergunta": "qual é a placa do automóvel?", "esperado": "placa"},
+    {"pergunta": "de quanto em quanto tempo troco o óleo?", "esperado": "oleo"},
+    {"pergunta": "calibragem do pneu", "esperado": "pneu"},
+    {"pergunta": "quantas libras no pneu?", "esperado": "pneu"},
+    {"pergunta": "qual o telefone do médico", "esperado": "medico"},
+    {"pergunta": "que horas a vó toma o remédio?", "esperado": "remedio"},
+    {"pergunta": "quando é o aniversário da prima?", "esperado": "aniversario"},
+    {"pergunta": "onde está a chave reserva?", "esperado": "chave"},
+    {"pergunta": "que dia vence o condomínio", "esperado": "boleto"},
+    {"pergunta": "horario academia", "esperado": "academia"},
+    {"pergunta": "onde é o veterinário do cachorro?", "esperado": "vet"},
+    {"pergunta": "quando é a reunião do condomínio?", "esperado": "reuniao"},
+    {"pergunta": "qual a capital da França?", "esperado": null},
+    {"pergunta": "quanto é 2 mais 2?", "esperado": null},
+    {"pergunta": "quem ganhou a copa de 2002?", "esperado": null},
+    {"pergunta": "qual a senha do banco?", "esperado": null},
+    {"pergunta": "horário do cinema", "esperado": null}
+  ]
+}

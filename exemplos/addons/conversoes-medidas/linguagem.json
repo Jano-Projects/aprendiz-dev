@@ -1,0 +1,11 @@
+{
+  "abreviacoes": {
+    "pol": "polegada",
+    "lb": "libra",
+    "oz": "onca"
+  },
+  "sinonimos": {
+    "chicara": "xicara",
+    "colherada": "colher"
+  }
+}

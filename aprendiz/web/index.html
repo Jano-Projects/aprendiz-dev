@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<!--
+  Interface do Aprendiz.
+  HTML, CSS e JavaScript puros, sem framework e sem etapa de build.
+  Nada é carregado da internet (nem fontes, nem ícones, nem bibliotecas):
+  o app funciona 100% offline.
+
+  Ícones: desenhados aqui mesmo, como <symbol> SVG. Para usar um ícone:
+      <svg class="ic"><use href="#i-nome"/></svg>
+  No JavaScript, a função icone("nome") faz o mesmo.
+-->
+<html lang="pt-BR" data-tema="claro">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Aprendiz</title>
+  <link rel="icon" href="/static/icone.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/static/estilo.css">
+</head>
+<body>
+  <!-- ========================= ÍCONES (SVG) ========================= -->
+  <svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+    <defs>
+      <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+      <symbol id="i-chat" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></symbol>
+      <symbol id="i-ensinar" viewBox="0 0 24 24"><path d="M22 9 12 4 2 9l10 5 10-5z"/><path d="M6 11.5V16c3.5 2.7 8.5 2.7 12 0v-4.5"/><path d="M22 9v5"/></symbol>
+      <symbol id="i-base" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/><path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></symbol>
+      <symbol id="i-linguagem" viewBox="0 0 24 24"><path d="M4 7V5h10v2M9 5v12M7 17h4"/><path d="m13 19 4-9 4 9M14.4 16h5.2"/></symbol>
+      <symbol id="i-config" viewBox="0 0 24 24"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3"/><path d="M1 14h6M9 8h6M17 16h6"/></symbol>
+      <symbol id="i-sol" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+      <symbol id="i-lua" viewBox="0 0 24 24"><path d="M20.5 13.5A8.5 8.5 0 1 1 10.5 3.5a6.5 6.5 0 0 0 10 10z"/></symbol>
+      <symbol id="i-enviar" viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></symbol>
+      <symbol id="i-menu" viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h18"/></symbol>
+      <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></symbol>
+      <symbol id="i-lixeira" viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6M10 11v6M14 11v6"/></symbol>
+      <symbol id="i-editar" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></symbol>
+      <symbol id="i-importar" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></symbol>
+      <symbol id="i-ajuda" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3M12 17h.01"/></symbol>
+      <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+      <symbol id="i-reset" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></symbol>
+      <symbol id="i-busca" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></symbol>
+      <symbol id="i-lampada" viewBox="0 0 24 24"><path d="M9 18h6M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.3 1 2.3h6c0-1 .4-1.8 1-2.3A7 7 0 0 0 12 2z"/></symbol>
+      <symbol id="i-alerta" viewBox="0 0 24 24"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></symbol>
+      <symbol id="i-arquivo" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8"/></symbol>
+      <symbol id="i-copiar" viewBox="0 0 24 24"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></symbol>
+      <symbol id="i-corrigir" viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 15-6.7L21 8M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16M3 21v-5h5"/></symbol>
+      <symbol id="i-escudo" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></symbol>
+      <symbol id="i-pasta" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></symbol>
+      <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></symbol>
+      <symbol id="i-monitor" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></symbol>
+      <symbol id="i-addon" viewBox="0 0 24 24"><path d="M19.4 13a2 2 0 1 0 0-4H18V6a1 1 0 0 0-1-1h-3V3.6a2 2 0 1 0-4 0V5H7a1 1 0 0 0-1 1v3h1.4a2 2 0 1 1 0 4H6v4a1 1 0 0 0 1 1h3v-1.4a2 2 0 1 1 4 0V18h3a1 1 0 0 0 1-1v-4z"/></symbol>
+      <symbol id="i-olho" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+      <symbol id="i-seta" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
+      <symbol id="i-algoritmo" viewBox="0 0 24 24"><circle cx="6" cy="6" r="3"/><circle cx="18" cy="18" r="3"/><path d="M6 9v3a3 3 0 0 0 3 3h6M18 15V9"/><path d="m15 6 3-3 3 3"/></symbol>
+    </defs>
+  </svg>
+
+  <div class="app">
+    <!-- ========================= BARRA LATERAL ========================= -->
+    <aside class="lateral" id="lateral">
+      <div class="marca">
+        <img src="/static/icone.svg" alt="" width="30" height="30">
+        <span>Aprendiz</span>
+        <button class="botao-icone so-mobile" id="btn-fechar-menu" aria-label="Fechar menu">
+          <svg class="ic"><use href="#i-x"/></svg></button>
+      </div>
+
+      <button class="botao botao-primario largo" id="btn-nova">
+        <svg class="ic"><use href="#i-plus"/></svg> Nova conversa
+      </button>
+
+      <div class="busca-conversas">
+        <svg class="ic"><use href="#i-busca"/></svg>
+        <input id="filtro-conversas" type="search" placeholder="Buscar conversas" aria-label="Buscar conversas">
+      </div>
+
+      <nav class="lista-conversas" id="lista-conversas" aria-label="Conversas"></nav>
+
+      <div class="rodape-lateral">
+        <button class="item-menu" id="btn-ensinar"><svg class="ic"><use href="#i-ensinar"/></svg> Ensinar</button>
+        <button class="item-menu" id="btn-base"><svg class="ic"><use href="#i-base"/></svg> Base de conhecimento</button>
+        <button class="item-menu" id="btn-addons"><svg class="ic"><use href="#i-addon"/></svg> Addons <span class="contador-menu" id="contador-addons"></span></button>
+        <button class="item-menu" id="btn-linguagem"><svg class="ic"><use href="#i-linguagem"/></svg> Linguagem</button>
+        <button class="item-menu" id="btn-config"><svg class="ic"><use href="#i-config"/></svg> Configurações</button>
+        <div class="status" id="status">carregando…</div>
+      </div>
+    </aside>
+    <div class="cortina" id="cortina"></div>
+
+    <!-- ========================= ÁREA PRINCIPAL ========================= -->
+    <main class="principal">
+      <header class="topo">
+        <button class="botao-icone so-mobile" id="btn-menu" aria-label="Abrir menu">
+          <svg class="ic"><use href="#i-menu"/></svg></button>
+        <h1 class="titulo-conversa" id="titulo-conversa">Nova conversa</h1>
+        <div class="seletores">
+          <label class="seletor" title="Algoritmo de busca">
+            <svg class="ic"><use href="#i-busca"/></svg>
+            <select id="sel-busca" aria-label="Algoritmo de busca"></select>
+          </label>
+          <label class="seletor" title="Algoritmo de resposta">
+            <svg class="ic"><use href="#i-algoritmo"/></svg>
+            <select id="sel-resposta" aria-label="Algoritmo de resposta"></select>
+          </label>
+          <button class="botao-icone" id="btn-como-funciona" aria-label="Como funcionam os algoritmos" title="Como funcionam os algoritmos?">
+            <svg class="ic"><use href="#i-ajuda"/></svg></button>
+        </div>
+        <button class="botao-icone" id="btn-tema" aria-label="Alternar tema" title="Alternar tema">
+          <svg class="ic"><use href="#i-lua"/></svg></button>
+      </header>
+
+      <section class="mensagens" id="mensagens" aria-live="polite">
+        <div class="boas-vindas" id="boas-vindas">
+          <img src="/static/icone.svg" alt="" width="64" height="64">
+          <h2>Olá! Eu sou o Aprendiz.</h2>
+          <p>Eu só sei o que você me ensina, e tudo fica guardado neste computador.</p>
+          <div class="cartoes">
+            <button class="cartao" data-texto="aprenda que a senha do wifi é casa123">
+              <svg class="ic"><use href="#i-ensinar"/></svg>
+              <strong>Ensine pelo chat</strong>
+              <span>aprenda que a senha do wifi é casa123</span>
+            </button>
+            <button class="cartao" data-texto="pergunta: horário da farmácia resposta: 8h às 20h">
+              <svg class="ic"><use href="#i-chat"/></svg>
+              <strong>Pares de pergunta e resposta</strong>
+              <span>pergunta: horário da farmácia resposta: 8h às 20h</span>
+            </button>
+            <button class="cartao" data-texto="qual a senha do wifi?">
+              <svg class="ic"><use href="#i-busca"/></svg>
+              <strong>Pergunte do seu jeito</strong>
+              <span>qual a senha do wifi?</span>
+            </button>
+            <button class="cartao" data-texto="como te ensino?">
+              <svg class="ic"><use href="#i-ajuda"/></svg>
+              <strong>Precisa de ajuda?</strong>
+              <span>como te ensino?</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <form class="compositor" id="form-mensagem">
+        <div class="caixa-mensagem">
+          <textarea id="campo-mensagem" rows="1" placeholder="Pergunte ou ensine algo…" autocomplete="off" aria-label="Mensagem"></textarea>
+          <button class="botao-enviar" id="btn-enviar" type="submit" aria-label="Enviar" title="Enviar (Enter)">
+            <svg class="ic"><use href="#i-enviar"/></svg></button>
+        </div>
+        <div class="dica">Enter envia · Shift+Enter quebra linha · tudo fica neste computador</div>
+      </form>
+    </main>
+  </div>
+
+  <!-- ========================= DIÁLOGOS ========================= -->
+
+  <!-- Ensinar / editar conhecimento -->
+  <dialog id="dlg-ensinar">
+    <form method="dialog" class="dialogo" id="form-ensinar">
+      <div class="cabecalho-dialogo">
+        <h2><svg class="ic"><use href="#i-ensinar"/></svg> <span id="titulo-ensinar">Ensinar algo novo</span></h2>
+        <button type="button" class="botao-icone" data-fechar aria-label="Fechar"><svg class="ic"><use href="#i-x"/></svg></button>
+      </div>
+      <input type="hidden" id="ensinar-id">
+      <label>Pergunta <small>(opcional: deixe em branco para uma nota)</small>
+        <input id="ensinar-pergunta" placeholder="Ex.: horário da farmácia">
+      </label>
+      <label>Resposta / conteúdo
+        <textarea id="ensinar-conteudo" rows="5" required placeholder="Ex.: 8h às 20h, de segunda a sábado"></textarea>
+      </label>
+      <div class="acoes-dialogo">
+        <button type="button" class="botao" data-fechar>Cancelar</button>
+        <button type="submit" class="botao botao-primario" value="ok"><svg class="ic"><use href="#i-check"/></svg> Salvar</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Corrigir resposta -->
+  <dialog id="dlg-corrigir">
+    <form method="dialog" class="dialogo" id="form-corrigir">
+      <div class="cabecalho-dialogo">
+        <h2><svg class="ic"><use href="#i-corrigir"/></svg> Corrigir resposta</h2>
+        <button type="button" class="botao-icone" data-fechar aria-label="Fechar"><svg class="ic"><use href="#i-x"/></svg></button>
+      </div>
+      <p class="ajuda">A pergunta original e a resposta certa viram um novo ensinamento.</p>
+      <input type="hidden" id="corrigir-id">
+      <label>Pergunta
+        <input id="corrigir-pergunta" disabled>
+      </label>
+      <label>Resposta correta
+        <textarea id="corrigir-texto" rows="4" required></textarea>
+      </label>
+      <div class="acoes-dialogo">
+        <button type="button" class="botao" data-fechar>Cancelar</button>
+        <button type="submit" class="botao botao-primario" value="ok"><svg class="ic"><use href="#i-check"/></svg> Salvar correção</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Base de conhecimento -->
+  <dialog id="dlg-base" class="dialogo-grande">
+    <div class="dialogo">
+      <div class="cabecalho-dialogo">
+        <h2><svg class="ic"><use href="#i-base"/></svg> Base de conhecimento <span class="contador" id="base-total"></span></h2>
+        <button class="botao-icone" data-fechar aria-label="Fechar"><svg class="ic"><use href="#i-x"/></svg></button>
+      </div>
+      <div class="barra-base">
+        <div class="campo-com-icone">
+          <svg class="ic"><use href="#i-busca"/></svg>
+          <input id="base-filtro" type="search" placeholder="Filtrar…">
+        </div>
+        <button class="botao" id="btn-base-novo"><svg class="ic"><use href="#i-plus"/></svg> Novo</button>
+        <label class="botao"><svg class="ic"><use href="#i-importar"/></svg> Importar .txt/.md
+          <input type="file" id="base-arquivo" accept=".txt,.md" hidden multiple>
+        </label>
+      </div>
+      <div class="lista-base" id="lista-base"></div>
+    </div>
+  </dialog>
+
+  <!-- Addons -->
+  <dialog id="dlg-addons" class="dialogo-grande">
+    <div class="dialogo">
+      <div class="cabecalho-dialogo">
+        <h2><svg class="ic"><use href="#i-addon"/></svg> Addons</h2>
+        <button class="botao-icone" data-fechar aria-label="Fechar"><svg class="ic"><use href="#i-x"/></svg></button>
+      </div>
+      <p class="ajuda">Addons são pacotes de conhecimento prontos: baixe um arquivo
+        <code>.aprendiz</code> e importe aqui. Desativar um addon só o esconde das respostas;
+        nada é apagado. O que você ensina tem sempre prioridade.</p>
+      <div class="barra-base">
+        <label class="botao botao-primario"><svg class="ic"><use href="#i-importar"/></svg> Importar addon (.aprendiz)
+          <input type="file" id="addon-arquivo" accept=".aprendiz" hidden multiple>
+        </label>
+      </div>
+      <div class="lista-base" id="lista-addons"></div>
+    </div>
+  </dialog>
+
+  <!-- Banco de linguagem -->
+  <dialog id="dlg-linguagem" class="dialogo-grande">
+    <div class="dialogo">
+      <div class="cabecalho-dialogo">
+        <h2><svg class="ic"><use href="#i-linguagem"/></svg> Banco de linguagem</h2>
+        <button class="botao-icone" data-fechar aria-label="Fechar"><svg class="ic"><use href="#i-x"/></svg></button>
+      </div>
+      <div class="abas" role="tablist">
+        <button class="aba ativa" data-aba="abreviacoes">Abreviações</button>
+        <button class="aba" data-aba="sinonimos">Sinônimos</button>
+        <button class="aba" data-aba="intencoes">Intenções</button>
+      </div>
+      <p class="ajuda" id="ajuda-linguagem"></p>
+      <form class="barra-base" id="form-linguagem">
+        <input id="ling-termo" required>
+        <input id="ling-valor" required>
+        <button class="botao botao-primario" type="submit"><svg class="ic"><use href="#i-plus"/></svg> Adicionar</button>
+      </form>
+      <div class="lista-base" id="lista-linguagem"></div>
+    </div>
+  </dialog>
+
+  <!-- Como funcionam os algoritmos -->
+  <dialog id="dlg-algoritmos" class="dialogo-grande">
+    <div class="dialogo">
+      <div class="cabecalho-dialogo">
+        <h2><svg class="ic"><use href="#i-algoritmo"/></svg> Como funcionam os algoritmos</h2>
+        <button class="botao-icone" data-fechar aria-label="Fechar"><svg class="ic"><use href="#i-x"/></svg></button>
+      </div>
+      <p class="ajuda">Cada resposta passa por duas etapas: a <b>busca</b> encontra os
+        conhecimentos mais parecidos com a pergunta, e a <b>resposta</b> monta o texto final.
+        Troque os algoritmos no topo da tela e use <b>Por que respondi isso?</b> para ver os números.</p>
+      <div class="lista-base" id="lista-algoritmos"></div>
+    </div>
+  </dialog>
+
+  <!-- Configurações -->
+  <dialog id="dlg-config">
+    <div class="dialogo">
+      <div class="cabecalho-dialogo">
+        <h2><svg class="ic"><use href="#i-config"/></svg> Configurações</h2>
+        <button class="botao-icone" data-fechar aria-label="Fechar"><svg class="ic"><use href="#i-x"/></svg></button>
+      </div>
+
+      <section class="secao">
+        <h3>Aparência</h3>
+        <div class="segmentado" id="seg-tema" role="radiogroup" aria-label="Tema">
+          <button data-tema="claro"><svg class="ic"><use href="#i-sol"/></svg> Claro</button>
+          <button data-tema="escuro"><svg class="ic"><use href="#i-lua"/></svg> Escuro</button>
+          <button data-tema="sistema"><svg class="ic"><use href="#i-monitor"/></svg> Sistema</button>
+        </div>
+      </section>
+
+      <section class="secao">
+        <h3>Sobre esta instalação</h3>
+        <dl class="dados" id="dados-instalacao"></dl>
+      </section>
+
+      <section class="secao perigo">
+        <h3><svg class="ic"><use href="#i-alerta"/></svg> Zona de risco</h3>
+        <p class="ajuda">Volta o Aprendiz ao estado inicial, como recém-instalado.
+          Antes, uma cópia de segurança completa é salva automaticamente.</p>
+        <button class="botao botao-perigo" id="btn-abrir-reset"><svg class="ic"><use href="#i-reset"/></svg> Resetar memória…</button>
+      </section>
+    </div>
+  </dialog>
+
+  <!-- Confirmação de reset -->
+  <dialog id="dlg-reset">
+    <form method="dialog" class="dialogo" id="form-reset">
+      <div class="cabecalho-dialogo">
+        <h2 class="texto-perigo"><svg class="ic"><use href="#i-reset"/></svg> Resetar memória</h2>
+        <button type="button" class="botao-icone" data-fechar aria-label="Fechar"><svg class="ic"><use href="#i-x"/></svg></button>
+      </div>
+      <p class="ajuda">Escolha o que voltar ao estado inicial:</p>
+      <label class="opcao"><input type="checkbox" id="reset-conhecimentos" checked>
+        <span><strong>Conhecimentos ensinados</strong><small id="reset-info-conhecimentos">tudo o que você ensinou</small></span></label>
+      <label class="opcao"><input type="checkbox" id="reset-linguagem" checked>
+        <span><strong>Banco de linguagem</strong><small>abreviações, sinônimos e intenções voltam ao padrão</small></span></label>
+      <label class="opcao"><input type="checkbox" id="reset-conversas" checked>
+        <span><strong>Histórico de conversas</strong><small id="reset-info-conversas">todas as conversas</small></span></label>
+      <label class="opcao"><input type="checkbox" id="reset-addons" checked>
+        <span><strong>Addons instalados</strong><small id="reset-info-addons">desinstala todos os addons</small></span></label>
+      <div class="aviso-backup"><svg class="ic"><use href="#i-escudo"/></svg>
+        <span>Uma cópia de segurança será salva em <code id="reset-pasta-backup">backups/</code> antes de apagar.</span></div>
+      <label><span>Para confirmar, digite <strong>RESETAR</strong></span>
+        <input id="reset-confirmacao" autocomplete="off" spellcheck="false">
+      </label>
+      <div class="acoes-dialogo">
+        <button type="button" class="botao" data-fechar>Cancelar</button>
+        <button type="submit" class="botao botao-perigo" id="btn-confirmar-reset" disabled><svg class="ic"><use href="#i-reset"/></svg> Resetar agora</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="/static/markdown.js"></script>
+  <script src="/static/app.js"></script>
+</body>
+</html>

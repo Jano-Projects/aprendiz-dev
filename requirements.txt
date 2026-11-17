@@ -1,0 +1,4 @@
+# Dependências essenciais — o núcleo inteiro roda só com isto.
+fastapi>=0.110
+uvicorn>=0.29
+rapidfuzz>=3.6

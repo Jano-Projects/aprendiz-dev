@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aprendiz"
+version = "0.3.0"
+description = "Assistente pessoal local, leve e offline, que aprende com o que o dono ensina."
+readme = "README.md"
+license = { text = "MIT" }
+authors = [{ name = "Victor H. Correa" }]
+requires-python = ">=3.10"
+dependencies = ["fastapi>=0.110", "uvicorn>=0.29", "rapidfuzz>=3.6"]
+keywords = ["assistente", "pln", "nlp", "offline", "bm25", "tf-idf", "educacional"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Natural Language :: Portuguese (Brazilian)",
+    "License :: OSI Approved :: MIT License",
+    "Topic :: Education",
+]
+
+[project.optional-dependencies]
+janela = ["pywebview>=5.0"]
+dev = ["pytest>=8.0", "httpx>=0.27", "pyinstaller>=6.0"]
+
+[project.scripts]
+aprendiz = "aprendiz.desktop:main"
+
+[tool.setuptools.packages.find]
+include = ["aprendiz*"]
+
+[tool.setuptools.package-data]
+aprendiz = ["web/*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

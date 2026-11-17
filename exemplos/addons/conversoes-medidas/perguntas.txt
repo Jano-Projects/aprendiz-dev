@@ -1,0 +1,59 @@
+# Addon de exemplo: conversões de medidas.
+# Formato: "P:" para a pergunta, "R:" para a resposta, linha em branco entre pares.
+
+P: quantos ml tem uma xícara de chá
+R: Uma xícara de chá tem cerca de 240 ml.
+
+P: quantos ml tem uma colher de sopa
+R: Uma colher de sopa tem 15 ml.
+
+P: quantos ml tem uma colher de chá
+R: Uma colher de chá tem 5 ml.
+
+P: quantos centímetros tem uma polegada
+R: 1 polegada = 2,54 cm.
+
+P: quantos centímetros tem um pé
+R: 1 pé = 30,48 cm (12 polegadas).
+
+P: quantos metros tem uma jarda
+R: 1 jarda = 0,9144 m (3 pés).
+
+P: quantos quilômetros tem uma milha
+R: 1 milha terrestre = 1,609 km (1.609,344 m).
+
+P: quantos metros tem uma milha náutica
+R: 1 milha náutica = 1.852 m.
+
+P: quanto vale um nó em km/h
+R: 1 nó = 1 milha náutica por hora = 1,852 km/h.
+
+P: quantos gramas tem uma libra
+R: 1 libra = 453,59 g. Um quilo tem cerca de 2,2 libras.
+
+P: quantos gramas tem uma onça
+R: 1 onça (peso) = 28,35 g.
+
+P: quantos litros tem um galão americano
+R: 1 galão americano = 3,785 litros.
+
+P: como converter celsius para fahrenheit
+R: °F = °C × 9/5 + 32. Exemplo: 100 °C = 212 °F.
+
+P: como converter fahrenheit para celsius
+R: °C = (°F − 32) × 5/9. Exemplo: 212 °F = 100 °C.
+
+P: quantos metros quadrados tem um hectare
+R: 1 hectare = 10.000 m².
+
+P: quantos metros quadrados tem um acre
+R: 1 acre ≈ 4.047 m².
+
+P: quantos metros quadrados tem um alqueire paulista
+R: 1 alqueire paulista = 24.200 m².
+
+P: quantos psi tem um bar
+R: 1 bar ≈ 14,5 psi. E 1 psi ≈ 0,069 bar.
+
+P: quantos joules tem uma caloria
+R: 1 caloria = 4,184 joules (1 kcal = 4,184 kJ).
