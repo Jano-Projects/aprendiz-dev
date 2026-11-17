@@ -4,6 +4,17 @@ Todas as mudanças relevantes do projeto ficam registradas aqui.
 O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/), e as versões
 seguem o [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
+## [Não lançado]
+
+### Corrigido
+- Instalador do Windows: depois de instalar o Python, localiza o `python.exe` pelo Registro
+  do Windows (PEP 514) e pelo lançador `py`, em vez de supor a pasta. Antes, falhava quando
+  já havia outro Python da mesma série instalado em outra pasta. Em caso de erro, mostra o
+  final do log do instalador oficial.
+- Links do README, CONTRIBUTING e CHANGELOG apontando para `Jano-Projects/aprendiz-dev`, e
+  `git clone` do CONTRIBUTING criando a pasta `aprendiz`.
+- Nome do job de executáveis no GitHub Actions quando ele é pulado.
+
 ## [0.3.0] - 2026-11-17
 
 Primeira versão pública.

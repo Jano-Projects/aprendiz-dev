@@ -86,7 +86,7 @@ jobs:
         run: .venv/bin/python ferramentas/verificar.py
 
   executaveis:
-    name: Executável · ${{ matrix.os }}
+    name: Executável
     if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
     needs: [windows, windows-sem-python, linux]
     runs-on: ${{ matrix.os }}

@@ -103,6 +103,41 @@ function Descobrir-Instalador {
     Falhar "Nao encontrei um instalador do Python no python.org."
 }
 
+function Localizar-Instalado([version]$v) {
+    # Onde o Python $v foi instalado? Em vez de adivinhar a pasta, perguntamos
+    # ao Windows: todo instalador oficial registra o caminho no Registro
+    # (padrao PEP 514), e e assim que o lancador "py" encontra o Python.
+    # Isso importa porque, se ja existe outro Python da mesma serie (ex.: 3.14),
+    # o instalador ATUALIZA essa instalacao na pasta onde ela ja esta.
+    $serie = "$($v.Major).$($v.Minor)"
+    $chaves = @(
+        "HKLM:\SOFTWARE\Python\PythonCore\$serie\InstallPath",
+        "HKCU:\SOFTWARE\Python\PythonCore\$serie\InstallPath",
+        "HKLM:\SOFTWARE\WOW6432Node\Python\PythonCore\$serie\InstallPath"
+    )
+    foreach ($chave in $chaves) {
+        $dados = Get-ItemProperty $chave -ErrorAction SilentlyContinue
+        if (-not $dados) { continue }
+        $exe = $dados.ExecutablePath
+        if (-not $exe -and $dados.'(default)') { $exe = Join-Path $dados.'(default)' "python.exe" }
+        if (Testar-Python $exe) { return $exe }
+    }
+    # Plano B: o lancador "py" (instalado junto, em C:\Windows).
+    if (Get-Command py -ErrorAction SilentlyContinue) {
+        $exe = Caminho-Real "py" @("-$serie")
+        if (Testar-Python $exe) { return $exe }
+    }
+    return $null
+}
+
+function Mostrar-Log([string]$log) {
+    # Em caso de falha, mostra o final do log do instalador oficial.
+    if (Test-Path $log) {
+        Aviso "Ultimas linhas do log do instalador ($log):"
+        Get-Content $log -Tail 15 | ForEach-Object { Write-Host "    $_" }
+    }
+}
+
 function Instalar-Python {
     Write-Host ""
     Write-Host "+--------------------------------------------------------------+" -ForegroundColor Yellow
@@ -122,28 +157,34 @@ function Instalar-Python {
         Falhar "Falha ao baixar o Python: $($_.Exception.Message)"
     }
 
-    $comum = @("/quiet", "PrependPath=1", "Include_launcher=1", "Include_test=0", "Include_doc=0")
-    $pasta = "Python$($v.Major)$($v.Minor)"
+    $log = Join-Path $env:TEMP "python-$v-instalador.log"
+    $comum = @("/quiet", "/log", "`"$log`"", "PrependPath=1", "Include_launcher=1",
+               "Include_test=0", "Include_doc=0")
     $exe = $null
 
     Info "Instalando Python $v para todos os usuarios (aguarde a janela do UAC)"
     try {
         $p = Start-Process $instalador -ArgumentList ($comum + "InstallAllUsers=1") `
             -Verb RunAs -Wait -PassThru -ErrorAction Stop
-        if ($p.ExitCode -eq 0) { $exe = Join-Path $env:ProgramFiles "$pasta\python.exe" }
-        else { Aviso "O instalador terminou com codigo $($p.ExitCode)." }
+        if ($p.ExitCode -ne 0) { Aviso "O instalador terminou com codigo $($p.ExitCode)." }
+        $exe = Localizar-Instalado $v
     } catch {
         Aviso "Permissao de administrador recusada."
     }
 
-    if (-not (Testar-Python $exe)) {
+    if (-not $exe) {
         Info "Instalando Python $v apenas para o seu usuario (sem administrador)"
         $p = Start-Process $instalador -ArgumentList ($comum + "InstallAllUsers=0") -Wait -PassThru
-        $exe = Join-Path $env:LocalAppData "Programs\Python\$pasta\python.exe"
+        if ($p.ExitCode -ne 0) { Aviso "O instalador terminou com codigo $($p.ExitCode)." }
+        $exe = Localizar-Instalado $v
     }
 
     Remove-Item $instalador -ErrorAction SilentlyContinue
-    if (-not (Testar-Python $exe)) { Falhar "A instalacao do Python nao funcionou." }
+    if (-not $exe) {
+        Mostrar-Log $log
+        Falhar "A instalacao do Python nao funcionou."
+    }
+    Info "Python instalado em $exe"
     return $exe
 }
 
