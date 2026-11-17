@@ -6,7 +6,7 @@ que deixam o código mais claro valem tanto quanto funcionalidades novas.
 ## Preparar o ambiente
 
 ```bash
-git clone https://github.com/SEU-USUARIO/aprendiz.git
+git clone https://github.com/Jano-Projects/aprendiz-dev.git aprendiz
 cd aprendiz
 bash instalar.sh --dev                  # Windows: instalar.bat --dev
 .venv/bin/python -m pytest              # todos os testes devem passar

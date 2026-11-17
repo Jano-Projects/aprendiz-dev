@@ -7,7 +7,7 @@
 **Um assistente pessoal local, leve e offline, que só sabe o que você ensina.**
 E um projeto aberto para **estudar Processamento de Linguagem Natural** na prática.
 
-[![Testes](https://github.com/SEU-USUARIO/aprendiz/actions/workflows/testes.yml/badge.svg)](https://github.com/SEU-USUARIO/aprendiz/actions/workflows/testes.yml)
+[![Testes](https://github.com/Jano-Projects/aprendiz-dev/actions/workflows/testes.yml/badge.svg)](https://github.com/Jano-Projects/aprendiz-dev/actions/workflows/testes.yml)
 ![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-3776ab)
 ![Plataformas](https://img.shields.io/badge/plataformas-Linux%20%7C%20Windows-6b7280)
 ![Offline](https://img.shields.io/badge/funciona-100%25%20offline-16a34a)

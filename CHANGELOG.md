@@ -45,4 +45,4 @@ Primeira versão pública.
 - Instaladores para Linux e Windows que instalam o Python se faltar, verificador de
   instalação, executável via PyInstaller e CI em Windows, Ubuntu, Fedora e Debian.
 
-[0.3.0]: https://github.com/SEU-USUARIO/aprendiz/releases/tag/v0.3.0
+[0.3.0]: https://github.com/Jano-Projects/aprendiz-dev/releases/tag/v0.3.0
