@@ -105,6 +105,8 @@ Detalhes, executável e problemas comuns: [docs/empacotamento.md](docs/empacotam
 4. **Compare algoritmos:** troque a busca no topo da tela e pergunte de novo
 5. **Instale um addon:** *Addons → Importar addon* →
    `exemplos/addons/conversoes-medidas.aprendiz`, e pergunte `quanto vale 1 pol em cm?`
+6. **Conheça a loja oficial:** *Addons → Abrir loja oficial* abre no navegador a
+   [loja oficial de addons](https://jano-projects.github.io/aprendiz-addons/) da Jano Projects.
 
 ## Para quem vai estudar o código
 

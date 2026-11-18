@@ -416,6 +416,12 @@ dialog::backdrop { background: rgba(10, 10, 25, .5); backdrop-filter: blur(2px);
 .linha-config .origem-config { grid-column: 1 / -1; display: flex; align-items: center; gap: 8px; }
 .linha-config .origem-config .acao { padding: 2px 6px; }
 
+/* Loja oficial */
+.loja-oficial { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 10px 12px; border-radius: 10px; background: var(--primaria-suave); font-size: 13px; }
+.loja-oficial > .ic { color: var(--primaria); flex-shrink: 0; }
+.loja-oficial > span { flex: 1; min-width: 220px; }
+.loja-oficial code { font-size: 12px; white-space: nowrap; }
+
 /* Grupos de addons (mesmo padrão de busca e resposta) */
 .grupo-addons { display: flex; flex-direction: column; gap: 8px; padding: 10px; border: 1px dashed var(--borda); border-radius: calc(var(--raio) + 4px); }
 .grupo-addons.em-uso { border-style: solid; border-color: var(--primaria); background: color-mix(in srgb, var(--primaria-suave) 40%, transparent); }

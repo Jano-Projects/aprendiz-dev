@@ -27,6 +27,13 @@ from aprendiz import __version__
 NOME_APP = "Aprendiz"
 VERSAO = __version__
 
+# Loja OFICIAL de addons da Jano Projects. É o único lugar que distribui
+# addons oficiais. O endereço fica fixo aqui, no código do app: nenhum addon,
+# configuração ou página consegue trocá-lo. A interface só pede ao servidor
+# "abra a loja oficial", e é o servidor que abre ESTE endereço no navegador
+# padrão do sistema (veja /api/loja-oficial em api/servidor.py).
+URL_LOJA_OFICIAL = "https://jano-projects.github.io/aprendiz-addons/"
+
 # Porta preferida do servidor local. Se estiver ocupada, outra é escolhida.
 PORTA_PADRAO = 8765
 

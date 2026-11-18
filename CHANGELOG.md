@@ -6,6 +6,12 @@ seguem o [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ## [Não lançado]
 
+### Adicionado
+- Botão **Abrir loja oficial** (em Addons, em Configurações e na confirmação de um addon
+  oficial): abre no navegador padrão do sistema o endereço fixo da loja
+  (`config.URL_LOJA_OFICIAL`), pela rota `POST /api/loja-oficial`, que não aceita outro
+  endereço.
+
 ### Mudado
 - Textos do app e da documentação: addons oficiais são distribuídos só pela loja oficial da
   Jano Projects; addons de terceiros são compartilhados diretamente, como arquivo. A tela de

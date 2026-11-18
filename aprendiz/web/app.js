@@ -653,7 +653,8 @@
     const [itens, grupos] = await Promise.all([api("/api/addons"), api("/api/addons/grupos")]);
     lista.innerHTML = itens.length ? "" : `
       <div class="vazio">${icone("addon")}
-        <div>Nenhum addon instalado ainda.<br>Baixe um arquivo <code>.aprendiz</code> e clique em <b>Importar addon</b>.</div></div>`;
+        <div>Nenhum addon instalado ainda.<br>Baixe um arquivo <code>.aprendiz</code> na loja oficial
+          e clique em <b>Importar addon</b>.</div></div>`;
     const cartoes = {};  // id → cartão; depois são distribuídos pelos grupos
 
     itens.forEach((a) => {
@@ -834,7 +835,8 @@
         Só instale se confiar em quem o enviou. Ele contém apenas dados: nada é executado.</span></div>`));
     } else {
       resumo.appendChild(criar(`<div class="aviso-backup">${icone("selo")}<span>Addons oficiais são distribuídos
-        só pela loja oficial da Jano Projects. Se este arquivo veio de outro lugar, confira o SHA-256 com o da loja.</span></div>`));
+        só pela loja oficial da Jano Projects. Se este arquivo veio de outro lugar, confira o SHA-256 com o da loja.
+        <button type="button" class="acao destaque" data-abrir-loja>${icone("link")}<span>Abrir loja oficial</span></button></span></div>`));
     }
     // Recomendação de algoritmos e grupo: opções que valem na hora de instalar.
     $("#instalar-opcoes").innerHTML = "";
@@ -1096,6 +1098,23 @@
 
   $("#btn-exportar").addEventListener("click", abrirExportar);
 
+  // ---- Loja oficial
+  /**
+   * Abre a loja oficial no navegador padrão do sistema. A interface não manda
+   * endereço nenhum: o servidor abre o que está fixo em config.URL_LOJA_OFICIAL.
+   * Funciona para qualquer botão com [data-abrir-loja], inclusive os criados depois.
+   */
+  async function abrirLoja() {
+    try {
+      const r = await api("/api/loja-oficial", { metodo: "POST" });
+      if (r.aberto) avisar("Loja oficial aberta no navegador.", "link");
+      else avisar("Não consegui abrir o navegador. Acesse: " + r.url, "alerta");
+    } catch (erro) { avisar(erro.message, "alerta"); }
+  }
+  document.addEventListener("click", (ev) => {
+    if (ev.target.closest("[data-abrir-loja]")) { ev.preventDefault(); abrirLoja(); }
+  });
+
   // ---- Banco de linguagem
   const AJUDA_LINGUAGEM = {
     abreviacoes: ["Abreviação (ex.: vc)", "Significado (ex.: você)",
@@ -1235,6 +1254,8 @@
       <dt>Conhecimentos</dt><dd>${esc(String(s.conhecimentos ?? "?"))}</dd>
       <dt>Conversas</dt><dd>${esc(String(s.conversas ?? "?"))}</dd>
       <dt>Addons</dt><dd>${esc(String(s.addons ?? 0))} (${esc(String(s.conhecimentos_addons ?? 0))} conhecimentos)</dd>
+      <dt>Loja oficial</dt><dd><code>${esc(s.loja_oficial || "")}</code>
+        <button class="acao destaque" data-abrir-loja>${icone("link")}<span>Abrir</span></button></dd>
       <dt>Memória</dt><dd><code>${esc(s.banco || "")}</code></dd>
       <dt>Cópias de segurança</dt><dd><code>${esc(pastaDoBanco() + separador + "backups")}</code></dd>`;
     aplicarTema(preferencias.ler("tema", "sistema"));
@@ -1303,6 +1324,8 @@
       const s = estado.status;
       $("#status").textContent = `v${s.versao} · ${plural(s.conhecimentos, "conhecimento", "conhecimentos")}`;
       $("#contador-addons").textContent = s.addons ? String(s.addons) : "";
+      // O endereço da loja vem do servidor (config.py), para existir num lugar só.
+      $$(".endereco-loja").forEach((el) => { el.textContent = (s.loja_oficial || "").replace(/^https:\/\//, ""); });
     } catch (e) { $("#status").textContent = "servidor indisponível"; }
   }
 

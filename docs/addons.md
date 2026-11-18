@@ -6,7 +6,13 @@ Linux, regras de um jogo…) ou um ajuste (um tema de cores, limiares mais exige
 
 Há dois caminhos de distribuição:
 
-- **Addons oficiais:** feitos pela Jano Projects e distribuídos **somente** pela loja oficial.
+- **Addons oficiais:** feitos pela Jano Projects e distribuídos **somente** pela
+  [loja oficial](https://jano-projects.github.io/aprendiz-addons/). No app, o botão
+  **Addons → Abrir loja oficial** (também em Configurações e na confirmação de um addon
+  oficial) abre a loja no navegador do sistema. O endereço é fixo no código
+  (`aprendiz/config.py`, `URL_LOJA_OFICIAL`): a interface só pede ao servidor local "abra a
+  loja", sem mandar endereço, então nenhum addon ou página consegue redirecionar para outro
+  lugar.
 - **Addons de terceiros:** feitos por qualquer pessoa (inclusive pela exportação do app) e
   compartilhados **diretamente**, como arquivo. A loja oficial não publica addons de terceiros.
 

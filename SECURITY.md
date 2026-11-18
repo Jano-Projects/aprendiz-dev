@@ -3,7 +3,8 @@
 ## Modelo de segurança do Aprendiz
 
 - **Só escuta em `127.0.0.1`**: nenhum outro computador da rede acessa o app.
-- **Nada sai para a internet** durante o uso. A internet só é usada pelos instaladores, para
+- **Nada sai para a internet** durante o uso. O botão **Loja oficial** só abre no navegador do
+  sistema o endereço fixo da loja (`aprendiz/config.py`), e só quando você clica. A internet só é usada pelos instaladores, para
   baixar o Python e as dependências.
 - **Os dados ficam num arquivo SQLite** na pasta do usuário (veja o README). Proteja essa
   pasta como você protegeria qualquer documento pessoal.

@@ -2,7 +2,8 @@
 Servidor HTTP local (FastAPI).
 
 Ele só escuta em 127.0.0.1 — ou seja, apenas o próprio computador acessa.
-Nada sai para a internet.
+Nada sai para a internet. O botão "Loja oficial" não muda isso: ele só pede
+ao navegador do sistema que abra o endereço da loja (fixo no código).
 
 A interface (pasta web/) conversa com estas rotas via fetch() em JSON:
 
@@ -13,6 +14,7 @@ A interface (pasta web/) conversa com estas rotas via fetch() em JSON:
     POST   /api/corrigir                  → corrige uma resposta (vira ensinamento)
     POST   /api/sinal                     → "sinal de vida" da interface (ver desktop.py)
     POST   /api/resetar                   → volta ao estado inicial (com backup antes)
+    POST   /api/loja-oficial              → abre a loja oficial de addons no navegador
 
     GET    /api/conversas                 → lista conversas
     GET    /api/conversas/{id}/mensagens  → histórico de uma conversa
@@ -55,6 +57,7 @@ from __future__ import annotations
 import base64
 import binascii
 import time
+import webbrowser
 from typing import Any
 from datetime import datetime
 from pathlib import Path
@@ -192,7 +195,22 @@ def criar_app(caminho_banco: str | Path | None = None) -> FastAPI:
             "addons": len(banco.listar_addons()),
             "conversas": len(banco.listar_conversas()),
             "banco": banco.caminho,
+            "loja_oficial": config.URL_LOJA_OFICIAL,
         }
+
+    @app.post("/api/loja-oficial")
+    def abrir_loja_oficial():
+        """
+        Abre a loja oficial no navegador PADRÃO do sistema. O endereço vem de
+        config.URL_LOJA_OFICIAL e não pode ser trocado pela requisição: a
+        interface só pede "abra a loja", nunca manda um endereço. É o único
+        momento em que o app aciona a internet, e só quando o dono clica.
+        """
+        try:
+            aberto = webbrowser.open(config.URL_LOJA_OFICIAL, new=2)
+        except webbrowser.Error:
+            aberto = False
+        return {"aberto": bool(aberto), "url": config.URL_LOJA_OFICIAL}
 
     @app.post("/api/sinal", include_in_schema=False)
     def sinal():
