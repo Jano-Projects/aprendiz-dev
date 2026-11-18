@@ -13,6 +13,15 @@ Exemplo do caminho completo de "Vc sabe qual o HORÁRIO da farmásia?":
     7. remove stopwords         → [horario, farmacia]
     8. radicais                 → [horari, farmac]
 
+Com um addon de COMPREENSÃO ativo (0.7+), entram mais duas etapas:
+
+    5b. expressões  → "dar um jeito" vira "resolver" (antes dos sinônimos)
+    6b. lemas       → "fui" vira "ser", "fiz" vira "fazer" (depois dos
+                      sinônimos, só nas palavras que não são stopwords)
+
+e a correção de digitação deixa em paz as palavras que existem no
+português, mesmo que não estejam na base ("carro" não vira "caro").
+
 O resultado é um `TextoProcessado`, que guarda TODAS as etapas. Isso é
 proposital: o painel "Por que respondi isso?" mostra cada uma delas.
 
@@ -28,6 +37,7 @@ from dataclasses import dataclass, field
 
 from rapidfuzz import fuzz, process
 
+from aprendiz.linguagem.lexico import Lexico
 from aprendiz.linguagem.stemmer import radical
 
 _NAO_ALFANUMERICO = re.compile(r"[^a-z0-9]+")
@@ -78,6 +88,8 @@ class TextoProcessado:
     expansoes: dict[str, str] = field(default_factory=dict)
     correcoes: dict[str, str] = field(default_factory=dict)
     sinonimos: dict[str, str] = field(default_factory=dict)
+    expressoes: dict[str, str] = field(default_factory=dict)
+    lemas: dict[str, str] = field(default_factory=dict)
 
     @property
     def texto_busca(self) -> str:
@@ -93,6 +105,8 @@ class TextoProcessado:
             "expansoes": self.expansoes,
             "correcoes": self.correcoes,
             "sinonimos": self.sinonimos,
+            "expressoes": self.expressoes,
+            "lemas": self.lemas,
         }
 
 
@@ -112,6 +126,9 @@ class Linguagem:
         self.sinonimos: dict[str, str] = {}
         self.stopwords: set[str] = set()
         self.vocabulario: set[str] = set()
+        self.lexico = Lexico(banco)
+        self.expressoes: dict[tuple[str, ...], list[str]] = {}
+        self._maior_expressao = 0
 
     # ------------------------------------------------------------------ cache
     def _atualizar_tabelas(self) -> None:
@@ -119,7 +136,17 @@ class Linguagem:
             self.abreviacoes = self.banco.mapa_abreviacoes()
             self.sinonimos = self.banco.mapa_sinonimos()
             self.stopwords = self.banco.lista_stopwords()
+            self._carregar_expressoes()
             self._versao_ling = self.banco.versao_linguagem
+
+    def _carregar_expressoes(self) -> None:
+        """Expressões dos addons de compreensão ativos (o mais novo vence)."""
+        import json
+        self.expressoes = {}
+        for _, dados in self.banco.recursos_ativos("compreensao.json"):
+            for de, para in json.loads(dados).get("expressoes", {}).items():
+                self.expressoes[tuple(de.split())] = para.split()
+        self._maior_expressao = max((len(k) for k in self.expressoes), default=0)
 
     def _atualizar_vocabulario(self) -> None:
         """
@@ -157,6 +184,7 @@ class Linguagem:
                 and t not in self.vocabulario
                 and t not in self.stopwords
                 and t not in self.sinonimos  # sinônimo conhecido não é erro
+                and not self.lexico.conhece(t)  # palavra que existe não é erro
             ):
                 # rapidfuzz compara a palavra com todo o vocabulário de forma
                 # muito rápida (o núcleo é escrito em C++).
@@ -167,6 +195,44 @@ class Linguagem:
                 if achado:
                     registro[t] = achado[0]
                     t = achado[0]
+            saida.append(t)
+        return saida
+
+    def _aplicar_expressoes(self, tokens: list[str], registro: dict[str, str]) -> list[str]:
+        """
+        Troca expressões de várias palavras, da MAIS LONGA para a mais curta:
+        em "nao dar a minima", "dar a minima" é tentada antes de "dar a".
+        Compara sequências de palavras (nada de regex vinda de addon).
+        """
+        if not self.expressoes:
+            return tokens
+        saida: list[str] = []
+        i = 0
+        while i < len(tokens):
+            for tamanho in range(min(self._maior_expressao, len(tokens) - i), 1, -1):
+                trecho = tuple(tokens[i:i + tamanho])
+                if trecho in self.expressoes:
+                    troca = self.expressoes[trecho]
+                    registro[" ".join(trecho)] = " ".join(troca)
+                    saida.extend(troca)
+                    i += tamanho
+                    break
+            else:
+                saida.append(tokens[i])
+                i += 1
+        return saida
+
+    def _lematizar(self, tokens: list[str], registro: dict[str, str]) -> list[str]:
+        """Troca cada palavra (que não seja stopword) pelo seu lema, se houver."""
+        if not self.lexico.tem_lemas:
+            return tokens
+        saida = []
+        for t in tokens:
+            if t not in self.stopwords and not t.isdigit():
+                lema = self.lexico.lema(t)
+                if lema:
+                    registro[t] = lema
+                    t = lema
             saida.append(t)
         return saida
 
@@ -193,11 +259,16 @@ class Linguagem:
         expansoes: dict[str, str] = {}
         correcoes: dict[str, str] = {}
         sinonimos: dict[str, str] = {}
+        expressoes: dict[str, str] = {}
+        lemas: dict[str, str] = {}
 
+        self.lexico._atualizar()
         tokens = self._expandir(tokenizar(normalizado), expansoes)
         if corrigir:
             tokens = self._corrigir(tokens, correcoes)
+        tokens = self._aplicar_expressoes(tokens, expressoes)
         tokens = self._aplicar_sinonimos(tokens, sinonimos)
+        tokens = self._lematizar(tokens, lemas)
 
         conteudo = [t for t in tokens if t not in self.stopwords]
         return TextoProcessado(
@@ -210,4 +281,6 @@ class Linguagem:
             expansoes=expansoes,
             correcoes=correcoes,
             sinonimos=sinonimos,
+            expressoes=expressoes,
+            lemas=lemas,
         )

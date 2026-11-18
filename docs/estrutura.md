@@ -47,6 +47,7 @@ aprendiz/
 │   ├── core/                            # Núcleo: o pipeline que conecta linguagem, memória e algoritmos.
 │   │   ├── __init__.py                  # Núcleo: o pipeline que conecta linguagem, memória e algoritmos.
 │   │   ├── assistente.py                # O pipeline: a classe que junta linguagem, memória e algoritmos.
+│   │   ├── compreensao.py               # Compreensão: o motor que usa os addons "compreensao" e "vetores" (0.7+).
 │   │   ├── dicionario.py                # Dicionário: consultas aos VERBETES dos addons, nos dois sentidos.
 │   │   ├── exportacao.py                # Exportação: transforma o que o DONO ensinou num addon (.aprendiz) para compartilhar.
 │   │   └── recomendacao.py              # Recomendação de algoritmos para um addon: qual BUSCA e qual RESPOSTA usar.
@@ -54,6 +55,7 @@ aprendiz/
 │   │   ├── __init__.py                  # Processamento de linguagem natural (PLN) clássico, sem redes neurais.
 │   │   ├── entidades.py                 # Extração de entidades com expressões regulares (regex).
 │   │   ├── intencoes.py                 # Classificador de intenções — Naive Bayes Multinomial, escrito do zero.
+│   │   ├── lexico.py                    # Léxico: lemas e vetores de palavras trazidos pelos addons de compreensão.
 │   │   ├── normalizador.py              # Normalizador: transforma a mensagem crua em algo que o computador compara bem.
 │   │   └── stemmer.py                   # Radicalizador (stemmer) para português — versão simplificada do RSLP.
 │   ├── memoria/                         # Memória do assistente: tudo fica num único arquivo SQLite.
@@ -71,7 +73,8 @@ aprendiz/
 │   ├── addons.py                        # Addons: pacotes prontos, distribuídos em arquivos .aprendiz.
 │   ├── config.py                        # Configurações globais do Aprendiz.
 │   ├── configuracoes.py                 # Configurações ajustáveis: parâmetros dos algoritmos e personalização da interface.
-│   └── desktop.py                       # Inicializador do app de desktop.
+│   ├── desktop.py                       # Inicializador do app de desktop.
+│   └── recursos.py                      # Recursos de compreensão: os arquivos que os addons "compreensao" e "vetores" trazem…
 ├── benchmarks/                          # Comparação dos algoritmos de busca
 │   ├── comparar.py                      # Benchmark: compara os algoritmos de busca num mesmo conjunto de perguntas.
 │   └── dados_exemplo.json               # Base e perguntas usadas no benchmark
@@ -81,6 +84,7 @@ aprendiz/
 │   ├── addons.md                        # Formato .aprendiz, como criar addons e segurança
 │   ├── algoritmos.md                    # Como funciona cada algoritmo, com exemplo calculado
 │   ├── arquitetura.md                   # Camadas, decisões de projeto e tabelas do banco
+│   ├── compreensao.md                   # Addons de compreensão e vetores: lemas, tipos de pergunta, recomendação
 │   ├── criar-algoritmo.md               # Passo a passo para adicionar um algoritmo ao seletor
 │   ├── empacotamento.md                 # Instaladores, executável e problemas comuns
 │   ├── estrutura.md                     # Este mapa (gerado por ferramentas/gerar_estrutura.py)
@@ -107,6 +111,7 @@ aprendiz/
 │   ├── test_addons.py                   # Testes dos addons: formato, segurança, instalação, ativação e migração.
 │   ├── test_algoritmos.py               # Testes dos algoritmos de busca e de resposta, e do pipeline completo.
 │   ├── test_api.py                      # Testes da API HTTP (o mesmo caminho que a interface usa).
+│   ├── test_compreensao.py              # Testes da compreensão (0.7): addons "compreensao" e "vetores".
 │   ├── test_dicionario.py               # Testes da 0.6: dicionário nos dois sentidos (traduções e regiões), variações de pergunta…
 │   ├── test_documentacao.py             # Garante que o projeto continue documentado: todo arquivo tem explicação.
 │   ├── test_exportacao.py               # Testes da exportação: prévia com avisos de privacidade, escolha de itens e ida e volta.

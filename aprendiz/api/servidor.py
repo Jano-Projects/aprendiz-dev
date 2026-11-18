@@ -15,6 +15,7 @@ A interface (pasta web/) conversa com estas rotas via fetch() em JSON:
     POST   /api/sinal                     → "sinal de vida" da interface (ver desktop.py)
     POST   /api/resetar                   → volta ao estado inicial (com backup antes)
     POST   /api/loja-oficial              → abre a loja oficial de addons no navegador
+                                            (opcional: {"addon": id} já filtra a loja)
 
     GET    /api/conversas                 → lista conversas
     GET    /api/conversas/{id}/mensagens  → histórico de uma conversa
@@ -56,7 +57,9 @@ from __future__ import annotations
 
 import base64
 import binascii
+import re
 import time
+from urllib.parse import quote
 import webbrowser
 from typing import Any
 from datetime import datetime
@@ -148,6 +151,10 @@ class PedidoRecomendar(BaseModel):
     sinonimos: list[str] = []
 
 
+class PedidoLoja(BaseModel):
+    addon: str | None = None   # id de um addon para já abrir a loja filtrada nele
+
+
 class PedidoAtivar(BaseModel):
     ativo: bool
 
@@ -199,18 +206,27 @@ def criar_app(caminho_banco: str | Path | None = None) -> FastAPI:
         }
 
     @app.post("/api/loja-oficial")
-    def abrir_loja_oficial():
+    def abrir_loja_oficial(pedido: PedidoLoja | None = None):
         """
         Abre a loja oficial no navegador PADRÃO do sistema. O endereço vem de
         config.URL_LOJA_OFICIAL e não pode ser trocado pela requisição: a
         interface só pede "abra a loja", nunca manda um endereço. É o único
         momento em que o app aciona a internet, e só quando o dono clica.
+
+        Com {"addon": id} (recomendação da compreensão), a loja abre já
+        filtrada naquele addon: o id só pode ter letras minúsculas, números e
+        hífen, e vira apenas o parâmetro ?busca= do MESMO endereço oficial.
         """
+        url = config.URL_LOJA_OFICIAL
+        if pedido and pedido.addon:
+            if not re.fullmatch(r"[a-z0-9][a-z0-9-]{1,62}", pedido.addon):
+                raise HTTPException(400, "Id de addon inválido.")
+            url += "?busca=" + quote(pedido.addon)
         try:
-            aberto = webbrowser.open(config.URL_LOJA_OFICIAL, new=2)
+            aberto = webbrowser.open(url, new=2)
         except webbrowser.Error:
             aberto = False
-        return {"aberto": bool(aberto), "url": config.URL_LOJA_OFICIAL}
+        return {"aberto": bool(aberto), "url": url}
 
     @app.post("/api/sinal", include_in_schema=False)
     def sinal():

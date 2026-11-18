@@ -51,9 +51,13 @@ Todos os algoritmos de busca têm o mesmo método `buscar()`, e todos os de resp
    2. **Ensino explícito**: regex para "aprenda que…", "pergunta: … resposta: …", "anote: …"
    3. **Interpretação**: classificador Naive Bayes + extração de entidades
    4. **Intenção social**: "oi", "obrigado", "ajuda" recebem resposta pronta
-   5. **Busca**: algoritmo escolhido; candidatos abaixo do limiar são descartados
-   6. **Modo estrito**: sem candidato aceito, responde "ainda não fui ensinado"
-   7. **Resposta**: algoritmo escolhido monta o texto
+   5. **Compreensão** (com addon de compreensão): tipo da pergunta, assunto, necessidades e
+      perguntas sobre o próprio Aprendiz
+   6. **Busca**: algoritmo escolhido; candidatos abaixo do limiar são descartados
+   7. **Modo estrito**: sem candidato aceito, responde "ainda não fui ensinado". Com addon de
+      compreensão, antes disso: fora de alcance, busca por sentido (vetores) e recomendação de
+      addon (`meta.recomendacao`)
+   8. **Resposta**: algoritmo escolhido monta o texto
 3. Cada etapa registra dados e tempo. Isso vira o campo `meta.explicacao`, que a interface
    mostra no painel "Por que respondi isso?".
 4. A resposta é gravada e devolvida.
@@ -66,7 +70,10 @@ corretor, classificador de intenções) compara o contador e só recalcula quand
 É uma forma barata e simples de invalidar cache.
 
 Quando sinônimos ou abreviações mudam, os radicais de toda a base mudam também. Por isso a
-API chama `Assistente.reindexar()` nesses casos.
+API chama `Assistente.reindexar()` nesses casos. Lemas e expressões de um addon de
+compreensão também mudam os radicais: `meta.assinatura_indice` guarda a versão das regras de
+normalização e os addons de compreensão ativos, e `Assistente._garantir_indice()` reindexa
+quando ela muda (ao abrir o app, instalar, ativar, desativar ou remover um addon).
 
 ## Tabelas do banco
 
@@ -80,6 +87,8 @@ API chama `Assistente.reindexar()` nesses casos.
 | `addons` | addons instalados (manifesto completo em JSON, ativo/desativado, hash do arquivo) |
 | `addon_linguagem` | sinônimos e abreviações de addons (valem só com o addon ativo) |
 | `configuracoes` | parâmetros e personalização: `addon_id` vazio = do dono; preenchido = de um addon |
+| `addon_recursos` | arquivos de compreensão de cada addon (`compreensao.json`, informações e bloco de vetores) |
+| `addon_lexico` | palavras dos addons de compreensão e vetores: lema e número do vetor (consultadas palavra a palavra) |
 
 Conhecimentos de addons ficam na própria tabela `conhecimentos`, com a coluna `addon_id`
 preenchida. A busca filtra os addons desativados dentro do SQL (BM25) ou ao montar os índices
@@ -108,6 +117,12 @@ devolve `None` e o pipeline segue normalmente. O índice é refeito quando a bas
 As colunas `variacoes` e `traducoes` da tabela `conhecimentos` guardam essas listas em JSON. As
 variações entram no texto de busca (BM25, TF-IDF) e viram alvos extras no Fuzzy.
 
+## Compreensão
+
+`aprendiz/core/compreensao.py` é o motor dos addons de compreensão; `aprendiz/linguagem/lexico.py`
+consulta lemas e vetores no SQLite com cache LRU; `aprendiz/recursos.py` valida os arquivos.
+Detalhes em [compreensao.md](compreensao.md).
+
 ## Recomendação de algoritmos e grupos
 
 `aprendiz/core/recomendacao.py` cria um banco temporário com os itens de um addon e mede o
@@ -127,8 +142,8 @@ com as mesmas regras da importação.
 
 `Banco._migrar()` atualiza bancos criados por versões anteriores ao abrir o app. Por exemplo,
 ele acrescenta a coluna `addon_id` em bancos da versão 0.1. Os passos são idempotentes, e a
-versão da estrutura fica em `meta.versao_esquema` (6 a partir da 0.6: colunas `variacoes` e
-`traducoes` em `conhecimentos`).
+versão da estrutura fica em `meta.versao_esquema` (7 a partir da 0.7: tabelas
+`addon_recursos` e `addon_lexico`).
 
 ## Reset e cópias de segurança
 

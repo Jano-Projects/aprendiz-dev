@@ -282,6 +282,7 @@
         <img class="avatar" src="/static/icone.svg" alt="">
         <div class="bloco">
           <div class="balao ${classeBalao}"></div>
+          <div class="recomendacao" hidden></div>
           <div class="fontes"></div>
           <div class="acoes-msg"></div>
           <div class="explicacao" hidden></div>
@@ -298,6 +299,29 @@
       $("span", ficha).textContent = f.addon ? `${f.addon} · ${f.titulo}` : f.titulo;
       $(".fontes", el).appendChild(ficha);
     });
+
+    // Recomendação de addon (compreensão): abrir na loja ou ativar o instalado
+    const rec = meta.recomendacao;
+    if (rec) {
+      const caixa = $(".recomendacao", el);
+      caixa.hidden = false;
+      caixa.innerHTML = `${icone("addon")}<div class="texto"><b></b><span></span></div>`;
+      $("b", caixa).textContent = rec.nome;
+      $("span", caixa).textContent = rec.acao === "ativar"
+        ? "Instalado, mas desativado." : "Disponível na loja oficial.";
+      if (rec.acao === "ativar") {
+        caixa.appendChild(botaoAcao("check", "Ativar e perguntar de novo", async (b) => {
+          b.disabled = true;
+          try {
+            await api(`/api/addons/${encodeURIComponent(rec.id)}`, { metodo: "PATCH", corpo: { ativo: true } });
+            avisar(`Addon "${rec.nome}" ativado.`, "check");
+            enviar(meta.pergunta);
+          } catch (erro) { b.disabled = false; avisar(erro.message, "alerta"); }
+        }, "destaque"));
+      } else {
+        caixa.appendChild(botaoAcao("link", "Ver na loja oficial", () => abrirLoja(rec.id), "destaque"));
+      }
+    }
 
     // Botões de ação
     const acoes = $(".acoes-msg", el);
@@ -430,6 +454,8 @@
           <div class="linha-dado"><span class="rotulo">Abreviações:</span>${mapaFichas(d.expansoes)}</div>
           <div class="linha-dado"><span class="rotulo">Correções:</span>${mapaFichas(d.correcoes)}</div>
           <div class="linha-dado"><span class="rotulo">Sinônimos:</span>${mapaFichas(d.sinonimos)}</div>
+          ${d.expressoes && Object.keys(d.expressoes).length ? `<div class="linha-dado"><span class="rotulo">Expressões:</span>${mapaFichas(d.expressoes)}</div>` : ""}
+          ${d.lemas && Object.keys(d.lemas).length ? `<div class="linha-dado"><span class="rotulo">Lemas:</span>${mapaFichas(d.lemas)}</div>` : ""}
           <div class="linha-dado"><span class="rotulo">Palavras-chave:</span>${fichas(d.conteudo)}</div>
           <div class="linha-dado"><span class="rotulo">Radicais:</span>${fichas(d.radicais)}</div>`;
       } else if (etapa.nome === "Interpretação") {
@@ -457,7 +483,8 @@
         corpo = `<table class="tabela"><tr><th>Frase</th><th>Relev.</th><th>Central.</th><th>Nota</th></tr>${linhas}</table>`;
       } else {
         corpo = Object.entries(d).map(([k, v]) =>
-          `<div class="linha-dado"><span class="rotulo">${esc(k)}:</span>${esc(typeof v === "object" ? JSON.stringify(v) : String(v))}</div>`).join("");
+          `<div class="linha-dado"><span class="rotulo">${esc(k)}:</span>${Array.isArray(v) ? fichas(v)
+            : esc(typeof v === "object" ? JSON.stringify(v) : String(v))}</div>`).join("");
       }
 
       return `<div class="etapa"><div class="etapa-titulo"><span><span class="num">${indice + 1}</span>${esc(etapa.nome)}</span>
@@ -627,7 +654,8 @@
 
   const CLASSIFICACOES = {
     memoria: "Memória", linguagem: "Linguagem", parametros: "Parâmetros",
-    personalizacao: "Personalização", algoritmo: "Algoritmo", aplicacao: "Aplicação",
+    personalizacao: "Personalização", compreensao: "Compreensão", vetores: "Vetores",
+    algoritmo: "Algoritmo", aplicacao: "Aplicação",
   };
 
   /** Selo de origem. "Oficial" é uma declaração do arquivo: os verdadeiros vêm da loja oficial. */
@@ -674,6 +702,7 @@
               a.total_conhecimentos && plural(a.total_conhecimentos, "conhecimento", "conhecimentos"),
               a.total_linguagem && plural(a.total_linguagem, "termo de linguagem", "termos de linguagem"),
               a.total_configuracoes && plural(a.total_configuracoes, "configuração", "configurações"),
+              a.total_recursos && "recursos de compreensão",
             ].filter(Boolean).join(" · ")}</span>
             <span class="deps"></span>
             <span class="acoes-addon">
@@ -823,6 +852,9 @@
           t.linguagem && plural(t.linguagem, "termo de linguagem", "termos de linguagem"),
           t.parametros && plural(t.parametros, "parâmetro", "parâmetros"),
           t.personalizacao && plural(t.personalizacao, "personalização", "personalizações"),
+          t.compreensao && plural(t.compreensao, "regra de compreensão", "regras de compreensão"),
+          t.lemas && `${t.lemas.toLocaleString("pt-BR")} palavras no léxico`,
+          t.vetores && `vetores de ${t.vetores.toLocaleString("pt-BR")} palavras`,
         ].filter(Boolean).join(" · ")}</dd>
         <dt>Feito com</dt><dd>${m.app.criado_com ? "Aprendiz " + esc(m.app.criado_com) : "versão não informada"}${m.app.versao_minima ? ` (exige ${esc(m.app.versao_minima)} ou mais novo)` : ""}</dd>
         <dt>SHA-256</dt><dd><code title="${esc(info.hash)}">${esc(info.hash.slice(0, 16))}…</code></dd>
@@ -921,7 +953,9 @@
         corpo.ativar_grupo = !!($("#opt-grupo") && $("#opt-grupo").checked);
         const r = await api("/api/addons", { metodo: "POST", corpo });
         const a = r.addon;
-        let mensagem = `${a.nome} instalado com ${plural(a.total_conhecimentos, "conhecimento", "conhecimentos")}.`;
+        let mensagem = a.total_conhecimentos || !a.total_recursos
+          ? `${a.nome} instalado com ${plural(a.total_conhecimentos, "conhecimento", "conhecimentos")}.`
+          : `${a.nome} instalado.`;
         if (r.versao_anterior === a.versao) mensagem = `${a.nome} v${a.versao} reinstalado.`;
         else if (r.versao_anterior) mensagem = `${a.nome} atualizado: v${r.versao_anterior} → v${a.versao}.`;
         avisar(mensagem, "addon");
@@ -1104,9 +1138,10 @@
    * endereço nenhum: o servidor abre o que está fixo em config.URL_LOJA_OFICIAL.
    * Funciona para qualquer botão com [data-abrir-loja], inclusive os criados depois.
    */
-  async function abrirLoja() {
+  async function abrirLoja(addonId) {
     try {
-      const r = await api("/api/loja-oficial", { metodo: "POST" });
+      // Com um addon (recomendação), a loja já abre filtrada nele.
+      const r = await api("/api/loja-oficial", { metodo: "POST", corpo: addonId ? { addon: addonId } : undefined });
       if (r.aberto) avisar("Loja oficial aberta no navegador.", "link");
       else avisar("Não consegui abrir o navegador. Acesse: " + r.url, "alerta");
     } catch (erro) { avisar(erro.message, "alerta"); }

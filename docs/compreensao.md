@@ -1,0 +1,179 @@
+# Compreensão
+
+A partir da versão 0.7, o Aprendiz aceita addons de **compreensão**: em vez de trazer
+respostas, eles ensinam o app a **interpretar** o que a pessoa escreve. O motor está no app
+(`aprendiz/core/compreensao.py` e `aprendiz/linguagem/lexico.py`); os addons trazem só dados.
+
+A loja oficial distribui dois:
+
+| Addon | Classificação | Tamanho | O que traz |
+|---|---|---|---|
+| **Compreensão do português** (`compreensao-portugues`) | `compreensao`, `linguagem` | ~0,8 MB | tipos de pergunta, expressões, autoconhecimento, limites, necessidades, catálogo da loja e um léxico com mais de 300 mil palavras (139 mil com lema) |
+| **Vetores de palavras do português** (`vetores-portugues`) | `vetores` | ~1,7 MB | vetores de sentido para cerca de 114 mil palavras (depende do anterior) |
+
+Sem nenhum deles, o Aprendiz funciona exatamente como antes.
+
+## O que muda na conversa
+
+| Pergunta | Sem compreensão | Com compreensão |
+|---|---|---|
+| "qual a sua versão?" | procura na base | responde a versão, calculada na hora |
+| "o que você não sabe fazer?" | procura na base | lista as limitações do app |
+| "qual a previsão do tempo?" | "ainda não fui ensinado" | explica que não acessa a internet |
+| "onde ele fez a prova?" (base: "onde eu fiz a prova") | radicais diferentes (`fez` ≠ `fiz`) | lema `fazer` nos dois: encontra |
+| "qual a palavra-passe do wifi?" | não acha "senha" | expressão "palavra passe" → senha |
+| "o que significa kota?" (dicionário desativado) | "ainda não fui ensinado" | "você tem o addon Gírias de Angola, mas ele está desativado" + botão **Ativar e perguntar de novo** |
+| "como converter polegadas?" (sem o addon) | "ainda não fui ensinado" | indica **Conversões de medidas** + botão **Ver na loja oficial** |
+| "moto" (base fala de "bicicleta"), com vetores | "ainda não fui ensinado" | busca por sentido: moto → bicicleta |
+
+## Onde entra no pipeline
+
+```
+mensagem
+  ├─ 1. Normalização ....... + expressões ("dar um jeito" → resolver)
+  │                          + lemas ("fui" → ser), só fora das stopwords
+  │                          + léxico: palavra que existe não é "corrigida"
+  ├─ 2. Ensino, dicionário, intenções (como antes)
+  ├─ 4. Intenção social .... não responde "oi" para "como selecionar tudo no windows"
+  ├─ 4b. Compreensão ....... tipo da pergunta + assunto; perguntas sobre o Aprendiz
+  ├─ 5. Busca (como antes)
+  ├─ 6. Nada encontrado? ... a. fora de alcance?  → explica a limitação
+  │                          b. busca por sentido (vetores)
+  │                          c. recomendação de addon (catálogo da loja)
+  └─ 7. Resposta
+```
+
+Cada etapa aparece no painel **Por que respondi isso?**: lemas e expressões na Normalização,
+e as etapas Compreensão, Busca por sentido, Fora de alcance e Recomendação de addon.
+
+## As peças
+
+### Lemas e léxico
+
+O radicalizador (`stemmer.py`) junta "falar", "falei" e "falando", mas não junta formas
+irregulares: "fui" e "foi", "fiz" e "fez", "tenho" e "tive". O **lema** é a forma de
+dicionário da palavra, e resolve isso. Ele é aplicado depois dos sinônimos e só nas palavras
+que não são stopwords, tanto na pergunta quanto no que é indexado. Por isso, ativar ou
+desativar o addon **reindexa a base** (a "assinatura do índice" em `meta.assinatura_indice`
+inclui os addons de compreensão ativos).
+
+Quando uma forma tem mais de um lema ("casas" → casa ou casar?), o arquivo do addon já traz a
+escolha: vence o lema mais frequente. Formas que são elas mesmas um lema ("canto") ficam como
+estão, menos as de verbos irregulares muito comuns ("tinha" → ter), com uma lista de exceções
+("faca", "sede", "dado", "ia").
+
+O léxico também protege a **correção de digitação**: ela só corrige para palavras da base, e
+antes trocava "carro" por "caro" se só "caro" estivesse na base. Agora uma palavra que existe
+no português fica como está.
+
+As palavras ficam numa tabela do SQLite (`addon_lexico`), não na memória: o app consulta só as
+palavras de cada mensagem, com um cache das 50 mil mais recentes.
+
+### Expressões
+
+Sequências de palavras trocadas por uma forma simples, da mais longa para a mais curta:
+"dar um jeito" → resolver, "deu pau" → travou, "pequeno almoço" e "café da manhã" →
+desjejum, "carta de condução" → habilitação. A comparação é por palavras (tuplas), sem
+expressões regulares vindas do addon.
+
+### Tipo de pergunta e assunto
+
+Frases-gatilho no começo da mensagem ("o que é", "como faço para", "onde fica", "quanto
+custa"…), depois de no máximo três palavras de cortesia ("você sabe…", "por favor…"). O
+gatilho mais longo vence. O **assunto** é o resto da frase, tirado da mensagem original (com
+acentos), e deixa o "não sei" mais preciso: "Entendi que você quer saber o que é
+**fotossíntese**, mas ainda não fui ensinado sobre isso."
+
+### Autoconhecimento
+
+Perguntas sobre o próprio Aprendiz, comparadas com as do addon (semelhança mínima de 90%).
+Há dois tipos de item:
+
+- **`funcao`**: a resposta é calculada pelo app na hora. A lista é fechada
+  (`recursos.FUNCOES`): `versao`, `addons`, `conhecimentos`, `algoritmos`, `capacidades`,
+  `limitacoes`, `privacidade`, `hora`, `data`, `recomendacoes`, `ensinar`.
+- **`resposta`**: um texto fixo do addon ("você é uma IA?", "você acessa a internet?").
+
+Se o dono ensinou exatamente aquela pergunta, vale a resposta dele.
+
+### Fora de alcance
+
+Pedidos que um assistente offline não atende: pesquisar na internet, clima, notícias,
+cotações, ações no computador, lembretes, outras línguas, contas, escrever textos. Só entram
+quando a busca **não** encontrou nada: se o dono ensinou "previsão do tempo", vale o que ele
+ensinou.
+
+### Necessidades
+
+O que a pessoa precisa quando fala de um jeito indireto: "estou com fome" → receita, cozinha;
+"meu computador travou" → atalhos, gerenciador de tarefas. As palavras deduzidas aparecem no
+painel e ajudam a recomendar um addon.
+
+### Recomendação de addon
+
+O addon de compreensão leva uma cópia resumida do catálogo da loja oficial (id, nome,
+descrição e as palavras de que cada addon trata). Quando nada foi encontrado, o app compara o
+**assunto** da pergunta com essas palavras:
+
+- palavras raras pesam mais que as muito comuns ("kota" vale mais que "mudar");
+- as primeiras palavras de cada addon (nome, etiquetas, região) pesam mais;
+- com vetores, palavras de sentido parecido também contam (com peso menor);
+- as necessidades deduzidas somam pontos;
+- addons **ativos** não são indicados (a busca já olhou para eles); entre dois quase
+  empatados, ganha o que já está instalado.
+
+O resultado vai em `meta.recomendacao` (`id`, `nome`, `descricao`, `acao`: `loja` ou
+`ativar`). A interface mostra **Ver na loja oficial** (abre a loja já filtrada no addon, pelo
+endereço fixo do app) ou **Ativar e perguntar de novo**. Nada é baixado sozinho.
+
+### Vetores e busca por sentido
+
+Cada palavra vira uma lista de 100 números (um vetor). Palavras de sentido parecido têm
+vetores que apontam para direções parecidas, e a semelhança é o **cosseno** do ângulo entre
+eles (1 = mesmo sentido). Quando a busca não acha nada, o app procura, para cada palavra da
+pergunta que **não** está na base, as palavras da base com cosseno acima de 0,62, e busca de
+novo com elas. A resposta avisa: "Não encontrei exatamente essas palavras; procurei pelo
+sentido (moto → bicicleta)."
+
+Cuidados para não inventar:
+
+- as mil palavras mais comuns ("quero", "fazer") não são trocadas;
+- a nova busca precisa passar do **mesmo limiar** de confiança;
+- palavras que só "emprestam" o vetor de outra (formas raras, os **apelidos**) valem menos.
+
+Os vetores ficam num bloco de bytes por addon (`addon_recursos`, ~1,4 MB), lido uma vez; a
+tabela de palavras fica no SQLite.
+
+## Formato dos arquivos
+
+Descritos em detalhe no início de `aprendiz/recursos.py`:
+
+| Arquivo | Classificação | Conteúdo |
+|---|---|---|
+| `compreensao.json` | `compreensao` | seções `expressoes`, `tipos_pergunta`, `autoconhecimento`, `fora_de_alcance`, `necessidades` e `catalogo` |
+| `lemas.tsv` | (junto com `compreensao.json`) | `palavra<TAB>lema` ou só `palavra`, já normalizadas |
+| `vetores.bin` | `vetores` | binário: cabeçalho, palavras, índice de cada palavra e vetores `int8` |
+
+Segurança: tudo é validado como dado não confiável. Não há regex vinda de addon (só listas de
+palavras), as funções de autoconhecimento são uma lista fechada do app, o tamanho do
+`vetores.bin` precisa bater exatamente com o cabeçalho e os ids do catálogo só aceitam letras
+minúsculas, números e hífen.
+
+## Criar ou atualizar os addons oficiais
+
+No repositório da loja (`aprendiz-addons`):
+
+1. `ferramentas/dados_compreensao.py` gera `lemas.tsv` e `vetores.bin` a partir das fontes
+   (lista de lemas de Michal Měchura, sob ODbL, e os vetores do modelo `pt_core_news_md` do
+   spaCy). Só é preciso rodar quando essas fontes mudam.
+2. `ferramentas/catalogo_compreensao.py` junta `compreensao-base.json` (escrito à mão) com o
+   catálogo da loja e gera `compreensao.json`. Rode sempre que um addon da loja mudar.
+3. `ferramentas/criar_addon.py` (do app) empacota cada pasta de `fontes/`.
+
+## Licenças dos dados
+
+- **Lemas**: derivados de [lemmatization-lists](https://github.com/michmech/lemmatization-lists),
+  de Michal Měchura, sob a Open Database License (ODbL 1.0). O addon de compreensão mantém
+  a mesma licença.
+- **Vetores**: derivados do pacote `pt_core_news_md` do [spaCy](https://spacy.io/models/pt)
+  (Explosion), redistribuídos sob CC BY-SA 4.0.

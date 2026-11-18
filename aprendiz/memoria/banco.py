@@ -122,6 +122,33 @@ CREATE TABLE IF NOT EXISTS addon_linguagem (
     PRIMARY KEY (addon_id, tipo, termo)
 );
 
+-- Recursos de compreensão (Aprendiz 0.7+), trazidos pelos addons
+-- "compreensao" e "vetores" (formato em aprendiz/recursos.py):
+--   compreensao.json → JSON já validado e normalizado
+--   vetores.info     → {"dimensoes": D, "quantidade": V} em JSON
+--   vetores.dados    → os vetores (int8 × V × D)
+CREATE TABLE IF NOT EXISTS addon_recursos (
+    addon_id TEXT NOT NULL REFERENCES addons(id) ON DELETE CASCADE,
+    nome     TEXT NOT NULL,
+    dados    BLOB NOT NULL,
+    PRIMARY KEY (addon_id, nome)
+);
+
+-- Léxico: as palavras que os addons de compreensão e de vetores conhecem.
+-- Fica no SQLite (e não na memória) porque são centenas de milhares de
+-- palavras: o app consulta só as palavras de cada mensagem.
+--   lema  → '' = palavra conhecida sem lema diferente; NULL = sem informação
+--   vetor → número do vetor no recurso "vetores.dados" do mesmo addon;
+--           negativo = -(número + 1) para palavras que só emprestam o vetor
+--           de outra (apelidos, menos confiáveis)
+CREATE TABLE IF NOT EXISTS addon_lexico (
+    palavra  TEXT NOT NULL,
+    addon_id TEXT NOT NULL REFERENCES addons(id) ON DELETE CASCADE,
+    lema     TEXT,
+    vetor    INTEGER,
+    PRIMARY KEY (palavra, addon_id)
+) WITHOUT ROWID;
+
 -- Histórico de conversas.
 CREATE TABLE IF NOT EXISTS conversas (
     id            TEXT PRIMARY KEY,
@@ -224,7 +251,9 @@ class Banco:
         for coluna in ("variacoes", "traducoes"):
             if coluna not in colunas:
                 c.execute(f"ALTER TABLE conhecimentos ADD COLUMN {coluna} TEXT")
-        c.execute("INSERT OR REPLACE INTO meta VALUES ('versao_esquema', '6')")
+        # 0.6 → 0.7: addon_recursos e addon_lexico são tabelas novas (o
+        # ESQUEMA as cria); nada a converter.
+        c.execute("INSERT OR REPLACE INTO meta VALUES ('versao_esquema', '7')")
         c.commit()
 
     def _ampliar_check(self, tabela: str, marca: str, colunas: list[str]) -> None:
@@ -341,6 +370,8 @@ class Banco:
                           "(SELECT id FROM conhecimentos WHERE addon_id IS NOT NULL)")
                 c.execute("DELETE FROM conhecimentos WHERE addon_id IS NOT NULL")
                 c.execute("DELETE FROM addon_linguagem")
+                c.execute("DELETE FROM addon_lexico")
+                c.execute("DELETE FROM addon_recursos")
                 c.execute("DELETE FROM configuracoes WHERE addon_id != ''")
                 apagados["addons"] = c.execute("DELETE FROM addons").rowcount
             if configuracoes:
@@ -558,7 +589,8 @@ class Banco:
             "SELECT a.*, "
             "(SELECT COUNT(*) FROM conhecimentos c WHERE c.addon_id = a.id) AS total_conhecimentos, "
             "(SELECT COUNT(*) FROM addon_linguagem l WHERE l.addon_id = a.id) AS total_linguagem, "
-            "(SELECT COUNT(*) FROM configuracoes g WHERE g.addon_id = a.id) AS total_configuracoes "
+            "(SELECT COUNT(*) FROM configuracoes g WHERE g.addon_id = a.id) AS total_configuracoes, "
+            "(SELECT COUNT(*) FROM addon_recursos r WHERE r.addon_id = a.id) AS total_recursos "
             "FROM addons a ORDER BY a.nome COLLATE NOCASE"
         )
         for a in addons:
@@ -571,7 +603,8 @@ class Banco:
 
     def instalar_addon(self, manifesto: dict[str, Any], conhecimentos: list[dict[str, Any]],
                        linguagem: dict[str, dict[str, str]], hash_arquivo: str,
-                       configuracoes: dict[str, Any] | None = None) -> None:
+                       configuracoes: dict[str, Any] | None = None,
+                       recursos: dict[str, Any] | None = None) -> None:
         """
         Grava um addon inteiro numa única transação: ou entra tudo, ou nada.
         Se o addon já existia (mesmo id), a versão antiga é substituída,
@@ -580,7 +613,10 @@ class Banco:
         `conhecimentos` já chega com o texto de busca calculado (o Assistente
         cuida disso), no formato: {pergunta, conteudo, tipo, texto_busca}.
         `configuracoes` junta parâmetros e personalização, já validados.
+        `recursos` (0.7+): {"compreensao": dict, "lemas": [(palavra, lema)],
+        "vetores": recursos.Vetores}, todos opcionais e já validados.
         """
+        recursos = recursos or {}
         momento = agora()
         with self._trava:
             c = self._con
@@ -618,6 +654,7 @@ class Banco:
                     "INSERT OR REPLACE INTO configuracoes (chave, valor, addon_id) VALUES (?, ?, ?)",
                     [(chave, json.dumps(valor), manifesto["id"])
                      for chave, valor in (configuracoes or {}).items()])
+                self._gravar_recursos(manifesto["id"], recursos)
                 c.commit()
             except Exception:
                 c.rollback()
@@ -625,9 +662,38 @@ class Banco:
         self.versao_conhecimento += 1
         self.versao_linguagem += 1
 
+    def _gravar_recursos(self, addon_id: str, recursos: dict[str, Any]) -> None:
+        """Compreensão, lemas e vetores de um addon (sem commit)."""
+        c = self._con
+        if recursos.get("compreensao"):
+            c.execute("INSERT INTO addon_recursos VALUES (?, ?, ?)",
+                      (addon_id, "compreensao.json",
+                       json.dumps(recursos["compreensao"], ensure_ascii=False).encode("utf-8")))
+        lexico: dict[str, list] = {}
+        for palavra, lema in recursos.get("lemas") or []:
+            lexico[palavra] = [lema, None]
+        vetores = recursos.get("vetores")
+        if vetores:
+            c.execute("INSERT INTO addon_recursos VALUES (?, ?, ?)",
+                      (addon_id, "vetores.info", json.dumps(
+                          {"dimensoes": vetores.dimensoes, "quantidade": vetores.quantidade}
+                      ).encode("utf-8")))
+            c.execute("INSERT INTO addon_recursos VALUES (?, ?, ?)",
+                      (addon_id, "vetores.dados", vetores.dados))
+            for posicao, (palavra, indice) in enumerate(vetores.palavras):
+                # Palavra "original" = a dona do vetor (a i-ésima usa o vetor i).
+                # As outras são APELIDOS (formas raras que emprestam o vetor de
+                # uma palavra parecida): gravadas como -(nº + 1), valem menos.
+                original = posicao < vetores.quantidade and indice == posicao
+                lexico.setdefault(palavra, [None, None])[1] = indice if original else -(indice + 1)
+        c.executemany("INSERT INTO addon_lexico VALUES (?, ?, ?, ?)",
+                      ((p, addon_id, l, v) for p, (l, v) in lexico.items()))
+
     def _apagar_addon(self, id: str) -> None:
         """Apaga sem commit (usado dentro de transações)."""
         c = self._con
+        c.execute("DELETE FROM addon_lexico WHERE addon_id = ?", (id,))
+        c.execute("DELETE FROM addon_recursos WHERE addon_id = ?", (id,))
         c.execute("DELETE FROM conhecimentos_fts WHERE id IN "
                   "(SELECT id FROM conhecimentos WHERE addon_id = ?)", (id,))
         c.execute("DELETE FROM conhecimentos WHERE addon_id = ?", (id,))
@@ -650,6 +716,42 @@ class Banco:
         self.versao_conhecimento += 1
         self.versao_linguagem += 1
         return cur.rowcount > 0
+
+    # ------------------------------------------------------------------ compreensão
+    def recursos_ativos(self, nome: str) -> list[tuple[str, bytes]]:
+        """[(addon_id, dados)] do recurso `nome` nos addons ATIVOS, do mais antigo
+        ao mais novo (o mais novo vence quando dois dizem coisas diferentes)."""
+        return [(l["addon_id"], l["dados"]) for l in self._consultar(
+            "SELECT r.addon_id, r.dados FROM addon_recursos r JOIN addons a ON a.id = r.addon_id "
+            "WHERE a.ativo = 1 AND r.nome = ? ORDER BY a.instalado_em", (nome,))]
+
+    def tem_lexico(self) -> tuple[bool, bool]:
+        """(há lemas ativos?, há vetores ativos?) — evita consultas à toa."""
+        l = self._consultar(
+            "SELECT EXISTS(SELECT 1 FROM addon_recursos r JOIN addons a ON a.id = r.addon_id "
+            "  WHERE a.ativo = 1 AND r.nome = 'compreensao.json' AND EXISTS("
+            "    SELECT 1 FROM addon_lexico x WHERE x.addon_id = a.id AND x.lema IS NOT NULL)) AS l, "
+            "EXISTS(SELECT 1 FROM addon_recursos r JOIN addons a ON a.id = r.addon_id "
+            "  WHERE a.ativo = 1 AND r.nome = 'vetores.dados') AS v")[0]
+        return bool(l["l"]), bool(l["v"])
+
+    def consultar_lexico(self, palavra: str) -> tuple[str | None, tuple[str, int] | None]:
+        """
+        (lema, (addon_id, nº do vetor)) de uma palavra, só de addons ativos.
+        lema: None = desconhecida; "" = conhecida, sem lema diferente.
+        """
+        linhas = self._consultar(
+            "SELECT x.addon_id, x.lema, x.vetor FROM addon_lexico x JOIN addons a "
+            "ON a.id = x.addon_id WHERE x.palavra = ? AND a.ativo = 1 "
+            "ORDER BY a.instalado_em DESC", (palavra,))
+        lema = next((l["lema"] for l in linhas if l["lema"] is not None), None)
+        vetor = next(((l["addon_id"], l["vetor"]) for l in linhas if l["vetor"] is not None), None)
+        return lema, vetor
+
+    def recurso(self, addon_id: str, nome: str) -> bytes | None:
+        linhas = self._consultar("SELECT dados FROM addon_recursos WHERE addon_id = ? AND nome = ?",
+                                 (addon_id, nome))
+        return linhas[0]["dados"] if linhas else None
 
     def configuracoes_do_addon(self, id: str) -> dict[str, Any]:
         """Parâmetros e personalização que um addon trouxe (ativo ou não)."""

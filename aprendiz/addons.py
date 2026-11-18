@@ -17,6 +17,11 @@ Um arquivo .aprendiz é um ZIP comum com arquivos JSON:
     linguagem.json       classificação "linguagem"      → sinônimos e abreviações
     parametros.json      classificação "parametros"     → limiares, algoritmos padrão…
     personalizacao.json  classificação "personalizacao" → nome, cor, boas-vindas
+    compreensao.json     classificação "compreensao"    → interpretação de texto (0.7+)
+      + lemas.tsv          (opcional) formas das palavras e seus lemas
+    vetores.bin          classificação "vetores"        → vetores de palavras (0.7+)
+
+    Os arquivos de compreensão e vetores estão descritos em aprendiz/recursos.py.
 
     manifesto.json:
         {
@@ -80,6 +85,8 @@ Diz o que o addon MEXE no Aprendiz. Precisa bater com os arquivos presentes:
     linguagem       amplia o banco de linguagem              ✔ aceito
     parametros      ajusta parâmetros dos algoritmos         ✔ aceito
     personalizacao  customiza nome, cor e boas-vindas        ✔ aceito
+    compreensao     interpretação de texto (dados)           ✔ aceito (0.7+)
+    vetores         vetores de palavras (dados)              ✔ aceito (0.7+)
     algoritmo       habilita um novo algoritmo (código)      ✘ recusado
     aplicacao       modifica a aplicação (código)            ✘ recusado
 
@@ -102,7 +109,7 @@ Segurança
 ---------
 Addons vêm da internet, então são tratados como dados NÃO confiáveis:
 
-  • Só contêm DADOS (JSON). Nada é executado — não existe código em addon.
+  • Só contêm DADOS (JSON, listas de palavras e números). Nada é executado — não existe código em addon.
   • Só lemos os nomes conhecidos de dentro do ZIP; nada é extraído para
     o disco (sem risco de "path traversal").
   • Há limites de tamanho do arquivo, do conteúdo descompactado (proteção
@@ -124,6 +131,7 @@ from typing import Any
 
 from aprendiz import __version__
 from aprendiz import configuracoes as cfg
+from aprendiz import recursos
 from aprendiz.linguagem import normalizar
 from aprendiz.memoria.sementes import INTENCOES
 
@@ -166,6 +174,8 @@ CLASSIFICACOES: dict[str, tuple[str, str | None, bool]] = {
     "linguagem": ("Amplia a linguagem", "linguagem.json", True),
     "parametros": ("Ajusta parâmetros", "parametros.json", True),
     "personalizacao": ("Customiza a interface", "personalizacao.json", True),
+    "compreensao": ("Amplia a compreensão de texto", recursos.ARQUIVO_COMPREENSAO, True),
+    "vetores": ("Traz vetores de palavras", recursos.ARQUIVO_VETORES, True),
     "algoritmo": ("Habilita um novo algoritmo", None, False),
     "aplicacao": ("Modifica a aplicação", None, False),
 }
@@ -182,6 +192,9 @@ class Pacote:
     linguagem: dict[str, dict[str, str]] = field(default_factory=dict)
     parametros: dict[str, Any] = field(default_factory=dict)
     personalizacao: dict[str, Any] = field(default_factory=dict)
+    compreensao: dict[str, Any] = field(default_factory=dict)
+    lemas: list[tuple[str, str]] = field(default_factory=list)
+    vetores: recursos.Vetores | None = None
     hash: str = ""
 
     @property
@@ -236,6 +249,19 @@ def _ler_json(zip_: zipfile.ZipFile, nome: str, obrigatorio: bool) -> Any:
         raise ErroAddon(f"'{nome}' não é um JSON válido ({erro}).") from None
 
 
+def _ler_bytes(zip_: zipfile.ZipFile, nome: str) -> bytes | None:
+    """Lê um arquivo que não é JSON (lemas.tsv, vetores.bin), com o mesmo limite."""
+    try:
+        info = zip_.getinfo(nome)
+    except KeyError:
+        return None
+    with zip_.open(info) as f:
+        bruto = f.read(MAX_DESCOMPACTADO + 1)
+    if len(bruto) > MAX_DESCOMPACTADO:
+        raise ErroAddon("O conteúdo do addon é grande demais.")
+    return bruto
+
+
 def validar_classificacao(bruto: Any) -> list[str]:
     if not isinstance(bruto, list) or not bruto:
         raise ErroAddon("A 'classificacao' precisa ser uma lista com pelo menos um tipo.")
@@ -248,7 +274,7 @@ def validar_classificacao(bruto: Any) -> list[str]:
         if not aceito:
             raise ErroAddon(f"Este addon é do tipo \"{titulo}\" e traria código. Esta versão "
                             "do Aprendiz só aceita addons de dados (memória, linguagem, "
-                            "parâmetros e personalização).")
+                            "parâmetros, personalização, compreensão e vetores).")
         if tipo not in saida:
             saida.append(tipo)
     return saida
@@ -542,6 +568,7 @@ def classificacao_de(pacote: Pacote) -> list[str]:
     return [tipo for tipo, tem in (
         ("memoria", pacote.conhecimentos), ("linguagem", pacote.linguagem),
         ("parametros", pacote.parametros), ("personalizacao", pacote.personalizacao),
+        ("compreensao", pacote.compreensao), ("vetores", pacote.vetores),
     ) if tem]
 
 
@@ -570,11 +597,13 @@ def ler_pacote(dados: bytes) -> Pacote:
                 "personalizacao", None if v1 else _ler_json(zip_, "personalizacao.json", False)),
             hash=hashlib.sha256(dados).hexdigest(),
         )
+        if not v1:
+            _ler_recursos(zip_, pacote)
 
     presentes = classificacao_de(pacote)
     if not presentes:
         raise ErroAddon("O addon está vazio: não traz conhecimentos, linguagem, "
-                        "parâmetros nem personalização.")
+                        "parâmetros, personalização, compreensão nem vetores.")
     if v1:
         manifesto["classificacao"] = presentes
     else:
@@ -592,10 +621,32 @@ def ler_pacote(dados: bytes) -> Pacote:
     return pacote
 
 
+def _ler_recursos(zip_: zipfile.ZipFile, pacote: Pacote) -> None:
+    """compreensao.json (+ lemas.tsv) e vetores.bin, validados por recursos.py."""
+    try:
+        bruto = _ler_json(zip_, recursos.ARQUIVO_COMPREENSAO, False)
+        if bruto is not None:
+            pacote.compreensao = recursos.validar_compreensao(bruto, normalizar)
+        lemas = _ler_bytes(zip_, recursos.ARQUIVO_LEMAS)
+        if lemas is not None:
+            if bruto is None:
+                raise ErroAddon(f"{recursos.ARQUIVO_LEMAS} só pode vir junto com "
+                                f"{recursos.ARQUIVO_COMPREENSAO}.")
+            pacote.lemas = recursos.validar_lemas(lemas)
+        vetores = _ler_bytes(zip_, recursos.ARQUIVO_VETORES)
+        if vetores is not None:
+            pacote.vetores = recursos.validar_vetores(vetores)
+    except recursos.ErroRecurso as erro:
+        raise ErroAddon(str(erro)) from None
+
+
 def criar_pacote(manifesto: dict[str, Any], conhecimentos: list[dict[str, Any]] | None = None,
                  linguagem: dict[str, dict[str, str]] | None = None,
                  parametros: dict[str, Any] | None = None,
-                 personalizacao: dict[str, Any] | None = None) -> bytes:
+                 personalizacao: dict[str, Any] | None = None,
+                 compreensao: dict[str, Any] | None = None,
+                 lemas: list[tuple[str, str]] | None = None,
+                 vetores: recursos.Vetores | None = None) -> bytes:
     """
     Gera os bytes de um arquivo .aprendiz (formato 2). Preenche o que der
     para deduzir (classificação, versão do app) e valida tudo com as mesmas
@@ -605,7 +656,8 @@ def criar_pacote(manifesto: dict[str, Any], conhecimentos: list[dict[str, Any]] 
     linguagem = linguagem or {}
     parametros = parametros or {}
     personalizacao = personalizacao or {}
-    provisorio = Pacote({}, conhecimentos, linguagem, parametros, personalizacao)
+    provisorio = Pacote({}, conhecimentos, linguagem, parametros, personalizacao,
+                        compreensao or {}, lemas or [], vetores)
     manifesto = {
         "formato": FORMATO,
         "origem": "terceiros",
@@ -629,6 +681,13 @@ def criar_pacote(manifesto: dict[str, Any], conhecimentos: list[dict[str, Any]] 
             gravar("parametros.json", parametros)
         if personalizacao:
             gravar("personalizacao.json", personalizacao)
+        if compreensao:
+            gravar(recursos.ARQUIVO_COMPREENSAO, compreensao)
+        if lemas:
+            zip_.writestr(recursos.ARQUIVO_LEMAS, "\n".join(
+                f"{p}\t{l}" if l else p for p, l in lemas) + "\n")
+        if vetores:
+            zip_.writestr(recursos.ARQUIVO_VETORES, vetores.como_bytes())
     dados = buffer.getvalue()
     ler_pacote(dados)  # garante que o que geramos é um addon válido
     return dados
@@ -647,6 +706,9 @@ def resumo(pacote: Pacote) -> dict[str, Any]:
             "linguagem": sum(len(v) for v in pacote.linguagem.values()),
             "parametros": len(pacote.parametros),
             "personalizacao": len(pacote.personalizacao),
+            "compreensao": sum(len(v) for v in pacote.compreensao.values()),
+            "lemas": len(pacote.lemas),
+            "vetores": len(pacote.vetores.palavras) if pacote.vetores else 0,
         },
         "configuracoes": [{"chave": k, "titulo": cfg.DEFINICOES[k].titulo, "valor": v}
                           for k, v in pacote.configuracoes.items()],

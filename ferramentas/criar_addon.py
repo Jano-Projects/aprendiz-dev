@@ -15,6 +15,9 @@ CRIAR a partir de uma pasta-fonte:
       linguagem.json      {"sinonimos": {...}, "abreviacoes": {...}}
       parametros.json     {"limiar.bm25": 0.6, ...}         (chaves de aprendiz/configuracoes.py)
       personalizacao.json {"personalizacao.cor": "#0f766e", ...}
+      compreensao.json    interpretação de texto (Aprendiz 0.7+; veja aprendiz/recursos.py)
+      lemas.tsv           formas → lemas, junto com compreensao.json
+      vetores.bin         vetores de palavras (Aprendiz 0.7+)
       *.md / *.txt        textos livres, divididos automaticamente em trechos
 
     A "classificacao" e o "app.criado_com" são preenchidos sozinhos a partir
@@ -75,10 +78,12 @@ from aprendiz.core.recomendacao import recomendar  # noqa: E402
 from aprendiz.addons import (  # noqa: E402
     EXTENSAO, ORIGENS, ErroAddon, criar_pacote, dividir_em_trechos, ler_pacote,
 )
+from aprendiz import recursos  # noqa: E402
+from aprendiz.linguagem import normalizar  # noqa: E402
 
 ARQUIVOS_ESPECIAIS = {"manifesto.json", "conhecimentos.json", "linguagem.json",
-                      "parametros.json", "personalizacao.json",
-                      "perguntas.txt", "verbetes.txt", "leia-me.md", "readme.md"}
+                      "parametros.json", "personalizacao.json", "compreensao.json",
+                      "lemas.tsv", "perguntas.txt", "verbetes.txt", "leia-me.md", "readme.md"}
 
 
 def ler_perguntas(caminho: Path) -> list[dict]:
@@ -167,9 +172,17 @@ def criar(pasta: Path, saida: Path | None) -> None:
             print(f"     recomendado: busca {teste['busca']} · resposta {teste['resposta']}")
 
     try:
+        compreensao = json_opcional("compreensao.json")
+        if compreensao is not None:
+            compreensao = recursos.validar_compreensao(compreensao, normalizar)
+        lemas = (recursos.validar_lemas((pasta / "lemas.tsv").read_bytes())
+                 if (pasta / "lemas.tsv").exists() else None)
+        vetores = (recursos.validar_vetores((pasta / "vetores.bin").read_bytes())
+                   if (pasta / "vetores.bin").exists() else None)
         dados = criar_pacote(manifesto, conhecimentos, linguagem,
-                             json_opcional("parametros.json"), json_opcional("personalizacao.json"))
-    except ErroAddon as erro:
+                             json_opcional("parametros.json"), json_opcional("personalizacao.json"),
+                             compreensao, lemas, vetores)
+    except (ErroAddon, recursos.ErroRecurso) as erro:
         raise SystemExit(f"Addon inválido: {erro}")
 
     saida = saida or pasta.parent / f"{manifesto['id']}{EXTENSAO}"
@@ -203,6 +216,14 @@ def conferir(arquivo: Path) -> None:
         print(f"     {tipo}: {len(mapa)}")
     for chave, valor in p.configuracoes.items():
         print(f"     {chave} = {valor}")
+    for secao, itens in p.compreensao.items():
+        if itens:
+            print(f"     compreensão · {secao}: {len(itens)}")
+    if p.lemas:
+        print(f"     lemas: {len(p.lemas)} palavras")
+    if p.vetores:
+        print(f"     vetores: {len(p.vetores.palavras)} palavras, {p.vetores.quantidade} vetores "
+              f"de {p.vetores.dimensoes} dimensões")
     print(f"     sha256: {p.hash}")
 
 

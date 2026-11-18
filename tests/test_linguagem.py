@@ -75,6 +75,6 @@ def test_regras_novas_de_normalizacao_reindexam_a_base(tmp_path):
     banco = Banco(tmp_path / "b.db")
     banco.salvar_conhecimento("casa123", pergunta="senha do wi-fi", tipo="pergunta",
                               texto_busca="senh wi fi casa123")  # gravado pela regra antiga
-    banco.definir_meta("versao_normalizacao", "1")
+    banco.definir_meta("assinatura_indice", "1")
     Assistente(banco)  # ao abrir, percebe a versão antiga e reindexa
     assert banco.todos_conhecimentos()[0]["texto_busca"] == "senh wifi casa123"

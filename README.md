@@ -58,7 +58,9 @@ comentada em português. Por isso ele roda até em máquinas bem modestas.
 | 💬 **Chat moderno** | Histórico de conversas, tema claro/escuro, Markdown, ícones, responsivo |
 | 🎓 **Aprende pelo chat** | `aprenda que a senha do wifi é casa123` · `pergunta: … resposta: …` · `anote: …` |
 | 🔁 **Aprende com correções** | Errou? *Corrigir* transforma a resposta certa em ensinamento |
-| 🧩 **Addons** | Pacotes `.aprendiz` (memória, linguagem, parâmetros, personalização) com confirmação antes de instalar ([docs](docs/addons.md)) |
+| 🧩 **Addons** | Pacotes `.aprendiz` (memória, linguagem, parâmetros, personalização, compreensão, vetores) com confirmação antes de instalar ([docs](docs/addons.md)) |
+| 🧠 **Compreensão** | Com o addon de compreensão: tipo de pergunta, expressões, formas irregulares, perguntas sobre o próprio app, limites de um assistente offline e indicação do addon certo quando não sabe algo ([docs](docs/compreensao.md)) |
+| 🧭 **Busca por sentido** | Com o addon de vetores: se a palavra não está na base, tenta as de sentido parecido |
 | 📖 **Dicionários** | Respondem nos dois sentidos, "o que significa kota?" e "como se diz dinheiro em Angola?", sem atrapalhar o resto da conversa |
 | 🗣️ **Vários jeitos de perguntar** | Addons trazem variações de cada pergunta, que levam à mesma resposta |
 | 🧪 **Algoritmo recomendado** | Cada addon traz a busca e a resposta que funcionam melhor com ele, medidas num teste com o próprio conteúdo |
@@ -174,13 +176,14 @@ Resumo. O mapa completo, com **todos** os arquivos comentados, está em
 ```
 aprendiz/
 ├── aprendiz/                  # o pacote Python
-│   ├── core/                  #   assistente.py: o pipeline; dicionario.py; exportacao.py; recomendacao.py
-│   ├── linguagem/             #   PLN clássico: normalizador, stemmer, Naive Bayes, entidades
+│   ├── core/                  #   assistente.py: o pipeline; compreensao.py; dicionario.py; exportacao.py…
+│   ├── linguagem/             #   PLN clássico: normalizador, stemmer, léxico, Naive Bayes, entidades
 │   ├── algoritmos/            #   o seletor (padrão Strategy)
 │   │   ├── busca/             #     bm25, tfidf, fuzzy, hibrido
 │   │   └── resposta/          #     direta, extrativa
 │   ├── memoria/               #   SQLite: conhecimento, linguagem, conversas, addons
 │   ├── addons.py              #   formato .aprendiz: leitura segura e criação
+│   ├── recursos.py            #   arquivos dos addons de compreensão e vetores
 │   ├── configuracoes.py       #   parâmetros e personalização (dono > addon > padrão)
 │   ├── api/servidor.py        #   API local (FastAPI, só em 127.0.0.1)
 │   ├── web/                   #   interface: HTML, CSS e JS puros, offline

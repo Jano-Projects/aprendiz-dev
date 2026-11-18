@@ -6,6 +6,38 @@ seguem o [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ## [Não lançado]
 
+## [0.7.0] - 2026-11-18
+
+### Adicionado
+- **Addons de compreensão** (classificação `compreensao`, arquivos `compreensao.json` e
+  `lemas.tsv`) e de **vetores** (classificação `vetores`, arquivo `vetores.bin`). O motor fica
+  no app (`aprendiz/core/compreensao.py`, `aprendiz/linguagem/lexico.py`); os addons trazem só
+  dados, validados por `aprendiz/recursos.py`. Veja `docs/compreensao.md`.
+- Na normalização: **expressões** de várias palavras ("dar um jeito" → resolver), **lemas**
+  ("fui" → ser, "fiz" → fazer) e **léxico** (a correção de digitação não troca palavras que
+  existem, como "carro" por "caro").
+- **Tipo de pergunta e assunto** (o que é, como fazer, onde fica, quanto…), no painel e no
+  "ainda não sei" ("Entendi que você quer saber o que é **fotossíntese**…").
+- **Autoconhecimento**: perguntas sobre o próprio Aprendiz (versão, addons, o que sabe, o que
+  não faz, privacidade, hora, data, como ensinar…), com respostas calculadas na hora.
+- **Fora de alcance**: explica por que não atende pedidos impossíveis offline (internet,
+  clima, notícias, cotações, lembretes…), só quando a busca não encontrou nada.
+- **Necessidades deduzidas** ("estou com fome" → receitas).
+- **Recomendação de addon** quando não sabe responder: compara o assunto com o catálogo da
+  loja que vem no addon e mostra **Ver na loja oficial** (abre a loja filtrada no addon) ou,
+  se ele já estiver instalado e desativado, **Ativar e perguntar de novo**.
+- **Busca por sentido** com vetores: troca palavras que não estão na base pelas de sentido
+  mais próximo e avisa na resposta.
+- `POST /api/loja-oficial` aceita `{"addon": id}` para abrir a loja já filtrada.
+- `criar_addon.py` empacota `compreensao.json`, `lemas.tsv` e `vetores.bin`.
+
+### Mudado
+- Banco: `versao_esquema` 7 (tabelas `addon_recursos` e `addon_lexico`).
+- A base é reindexada quando muda a **assinatura do índice** (regras de normalização + addons
+  de compreensão ativos), guardada em `meta.assinatura_indice`.
+- Uma frase que começa como pergunta e tem assunto ("como selecionar tudo no windows") não é
+  mais respondida como cumprimento quando há addon de compreensão.
+
 ## [0.6.0] - 2026-11-18
 
 ### Adicionado

@@ -9,9 +9,15 @@ Fluxo de uma mensagem (método `responder`):
        ├─ 2. Ensino explícito? ... "aprenda que X é Y" / "pergunta: ... resposta: ..."
        ├─ 3. Interpretação ....... intenção (Naive Bayes) + entidades (regex)
        ├─ 4. Intenção social? .... "oi", "obrigado", "ajuda" → resposta pronta
+       ├─ 4b. Compreensão ........ tipo da pergunta; perguntas sobre o Aprendiz
        ├─ 5. Busca ............... algoritmo escolhido no seletor
-       ├─ 6. Modo estrito ........ nada acima do limiar → "ainda não fui ensinado"
+       ├─ 6. Modo estrito ........ nada acima do limiar → antes de desistir:
+       │                           fora de alcance? busca por sentido (vetores)?
+       │                           algum addon da loja trata disso?
        └─ 7. Resposta ............ algoritmo de resposta escolhido no seletor
+
+As etapas 4b e 6 só fazem algo com um addon de compreensão ativo (0.7+);
+veja core/compreensao.py.
 
 Cada etapa registra o que fez e quanto tempo levou. Esse registro vira a
 "explicação" exibida no painel "Por que respondi isso?" da interface.
@@ -26,6 +32,7 @@ from typing import Any
 from aprendiz import addons as pacotes
 from aprendiz.algoritmos import BUSCAS, RESPOSTAS, ContextoBusca, titulo_curto
 from aprendiz.configuracoes import Configuracoes
+from aprendiz.core.compreensao import Compreensao, FRASE_TIPO, resposta_dinamica
 from aprendiz.core.dicionario import Dicionario
 from aprendiz.memoria.banco import lista_json
 from aprendiz.linguagem import ClassificadorIntencoes, Linguagem, extrair_entidades
@@ -80,6 +87,7 @@ class Etapas:
 
     def __init__(self) -> None:
         self.lista: list[dict[str, Any]] = []
+        self.meta: dict[str, Any] = {}  # dados extras da resposta (ex.: recomendação)
         self._inicio_total = time.perf_counter()
         self._inicio = self._inicio_total
 
@@ -106,15 +114,28 @@ class Assistente:
         self.contexto = ContextoBusca(banco=banco, linguagem=self.linguagem)
         self.configuracoes = Configuracoes(banco)
         self.dicionario = Dicionario(banco, self.linguagem)
+        self.compreensao = Compreensao(banco, self.linguagem)
         self.classificador = ClassificadorIntencoes()
         self._versao_classificador = -1
         self._frases_exatas: dict[str, str] = {}  # frase normalizada → intenção
 
         # Se as regras de normalização mudaram desde a última vez que este
         # banco foi aberto (atualização do app), refaz os textos de busca.
-        if self.banco.obter_meta("versao_normalizacao") != str(VERSAO_NORMALIZACAO):
+        self._garantir_indice()
+
+    def _assinatura_indice(self) -> str:
+        """
+        O que define como os textos de busca foram calculados: as regras de
+        normalização e os addons de compreensão ativos (lemas e expressões
+        mudam os radicais). Se a assinatura muda, a base é reindexada.
+        """
+        recursos = sorted(f"{a['id']}@{a['versao']}" for a in self.banco.listar_addons()
+                          if a["ativo"] and a["total_recursos"])
+        return "|".join([str(VERSAO_NORMALIZACAO), *recursos])
+
+    def _garantir_indice(self, forcar: bool = False) -> None:
+        if forcar or self.banco.obter_meta("assinatura_indice") != self._assinatura_indice():
             self.reindexar()
-            self.banco.definir_meta("versao_normalizacao", str(VERSAO_NORMALIZACAO))
 
     # ================================================================ ENSINO
     def ensinar(self, conteudo: str, pergunta: str | None = None,
@@ -154,6 +175,7 @@ class Assistente:
                 corrigir=False).texto_busca)
             for doc in docs
         ])
+        self.banco.definir_meta("assinatura_indice", self._assinatura_indice())
         return len(docs)
 
     # ================================================================ ADDONS
@@ -230,13 +252,17 @@ class Assistente:
                 corrigir=False).texto_busca}
             for k in pacote.conhecimentos
         ]
-        self.banco.instalar_addon(pacote.manifesto, conhecimentos, pacote.linguagem,
-                                  pacote.hash, pacote.configuracoes)
+        self.banco.instalar_addon(
+            pacote.manifesto, conhecimentos, pacote.linguagem, pacote.hash,
+            pacote.configuracoes,
+            {"compreensao": pacote.compreensao, "lemas": pacote.lemas,
+             "vetores": pacote.vetores})
 
         # Sinônimos/abreviações novos (ou removidos na atualização) mudam os
-        # radicais de TODA a base, não só os do addon.
-        if pacote.linguagem or (anterior and anterior["total_linguagem"]):
-            self.reindexar()
+        # radicais de TODA a base, não só os do addon. Lemas e expressões de
+        # um addon de compreensão também (a assinatura do índice detecta).
+        self._garantir_indice(
+            forcar=bool(pacote.linguagem or (anterior and anterior["total_linguagem"])))
 
         return {
             "addon": self.banco.obter_addon(pacote.manifesto["id"]),
@@ -281,8 +307,7 @@ class Assistente:
         alterados = [i for i in ids if i in existentes and bool(existentes[i]["ativo"]) != ativo]
         for addon_id in alterados:
             self.banco.definir_addon_ativo(addon_id, ativo)
-        if any(existentes[i]["total_linguagem"] for i in alterados):
-            self.reindexar()
+        self._garantir_indice(forcar=any(existentes[i]["total_linguagem"] for i in alterados))
         return len(alterados)
 
     def usar_padrao(self, busca: str, resposta: str) -> None:
@@ -295,8 +320,7 @@ class Assistente:
         if not addon:
             raise ValueError("Addon não encontrado.")
         self.banco.definir_addon_ativo(addon_id, ativo)
-        if addon["total_linguagem"]:
-            self.reindexar()
+        self._garantir_indice(forcar=bool(addon["total_linguagem"]))
         return self.banco.obter_addon(addon_id)
 
     def remover_addon(self, addon_id: str) -> bool:
@@ -304,8 +328,7 @@ class Assistente:
         if not addon:
             return False
         self.banco.remover_addon(addon_id)
-        if addon["total_linguagem"]:
-            self.reindexar()
+        self._garantir_indice(forcar=bool(addon["total_linguagem"]))
         return True
 
     def _ensino_explicito(self, mensagem: str) -> dict[str, Any] | None:
@@ -369,6 +392,7 @@ class Assistente:
             "tipo": tipo,
             "pergunta": mensagem,
             "fontes": fontes,
+            **etapas.meta,
             "explicacao": {
                 "etapas": etapas.lista,
                 "algoritmo_busca": busca,
@@ -430,10 +454,22 @@ class Assistente:
         # 4. Intenções sociais -----------------------------------------------
         # Só responde socialmente se a mensagem for curta e a intenção for
         # clara: probabilidade alta E bem à frente da segunda colocada.
-        curta = len(consulta.tokens) <= MAX_TOKENS_SOCIAL
+        # Conta as palavras ESCRITAS (antes de expressões virarem uma palavra só).
+        curta = len(consulta.normalizado.split()) <= MAX_TOKENS_SOCIAL
         segunda = intencoes[1]["probabilidade"] if len(intencoes) > 1 else 0.0
         clara = (principal["probabilidade"] >= PROBABILIDADE_MINIMA_SOCIAL
                  and principal["probabilidade"] >= MARGEM_MINIMA_SOCIAL * segunda)
+        # Com o addon de compreensão: uma frase que COMEÇA como pergunta ("como
+        # selecionar tudo no windows") e tem assunto não é cumprimento, mesmo
+        # que o classificador ache ("tudo" lembra "tudo bem").
+        analise = self.compreensao.analisar(consulta, mensagem) if self.compreensao.ativa else None
+        if analise and analise.tipo and analise.tipo != "pedido" and not principal.get("exata"):
+            assunto = [t for t in consulta.tokens[analise.inicio_assunto:]
+                       if t not in self.linguagem.stopwords]
+            if len(assunto) >= 2:
+                clara = False
+        if analise and analise.necessidades:  # "tô com fome" pede algo, não cumprimenta
+            clara = False
         if principal["intencao"] in INTENCOES_SOCIAIS and curta and clara:
             texto = self.banco.resposta_padrao(principal["intencao"]) or "Certo!"
             etapas.marcar("Resposta social", {"intencao": principal["intencao"]})
@@ -442,6 +478,19 @@ class Assistente:
         if principal["intencao"] == "ensinar" and principal["probabilidade"] >= 0.6:
             etapas.marcar("Resposta social", {"intencao": "ensinar (formato não reconhecido)"})
             return MSG_FORMATO_ENSINO, "social", []
+
+        # 4b. Compreensão (addon de compreensão) ------------------------------
+        if analise is not None:
+            sobre_mim = self.compreensao.autoconhecimento(consulta)
+            dados = analise.como_dict()
+            if sobre_mim:
+                dados["sobre o Aprendiz"] = f"{sobre_mim['id']} ({sobre_mim['semelhanca']}%)"
+            etapas.marcar("Compreensão", dados)
+            if sobre_mim and not self._dono_ensinou_exatamente(consulta):
+                texto = (resposta_dinamica(sobre_mim["funcao"], self)
+                         if sobre_mim.get("funcao") else sobre_mim["resposta"])
+                etapas.marcar("Resposta · Autoconhecimento", {"item": sobre_mim["id"]})
+                return texto, "autoconhecimento", []
 
         # 5. Busca -------------------------------------------------------------
         algoritmo_busca = BUSCAS[busca]
@@ -457,11 +506,54 @@ class Assistente:
         })
 
         # 6. Modo estrito -----------------------------------------------------
+        nota_sentido = ""
+        if not aceitos and analise is not None:
+            # 6a. Pedido que um assistente offline não atende?
+            limite = self.compreensao.fora_de_alcance(consulta)
+            if limite:
+                etapas.marcar("Fora de alcance", {"tema": limite["tema"]})
+                return limite["resposta"], "limite", []
+            # 6b. Busca por sentido: palavras de significado próximo (vetores).
+            trocas = self.compreensao.expandir(consulta)
+            if trocas:
+                ampliada = self.linguagem.processar(
+                    " ".join([consulta.normalizado, *(t["para"] for t in trocas)]), corrigir=False)
+                candidatos2, aceitos2, _ = self.buscar(ampliada, busca)
+                etapas.marcar("Busca por sentido", {
+                    "trocas": [f"{t['de']} → {t['para']} ({t['semelhanca']})" for t in trocas],
+                    "encontrou": len(aceitos2)})
+                if aceitos2:
+                    candidatos, aceitos, consulta = candidatos2, aceitos2, ampliada
+                    usadas = {}
+                    for t in trocas:
+                        usadas.setdefault(t["de"], []).append(t["para"])
+                    nota_sentido = ("_Não encontrei exatamente essas palavras; procurei pelo "
+                                    "sentido (" + "; ".join(
+                                        f"{de} → {', '.join(para)}" for de, para in usadas.items())
+                                    + ")._\n\n")
+
         if not aceitos:
             texto = MSG_NAO_SEI
+            if analise and analise.tipo in FRASE_TIPO and analise.assunto:
+                texto = (f"Entendi que você quer saber {FRASE_TIPO[analise.tipo]} "
+                         f"**{analise.assunto}**, mas ainda não fui ensinado sobre isso. "
+                         + MSG_NAO_SEI.split(". ", 1)[1])
             if candidatos:
                 sugestoes = "\n".join(f"- {self._titulo(c.conhecimento)}" for c in candidatos[:3])
                 texto += f"\n\nTalvez você esteja procurando algo parecido com:\n{sugestoes}"
+            # 6c. Algum addon da loja oficial trata disso?
+            rec = self.compreensao.recomendar(consulta, analise) if analise is not None else None
+            if rec:
+                if rec["acao"] == "ativar":
+                    texto += (f"\n\nVocê tem o addon **{rec['nome']}** instalado, mas ele está "
+                              "desativado. Ele deve saber responder isso: quer ativá-lo?")
+                else:
+                    texto += (f"\n\nNa loja oficial há um addon que trata disso: "
+                              f"**{rec['nome']}** — {rec['descricao']}")
+                etapas.meta["recomendacao"] = rec
+                etapas.marcar("Recomendação de addon", {
+                    "addon": rec["nome"], "ação": rec["acao"],
+                    "palavras": ", ".join(rec["motivo"]) or "—", "pontuação": rec["pontuacao"]})
             etapas.marcar("Modo estrito", {"motivo": "nenhum candidato acima do limiar"})
             return texto, "desconhecido", []
 
@@ -472,7 +564,7 @@ class Assistente:
         verbetes = [c for c in aceitos if c.detalhes.get("verbete") == "palavra exata"]
         if verbetes and aceitos[0] in verbetes:
             etapas.marcar("Resposta · Dicionário", {"verbetes": len(verbetes)})
-            texto = "\n\n".join(c.conhecimento["conteudo"] for c in verbetes)
+            texto = nota_sentido + "\n\n".join(c.conhecimento["conteudo"] for c in verbetes)
             return texto, "conhecimento", [self._fonte(c.conhecimento) for c in verbetes]
 
         algoritmo_resposta = RESPOSTAS[resposta]
@@ -481,7 +573,7 @@ class Assistente:
 
         por_id = {c.id: c.conhecimento for c in aceitos}
         fontes = [self._fonte(por_id[i]) for i in gerada.fontes if i in por_id]
-        return gerada.texto, "conhecimento", fontes
+        return nota_sentido + gerada.texto, "conhecimento", fontes
 
     def buscar(self, consulta, busca: str, limite: int = 5) -> tuple[list, list, float]:
         """

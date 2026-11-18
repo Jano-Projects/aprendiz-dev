@@ -68,6 +68,14 @@ Cada regra tem um **tamanho mínimo de radical**, para não destruir palavras cu
 O radicalizador não precisa ser linguisticamente perfeito. Ele precisa ser
 **consistente**: a mesma palavra sempre gera o mesmo radical, ao ensinar e ao perguntar.
 
+## Com um addon de compreensão (0.7+)
+
+Mais três passos entram no caminho, todos explicados em [compreensao.md](compreensao.md):
+
+- **expressões** (antes dos sinônimos): "dar um jeito" → resolver;
+- **lemas** (depois dos sinônimos, fora das stopwords): "fui" → ser, "fiz" → fazer;
+- **léxico** na correção de digitação: palavra que existe no português não é corrigida.
+
 ## Intenções: Naive Bayes
 
 `aprendiz/linguagem/intencoes.py`. Treinado com as frases de exemplo da tabela

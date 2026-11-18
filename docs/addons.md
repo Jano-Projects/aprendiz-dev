@@ -99,11 +99,17 @@ declarou.
 | `linguagem` | amplia o banco de linguagem | `linguagem.json` | aceito |
 | `parametros` | ajusta parâmetros dos algoritmos | `parametros.json` | aceito |
 | `personalizacao` | customiza nome, cor e boas-vindas | `personalizacao.json` | aceito |
+| `compreensao` | interpretação de texto: tipos de pergunta, expressões, lemas, autoconhecimento, recomendação | `compreensao.json` (+ `lemas.tsv`) | aceito (0.7+) |
+| `vetores` | vetores de sentido das palavras | `vetores.bin` | aceito (0.7+) |
 | `algoritmo` | habilita um novo algoritmo | (código) | **recusado** |
 | `aplicacao` | modifica a aplicação | (código) | **recusado** |
 
 `algoritmo` e `aplicacao` fazem parte do formato, mas o Aprendiz só instala **addons de
 dados**: um addon que declare um desses tipos é recusado com uma mensagem clara.
+
+Os addons de **compreensão** e **vetores** não trazem respostas: ensinam o app a interpretar
+as perguntas e a indicar o addon certo quando não sabe algo. Veja
+[compreensao.md](compreensao.md).
 
 ## Origem: oficial ou de terceiros
 
@@ -313,7 +319,8 @@ as variações para medir o acerto dos algoritmos.
 
 ## O formato `.aprendiz` (versão 2)
 
-É um **ZIP comum** com arquivos JSON (UTF-8):
+É um **ZIP comum** com arquivos JSON (UTF-8) e, nos addons de compreensão, uma lista de
+palavras (`lemas.tsv`) e um binário de vetores (`vetores.bin`):
 
 | Arquivo | Obrigatório | Conteúdo |
 |---|---|---|
@@ -322,6 +329,9 @@ as variações para medir o acerto dos algoritmos.
 | `linguagem.json` | se `linguagem` | `{"sinonimos": {...}, "abreviacoes": {...}}` |
 | `parametros.json` | se `parametros` | `{"chave": valor}` da lista fechada |
 | `personalizacao.json` | se `personalizacao` | `{"chave": valor}` da lista fechada |
+| `compreensao.json` | se `compreensao` | regras de interpretação (0.7+; veja [compreensao.md](compreensao.md)) |
+| `lemas.tsv` | não | léxico e lemas, junto com `compreensao.json` (0.7+) |
+| `vetores.bin` | se `vetores` | vetores de palavras, binário validado byte a byte (0.7+) |
 
 **Manifesto completo** (como fica dentro do arquivo):
 
@@ -361,7 +371,9 @@ Addons vêm da internet, então o Aprendiz os trata como **dados não confiávei
 (`aprendiz/addons.py`):
 
 - **Só dados, nunca código.** Não existe forma de um addon executar algo; os tipos que
-  trariam código são recusados.
+  trariam código são recusados. Os addons de compreensão também não trazem expressões
+  regulares (só listas de palavras), e as respostas calculadas pelo app vêm de uma lista
+  fechada de funções.
 - **Nada é extraído para o disco.** Só os nomes conhecidos são lidos de dentro do ZIP;
   qualquer outro arquivo, inclusive com caminhos como `../../`, é ignorado.
 - **Limites:** 50 MB de arquivo, 200 MB descompactados (proteção contra *zip bombs*), 100 mil
