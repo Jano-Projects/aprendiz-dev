@@ -1,9 +1,14 @@
 # Addons
 
-Addons são **pacotes prontos** para o Aprendiz. Alguém prepara um assunto (conversões de
-medidas, atalhos do Linux, regras de um jogo…) ou um ajuste (um tema de cores, limiares mais
-exigentes), gera um arquivo `.aprendiz` e publica. Quem baixa importa pelo app, em
-**Addons → Importar addon**.
+Addons são **pacotes prontos** para o Aprendiz: um assunto (conversões de medidas, atalhos do
+Linux, regras de um jogo…) ou um ajuste (um tema de cores, limiares mais exigentes) num arquivo
+`.aprendiz`, importado pelo app em **Addons → Importar addon**.
+
+Há dois caminhos de distribuição:
+
+- **Addons oficiais:** feitos pela Jano Projects e distribuídos **somente** pela loja oficial.
+- **Addons de terceiros:** feitos por qualquer pessoa (inclusive pela exportação do app) e
+  compartilhados **diretamente**, como arquivo. A loja oficial não publica addons de terceiros.
 
 - **Antes de instalar**, o app mostra o que o addon traz: origem, classificação, totais,
   versão do Aprendiz usada, dependências, parâmetros que ele ajusta e uma amostra.
@@ -98,12 +103,13 @@ dados**: um addon que declare um desses tipos é recusado com uma mensagem clara
 
 | Origem | Quem publica | Selo na interface |
 |---|---|---|
-| `oficial` | a Jano Projects | **Oficial Jano** |
-| `terceiros` | qualquer outra pessoa (padrão) | **Terceiros**, com aviso para conferir a fonte |
+| `oficial` | a Jano Projects, só pela loja oficial | **Oficial Jano** |
+| `terceiros` | qualquer outra pessoa, direto como arquivo (padrão) | **Terceiros**, com aviso para conferir a fonte |
 
 > **Importante:** a origem é uma **declaração do arquivo**. Qualquer pessoa pode escrever
-> `"oficial"` num manifesto, e o app não tem como confirmar quem o publicou. Baixe addons
-> oficiais da loja da Jano Projects, que confere cada arquivo e publica o SHA-256 dele.
+> `"oficial"` num manifesto, e o app não tem como confirmar quem o publicou. Um addon oficial
+> verdadeiro vem da loja oficial da Jano Projects, que confere cada arquivo e publica o SHA-256
+> dele; um "oficial" recebido por outro caminho merece desconfiança.
 
 ## Parâmetros e personalização
 

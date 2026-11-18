@@ -6,6 +6,11 @@ seguem o [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ## [Não lançado]
 
+### Mudado
+- Textos do app e da documentação: addons oficiais são distribuídos só pela loja oficial da
+  Jano Projects; addons de terceiros são compartilhados diretamente, como arquivo. A tela de
+  instalação de um addon "oficial" lembra de conferir o SHA-256 com o da loja.
+
 ## [0.5.0] - 2026-11-17
 
 ### Adicionado

@@ -630,7 +630,7 @@
     personalizacao: "Personalização", algoritmo: "Algoritmo", aplicacao: "Aplicação",
   };
 
-  /** Selo de origem. "Oficial" é uma declaração do arquivo até a loja assinar os addons. */
+  /** Selo de origem. "Oficial" é uma declaração do arquivo: os verdadeiros vêm da loja oficial. */
   function seloOrigem(origem) {
     return origem === "oficial"
       ? `<span class="etiqueta oficial" title="Declarado como oficial da Jano Projects pelo próprio arquivo">${icone("selo")}Oficial Jano</span>`
@@ -832,6 +832,9 @@
     if (m.origem !== "oficial") {
       resumo.appendChild(criar(`<div class="aviso-backup alerta">${icone("pessoas")}<span>Addon de terceiros.
         Só instale se confiar em quem o enviou. Ele contém apenas dados: nada é executado.</span></div>`));
+    } else {
+      resumo.appendChild(criar(`<div class="aviso-backup">${icone("selo")}<span>Addons oficiais são distribuídos
+        só pela loja oficial da Jano Projects. Se este arquivo veio de outro lugar, confira o SHA-256 com o da loja.</span></div>`));
     }
     // Recomendação de algoritmos e grupo: opções que valem na hora de instalar.
     $("#instalar-opcoes").innerHTML = "";

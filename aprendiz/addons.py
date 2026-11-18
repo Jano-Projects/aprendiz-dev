@@ -2,9 +2,11 @@
 Addons: pacotes prontos, distribuídos em arquivos .aprendiz.
 
 Um addon amplia o Aprendiz sem que o dono precise ensinar item a item:
-alguém prepara um pacote ("Conversões de medidas", "Atalhos do Linux"…),
-publica, e qualquer pessoa importa pelo app. O próprio app também EXPORTA
-o que o dono ensinou como addon (veja core/exportacao.py).
+um pacote pronto ("Conversões de medidas", "Atalhos do Linux"…) que
+qualquer pessoa importa pelo app. Os OFICIAIS são distribuídos só pela loja
+oficial da Jano Projects; os de TERCEIROS circulam diretamente, como
+arquivo. O próprio app também EXPORTA o que o dono ensinou como addon
+(veja core/exportacao.py).
 
 O formato (versão 2)
 --------------------
