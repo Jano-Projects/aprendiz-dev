@@ -59,7 +59,8 @@ comentada em português. Por isso ele roda até em máquinas bem modestas.
 | 🎓 **Aprende pelo chat** | `aprenda que a senha do wifi é casa123` · `pergunta: … resposta: …` · `anote: …` |
 | 🔁 **Aprende com correções** | Errou? *Corrigir* transforma a resposta certa em ensinamento |
 | 🧩 **Addons** | Pacotes `.aprendiz` (memória, linguagem, parâmetros, personalização) com confirmação antes de instalar ([docs](docs/addons.md)) |
-| 📖 **Dicionários** | Verbetes que respondem a "o que significa…" sem atrapalhar o resto da conversa |
+| 📖 **Dicionários** | Respondem nos dois sentidos, "o que significa kota?" e "como se diz dinheiro em Angola?", sem atrapalhar o resto da conversa |
+| 🗣️ **Vários jeitos de perguntar** | Addons trazem variações de cada pergunta, que levam à mesma resposta |
 | 🧪 **Algoritmo recomendado** | Cada addon traz a busca e a resposta que funcionam melhor com ele, medidas num teste com o próprio conteúdo |
 | 🗂️ **Grupos de addons** | Addons com a mesma recomendação são ativados juntos, no mesmo padrão de busca |
 | 📦 **Exporta o que você ensinou** | Gera um addon para compartilhar, escolhendo item a item; dados pessoais vêm desmarcados |
@@ -173,7 +174,7 @@ Resumo. O mapa completo, com **todos** os arquivos comentados, está em
 ```
 aprendiz/
 ├── aprendiz/                  # o pacote Python
-│   ├── core/                  #   assistente.py: o pipeline; exportacao.py; recomendacao.py
+│   ├── core/                  #   assistente.py: o pipeline; dicionario.py; exportacao.py; recomendacao.py
 │   ├── linguagem/             #   PLN clássico: normalizador, stemmer, Naive Bayes, entidades
 │   ├── algoritmos/            #   o seletor (padrão Strategy)
 │   │   ├── busca/             #     bm25, tfidf, fuzzy, hibrido

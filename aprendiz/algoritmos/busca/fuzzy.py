@@ -22,6 +22,7 @@ from __future__ import annotations
 
 from rapidfuzz import fuzz, process
 
+from aprendiz.memoria.banco import lista_json
 from aprendiz.algoritmos.base import AlgoritmoBusca, Candidato, ContextoBusca, registrar
 from aprendiz.linguagem import TextoProcessado
 
@@ -58,9 +59,13 @@ longas, onde a pergunta é só uma pequena parte do texto.
         textos = {}
         for doc in docs:
             # Para pares pergunta/resposta, a PERGUNTA é o melhor alvo de
-            # comparação; para notas e trechos, o próprio conteúdo.
-            alvo = doc["pergunta"] or doc["conteudo"]
-            textos[doc["id"]] = " ".join(ctx.linguagem.processar(alvo, corrigir=False).conteudo)
+            # comparação; para notas e trechos, o próprio conteúdo. Cada
+            # VARIAÇÃO da pergunta (addons) vira mais um alvo, com a chave
+            # "id#n"; na hora de responder, fica a melhor nota de cada id.
+            alvos = [doc["pergunta"] or doc["conteudo"], *lista_json(doc, "variacoes")]
+            for n, alvo in enumerate(alvos):
+                chave = doc["id"] if n == 0 else f"{doc['id']}#{n}"
+                textos[chave] = " ".join(ctx.linguagem.processar(alvo, corrigir=False).conteudo)
 
         cache = {"versao": ctx.banco.versao_conhecimento,
                  "docs": {d["id"]: d for d in docs}, "textos": textos}
@@ -75,14 +80,19 @@ longas, onde a pergunta é só uma pequena parte do texto.
             return []
 
         # extract devolve [(texto, nota, chave), ...] já ordenado pela nota.
-        achados = process.extract(alvo, indice["textos"], scorer=fuzz.WRatio, limit=limite)
-        return [
-            Candidato(
-                conhecimento=indice["docs"][chave],
+        # Pedimos mais que o limite porque variações do mesmo id se repetem.
+        achados = process.extract(alvo, indice["textos"], scorer=fuzz.WRatio, limit=limite * 4)
+        vistos: set[str] = set()
+        candidatos = []
+        for _texto, nota, chave in achados:
+            id_ = chave.split("#", 1)[0]
+            if nota <= 0 or id_ in vistos:
+                continue
+            vistos.add(id_)
+            candidatos.append(Candidato(
+                conhecimento=indice["docs"][id_],
                 pontuacao=round(nota, 2),
                 confianca=round(nota / 100, 4),
                 detalhes={"wratio": round(nota, 2)},
-            )
-            for _texto, nota, chave in achados
-            if nota > 0
-        ]
+            ))
+        return candidatos[:limite]

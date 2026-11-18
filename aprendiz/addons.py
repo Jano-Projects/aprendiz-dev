@@ -54,6 +54,14 @@ Um arquivo .aprendiz é um ZIP comum com arquivos JSON:
         quando a pergunta é a palavra sozinha ou "o que significa <palavra>".
         Numa frase com outras palavras, é ignorado.
 
+        Campos opcionais (Aprendiz 0.6+):
+          "variacoes": ["outra forma de perguntar", ...]   → mais jeitos de
+              chegar à mesma resposta (num verbete: outras grafias do termo)
+          "traducoes": ["aldeia", "povoado"]   → só em verbetes: o equivalente
+              em português padrão, para "como se diz aldeia em <região>?"
+        E no manifesto de um dicionário:
+          "regiao": {"nome": "Guiné-Bissau", "artigo": "a", "termos": ["guine", "kriol", ...]}
+
     linguagem.json (todas as chaves são opcionais):
         {"sinonimos":   {"chicara": "xicara"},
          "abreviacoes": {"pol": "polegada"},
@@ -131,6 +139,7 @@ MAX_LINGUAGEM = 5_000                    # por tipo
 MAX_CONTEUDO = 20_000                    # caracteres por conhecimento
 MAX_PERGUNTA = 500
 MAX_DEPENDENCIAS = 50
+MAX_VARIACOES = 30                       # variações / traduções por conhecimento
 
 PADRAO_ID = re.compile(r"^[a-z0-9][a-z0-9-]{1,62}$")
 PADRAO_NOME_ALGORITMO = re.compile(r"^[a-z0-9_-]{1,30}$")
@@ -351,7 +360,7 @@ def validar_manifesto(bruto: Any) -> dict[str, Any]:
         # pelos arquivos presentes (ver ler_pacote).
         manifesto.update(origem="terceiros", classificacao=None,
                          app={"criado_com": None, "versao_minima": None}, dependencias=[],
-                         recomendado=None)
+                         recomendado=None, regiao=None)
         return manifesto
 
     origem = bruto.get("origem", "terceiros")
@@ -362,6 +371,7 @@ def validar_manifesto(bruto: Any) -> dict[str, Any]:
     manifesto["app"] = validar_app(bruto.get("app"))
     manifesto["dependencias"] = validar_dependencias(bruto.get("dependencias"))
     manifesto["recomendado"] = validar_recomendado(bruto.get("recomendado"))
+    manifesto["regiao"] = validar_regiao(bruto.get("regiao"))
     if any(d["id"] == id_ for d in manifesto["dependencias"]):
         raise ErroAddon("Um addon não pode depender de si mesmo.")
 
@@ -393,8 +403,56 @@ def validar_conhecimentos(bruto: Any) -> list[dict[str, Any]]:
             raise ErroAddon(f"Tipo inválido no conhecimento nº {i}: {tipo!r}.")
         if tipo == "verbete" and not pergunta:
             raise ErroAddon(f"O verbete nº {i} precisa da palavra em 'pergunta'.")
-        saida.append({"pergunta": pergunta, "conteudo": conteudo, "tipo": tipo})
+        variacoes = _lista_de_textos(item.get("variacoes"), MAX_VARIACOES, MAX_PERGUNTA,
+                                     f"variacoes (nº {i})")
+        if variacoes and not pergunta:
+            raise ErroAddon(f"O conhecimento nº {i} tem 'variacoes' mas não tem 'pergunta'.")
+        traducoes = _lista_de_textos(item.get("traducoes"), MAX_VARIACOES, 80,
+                                     f"traducoes (nº {i})")
+        if traducoes and tipo != "verbete":
+            raise ErroAddon(f"Só verbetes têm 'traducoes' (conhecimento nº {i}).")
+        novo = {"pergunta": pergunta, "conteudo": conteudo, "tipo": tipo}
+        if variacoes:
+            novo["variacoes"] = variacoes
+        if traducoes:
+            novo["traducoes"] = traducoes
+        saida.append(novo)
     return saida
+
+
+def _lista_de_textos(bruto: Any, maximo_itens: int, maximo_texto: int, campo: str) -> list[str]:
+    """Lista opcional de textos curtos (variações, traduções, termos de região)."""
+    if bruto is None:
+        return []
+    if not isinstance(bruto, list) or len(bruto) > maximo_itens:
+        raise ErroAddon(f"'{campo}' precisa ser uma lista de até {maximo_itens} textos.")
+    saida = []
+    for valor in bruto:
+        valor = _limpar(valor, maximo_texto, campo)
+        if valor and valor not in saida:
+            saida.append(valor)
+    return saida
+
+
+def validar_regiao(bruto: Any) -> dict[str, Any] | None:
+    """
+    Região de um dicionário (0.6+): o nome para mostrar e os termos que a
+    pessoa pode usar para se referir a ela ("em Angola", "no kriol",
+    "os angolanos"…). Usada pelas perguntas "como se diz X em <região>".
+    """
+    if bruto is None:
+        return None
+    if not isinstance(bruto, dict):
+        raise ErroAddon("'regiao' precisa ser um objeto JSON.")
+    nome = _limpar(bruto.get("nome", ""), 60, "regiao.nome")
+    if not nome:
+        raise ErroAddon("'regiao' precisa de um 'nome'.")
+    termos = _lista_de_textos(bruto.get("termos"), 40, 40, "regiao.termos")
+    # Artigo do nome, para frases como "NO Brasil", "NA Guiné-Bissau", "EM Angola".
+    artigo = bruto.get("artigo", "")
+    if artigo not in ("", "o", "a", "os", "as"):
+        raise ErroAddon("'regiao.artigo' precisa ser \"o\", \"a\", \"os\", \"as\" ou vazio.")
+    return {"nome": nome, "termos": termos, "artigo": artigo}
 
 
 def validar_linguagem(bruto: Any) -> dict[str, dict[str, str]]:

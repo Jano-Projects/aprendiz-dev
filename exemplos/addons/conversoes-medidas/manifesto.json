@@ -1,9 +1,9 @@
 {
   "id": "conversoes-medidas",
   "nome": "Conversões de medidas",
-  "versao": "1.1.0",
+  "versao": "2.0.0",
   "autor": "Jano Projects",
-  "descricao": "Medidas de cozinha, distância, peso, volume, temperatura, área e pressão. Addon de exemplo.",
+  "descricao": "Cozinha, distância, velocidade, peso, volume, área, temperatura, pressão, energia e informática. Entende vários jeitos de perguntar (\"1 polegada tem quantos cm\", \"converter libras para quilos\"…).",
   "licenca": "CC0-1.0",
   "origem": "oficial",
   "editor": "Jano Projects",

@@ -96,6 +96,18 @@ A cada pergunta, o `Assistente` lê as configurações uma vez e preenche
 `ContextoBusca.limiares`; os algoritmos consultam `ctx.limiar(nome)` em vez do atributo da
 classe, que passa a ser só o padrão.
 
+## Dicionário
+
+`aprendiz/core/dicionario.py` atende os pedidos de dicionário antes da etapa de intenções
+(senão "como se diz obrigado em Timor?" viraria um agradecimento). Ele separa a região do fim
+da frase, testa alguns padrões ("como se diz X", "o que significa X", "qual a gíria para X"…)
+e compara o termo por igualdade de radicais com o índice de verbetes dos addons ativos: pelo
+termo e suas grafias (sentido direto) e pelas traduções (sentido inverso). Se nada bater,
+devolve `None` e o pipeline segue normalmente. O índice é refeito quando a base muda.
+
+As colunas `variacoes` e `traducoes` da tabela `conhecimentos` guardam essas listas em JSON. As
+variações entram no texto de busca (BM25, TF-IDF) e viram alvos extras no Fuzzy.
+
 ## Recomendação de algoritmos e grupos
 
 `aprendiz/core/recomendacao.py` cria um banco temporário com os itens de um addon e mede o
@@ -115,8 +127,8 @@ com as mesmas regras da importação.
 
 `Banco._migrar()` atualiza bancos criados por versões anteriores ao abrir o app. Por exemplo,
 ele acrescenta a coluna `addon_id` em bancos da versão 0.1. Os passos são idempotentes, e a
-versão da estrutura fica em `meta.versao_esquema` (4 a partir da 0.4: coluna
-`addons.manifesto` e tabela `configuracoes`).
+versão da estrutura fica em `meta.versao_esquema` (6 a partir da 0.6: colunas `variacoes` e
+`traducoes` em `conhecimentos`).
 
 ## Reset e cópias de segurança
 

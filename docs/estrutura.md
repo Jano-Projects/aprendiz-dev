@@ -47,6 +47,7 @@ aprendiz/
 │   ├── core/                            # Núcleo: o pipeline que conecta linguagem, memória e algoritmos.
 │   │   ├── __init__.py                  # Núcleo: o pipeline que conecta linguagem, memória e algoritmos.
 │   │   ├── assistente.py                # O pipeline: a classe que junta linguagem, memória e algoritmos.
+│   │   ├── dicionario.py                # Dicionário: consultas aos VERBETES dos addons, nos dois sentidos.
 │   │   ├── exportacao.py                # Exportação: transforma o que o DONO ensinou num addon (.aprendiz) para compartilhar.
 │   │   └── recomendacao.py              # Recomendação de algoritmos para um addon: qual BUSCA e qual RESPOSTA usar.
 │   ├── linguagem/                       # Processamento de linguagem natural (PLN) clássico, sem redes neurais.
@@ -106,6 +107,7 @@ aprendiz/
 │   ├── test_addons.py                   # Testes dos addons: formato, segurança, instalação, ativação e migração.
 │   ├── test_algoritmos.py               # Testes dos algoritmos de busca e de resposta, e do pipeline completo.
 │   ├── test_api.py                      # Testes da API HTTP (o mesmo caminho que a interface usa).
+│   ├── test_dicionario.py               # Testes da 0.6: dicionário nos dois sentidos (traduções e regiões), variações de pergunta…
 │   ├── test_documentacao.py             # Garante que o projeto continue documentado: todo arquivo tem explicação.
 │   ├── test_exportacao.py               # Testes da exportação: prévia com avisos de privacidade, escolha de itens e ida e volta.
 │   ├── test_formato2.py                 # Testes do formato 2: origem, classificação, versão do app, dependências e configurações.

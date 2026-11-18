@@ -6,13 +6,26 @@ seguem o [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ## [Não lançado]
 
+## [0.6.0] - 2026-11-18
+
 ### Adicionado
+- **Dicionário nos dois sentidos** (`aprendiz/core/dicionario.py`): além de "o que significa
+  kota?", o app entende "como se diz dinheiro em Angola?", "como se fala aldeia em kriol",
+  "qual a gíria pra dinheiro em Moçambique?", "como os angolanos chamam o dinheiro?", "traduza
+  aldeia para kriol", "kota em Angola" e "como se diz kota em português?". Sem região, lista o
+  termo de cada dicionário instalado.
+- Verbetes com **traduções** (`traducoes`, linha `T:`) e **outras grafias** (linhas `V:` a mais).
+- Manifesto com **região** do dicionário (`regiao`: nome, artigo e termos).
+- **Variações de pergunta** em qualquer addon (`variacoes`, várias linhas `P:` no mesmo bloco):
+  jeitos diferentes de perguntar que levam à mesma resposta, nos quatro algoritmos de busca.
+- O teste de recomendação de algoritmos usa as variações.
 - Botão **Abrir loja oficial** (em Addons, em Configurações e na confirmação de um addon
   oficial): abre no navegador padrão do sistema o endereço fixo da loja
   (`config.URL_LOJA_OFICIAL`), pela rota `POST /api/loja-oficial`, que não aceita outro
   endereço.
 
 ### Mudado
+- Banco: `versao_esquema` 6 (colunas `variacoes` e `traducoes` em `conhecimentos`).
 - Textos do app e da documentação: addons oficiais são distribuídos só pela loja oficial da
   Jano Projects; addons de terceiros são compartilhados diretamente, como arquivo. A tela de
   instalação de um addon "oficial" lembra de conferir o SHA-256 com o da loja.
@@ -129,7 +142,8 @@ Primeira versão pública.
 - Instaladores para Linux e Windows que instalam o Python se faltar, verificador de
   instalação, executável via PyInstaller e CI em Windows, Ubuntu, Fedora e Debian.
 
-[Não lançado]: https://github.com/Jano-Projects/aprendiz-dev/compare/v0.5.0...HEAD
+[Não lançado]: https://github.com/Jano-Projects/aprendiz-dev/compare/v0.6.0...HEAD
+[0.6.0]: https://github.com/Jano-Projects/aprendiz-dev/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/Jano-Projects/aprendiz-dev/compare/v0.4.1...v0.5.0
 [0.4.1]: https://github.com/Jano-Projects/aprendiz-dev/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/Jano-Projects/aprendiz-dev/compare/v0.3.0...v0.4.0

@@ -6,7 +6,8 @@ Em vez de "achismo", a recomendação vem de um TESTE com o próprio conteúdo:
     1. Monta um Aprendiz temporário (banco num arquivo descartável) e instala
        nele só os itens do addon, com a linguagem do addon.
     2. Para cada item, faz perguntas parecidas com as que alguém faria:
-           • a própria pergunta (ou "o que significa <palavra>", num verbete);
+           • a própria pergunta (ou "o que significa <palavra>", num verbete)
+             e até três das suas variações;
            • a pergunta com um erro de digitação;
            • para notas e trechos, o começo do texto.
     3. Conta, para cada algoritmo de busca, quantas vezes o item certo veio
@@ -50,14 +51,15 @@ def _com_erro(texto: str) -> str | None:
 def perguntas_de_teste(item: dict[str, Any]) -> list[str]:
     """As perguntas usadas para testar se a busca encontra este item."""
     tipo = item.get("tipo") or ("pergunta" if item.get("pergunta") else "nota")
+    variacoes = list(item.get("variacoes") or [])[:3]  # outros jeitos de perguntar
     if tipo == "verbete":
-        return [item["pergunta"], f"o que significa {item['pergunta']}"]
+        return [item["pergunta"], f"o que significa {item['pergunta']}", *variacoes]
     if item.get("pergunta"):
         base = item["pergunta"]
     else:
         # Notas e trechos: as primeiras palavras do texto.
         base = " ".join(re.findall(r"\w+", item["conteudo"])[:8])
-    perguntas = [base]
+    perguntas = [base, *variacoes]
     errada = _com_erro(base)
     if errada:
         perguntas.append(errada)

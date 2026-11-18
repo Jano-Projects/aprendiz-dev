@@ -31,8 +31,12 @@ CRIAR a partir de uma pasta-fonte:
         R: Uma xícara de chá tem cerca de 240 ml.
 
         P: quanto vale uma polegada
+        P: 1 polegada tem quantos centímetros
+        P: converter polegada para cm
         R: 1 polegada = 2,54 cm.
 
+    Várias linhas P: no mesmo bloco são VARIAÇÕES: jeitos diferentes de
+    perguntar a mesma coisa, que levam à mesma resposta (Aprendiz 0.6+).
     Linhas começando com # são comentários.
 
     Dicionários (gírias, termos regionais) usam "V:" no lugar de "P:". Cada
@@ -40,7 +44,14 @@ CRIAR a partir de uma pasta-fonte:
     sozinha ou pergunta "o que significa <palavra>" (Aprendiz 0.4.1+):
 
         V: bué
+        V: bue
+        T: muito, bastante
         R: Muito, bastante. Ex.: "Gostei bué."
+
+    Linhas V: a mais são outras grafias do termo; a linha T: traz o
+    equivalente em português padrão, para a busca inversa ("como se diz
+    muito em Angola?"). No manifesto.json do dicionário, declare a região:
+        "regiao": {"nome": "Angola", "termos": ["angola", "angolano", "angolanos"]}
 
     Num dicionário, coloque em linguagem.json as stopwords "significa",
     "significado", "quer" e "dizer" (veja os addons de gírias da loja).
@@ -71,31 +82,54 @@ ARQUIVOS_ESPECIAIS = {"manifesto.json", "conhecimentos.json", "linguagem.json",
 
 
 def ler_perguntas(caminho: Path) -> list[dict]:
-    pares, pergunta, resposta, tipo = [], None, [], "pergunta"
+    """
+    Lê blocos P:/V:/T:/R: separados por linha em branco.
+
+        P: (ou V:)  a pergunta (ou o termo); linhas P:/V: a mais no MESMO
+                    bloco viram "variacoes" (outros jeitos de perguntar)
+        T:          traduções do verbete, separadas por vírgula
+        R:          a resposta (pode continuar nas linhas seguintes)
+    """
+    pares: list[dict] = []
+    formas: list[str] = []
+    traducoes: list[str] = []
+    resposta: list[str] = []
+    tipo = "pergunta"
+
     def fechar():
-        nonlocal pergunta, resposta
-        if pergunta and resposta:
-            pares.append({"pergunta": pergunta, "conteudo": "\n".join(resposta).strip(),
-                          "tipo": tipo})
-        elif pergunta or resposta:
-            raise SystemExit(f"{caminho.name}: bloco incompleto perto de {pergunta or resposta!r}")
-        pergunta, resposta = None, []
+        nonlocal formas, traducoes, resposta
+        if formas and resposta:
+            item = {"pergunta": formas[0], "conteudo": "\n".join(resposta).strip(), "tipo": tipo}
+            if formas[1:]:
+                item["variacoes"] = formas[1:]
+            if traducoes:
+                item["traducoes"] = traducoes
+            pares.append(item)
+        elif formas or resposta or traducoes:
+            raise SystemExit(f"{caminho.name}: bloco incompleto perto de "
+                             f"{(formas or resposta or traducoes)[0]!r}")
+        formas, traducoes, resposta = [], [], []
 
     for numero, linha in enumerate(caminho.read_text(encoding="utf-8").splitlines(), 1):
+        prefixo = linha[:2].upper()
         if linha.lstrip().startswith("#"):
             continue
         if not linha.strip():
             fechar()
-        elif linha[:2].upper() in ("P:", "V:"):
-            fechar()
-            pergunta = linha[2:].strip()
-            tipo = "verbete" if linha[:2].upper() == "V:" else "pergunta"
-        elif linha[:2].upper() == "R:":
+        elif prefixo in ("P:", "V:"):
+            if resposta:          # P: depois de R: sem linha em branco = novo bloco
+                fechar()
+            if not formas:
+                tipo = "verbete" if prefixo == "V:" else "pergunta"
+            formas.append(linha[2:].strip())
+        elif prefixo == "T:":
+            traducoes += [t.strip() for t in linha[2:].split(",") if t.strip()]
+        elif prefixo == "R:":
             resposta = [linha[2:].strip()]
         elif resposta:
             resposta.append(linha.strip())  # resposta com mais de uma linha
         else:
-            raise SystemExit(f"{caminho.name}, linha {numero}: esperava 'P:' ou 'R:'.")
+            raise SystemExit(f"{caminho.name}, linha {numero}: esperava 'P:', 'V:', 'T:' ou 'R:'.")
     fechar()
     return pares
 

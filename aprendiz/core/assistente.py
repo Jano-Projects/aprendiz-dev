@@ -26,6 +26,8 @@ from typing import Any
 from aprendiz import addons as pacotes
 from aprendiz.algoritmos import BUSCAS, RESPOSTAS, ContextoBusca, titulo_curto
 from aprendiz.configuracoes import Configuracoes
+from aprendiz.core.dicionario import Dicionario
+from aprendiz.memoria.banco import lista_json
 from aprendiz.linguagem import ClassificadorIntencoes, Linguagem, extrair_entidades
 from aprendiz.linguagem.normalizador import VERSAO_NORMALIZACAO
 from aprendiz.memoria import Banco
@@ -92,12 +94,18 @@ class Etapas:
         return round((time.perf_counter() - self._inicio_total) * 1000, 2)
 
 
+def texto_indexado(pergunta: str | None, conteudo: str, variacoes: list[str] | None = None) -> str:
+    """O texto que vira índice de busca: pergunta + variações + conteúdo."""
+    return " ".join([pergunta or "", *(variacoes or []), conteudo])
+
+
 class Assistente:
     def __init__(self, banco: Banco) -> None:
         self.banco = banco
         self.linguagem = Linguagem(banco)
         self.contexto = ContextoBusca(banco=banco, linguagem=self.linguagem)
         self.configuracoes = Configuracoes(banco)
+        self.dicionario = Dicionario(banco, self.linguagem)
         self.classificador = ClassificadorIntencoes()
         self._versao_classificador = -1
         self._frases_exatas: dict[str, str] = {}  # frase normalizada → intenção
@@ -142,7 +150,8 @@ class Assistente:
         docs = self.banco.todos_conhecimentos()
         self.banco.atualizar_textos_busca([
             (doc["id"], self.linguagem.processar(
-                f"{doc['pergunta'] or ''} {doc['conteudo']}", corrigir=False).texto_busca)
+                texto_indexado(doc["pergunta"], doc["conteudo"], lista_json(doc, "variacoes")),
+                corrigir=False).texto_busca)
             for doc in docs
         ])
         return len(docs)
@@ -217,7 +226,8 @@ class Assistente:
 
         conhecimentos = [
             {**k, "texto_busca": self.linguagem.processar(
-                f"{k['pergunta'] or ''} {k['conteudo']}", corrigir=False).texto_busca}
+                texto_indexado(k["pergunta"], k["conteudo"], k.get("variacoes")),
+                corrigir=False).texto_busca}
             for k in pacote.conhecimentos
         ]
         self.banco.instalar_addon(pacote.manifesto, conhecimentos, pacote.linguagem,
@@ -392,6 +402,18 @@ class Assistente:
                 texto = f"Anotado! Guardei esta informação:\n\n{c['conteudo']}"
             return texto, "ensino", [self._fonte(c)]
 
+        # 2b. Dicionário ------------------------------------------------------
+        # "como se diz aldeia em Guiné?", "o que é kota em Angola?"... Vem
+        # antes das intenções porque "como se diz obrigado em Timor" não é um
+        # agradecimento. Se o dono ensinou exatamente essa pergunta, vale a dele.
+        pedido = self.dicionario.interpretar(mensagem)
+        if pedido:
+            resposta_dic = self.dicionario.responder(pedido)
+            etapas.marcar("Dicionário", {**pedido.como_dict(), "encontrou": bool(resposta_dic)})
+            if resposta_dic and not self._dono_ensinou_exatamente(consulta):
+                texto, verbetes = resposta_dic
+                return texto, "conhecimento", [self._fonte(v) for v in verbetes]
+
         # 3. Interpretação ----------------------------------------------------
         self._treinar_classificador()
         # Atalho: se a mensagem é IGUAL a uma frase de exemplo, não há dúvida.
@@ -519,11 +541,24 @@ class Assistente:
                 exatos.append(c)
         return exatos + outros
 
+    def _dono_ensinou_exatamente(self, consulta) -> bool:
+        """O dono ensinou uma pergunta com exatamente estas palavras?"""
+        _, aceitos, _ = self.buscar(consulta, "bm25", limite=3)
+        return any(not c.conhecimento.get("addon_id") and self._mesmas_palavras(consulta, c)
+                   for c in aceitos)
+
     def _mesmas_palavras(self, consulta, candidato) -> bool:
-        """A pergunta (sem stopwords) tem exatamente as palavras da 'pergunta' do conhecimento?"""
-        termos = set(self.linguagem.processar(candidato.conhecimento.get("pergunta") or "",
-                                              corrigir=False).radicais)
-        return bool(termos) and termos == set(consulta.radicais)
+        """
+        A pergunta (sem stopwords) tem exatamente as palavras da 'pergunta' do
+        conhecimento, ou de uma das suas variações ("busão", "buzão")?
+        """
+        doc = candidato.conhecimento
+        desejado = set(consulta.radicais)
+        for forma in [doc.get("pergunta") or ""] + lista_json(doc, "variacoes"):
+            termos = set(self.linguagem.processar(forma, corrigir=False).radicais)
+            if termos and termos == desejado:
+                return True
+        return False
 
     def corrigir(self, mensagem_id: str, resposta_correta: str) -> dict[str, Any]:
         """

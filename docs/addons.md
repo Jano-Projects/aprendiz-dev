@@ -150,7 +150,7 @@ Crie uma pasta com os arquivos abaixo. Veja os exemplos em `exemplos/addons/`:
 meu-addon/
 ├── manifesto.json       (obrigatório)
 ├── perguntas.txt        pares de pergunta e resposta: o jeito mais fácil
-├── verbetes.txt         (opcional) dicionário: blocos V:/R:
+├── verbetes.txt         (opcional) dicionário: blocos V:/T:/R:
 ├── linguagem.json       (opcional) sinônimos e abreviações
 ├── parametros.json      (opcional) {"limiar.bm25": 0.6}
 ├── personalizacao.json  (opcional) {"personalizacao.cor": "#0f766e"}
@@ -230,11 +230,47 @@ No `verbetes.txt` (ou `perguntas.txt`), escreva `V:` no lugar de `P:`:
 
 ```
 V: bué
+V: bwe
+T: muito, bastante
 R: **bué** (Angola): muito, bastante. Ex.: «Tem bué de gente na festa.»
 ```
 
-E coloque no `linguagem.json` as stopwords da pergunta, para "o que **significa** bué" virar
-só "bué": `"stopwords": ["significa", "significado", "quer", "dizer"]`.
+- Linhas `V:` a mais no mesmo bloco são **outras grafias** do termo (0.6+).
+- A linha `T:` traz as **traduções** para o português padrão, separadas por vírgula (0.6+).
+  São elas que permitem perguntar no sentido inverso.
+
+Coloque no `linguagem.json` as stopwords da pergunta, para "o que **significa** bué" virar só
+"bué": `"stopwords": ["significa", "significado", "quer", "dizer"]`.
+
+E declare no `manifesto.json` a **região** do dicionário (0.6+):
+
+```json
+"regiao": {"nome": "Guiné-Bissau", "artigo": "a",
+           "termos": ["guine", "guine bissau", "guineense", "guineenses", "kriol"]}
+```
+
+- `termos`: como as pessoas se referem ao lugar ou à língua ("em Angola", "no kriol", "os
+  angolanos", "a gíria angolana"). Escreva sem acento; o app compara sem acento.
+- `artigo`: `o`, `a` ou vazio, para as respostas dizerem "**no** Brasil", "**na**
+  Guiné-Bissau", "**em** Angola".
+
+**O que a pessoa pode perguntar** (`aprendiz/core/dicionario.py`):
+
+| Sentido | Exemplos | Resposta |
+|---|---|---|
+| direto | `kota` · `o que é kota?` · `kota significa o quê?` · `significado de kota` · `o que significa kota em Angola?` · `kota em Angola` | o significado |
+| inverso | `como se diz dinheiro em Angola?` · `como se fala aldeia em kriol` · `qual a gíria pra dinheiro em Moçambique?` · `como os angolanos chamam o dinheiro?` · `traduza aldeia para kriol` · `aldeia em kriol` | o termo da região, com o significado |
+| inverso, sem região | `como se diz ônibus?` | o termo em cada dicionário instalado |
+| "em português" | `como se diz kota em português?` | o significado |
+
+- O termo e as traduções são comparados por **igualdade** (sem acento, no singular ou plural),
+  nunca por semelhança: o dicionário só responde quando tem certeza.
+- Se a região pedida não tem a palavra, a resposta diz isso e mostra os outros dicionários.
+- Se o lugar não tem dicionário instalado ("como se diz dinheiro em inglês?"), a resposta avisa
+  e mostra o que existe.
+- Frases comuns continuam no caminho normal: "como se chama a capital da França?" ou "fui de
+  ônibus em Portugal" não são tratadas como pedidos de dicionário.
+- Se o dono ensinou exatamente a mesma pergunta, vale a resposta dele.
 
 Se dois dicionários ativos tiverem a mesma palavra (ex.: "bué" em Portugal e em Angola), a
 resposta mostra os dois. Um verbete exato só perde para algo que **o dono** tenha ensinado com
@@ -247,6 +283,23 @@ social quando digitada sozinha; "o que significa bondia" traz o verbete.
 python ferramentas/criar_addon.py meu-addon                        # gera meu-addon.aprendiz
 python ferramentas/criar_addon.py --conferir meu-addon.aprendiz    # mesma validação do app
 ```
+
+### Variações de pergunta (0.6+)
+
+Num `perguntas.txt`, várias linhas `P:` no mesmo bloco são **jeitos diferentes de perguntar a
+mesma coisa**. Todas levam à mesma resposta, em todos os algoritmos de busca:
+
+```
+P: como tirar um print de uma parte da tela no windows
+P: como fazer captura de tela no windows
+P: como tirar print no windows
+P: o que faz win shift s
+R: Win+Shift+S abre a Ferramenta de Captura…
+```
+
+No `conhecimentos.json`, isso é o campo `"variacoes": ["…", "…"]`. A primeira linha `P:` é a
+pergunta principal, a que aparece na base de conhecimento. O teste de recomendação também usa
+as variações para medir o acerto dos algoritmos.
 
 ### Dicas para um bom addon
 
@@ -265,7 +318,7 @@ python ferramentas/criar_addon.py --conferir meu-addon.aprendiz    # mesma valid
 | Arquivo | Obrigatório | Conteúdo |
 |---|---|---|
 | `manifesto.json` | sim | o manifesto completo (abaixo) |
-| `conhecimentos.json` | se `memoria` | lista de `{"pergunta"?, "conteudo", "tipo"?}`; `tipo` é `pergunta`, `nota`, `trecho` ou `verbete` (0.4.1+) |
+| `conhecimentos.json` | se `memoria` | lista de `{"pergunta"?, "conteudo", "tipo"?, "variacoes"?, "traducoes"?}`; `tipo` é `pergunta`, `nota`, `trecho` ou `verbete` (0.4.1+); `variacoes` e `traducoes` (só em verbetes) são listas de textos (0.6+) |
 | `linguagem.json` | se `linguagem` | `{"sinonimos": {...}, "abreviacoes": {...}}` |
 | `parametros.json` | se `parametros` | `{"chave": valor}` da lista fechada |
 | `personalizacao.json` | se `personalizacao` | `{"chave": valor}` da lista fechada |

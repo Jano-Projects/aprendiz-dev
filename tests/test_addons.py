@@ -195,7 +195,7 @@ def test_banco_da_versao_anterior_e_migrado(tmp_path):
 
     banco = Banco(caminho)
     assistente = Assistente(banco)
-    assert banco.obter_meta("versao_esquema") == "5"
+    assert banco.obter_meta("versao_esquema") == "6"
     assert banco.mapa_sinonimos()["horas"] == "horario"  # sinônimo novo chegou na migração
     assert assistente.responder("qual a senha do wifi?")["mensagem"]["texto"] == "casa123"
     assistente.instalar_addon(pacote())

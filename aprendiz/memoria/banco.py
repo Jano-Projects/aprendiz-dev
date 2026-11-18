@@ -53,7 +53,14 @@ CREATE TABLE IF NOT EXISTS conhecimentos (
     texto_busca   TEXT NOT NULL DEFAULT '',   -- radicais, gerados pelo pipeline
     addon_id      TEXT,                       -- NULL = ensinado pelo dono
     criado_em     TEXT NOT NULL,
-    atualizado_em TEXT NOT NULL
+    atualizado_em TEXT NOT NULL,
+    -- Listas em JSON, preenchidas por addons (NULL no que o dono ensina):
+    --   variacoes → outras formas de fazer a mesma pergunta (ou de escrever o
+    --               termo de um verbete): "busao", "buzao"
+    --   traducoes → só em verbetes: o equivalente em português padrão, para
+    --               a busca inversa ("como se diz ônibus em Portugal?")
+    variacoes     TEXT,
+    traducoes     TEXT
 );
 
 -- Índice de busca textual (FTS5). Guarda só o id e o texto de busca.
@@ -139,6 +146,18 @@ def agora() -> str:
     return datetime.now(timezone.utc).isoformat(timespec="microseconds")
 
 
+def lista_json(doc: dict[str, Any], campo: str) -> list[str]:
+    """Lê uma coluna-lista em JSON (variacoes, traducoes); vazia se não houver."""
+    valor = doc.get(campo)
+    if not valor:
+        return []
+    try:
+        dados = json.loads(valor)
+    except (TypeError, ValueError):
+        return []
+    return [str(v) for v in dados] if isinstance(dados, list) else []
+
+
 def novo_id() -> str:
     """IDs aleatórios (UUID4): dois bancos diferentes nunca geram o mesmo id,
     então registros de bases distintas podem ser juntados sem colisão."""
@@ -199,7 +218,13 @@ class Banco:
                             ["id", "tipo", "pergunta", "conteudo", "origem", "texto_busca",
                              "addon_id", "criado_em", "atualizado_em"])
         c.execute("CREATE INDEX IF NOT EXISTS idx_conhecimentos_addon ON conhecimentos (addon_id)")
-        c.execute("INSERT OR REPLACE INTO meta VALUES ('versao_esquema', '5')")
+
+        # 0.5 → 0.6: variações de pergunta e traduções (verbetes).
+        colunas = {l["name"] for l in c.execute("PRAGMA table_info(conhecimentos)")}
+        for coluna in ("variacoes", "traducoes"):
+            if coluna not in colunas:
+                c.execute(f"ALTER TABLE conhecimentos ADD COLUMN {coluna} TEXT")
+        c.execute("INSERT OR REPLACE INTO meta VALUES ('versao_esquema', '6')")
         c.commit()
 
     def _ampliar_check(self, tabela: str, marca: str, colunas: list[str]) -> None:
@@ -573,13 +598,16 @@ class Banco:
                      ativo, momento, hash_arquivo, json.dumps(manifesto, ensure_ascii=False)),
                 )
                 origem = f"addon:{manifesto['id']}"
+                def lista(valor):
+                    return json.dumps(valor, ensure_ascii=False) if valor else None
                 linhas = [(novo_id(), k["tipo"], k.get("pergunta"), k["conteudo"], origem,
-                           k["texto_busca"], momento, momento, manifesto["id"])
+                           k["texto_busca"], momento, momento, manifesto["id"],
+                           lista(k.get("variacoes")), lista(k.get("traducoes")))
                           for k in conhecimentos]
                 c.executemany(
                     "INSERT INTO conhecimentos (id, tipo, pergunta, conteudo, origem, "
-                    "texto_busca, criado_em, atualizado_em, addon_id) "
-                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", linhas)
+                    "texto_busca, criado_em, atualizado_em, addon_id, variacoes, traducoes) "
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", linhas)
                 c.executemany("INSERT INTO conhecimentos_fts (id, texto) VALUES (?, ?)",
                               [(l[0], l[5]) for l in linhas])
                 c.executemany(

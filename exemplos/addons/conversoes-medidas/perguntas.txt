@@ -1,59 +1,151 @@
-# Addon de exemplo: conversões de medidas.
-# Formato: "P:" para a pergunta, "R:" para a resposta, linha em branco entre pares.
+# Conversões de medidas: cozinha, distância, peso, volume, área, temperatura, pressão e energia.
+# Várias linhas P: no mesmo bloco = jeitos diferentes de perguntar a mesma coisa.
 
 P: quantos ml tem uma xícara de chá
+P: uma xícara tem quantos ml
+P: quanto é uma xícara em ml
+P: converter xícara para ml
 R: Uma xícara de chá tem cerca de 240 ml.
 
+P: quantos gramas de farinha tem uma xícara
+P: uma xícara de farinha pesa quanto
+R: Uma xícara de farinha de trigo pesa cerca de 120 g (peneirada, um pouco menos).
+
+P: quantos gramas de açúcar tem uma xícara
+P: uma xícara de açúcar pesa quanto
+R: Uma xícara de açúcar refinado pesa cerca de 180 a 200 g.
+
+P: quantos gramas de manteiga tem uma xícara
+R: Uma xícara de manteiga pesa cerca de 200 g.
+
+P: quantos ml tem um copo americano
+P: um copo americano tem quantos ml
+R: O copo americano tem 190 ml (cheio até a borda, cerca de 200 ml).
+
 P: quantos ml tem uma colher de sopa
+P: uma colher de sopa tem quantos ml
+P: quanto é uma colher de sopa em ml
 R: Uma colher de sopa tem 15 ml.
 
 P: quantos ml tem uma colher de chá
+P: uma colher de chá tem quantos ml
 R: Uma colher de chá tem 5 ml.
 
+P: quantas colheres de sopa tem uma xícara
+R: Uma xícara (240 ml) equivale a 16 colheres de sopa.
+
 P: quantos centímetros tem uma polegada
+P: 1 polegada tem quantos cm
+P: converter polegada para centímetro
+P: quanto vale uma polegada
 R: 1 polegada = 2,54 cm.
 
+P: quantos centímetros tem uma tela de 50 polegadas
+P: como saber o tamanho da tv em centímetros
+R: A medida em polegadas é a diagonal da tela. Multiplique por 2,54: uma TV de 50" tem cerca de 127 cm de diagonal.
+
 P: quantos centímetros tem um pé
-R: 1 pé = 30,48 cm (12 polegadas).
+P: 1 pé tem quantos cm
+P: converter pés para metros
+R: 1 pé = 30,48 cm (12 polegadas). Para converter pés em metros, multiplique por 0,3048.
 
 P: quantos metros tem uma jarda
+P: converter jarda para metro
 R: 1 jarda = 0,9144 m (3 pés).
 
 P: quantos quilômetros tem uma milha
+P: 1 milha tem quantos km
+P: converter milhas para quilômetros
 R: 1 milha terrestre = 1,609 km (1.609,344 m).
 
 P: quantos metros tem uma milha náutica
+P: converter milha náutica para km
 R: 1 milha náutica = 1.852 m.
 
 P: quanto vale um nó em km/h
+P: converter nós para km/h
+P: velocidade em nós para quilômetros por hora
 R: 1 nó = 1 milha náutica por hora = 1,852 km/h.
 
+P: como converter km/h para m/s
+P: converter metros por segundo em quilômetros por hora
+R: Divida km/h por 3,6 para obter m/s; multiplique m/s por 3,6 para obter km/h.
+
+P: como converter milhas por hora para km/h
+P: converter mph para km/h
+R: Multiplique por 1,609: 60 mph ≈ 97 km/h.
+
 P: quantos gramas tem uma libra
+P: 1 libra tem quantos quilos
+P: converter libras para quilos
 R: 1 libra = 453,59 g. Um quilo tem cerca de 2,2 libras.
 
 P: quantos gramas tem uma onça
+P: converter onça para gramas
 R: 1 onça (peso) = 28,35 g.
 
+P: quantos quilos tem uma arroba
+P: uma arroba tem quantos kg
+R: 1 arroba = 15 kg (no Brasil, usada para gado e café).
+
+P: quantos quilos tem uma tonelada
+R: 1 tonelada = 1.000 kg.
+
 P: quantos litros tem um galão americano
+P: converter galão para litros
 R: 1 galão americano = 3,785 litros.
 
+P: quantos ml tem uma onça líquida
+P: converter fl oz para ml
+R: 1 onça líquida americana (fl oz) = 29,57 ml.
+
+P: quantos litros tem um metro cúbico
+P: 1 m³ tem quantos litros
+R: 1 m³ = 1.000 litros.
+
 P: como converter celsius para fahrenheit
-R: °F = °C × 9/5 + 32. Exemplo: 100 °C = 212 °F.
+P: converter graus celsius em fahrenheit
+P: quanto é 30 graus em fahrenheit
+R: °F = °C × 9/5 + 32. Exemplos: 30 °C = 86 °F; 100 °C = 212 °F.
 
 P: como converter fahrenheit para celsius
-R: °C = (°F − 32) × 5/9. Exemplo: 212 °F = 100 °C.
+P: converter graus fahrenheit em celsius
+P: quanto é 350 graus fahrenheit em celsius
+R: °C = (°F − 32) × 5/9. Exemplos: 350 °F ≈ 177 °C; 212 °F = 100 °C.
+
+P: como converter celsius para kelvin
+R: K = °C + 273,15. Exemplo: 25 °C = 298,15 K.
 
 P: quantos metros quadrados tem um hectare
+P: um hectare tem quantos m²
+P: converter hectare para metros quadrados
 R: 1 hectare = 10.000 m².
 
 P: quantos metros quadrados tem um acre
-R: 1 acre ≈ 4.047 m².
+P: converter acre para hectare
+R: 1 acre ≈ 4.047 m² (cerca de 0,4 hectare).
 
 P: quantos metros quadrados tem um alqueire paulista
 R: 1 alqueire paulista = 24.200 m².
 
+P: quantos metros quadrados tem um alqueire mineiro
+R: 1 alqueire mineiro (ou goiano) = 48.400 m².
+
 P: quantos psi tem um bar
-R: 1 bar ≈ 14,5 psi. E 1 psi ≈ 0,069 bar.
+P: converter bar para psi
+P: calibragem de pneu em bar
+R: 1 bar ≈ 14,5 psi. E 1 psi ≈ 0,069 bar. Ex.: 32 psi ≈ 2,2 bar.
 
 P: quantos joules tem uma caloria
+P: converter calorias para joules
+P: quanto é uma kcal em kj
 R: 1 caloria = 4,184 joules (1 kcal = 4,184 kJ).
+
+P: quantos watts tem um cavalo vapor
+P: converter cv para kw
+P: converter hp para watts
+R: 1 cv ≈ 735,5 W e 1 hp ≈ 745,7 W.
+
+P: quantos bytes tem um kilobyte
+P: quantos megabytes tem um gigabyte
+R: Nos computadores, 1 KB = 1.024 bytes, 1 MB = 1.024 KB e 1 GB = 1.024 MB. Fabricantes de disco usam 1.000 em vez de 1.024, por isso um disco de 1 TB aparece com cerca de 931 GB.
