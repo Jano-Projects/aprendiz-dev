@@ -38,11 +38,19 @@ Um arquivo .aprendiz é um ZIP comum com arquivos JSON:
     conhecimentos.json:
         [
           {"pergunta": "quantos ml tem uma xícara", "conteudo": "Cerca de 240 ml."},
-          {"conteudo": "Um texto solto vira uma nota."}
+          {"conteudo": "Um texto solto vira uma nota."},
+          {"tipo": "verbete", "pergunta": "bué", "conteudo": "Muito, bastante."}
         ]
 
-    linguagem.json:
-        {"sinonimos": {"chicara": "xicara"}, "abreviacoes": {"pol": "polegada"}}
+        "verbete" (Aprendiz 0.4.1+) é uma entrada de dicionário: só responde
+        quando a pergunta é a palavra sozinha ou "o que significa <palavra>".
+        Numa frase com outras palavras, é ignorado.
+
+    linguagem.json (todas as chaves são opcionais):
+        {"sinonimos":   {"chicara": "xicara"},
+         "abreviacoes": {"pol": "polegada"},
+         "stopwords":   ["significa", "significado"],          (Aprendiz 0.4.1+)
+         "intencoes":   {"saudacao": ["e ai firmeza"]}}         (Aprendiz 0.4.1+)
 
     parametros.json / personalizacao.json:
         {"limiar.bm25": 0.6}  /  {"personalizacao.cor": "#0f766e"}
@@ -101,6 +109,7 @@ from typing import Any
 from aprendiz import __version__
 from aprendiz import configuracoes as cfg
 from aprendiz.linguagem import normalizar
+from aprendiz.memoria.sementes import INTENCOES
 
 FORMATO = 2
 FORMATOS_LIDOS = (1, 2)
@@ -328,18 +337,69 @@ def validar_conhecimentos(bruto: Any) -> list[dict[str, Any]]:
         pergunta = item.get("pergunta")
         pergunta = _limpar(pergunta, MAX_PERGUNTA, f"pergunta (nº {i})") or None if pergunta else None
         tipo = item.get("tipo") or ("pergunta" if pergunta else "nota")
-        if tipo not in ("pergunta", "nota", "trecho"):
+        if tipo not in ("pergunta", "nota", "trecho", "verbete"):
             raise ErroAddon(f"Tipo inválido no conhecimento nº {i}: {tipo!r}.")
+        if tipo == "verbete" and not pergunta:
+            raise ErroAddon(f"O verbete nº {i} precisa da palavra em 'pergunta'.")
         saida.append({"pergunta": pergunta, "conteudo": conteudo, "tipo": tipo})
     return saida
 
 
 def validar_linguagem(bruto: Any) -> dict[str, dict[str, str]]:
+    """
+    Valida linguagem.json e devolve tudo no formato "termo → valor" usado pelo
+    banco (tabela addon_linguagem):
+
+        abreviacoes / sinonimos → termo → valor
+        stopwords               → palavra → ""
+        intencoes               → frase → nome da intenção
+    """
     if bruto is None:
         return {}
     if not isinstance(bruto, dict):
         raise ErroAddon("linguagem.json precisa ser um objeto JSON.")
     saida: dict[str, dict[str, str]] = {}
+
+    # Stopwords: palavras soltas que a BUSCA deve ignorar enquanto o addon
+    # estiver ativo (ex.: "significa" num dicionário de gírias).
+    palavras = bruto.get("stopwords") or []
+    if not isinstance(palavras, list) or len(palavras) > MAX_LINGUAGEM:
+        raise ErroAddon("'stopwords' em linguagem.json precisa ser uma lista de palavras.")
+    limpas = {}
+    for palavra in palavras:
+        if not isinstance(palavra, str):
+            raise ErroAddon("As stopwords precisam ser texto.")
+        palavra = normalizar(palavra[:40])
+        if " " in palavra:
+            raise ErroAddon(f"Stopword deve ser uma palavra só: {palavra!r}.")
+        if palavra:
+            limpas[palavra] = ""
+    if limpas:
+        saida["stopwords"] = limpas
+
+    # Intenções: frases de exemplo que treinam o classificador. Só as
+    # intenções que o Aprendiz já conhece (saudação, despedida…).
+    intencoes = bruto.get("intencoes") or {}
+    if not isinstance(intencoes, dict):
+        raise ErroAddon("'intencoes' em linguagem.json precisa ser um objeto JSON.")
+    frases: dict[str, str] = {}
+    for intencao, lista in intencoes.items():
+        if intencao not in INTENCOES:
+            raise ErroAddon(f"Intenção desconhecida: {intencao!r}. Válidas: "
+                            f"{', '.join(INTENCOES)}.")
+        if not isinstance(lista, list):
+            raise ErroAddon(f"As frases da intenção '{intencao}' precisam estar numa lista.")
+        for frase in lista:
+            if not isinstance(frase, str):
+                raise ErroAddon(f"As frases da intenção '{intencao}' precisam ser texto.")
+            frase = normalizar(frase[:200])
+            if frase:
+                frases[frase] = intencao
+    if len(frases) > MAX_LINGUAGEM:
+        raise ErroAddon("'intencoes' em linguagem.json tem frases demais.")
+    if frases:
+        saida["intencoes"] = frases
+
     for tipo in ("abreviacoes", "sinonimos"):
         mapa = bruto.get(tipo) or {}
         if not isinstance(mapa, dict) or len(mapa) > MAX_LINGUAGEM:

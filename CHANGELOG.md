@@ -6,6 +6,20 @@ seguem o [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ## [Não lançado]
 
+## [0.4.1] - 2026-11-17
+
+### Adicionado
+- **Verbetes** (tipo de conhecimento para dicionários): respondem só à palavra sozinha ou a
+  "o que significa…"; numa frase com outras palavras, são ignorados. Se vários dicionários
+  tiverem a mesma palavra, a resposta mostra todos.
+- `linguagem.json` dos addons aceita `stopwords` e `intencoes` (frases de treino do
+  classificador), válidos só com o addon ativo.
+- `criar_addon.py`: blocos `V:` (verbete) e o arquivo `verbetes.txt`.
+
+### Mudado
+- Banco: `versao_esquema` 5 (tabelas `conhecimentos` e `addon_linguagem` aceitam os tipos
+  novos; bancos antigos são convertidos ao abrir, sem perder dados).
+
 ## [0.4.0] - 2026-11-17
 
 ### Adicionado
@@ -83,6 +97,7 @@ Primeira versão pública.
 - Instaladores para Linux e Windows que instalam o Python se faltar, verificador de
   instalação, executável via PyInstaller e CI em Windows, Ubuntu, Fedora e Debian.
 
-[Não lançado]: https://github.com/Jano-Projects/aprendiz-dev/compare/v0.4.0...HEAD
+[Não lançado]: https://github.com/Jano-Projects/aprendiz-dev/compare/v0.4.1...HEAD
+[0.4.1]: https://github.com/Jano-Projects/aprendiz-dev/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/Jano-Projects/aprendiz-dev/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/Jano-Projects/aprendiz-dev/releases/tag/v0.3.0

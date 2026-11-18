@@ -108,6 +108,7 @@ aprendiz/
 │   ├── test_documentacao.py             # Garante que o projeto continue documentado: todo arquivo tem explicação.
 │   ├── test_exportacao.py               # Testes da exportação: prévia com avisos de privacidade, escolha de itens e ida e volta.
 │   ├── test_formato2.py                 # Testes do formato 2: origem, classificação, versão do app, dependências e configurações.
+│   ├── test_girias.py                   # Testes da 0.4.1: verbetes (dicionário), stopwords e intenções vindas de addons de…
 │   └── test_linguagem.py                # Testes do processamento de linguagem: radicais, normalização, intenções, entidades.
 ├── .editorconfig                        # Padrão de indentação e fim de linha para qualquer editor
 ├── .gitattributes                       # Fins de linha corretos por tipo de arquivo (LF/CRLF)

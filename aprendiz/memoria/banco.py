@@ -39,13 +39,15 @@ CREATE TABLE IF NOT EXISTS meta (
     valor TEXT
 );
 
--- Tudo o que o dono ensina. Três tipos:
+-- Tudo o que o assistente sabe. Quatro tipos:
 --   pergunta → par pergunta/resposta  ("horário da farmácia" → "8h às 20h")
 --   nota     → informação solta       ("levar o carro na revisão em março")
 --   trecho   → pedaço de um arquivo importado
+--   verbete  → entrada de dicionário (addons): só responde quando a pergunta
+--              é a palavra sozinha ou "o que significa <palavra>"
 CREATE TABLE IF NOT EXISTS conhecimentos (
     id            TEXT PRIMARY KEY,
-    tipo          TEXT NOT NULL CHECK (tipo IN ('pergunta', 'nota', 'trecho')),
+    tipo          TEXT NOT NULL CHECK (tipo IN ('pergunta', 'nota', 'trecho', 'verbete')),
     pergunta      TEXT,
     conteudo      TEXT NOT NULL,
     origem        TEXT NOT NULL DEFAULT 'manual',
@@ -106,7 +108,9 @@ CREATE TABLE IF NOT EXISTS configuracoes (
 -- e as entradas do próprio dono têm prioridade sobre elas.
 CREATE TABLE IF NOT EXISTS addon_linguagem (
     addon_id TEXT NOT NULL REFERENCES addons(id) ON DELETE CASCADE,
-    tipo     TEXT NOT NULL CHECK (tipo IN ('abreviacoes', 'sinonimos')),
+    -- abreviacoes/sinonimos: termo → valor | stopwords: termo = palavra, valor = ''
+    -- intencoes: termo = frase de exemplo, valor = nome da intenção
+    tipo     TEXT NOT NULL CHECK (tipo IN ('abreviacoes', 'sinonimos', 'stopwords', 'intencoes')),
     termo    TEXT NOT NULL,
     valor    TEXT NOT NULL,
     PRIMARY KEY (addon_id, tipo, termo)
@@ -187,8 +191,35 @@ class Banco:
         colunas_addons = {linha["name"] for linha in c.execute("PRAGMA table_info(addons)")}
         if "manifesto" not in colunas_addons:       # 0.3 → 0.4: addons formato 2
             c.execute("ALTER TABLE addons ADD COLUMN manifesto TEXT")
-        c.execute("INSERT OR REPLACE INTO meta VALUES ('versao_esquema', '4')")
+
+        # 0.4 → 0.4.1: addon_linguagem aceita stopwords e intenções, e
+        # conhecimentos aceita o tipo "verbete".
+        self._ampliar_check("addon_linguagem", "'stopwords'",
+                            ["addon_id", "tipo", "termo", "valor"])
+        self._ampliar_check("conhecimentos", "'verbete'",
+                            ["id", "tipo", "pergunta", "conteudo", "origem", "texto_busca",
+                             "addon_id", "criado_em", "atualizado_em"])
+        c.execute("CREATE INDEX IF NOT EXISTS idx_conhecimentos_addon ON conhecimentos (addon_id)")
+        c.execute("INSERT OR REPLACE INTO meta VALUES ('versao_esquema', '5')")
         c.commit()
+
+    def _ampliar_check(self, tabela: str, marca: str, colunas: list[str]) -> None:
+        """
+        O SQLite não altera o CHECK de uma tabela existente. Para aceitar um
+        valor novo, a tabela é renomeada, recriada pelo ESQUEMA atual e os
+        dados são copiados (pelos nomes das colunas, não pela posição).
+        `marca` é um trecho que só existe no CHECK novo.
+        """
+        c = self._con
+        sql = c.execute("SELECT sql FROM sqlite_master WHERE type = 'table' AND name = ?",
+                        (tabela,)).fetchone()
+        if not sql or marca in sql["sql"]:
+            return
+        lista = ", ".join(colunas)
+        c.execute(f"ALTER TABLE {tabela} RENAME TO {tabela}_antiga")
+        c.executescript(ESQUEMA)  # cria a tabela de novo, já com o CHECK novo
+        c.execute(f"INSERT INTO {tabela} ({lista}) SELECT {lista} FROM {tabela}_antiga")
+        c.execute(f"DROP TABLE {tabela}_antiga")
 
     # ------------------------------------------------------------------ utilidades
     def _executar(self, sql: str, params: tuple | dict = ()) -> sqlite3.Cursor:
@@ -446,8 +477,12 @@ class Banco:
                      for l in self._consultar("SELECT * FROM sinonimos ORDER BY termo")})
         return mapa
 
-    def lista_stopwords(self) -> set[str]:
-        return {l["palavra"] for l in self._consultar("SELECT palavra FROM stopwords")}
+    def lista_stopwords(self, incluir_addons: bool = True) -> set[str]:
+        """Stopwords em uso: as do dono + as de addons ATIVOS."""
+        palavras = {l["palavra"] for l in self._consultar("SELECT palavra FROM stopwords")}
+        if incluir_addons:
+            palavras |= set(self._linguagem_de_addons("stopwords"))
+        return palavras
 
     def salvar_abreviacao(self, termo: str, expansao: str) -> None:
         self._executar("INSERT OR REPLACE INTO abreviacoes VALUES (?, ?)", (termo, expansao))
@@ -465,8 +500,17 @@ class Banco:
         self._executar("DELETE FROM sinonimos WHERE termo = ?", (termo,))
         self.versao_linguagem += 1
 
-    def exemplos_intencoes(self) -> list[dict[str, Any]]:
-        return self._consultar("SELECT * FROM intencoes_exemplos ORDER BY intencao, frase")
+    def exemplos_intencoes(self, incluir_addons: bool = False) -> list[dict[str, Any]]:
+        """
+        Frases de treino do classificador. Por padrão só as do dono (é o que a
+        tela de Linguagem edita); com incluir_addons=True, também as de addons
+        ATIVOS (sem "id", porque não podem ser apagadas uma a uma).
+        """
+        exemplos = self._consultar("SELECT * FROM intencoes_exemplos ORDER BY intencao, frase")
+        if incluir_addons:
+            exemplos += [{"id": None, "intencao": intencao, "frase": frase}
+                         for frase, intencao in self._linguagem_de_addons("intencoes").items()]
+        return exemplos
 
     def salvar_exemplo_intencao(self, intencao: str, frase: str) -> None:
         self._executar(

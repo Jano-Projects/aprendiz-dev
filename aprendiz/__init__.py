@@ -20,4 +20,4 @@ Mapa dos pacotes:
     └── desktop.py       → abre o app como janela de desktop
 """
 
-__version__ = "0.4.0"
+__version__ = "0.4.1"

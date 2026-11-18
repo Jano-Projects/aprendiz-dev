@@ -98,6 +98,7 @@ Crie uma pasta com os arquivos abaixo. Veja os exemplos em `exemplos/addons/`:
 meu-addon/
 ├── manifesto.json       (obrigatório)
 ├── perguntas.txt        pares de pergunta e resposta: o jeito mais fácil
+├── verbetes.txt         (opcional) dicionário: blocos V:/R:
 ├── linguagem.json       (opcional) sinônimos e abreviações
 ├── parametros.json      (opcional) {"limiar.bm25": 0.6}
 ├── personalizacao.json  (opcional) {"personalizacao.cor": "#0f766e"}
@@ -143,14 +144,49 @@ P: quanto vale uma polegada
 R: 1 polegada = 2,54 cm.
 ```
 
-**linguagem.json**
+**linguagem.json** (todas as chaves são opcionais)
 
 ```json
 {
   "sinonimos":   { "chicara": "xicara" },
-  "abreviacoes": { "pol": "polegada", "lb": "libra" }
+  "abreviacoes": { "pol": "polegada", "lb": "libra" },
+  "stopwords":   ["significa", "significado"],
+  "intencoes":   { "saudacao": ["e ai mano", "fala ai"], "agradecimento": ["valeu mano"] }
 }
 ```
+
+- `stopwords` (0.4.1+): palavras que a **busca** ignora enquanto o addon estiver ativo.
+- `intencoes` (0.4.1+): frases que treinam o classificador, para o assistente reconhecer
+  cumprimentos e agradecimentos regionais. Só as intenções que o Aprendiz já conhece:
+  `saudacao`, `despedida`, `agradecimento`, `ajuda`, `pergunta` e `ensinar`.
+
+Tudo isso vale só com o addon ativo, e o que o dono cadastrou tem prioridade.
+
+### Dicionários (verbetes)
+
+Para gírias, regionalismos e termos de um assunto, use **verbetes** (0.4.1+). Um verbete só
+responde quando a pessoa digita **a palavra sozinha** ou pergunta **"o que significa…"**; numa
+frase com outras palavras ele é ignorado, para não "sequestrar" perguntas sobre outros assuntos:
+
+| A pessoa escreve | Resultado |
+|---|---|
+| `bué` · `o que significa bué?` · `qual o significado de bué` | o verbete |
+| `tem bué de gente na festa` | o verbete é ignorado |
+
+No `verbetes.txt` (ou `perguntas.txt`), escreva `V:` no lugar de `P:`:
+
+```
+V: bué
+R: **bué** (Angola): muito, bastante. Ex.: «Tem bué de gente na festa.»
+```
+
+E coloque no `linguagem.json` as stopwords da pergunta, para "o que **significa** bué" virar
+só "bué": `"stopwords": ["significa", "significado", "quer", "dizer"]`.
+
+Se dois dicionários ativos tiverem a mesma palavra (ex.: "bué" em Portugal e em Angola), a
+resposta mostra os dois. Um verbete exato só perde para algo que **o dono** tenha ensinado com
+exatamente aquela palavra. Uma palavra que também é cumprimento (ex.: "bondia") recebe resposta
+social quando digitada sozinha; "o que significa bondia" traz o verbete.
 
 **Gerar e conferir o arquivo:**
 
@@ -176,7 +212,7 @@ python ferramentas/criar_addon.py --conferir meu-addon.aprendiz    # mesma valid
 | Arquivo | Obrigatório | Conteúdo |
 |---|---|---|
 | `manifesto.json` | sim | o manifesto completo (abaixo) |
-| `conhecimentos.json` | se `memoria` | lista de `{"pergunta"?, "conteudo", "tipo"?}`; `tipo` é `pergunta`, `nota` ou `trecho` |
+| `conhecimentos.json` | se `memoria` | lista de `{"pergunta"?, "conteudo", "tipo"?}`; `tipo` é `pergunta`, `nota`, `trecho` ou `verbete` (0.4.1+) |
 | `linguagem.json` | se `linguagem` | `{"sinonimos": {...}, "abreviacoes": {...}}` |
 | `parametros.json` | se `parametros` | `{"chave": valor}` da lista fechada |
 | `personalizacao.json` | se `personalizacao` | `{"chave": valor}` da lista fechada |

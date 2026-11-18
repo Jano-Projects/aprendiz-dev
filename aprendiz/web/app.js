@@ -529,7 +529,8 @@
     lista.innerHTML = dados.itens.length ? "" : `
       <div class="vazio">${icone("base")}
         <div>${filtro ? "Nada encontrado com esse filtro." : "A base está vazia. Ensine algo pelo chat ou clique em Novo."}</div></div>`;
-    const tipos = { pergunta: ["chat", "pergunta"], nota: ["editar", "nota"], trecho: ["arquivo", "trecho de arquivo"] };
+    const tipos = { pergunta: ["chat", "pergunta"], nota: ["editar", "nota"], trecho: ["arquivo", "trecho de arquivo"],
+      verbete: ["linguagem", "verbete"] };
     dados.itens.forEach((c) => {
       const [ic, nome] = tipos[c.tipo] || ["base", c.tipo];
       const item = criar(`

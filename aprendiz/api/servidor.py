@@ -371,7 +371,7 @@ def criar_app(caminho_banco: str | Path | None = None) -> FastAPI:
                           for t, v in banco.mapa_sinonimos(incluir_addons=False).items()],
             "intencoes": [{"id": e["id"], "termo": e["intencao"], "valor": e["frase"]}
                           for e in banco.exemplos_intencoes()],
-            "stopwords": sorted(banco.lista_stopwords()),
+            "stopwords": sorted(banco.lista_stopwords(incluir_addons=False)),
         }
 
     @app.post("/api/linguagem/{tabela}")

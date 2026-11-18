@@ -249,7 +249,7 @@ class Assistente:
             return
         exemplos = []
         self._frases_exatas = {}
-        for e in self.banco.exemplos_intencoes():
+        for e in self.banco.exemplos_intencoes(incluir_addons=True):
             processado = self.linguagem.processar(e["frase"], corrigir=False)
             exemplos.append((e["intencao"], processado.radicais_todos))
             self._frases_exatas[" ".join(processado.tokens)] = e["intencao"]
@@ -354,17 +354,23 @@ class Assistente:
 
         algoritmo_busca = BUSCAS[busca]
         limiar = self.contexto.limiar(busca)
-        candidatos = algoritmo_busca.buscar(consulta, self.contexto, limite=5)
+        candidatos = self._filtrar_verbetes(
+            consulta, algoritmo_busca.buscar(consulta, self.contexto, limite=5))
         aceitos = [c for c in candidatos if c.confianca >= limiar]
         # Prioridade do dono: se o melhor resultado veio de um addon, mas há
         # algo ensinado pelo dono quase tão relevante (por padrão, até 10%
         # abaixo), vale o do dono. A margem existe porque respostas mais longas
         # pontuam um pouco menos em alguns algoritmos, mesmo respondendo a
         # mesma coisa. Ajustável em Configurações (prioridade_dono.margem).
+        # Um verbete exato (dicionário) só perde para algo do dono que também
+        # seja exatamente aquela palavra; senão, "nha" (Cabo Verde) seria
+        # trocado por "senha do wifi", que o Fuzzy acha parecido.
+        topo_verbete = bool(aceitos) and aceitos[0].detalhes.get("verbete") == "palavra exata"
         if aceitos and aceitos[0].conhecimento.get("addon_id"):
             for i, c in enumerate(aceitos):
                 if (not c.conhecimento.get("addon_id")
-                        and c.confianca >= margem_dono * aceitos[0].confianca):
+                        and c.confianca >= margem_dono * aceitos[0].confianca
+                        and (not topo_verbete or self._mesmas_palavras(consulta, c))):
                     aceitos.insert(0, aceitos.pop(i))
                     break
         etapas.marcar(f"Busca · {algoritmo_busca.titulo}", {
@@ -387,6 +393,15 @@ class Assistente:
             return texto, "desconhecido", []
 
         # 7. Resposta ----------------------------------------------------------
+        # Dicionário: se a pergunta é exatamente uma palavra com verbete, a
+        # resposta junta TODOS os verbetes dessa palavra (ex.: "bué" em
+        # Portugal e em Angola), um por parágrafo.
+        verbetes = [c for c in aceitos if c.detalhes.get("verbete") == "palavra exata"]
+        if verbetes and aceitos[0] in verbetes:
+            etapas.marcar("Resposta · Dicionário", {"verbetes": len(verbetes)})
+            texto = "\n\n".join(c.conhecimento["conteudo"] for c in verbetes)
+            return texto, "conhecimento", [self._fonte(c.conhecimento) for c in verbetes]
+
         algoritmo_resposta = RESPOSTAS[resposta]
         gerada = algoritmo_resposta.responder(consulta, aceitos, self.contexto)
         etapas.marcar(f"Resposta · {algoritmo_resposta.titulo}", gerada.detalhes)
@@ -394,6 +409,36 @@ class Assistente:
         por_id = {c.id: c.conhecimento for c in aceitos}
         fontes = [self._fonte(por_id[i]) for i in gerada.fontes if i in por_id]
         return gerada.texto, "conhecimento", fontes
+
+    def _filtrar_verbetes(self, consulta, candidatos: list) -> list:
+        """
+        Verbetes (entradas de dicionário, vindas de addons) seguem uma regra
+        própria: só valem quando a pergunta, sem as stopwords, é EXATAMENTE a
+        palavra do verbete. Assim:
+
+            "bué" · "o que significa bué?" · "qual o significado de bué" → responde
+            "tem bué de gente na festa"                                 → ignora
+
+        ("significa", "significado"… viram stopwords pelo próprio addon.)
+        Um verbete exato ganha confiança 1 e vai para o topo; os outros são
+        descartados, para não "sequestrar" perguntas sobre outros assuntos.
+        """
+        exatos, outros = [], []
+        for c in candidatos:
+            if c.conhecimento.get("tipo") != "verbete":
+                outros.append(c)
+                continue
+            if self._mesmas_palavras(consulta, c):
+                c.confianca = 1.0
+                c.detalhes = {**c.detalhes, "verbete": "palavra exata"}
+                exatos.append(c)
+        return exatos + outros
+
+    def _mesmas_palavras(self, consulta, candidato) -> bool:
+        """A pergunta (sem stopwords) tem exatamente as palavras da 'pergunta' do conhecimento?"""
+        termos = set(self.linguagem.processar(candidato.conhecimento.get("pergunta") or "",
+                                              corrigir=False).radicais)
+        return bool(termos) and termos == set(consulta.radicais)
 
     def corrigir(self, mensagem_id: str, resposta_correta: str) -> dict[str, Any]:
         """

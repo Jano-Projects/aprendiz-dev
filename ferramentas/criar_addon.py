@@ -10,6 +10,7 @@ CRIAR a partir de uma pasta-fonte:
                           origem ("oficial" só para a Jano Projects; o padrão é "terceiros"),
                           editor, dependencias, app.versao_minima
       perguntas.txt       pares no formato abaixo (o jeito mais fácil de escrever)
+      verbetes.txt        dicionário: blocos V:/R: (veja abaixo)
       conhecimentos.json  lista [{"pergunta": "...", "conteudo": "..."}] (para quem gera por programa)
       linguagem.json      {"sinonimos": {...}, "abreviacoes": {...}}
       parametros.json     {"limiar.bm25": 0.6, ...}         (chaves de aprendiz/configuracoes.py)
@@ -28,6 +29,16 @@ CRIAR a partir de uma pasta-fonte:
         R: 1 polegada = 2,54 cm.
 
     Linhas começando com # são comentários.
+
+    Dicionários (gírias, termos regionais) usam "V:" no lugar de "P:". Cada
+    bloco vira um VERBETE, que só responde quando a pessoa digita a palavra
+    sozinha ou pergunta "o que significa <palavra>" (Aprendiz 0.4.1+):
+
+        V: bué
+        R: Muito, bastante. Ex.: "Gostei bué."
+
+    Num dicionário, coloque em linguagem.json as stopwords "significa",
+    "significado", "quer" e "dizer" (veja os addons de gírias da loja).
 
 CONFERIR um addon pronto (o mesmo teste que o app faz ao importar):
 
@@ -49,15 +60,16 @@ from aprendiz.addons import (  # noqa: E402
 
 ARQUIVOS_ESPECIAIS = {"manifesto.json", "conhecimentos.json", "linguagem.json",
                       "parametros.json", "personalizacao.json",
-                      "perguntas.txt", "leia-me.md", "readme.md"}
+                      "perguntas.txt", "verbetes.txt", "leia-me.md", "readme.md"}
 
 
 def ler_perguntas(caminho: Path) -> list[dict]:
-    pares, pergunta, resposta = [], None, []
+    pares, pergunta, resposta, tipo = [], None, [], "pergunta"
     def fechar():
         nonlocal pergunta, resposta
         if pergunta and resposta:
-            pares.append({"pergunta": pergunta, "conteudo": "\n".join(resposta).strip()})
+            pares.append({"pergunta": pergunta, "conteudo": "\n".join(resposta).strip(),
+                          "tipo": tipo})
         elif pergunta or resposta:
             raise SystemExit(f"{caminho.name}: bloco incompleto perto de {pergunta or resposta!r}")
         pergunta, resposta = None, []
@@ -67,9 +79,10 @@ def ler_perguntas(caminho: Path) -> list[dict]:
             continue
         if not linha.strip():
             fechar()
-        elif linha[:2].upper() == "P:":
+        elif linha[:2].upper() in ("P:", "V:"):
             fechar()
             pergunta = linha[2:].strip()
+            tipo = "verbete" if linha[:2].upper() == "V:" else "pergunta"
         elif linha[:2].upper() == "R:":
             resposta = [linha[2:].strip()]
         elif resposta:
@@ -89,8 +102,9 @@ def criar(pasta: Path, saida: Path | None) -> None:
     manifesto.pop("classificacao", None)  # sempre recalculada a partir dos arquivos
 
     conhecimentos: list[dict] = []
-    if (pasta / "perguntas.txt").exists():
-        conhecimentos += ler_perguntas(pasta / "perguntas.txt")
+    for nome in ("perguntas.txt", "verbetes.txt"):  # mesmo formato; P: e V: valem nos dois
+        if (pasta / nome).exists():
+            conhecimentos += ler_perguntas(pasta / nome)
     if (pasta / "conhecimentos.json").exists():
         conhecimentos += json.loads((pasta / "conhecimentos.json").read_text(encoding="utf-8"))
     for arquivo in sorted(pasta.iterdir()):
