@@ -650,10 +650,11 @@
 
   async function carregarAddons() {
     const lista = $("#lista-addons");
-    const itens = await api("/api/addons");
+    const [itens, grupos] = await Promise.all([api("/api/addons"), api("/api/addons/grupos")]);
     lista.innerHTML = itens.length ? "" : `
       <div class="vazio">${icone("addon")}
         <div>Nenhum addon instalado ainda.<br>Baixe um arquivo <code>.aprendiz</code> e clique em <b>Importar addon</b>.</div></div>`;
+    const cartoes = {};  // id → cartão; depois são distribuídos pelos grupos
 
     itens.forEach((a) => {
       const cartao = criar(`
@@ -726,8 +727,71 @@
         atualizarStatus();
       });
 
-      lista.appendChild(cartao);
+      cartoes[a.id] = cartao;
     });
+
+    // Grupos: addons que recomendam o mesmo padrão de busca e resposta.
+    grupos.forEach((g) => lista.appendChild(grupoDeAddons(g, cartoes, grupos)));
+  }
+
+  /**
+   * Seção de um grupo. "Usar este grupo" ativa os addons dele, aplica o padrão
+   * recomendado e (se o dono confirmar) desativa os addons de outros padrões,
+   * para todos funcionarem no mesmo ambiente de busca.
+   */
+  function grupoDeAddons(g, cartoes, grupos) {
+    const ativos = g.addons.filter((a) => a.ativo).length;
+    const secao = criar(`
+      <section class="grupo-addons ${g.em_uso ? "em-uso" : ""}">
+        <header>
+          <div class="texto">
+            <b></b>
+            <small></small>
+          </div>
+          <div class="acoes-grupo"></div>
+        </header>
+      </section>`);
+    $("b", secao).textContent = g.chave ? `Recomendado: ${g.titulo}` : g.titulo;
+    $("small", secao).textContent = g.chave
+      ? `${plural(g.addons.length, "addon", "addons")}, ${ativos} ativo(s)` + (g.em_uso ? " · padrão em uso" : "")
+      : "Addons de personalização ou sem algoritmo recomendado";
+    const acoes = $(".acoes-grupo", secao);
+
+    if (g.chave && g.addons.length > 1) {
+      const todos = criar(`<button class="acao">${icone(ativos === g.addons.length ? "x" : "check")}<span></span></button>`);
+      $("span", todos).textContent = ativos === g.addons.length ? "Desativar grupo" : "Ativar grupo";
+      todos.addEventListener("click", async () => {
+        await api("/api/addons/grupo", { metodo: "POST", corpo: {
+          ids: g.addons.map((a) => a.id), ativo: ativos !== g.addons.length } });
+        carregarAddons();
+        atualizarStatus();
+      });
+      acoes.appendChild(todos);
+    }
+    if (g.chave && !(g.em_uso && ativos === g.addons.length)) {
+      const usar = criar(`<button class="botao botao-primario pequeno">${icone("check")} Usar este grupo</button>`);
+      usar.addEventListener("click", async () => {
+        const outros = grupos.filter((o) => o.chave && o.chave !== g.chave)
+          .flatMap((o) => o.addons.filter((a) => a.ativo));
+        try {
+          await api("/api/addons/grupo", { metodo: "POST", corpo: { ids: g.addons.map((a) => a.id), ativo: true } });
+          await api("/api/padrao", { metodo: "PUT", corpo: { busca: g.busca, resposta: g.resposta } });
+          if (outros.length && window.confirm(
+            `Desativar também ${plural(outros.length, "addon", "addons")} de outros padrões, ` +
+            `para todos funcionarem do mesmo jeito?\n\n${outros.map((a) => "• " + a.nome).join("\n")}`)) {
+            await api("/api/addons/grupo", { metodo: "POST", corpo: { ids: outros.map((a) => a.id), ativo: false } });
+          }
+          await carregarConfiguracoes();
+          await carregarAlgoritmos();
+          avisar(`Padrão ${g.titulo} em uso.`, "check");
+        } catch (erro) { avisar(erro.message, "alerta"); }
+        carregarAddons();
+        atualizarStatus();
+      });
+      acoes.appendChild(usar);
+    }
+    g.addons.forEach((a) => { if (cartoes[a.id]) secao.appendChild(cartoes[a.id]); });
+    return secao;
   }
 
   const SITUACAO_DEPENDENCIA = {
@@ -769,6 +833,36 @@
       resumo.appendChild(criar(`<div class="aviso-backup alerta">${icone("pessoas")}<span>Addon de terceiros.
         Só instale se confiar em quem o enviou. Ele contém apenas dados: nada é executado.</span></div>`));
     }
+    // Recomendação de algoritmos e grupo: opções que valem na hora de instalar.
+    $("#instalar-opcoes").innerHTML = "";
+    const rec = info.recomendado;
+    if (rec) {
+      const acerto = rec.acerto != null ? ` (acertou ${Math.round(rec.acerto * 100)}% no teste do autor)` : "";
+      const bloco = criar(`<div class="bloco-resumo"><h4>${icone("algoritmo")} Recomendado para este addon</h4>
+        <div class="linha-resumo">${icone("busca")}<span></span></div></div>`);
+      $(".linha-resumo span", bloco).textContent = `Busca ${rec.titulo_busca} · resposta ${rec.titulo_resposta}${acerto}`;
+      resumo.appendChild(bloco);
+      if (!rec.disponivel) {
+        bloco.appendChild(criar(`<small class="ajuda">Algum desses algoritmos não existe nesta versão do Aprendiz; o padrão atual continua valendo.</small>`));
+      } else if (!rec.ja_em_uso) {
+        const marcar = !rec.outros_padroes_ativos.length;
+        const opcao = criar(`<label class="opcao-instalar"><input type="checkbox" id="opt-recomendacao" ${marcar ? "checked" : ""}>
+          <span><b></b><small></small></span></label>`);
+        $("b", opcao).textContent = `Usar ${rec.titulo_busca} · ${rec.titulo_resposta} como padrão`;
+        $("small", opcao).textContent = rec.outros_padroes_ativos.length
+          ? `Outros addons ativos recomendam outro padrão (${rec.outros_padroes_ativos.join("; ")}).`
+          : "Troca os algoritmos do topo da tela. Dá para mudar de novo quando quiser.";
+        $("#instalar-opcoes").appendChild(opcao);
+      }
+    }
+    if (info.grupo && info.grupo.inativos.length) {
+      const opcao = criar(`<label class="opcao-instalar"><input type="checkbox" id="opt-grupo" checked>
+        <span><b></b><small></small></span></label>`);
+      $("b", opcao).textContent = `Ativar também ${plural(info.grupo.inativos.length, "addon desativado", "addons desativados")} do mesmo grupo`;
+      $("small", opcao).textContent = info.grupo.inativos.map((a) => a.nome).join(", ");
+      $("#instalar-opcoes").appendChild(opcao);
+    }
+
     if (info.dependencias.length) {
       const bloco = criar(`<div class="bloco-resumo"><h4>${icone("link")} Complementa estes addons</h4></div>`);
       info.dependencias.forEach((d) => {
@@ -818,6 +912,8 @@
         const info = await api("/api/addons/inspecionar", { metodo: "POST", corpo });
         if (!(await confirmarInstalacao(info))) continue;
         avisar(`Instalando ${arquivo.name}…`, "importar");
+        corpo.usar_recomendacao = !!($("#opt-recomendacao") && $("#opt-recomendacao").checked);
+        corpo.ativar_grupo = !!($("#opt-grupo") && $("#opt-grupo").checked);
         const r = await api("/api/addons", { metodo: "POST", corpo });
         const a = r.addon;
         let mensagem = `${a.nome} instalado com ${plural(a.total_conhecimentos, "conhecimento", "conhecimentos")}.`;
@@ -899,10 +995,47 @@
     if (!lista.children.length) {
       lista.innerHTML = `<div class="vazio">${icone("base")}<div>Ainda não há nada seu para exportar.<br>Ensine algo ao assistente primeiro.</div></div>`;
     }
+    preencherRecomendacao(dados.recomendacao);
     contarExportacao();
     $("#dlg-exportar").showModal();
     $("#exp-nome").focus();
   }
+
+  /** Mostra o resultado do teste de algoritmos e pré-seleciona a recomendação. */
+  function preencherRecomendacao(rec) {
+    const busca = $("#exp-busca");
+    const resposta = $("#exp-resposta");
+    const opcoes = (select, lista) => {
+      select.innerHTML = "";
+      lista.forEach((a) => {
+        const o = criar(`<option></option>`);
+        o.value = a.nome;
+        o.textContent = a.titulo.replace(" (padrão)", "");
+        select.appendChild(o);
+      });
+    };
+    opcoes(busca, estado.algoritmos.busca);
+    opcoes(resposta, estado.algoritmos.resposta);
+    if (rec) {
+      busca.value = rec.busca;
+      resposta.value = rec.resposta;
+      const acertos = Object.entries(rec.acertos)
+        .map(([nome, valor]) => `${nome} ${Math.round(valor * 100)}%`).join(" · ");
+      $("#exp-teste").textContent = `Teste com ${rec.perguntas} perguntas feitas a partir dos itens marcados (acerto@1): ${acertos}.`;
+    } else {
+      $("#exp-teste").textContent = "Marque conhecimentos para testar os algoritmos.";
+    }
+  }
+
+  $("#btn-recalcular").addEventListener("click", async () => {
+    const corpo = { conhecimentos: [], abreviacoes: [], sinonimos: [] };
+    $$("#exp-itens input[data-grupo]:checked").forEach((c) => {
+      if (corpo[c.dataset.grupo]) corpo[c.dataset.grupo].push(c.dataset.valor);
+    });
+    $("#exp-teste").textContent = "Testando…";
+    try { preencherRecomendacao(await api("/api/exportar/recomendar", { metodo: "POST", corpo })); }
+    catch (erro) { avisar(erro.message, "alerta"); }
+  });
 
   function contarExportacao() {
     $$("#exp-itens .grupo-exportar").forEach((bloco) => {
@@ -925,6 +1058,7 @@
         descricao: $("#exp-descricao").value.trim() || null,
       },
       conhecimentos: [], abreviacoes: [], sinonimos: [], parametros: [], personalizacao: [], dependencias: [],
+      recomendado: { busca: $("#exp-busca").value, resposta: $("#exp-resposta").value },
     };
     $$("#exp-itens input[data-grupo]:checked").forEach((c) => corpo[c.dataset.grupo].push(c.dataset.valor));
 

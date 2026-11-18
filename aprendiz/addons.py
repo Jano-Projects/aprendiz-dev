@@ -32,8 +32,14 @@ Um arquivo .aprendiz é um ZIP comum com arquivos JSON:
           "app": {"criado_com": "0.4.0", "versao_minima": "0.4.0"},
           "dependencias": [
             {"id": "atalhos-linux", "versao": "1.0.0", "nome": "Atalhos do Linux"}
-          ]
+          ],
+          "recomendado": {"busca": "bm25", "resposta": "direta", "acerto": 0.97}
         }
+
+    "recomendado" (opcional, Aprendiz 0.5+): o algoritmo de busca e o montador
+    de resposta que funcionam melhor com este conteúdo, medidos por um teste
+    com os próprios itens (veja core/recomendacao.py). O app mostra a
+    recomendação ao instalar e agrupa addons que pedem o mesmo padrão.
 
     conhecimentos.json:
         [
@@ -64,17 +70,17 @@ Diz o que o addon MEXE no Aprendiz. Precisa bater com os arquivos presentes:
     linguagem       amplia o banco de linguagem              ✔ aceito
     parametros      ajusta parâmetros dos algoritmos         ✔ aceito
     personalizacao  customiza nome, cor e boas-vindas        ✔ aceito
-    algoritmo       habilita um novo algoritmo (código)      ✘ reservado
-    aplicacao       modifica a aplicação (código)            ✘ reservado
+    algoritmo       habilita um novo algoritmo (código)      ✘ recusado
+    aplicacao       modifica a aplicação (código)            ✘ recusado
 
-Os dois últimos já existem no formato para a loja futura, mas esta versão
-recusa qualquer addon que traga código.
+Os dois últimos fazem parte do formato, mas o Aprendiz recusa qualquer
+addon que traga código: só addons de dados são instalados.
 
 Origem
 ------
 "oficial" = publicado pela Jano Projects; "terceiros" = qualquer outra
-pessoa (inclusive toda exportação feita pelo app). Por enquanto é só uma
-DECLARAÇÃO do arquivo: a confirmação virá da loja (catálogo/assinatura).
+pessoa (inclusive toda exportação feita pelo app). É uma DECLARAÇÃO do
+arquivo: o app não tem como confirmar quem o publicou.
 
 Formato 1
 ---------
@@ -125,6 +131,7 @@ MAX_PERGUNTA = 500
 MAX_DEPENDENCIAS = 50
 
 PADRAO_ID = re.compile(r"^[a-z0-9][a-z0-9-]{1,62}$")
+PADRAO_NOME_ALGORITMO = re.compile(r"^[a-z0-9_-]{1,30}$")
 PADRAO_VERSAO = re.compile(r"^\d+(\.\d+){0,3}$")
 _CONTROLE = re.compile(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]")
 
@@ -256,6 +263,47 @@ def validar_dependencias(bruto: Any) -> list[dict[str, Any]]:
     return saida
 
 
+def validar_recomendado(bruto: Any) -> dict[str, Any] | None:
+    """
+    Algoritmos recomendados. Nomes desconhecidos NÃO são recusados (o addon
+    pode ter sido feito numa versão com algoritmos novos): a tela de
+    instalação avisa que aquele algoritmo não existe nesta versão.
+    """
+    if bruto is None:
+        return None
+    if not isinstance(bruto, dict):
+        raise ErroAddon("'recomendado' precisa ser um objeto JSON.")
+    saida: dict[str, Any] = {}
+    for campo in ("busca", "resposta"):
+        valor = bruto.get(campo)
+        if not isinstance(valor, str) or not PADRAO_NOME_ALGORITMO.match(valor):
+            raise ErroAddon(f"'recomendado.{campo}' precisa ser o nome de um algoritmo "
+                            "(ex.: bm25, direta).")
+        saida[campo] = valor
+    acerto = bruto.get("acerto")
+    if acerto is not None:
+        if isinstance(acerto, bool) or not isinstance(acerto, (int, float)) or not 0 <= acerto <= 1:
+            raise ErroAddon("'recomendado.acerto' precisa ser um número de 0 a 1.")
+        saida["acerto"] = round(float(acerto), 3)
+    return saida
+
+
+def chave_de_grupo(manifesto: dict[str, Any], parametros: dict[str, Any] | None = None) -> str | None:
+    """
+    Addons que pedem o mesmo padrão de busca e resposta formam um GRUPO, que
+    pode ser ativado de uma vez. A chave vem da recomendação do manifesto ou,
+    se não houver, dos parâmetros busca.padrao/resposta.padrao que o addon traz.
+    Addons só de personalização não entram em grupo (None).
+    """
+    rec = manifesto.get("recomendado") or {}
+    parametros = parametros or {}
+    busca = rec.get("busca") or parametros.get("busca.padrao")
+    resposta = rec.get("resposta") or parametros.get("resposta.padrao")
+    if not busca:
+        return None
+    return f"{busca}+{resposta or 'direta'}"
+
+
 def validar_app(bruto: Any) -> dict[str, str | None]:
     if bruto is None:
         return {"criado_com": None, "versao_minima": None}
@@ -300,7 +348,8 @@ def validar_manifesto(bruto: Any) -> dict[str, Any]:
         # Formato 1 não tinha esses campos: a classificação é deduzida depois,
         # pelos arquivos presentes (ver ler_pacote).
         manifesto.update(origem="terceiros", classificacao=None,
-                         app={"criado_com": None, "versao_minima": None}, dependencias=[])
+                         app={"criado_com": None, "versao_minima": None}, dependencias=[],
+                         recomendado=None)
         return manifesto
 
     origem = bruto.get("origem", "terceiros")
@@ -310,6 +359,7 @@ def validar_manifesto(bruto: Any) -> dict[str, Any]:
     manifesto["classificacao"] = validar_classificacao(bruto.get("classificacao"))
     manifesto["app"] = validar_app(bruto.get("app"))
     manifesto["dependencias"] = validar_dependencias(bruto.get("dependencias"))
+    manifesto["recomendado"] = validar_recomendado(bruto.get("recomendado"))
     if any(d["id"] == id_ for d in manifesto["dependencias"]):
         raise ErroAddon("Um addon não pode depender de si mesmo.")
 

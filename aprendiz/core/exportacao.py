@@ -17,6 +17,10 @@ Fluxo (duas etapas, para o dono ver e escolher antes de gerar o arquivo):
     2. exportar(banco, escolha) → bytes do arquivo .aprendiz, só com o que
                          o dono marcou.
 
+A prévia e a exportação também RECOMENDAM o algoritmo de busca e o de
+resposta, testando os próprios itens (core/recomendacao.py). O dono pode
+trocar a recomendação antes de gerar o arquivo; ela vai no manifesto.
+
 Regras que não mudam com a escolha do dono:
 
     • origem é SEMPRE "terceiros": "oficial" é reservado à Jano Projects.
@@ -38,6 +42,8 @@ from typing import Any
 
 from aprendiz import addons as pacotes
 from aprendiz import configuracoes as cfg
+from aprendiz.algoritmos import BUSCAS, RESPOSTAS, titulo_curto
+from aprendiz.core.recomendacao import recomendar
 from aprendiz.linguagem import extrair_entidades, normalizar
 from aprendiz.memoria import sementes
 
@@ -80,7 +86,7 @@ def _linguagem_do_dono(banco) -> dict[str, list[dict[str, str]]]:
     }
 
 
-def previa(banco) -> dict[str, Any]:
+def previa(banco, recomendar: bool = True) -> dict[str, Any]:
     """Tudo o que pode ser exportado, já com a sugestão de marcação."""
     conhecimentos = []
     for k in banco.listar_conhecimentos(limite=pacotes.MAX_CONHECIMENTOS):
@@ -92,8 +98,12 @@ def previa(banco) -> dict[str, Any]:
 
     configuracoes = cfg.Configuracoes(banco)
     def bloco(tipo: str) -> list[dict[str, Any]]:
+        # Os algoritmos padrão NÃO viram parâmetros do addon: eles vão como
+        # RECOMENDAÇÃO, que quem instala aceita ou não (parâmetros valeriam
+        # sem perguntar).
         return [{"chave": c, "titulo": cfg.DEFINICOES[c].titulo, "valor": v, "marcado": True}
-                for c, v in configuracoes.do_dono(tipo).items()]
+                for c, v in configuracoes.do_dono(tipo).items()
+                if c not in ("busca.padrao", "resposta.padrao")]
 
     dependencias = [{
         "id": a["id"], "nome": a["nome"], "versao": a["versao"], "ativo": bool(a["ativo"]),
@@ -101,14 +111,31 @@ def previa(banco) -> dict[str, Any]:
         "marcado": bool(a["ativo"]),
     } for a in banco.listar_addons()]
 
+    linguagem = _linguagem_do_dono(banco)
     return {
         "conhecimentos": conhecimentos,
-        "linguagem": _linguagem_do_dono(banco),
+        "linguagem": linguagem,
+        "recomendacao": recomendar_para(
+            [k for k in conhecimentos if k["marcado"]],
+            {t: {e["termo"]: e["valor"] for e in lista} for t, lista in linguagem.items()},
+        ) if recomendar else None,
         "parametros": bloco("parametros"),
         "personalizacao": bloco("personalizacao"),
         "dependencias": dependencias,
         "app": {"versao": pacotes.__version__},
     }
+
+
+def recomendar_para(itens: list[dict[str, Any]],
+                    linguagem: dict[str, dict[str, str]] | None = None) -> dict[str, Any] | None:
+    """Recomendação de algoritmos para estes itens, com os títulos para a interface."""
+    rec = recomendar([{k: v for k, v in item.items() if k in ("pergunta", "conteudo", "tipo")}
+                      for item in itens],
+                     {t: m for t, m in (linguagem or {}).items() if m})
+    if rec:
+        rec["titulo_busca"] = titulo_curto(BUSCAS, rec["busca"])
+        rec["titulo_resposta"] = titulo_curto(RESPOSTAS, rec["resposta"])
+    return rec
 
 
 def exportar(banco, escolha: dict[str, Any]) -> tuple[str, bytes]:
@@ -118,11 +145,16 @@ def exportar(banco, escolha: dict[str, Any]) -> tuple[str, bytes]:
 
         {"manifesto": {"id", "nome", "versao", "autor", "descricao", "licenca"},
          "conhecimentos": [ids], "abreviacoes": [termos], "sinonimos": [termos],
-         "parametros": [chaves], "personalizacao": [chaves], "dependencias": [ids]}
+         "parametros": [chaves], "personalizacao": [chaves], "dependencias": [ids],
+         "recomendado": {"busca": "bm25", "resposta": "direta"}}   ← opcional
+
+    Sem "recomendado", vale o resultado do teste com os itens exportados. Com
+    ele, vale a escolha do dono, e o "acerto" é o que aquele algoritmo teve
+    no teste.
 
     Devolve (nome_do_arquivo, bytes). Lança ErroAddon se algo estiver inválido.
     """
-    dados = previa(banco)
+    dados = previa(banco, recomendar=False)
 
     def marcados(lista: list[dict], chave: str, escolhidos: list) -> list[dict]:
         escolhidos = set(escolhidos or [])
@@ -157,6 +189,21 @@ def exportar(banco, escolha: dict[str, Any]) -> tuple[str, bytes]:
         manifesto["id"] = re.sub(r"[^a-z0-9]+", "-", normalizar(manifesto["nome"])).strip("-")[:63]
     if manifesto["id"] in {d["id"] for d in dependencias}:
         raise pacotes.ErroAddon("O id do seu addon não pode ser igual ao de uma dependência.")
+    # Recomendação: o teste roda sobre exatamente o que vai no arquivo.
+    escolhido = escolha.get("recomendado") or {}
+    for campo, registro in (("busca", BUSCAS), ("resposta", RESPOSTAS)):
+        if escolhido.get(campo) and escolhido[campo] not in registro:
+            raise pacotes.ErroAddon(f"Algoritmo desconhecido em 'recomendado.{campo}': "
+                                    f"{escolhido[campo]!r}.")
+    teste = recomendar(conhecimentos, linguagem) if conhecimentos else None
+    if teste or escolhido.get("busca"):
+        busca = escolhido.get("busca") or teste["busca"]
+        manifesto["recomendado"] = {
+            "busca": busca,
+            "resposta": escolhido.get("resposta") or (teste["resposta"] if teste else "direta"),
+            **({"acerto": teste["acertos"][busca]} if teste else {}),
+        }
+
     manifesto.update(
         origem="terceiros",            # sempre: "oficial" é só da Jano Projects
         dependencias=dependencias,

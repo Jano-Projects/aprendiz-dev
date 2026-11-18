@@ -20,6 +20,11 @@ CRIAR a partir de uma pasta-fonte:
     A "classificacao" e o "app.criado_com" são preenchidos sozinhos a partir
     do conteúdo e da versão do Aprendiz que gerou o arquivo (formato 2).
 
+    O "recomendado" (melhor busca e melhor resposta) também: a ferramenta
+    testa os quatro algoritmos de busca com os próprios itens e mostra o
+    resultado. Para fixar outra escolha, escreva no manifesto.json:
+        "recomendado": {"busca": "hibrido", "resposta": "extrativa"}
+
     Formato do perguntas.txt (blocos separados por linha em branco):
 
         P: quantos ml tem uma xícara
@@ -53,6 +58,8 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
+from aprendiz.core.recomendacao import recomendar  # noqa: E402
 
 from aprendiz.addons import (  # noqa: E402
     EXTENSAO, ORIGENS, ErroAddon, criar_pacote, dividir_em_trechos, ler_pacote,
@@ -116,8 +123,17 @@ def criar(pasta: Path, saida: Path | None) -> None:
         arquivo = pasta / nome
         return json.loads(arquivo.read_text(encoding="utf-8")) if arquivo.exists() else None
 
+    linguagem = json_opcional("linguagem.json")
+    if conhecimentos and not manifesto.get("recomendado"):
+        teste = recomendar(conhecimentos, linguagem)
+        if teste:
+            manifesto["recomendado"] = {k: teste[k] for k in ("busca", "resposta", "acerto")}
+            acertos = "  ".join(f"{nome} {valor:.0%}" for nome, valor in teste["acertos"].items())
+            print(f"     teste ({teste['perguntas']} perguntas): {acertos}")
+            print(f"     recomendado: busca {teste['busca']} · resposta {teste['resposta']}")
+
     try:
-        dados = criar_pacote(manifesto, conhecimentos, json_opcional("linguagem.json"),
+        dados = criar_pacote(manifesto, conhecimentos, linguagem,
                              json_opcional("parametros.json"), json_opcional("personalizacao.json"))
     except ErroAddon as erro:
         raise SystemExit(f"Addon inválido: {erro}")
@@ -142,6 +158,10 @@ def conferir(arquivo: Path) -> None:
     print(f"     autor: {m.get('autor') or '-'} · licença: {m.get('licenca') or '-'}")
     app = m["app"]
     print(f"     app: criado com {app['criado_com'] or '?'} · exige {app['versao_minima'] or '-'}")
+    if m.get("recomendado"):
+        r = m["recomendado"]
+        acerto = f" (acerto {r['acerto']:.0%} no teste)" if r.get("acerto") is not None else ""
+        print(f"     recomendado: busca {r['busca']} · resposta {r['resposta']}{acerto}")
     for dep in m["dependencias"]:
         print(f"     depende de: {dep['nome']} ({dep['id']}) {dep['versao']}")
     print(f"     conhecimentos: {len(p.conhecimentos)} {tipos}")

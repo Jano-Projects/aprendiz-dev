@@ -89,7 +89,8 @@ uma frase de exemplo pulam o classificador ("frase exata").
 
 `aprendiz/linguagem/entidades.py` reconhece e-mail, valor em reais, data, horário,
 telefone e número. Um trecho já reconhecido não é reconhecido de novo por um padrão mais
-genérico. Nesta fase, as entidades aparecem só no painel de explicação.
+genérico. As entidades aparecem no painel de explicação e ajudam a exportação a apontar
+possíveis dados pessoais.
 
 ## Exercícios sugeridos
 

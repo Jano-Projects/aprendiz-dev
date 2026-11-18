@@ -24,7 +24,7 @@ import time
 from typing import Any
 
 from aprendiz import addons as pacotes
-from aprendiz.algoritmos import BUSCAS, RESPOSTAS, ContextoBusca
+from aprendiz.algoritmos import BUSCAS, RESPOSTAS, ContextoBusca, titulo_curto
 from aprendiz.configuracoes import Configuracoes
 from aprendiz.linguagem import ClassificadorIntencoes, Linguagem, extrair_entidades
 from aprendiz.linguagem.normalizador import VERSAO_NORMALIZACAO
@@ -174,6 +174,35 @@ class Assistente:
         for item in resumo["configuracoes"]:
             item["dono_ja_definiu"] = item["chave"] in do_dono
         anterior = instalados.get(pacote.manifesto["id"])
+
+        # Recomendação de algoritmos e o GRUPO de addons que pedem o mesmo padrão.
+        chave = pacotes.chave_de_grupo(pacote.manifesto, pacote.parametros)
+        grupo = next((g for g in self.grupos_de_addons() if g["chave"] == chave), None)
+        rec = pacote.manifesto.get("recomendado")
+        if rec:
+            config = self.configuracoes.efetivas()
+            em_uso = (config["busca.padrao"]["valor"], config["resposta.padrao"]["valor"])
+            ativos_outro_padrao = [
+                g["titulo"] for g in self.grupos_de_addons()
+                if g["chave"] != chave and any(a["ativo"] for a in g["addons"])]
+            resumo["recomendado"] = {
+                **rec,
+                "titulo_busca": self._titulo_algoritmo(BUSCAS, rec["busca"]),
+                "titulo_resposta": self._titulo_algoritmo(RESPOSTAS, rec["resposta"]),
+                "disponivel": rec["busca"] in BUSCAS and rec["resposta"] in RESPOSTAS,
+                "ja_em_uso": em_uso == (rec["busca"], rec["resposta"]),
+                "outros_padroes_ativos": ativos_outro_padrao,
+            }
+        else:
+            resumo["recomendado"] = None
+        resumo["grupo"] = {
+            "chave": chave,
+            "titulo": grupo["titulo"] if grupo else None,
+            "inativos": [{"id": a["id"], "nome": a["nome"]} for a in (grupo["addons"] if grupo else [])
+                         if not a["ativo"] and a["id"] != pacote.manifesto["id"]],
+            "ativos": sum(1 for a in (grupo["addons"] if grupo else [])
+                          if a["ativo"] and a["id"] != pacote.manifesto["id"]),
+        } if chave else None
         return {**resumo, "dependencias": dependencias,
                 "versao_anterior": anterior["versao"] if anterior else None}
 
@@ -203,6 +232,53 @@ class Assistente:
             "addon": self.banco.obter_addon(pacote.manifesto["id"]),
             "versao_anterior": anterior["versao"] if anterior else None,
         }
+
+    @staticmethod
+    def _titulo_algoritmo(registro: dict, nome: str) -> str:
+        return titulo_curto(registro, nome)
+
+    def grupos_de_addons(self) -> list[dict[str, Any]]:
+        """
+        Addons instalados agrupados pelo padrão de busca e resposta que pedem
+        (ver addons.chave_de_grupo). Addons sem recomendação ficam num grupo
+        à parte, com chave None. Cada grupo diz se o padrão dele está em uso.
+        """
+        config = self.configuracoes.efetivas()
+        em_uso = f"{config['busca.padrao']['valor']}+{config['resposta.padrao']['valor']}"
+        grupos: dict[str | None, dict[str, Any]] = {}
+        for a in self.banco.listar_addons():
+            chave = pacotes.chave_de_grupo(a["manifesto"] or {},
+                                           self.banco.configuracoes_do_addon(a["id"]))
+            if chave not in grupos:
+                busca, _, resposta = (chave or "+").partition("+")
+                grupos[chave] = {
+                    "chave": chave, "busca": busca or None, "resposta": resposta or None,
+                    "titulo": (f"{self._titulo_algoritmo(BUSCAS, busca)} · "
+                               f"{self._titulo_algoritmo(RESPOSTAS, resposta)}"
+                               if chave else "Sem recomendação"),
+                    "em_uso": chave == em_uso,
+                    "addons": [],
+                }
+            grupos[chave]["addons"].append(
+                {"id": a["id"], "nome": a["nome"], "ativo": bool(a["ativo"])})
+        # Grupos com recomendação primeiro (o em uso no topo); "sem recomendação" por último.
+        return sorted(grupos.values(),
+                      key=lambda g: (g["chave"] is None, not g["em_uso"], g["titulo"]))
+
+    def definir_addons_ativos(self, ids: list[str], ativo: bool) -> int:
+        """Ativa ou desativa vários addons de uma vez (reindexa uma vez só)."""
+        existentes = {a["id"]: a for a in self.banco.listar_addons()}
+        alterados = [i for i in ids if i in existentes and bool(existentes[i]["ativo"]) != ativo]
+        for addon_id in alterados:
+            self.banco.definir_addon_ativo(addon_id, ativo)
+        if any(existentes[i]["total_linguagem"] for i in alterados):
+            self.reindexar()
+        return len(alterados)
+
+    def usar_padrao(self, busca: str, resposta: str) -> None:
+        """Define (como escolha do dono) os algoritmos padrão de busca e resposta."""
+        self.configuracoes.definir("busca.padrao", busca)
+        self.configuracoes.definir("resposta.padrao", resposta)
 
     def definir_addon_ativo(self, addon_id: str, ativo: bool) -> dict[str, Any]:
         addon = self.banco.obter_addon(addon_id)
@@ -346,33 +422,8 @@ class Assistente:
             return MSG_FORMATO_ENSINO, "social", []
 
         # 5. Busca -------------------------------------------------------------
-        # Parâmetros em vigor (dono > addon ativo > padrão; ver configuracoes.py)
-        config = self.configuracoes.efetivas()
-        self.contexto.limiares = {nome: config[f"limiar.{nome}"]["valor"]
-                                  for nome in BUSCAS if f"limiar.{nome}" in config}
-        margem_dono = config["prioridade_dono.margem"]["valor"]
-
         algoritmo_busca = BUSCAS[busca]
-        limiar = self.contexto.limiar(busca)
-        candidatos = self._filtrar_verbetes(
-            consulta, algoritmo_busca.buscar(consulta, self.contexto, limite=5))
-        aceitos = [c for c in candidatos if c.confianca >= limiar]
-        # Prioridade do dono: se o melhor resultado veio de um addon, mas há
-        # algo ensinado pelo dono quase tão relevante (por padrão, até 10%
-        # abaixo), vale o do dono. A margem existe porque respostas mais longas
-        # pontuam um pouco menos em alguns algoritmos, mesmo respondendo a
-        # mesma coisa. Ajustável em Configurações (prioridade_dono.margem).
-        # Um verbete exato (dicionário) só perde para algo do dono que também
-        # seja exatamente aquela palavra; senão, "nha" (Cabo Verde) seria
-        # trocado por "senha do wifi", que o Fuzzy acha parecido.
-        topo_verbete = bool(aceitos) and aceitos[0].detalhes.get("verbete") == "palavra exata"
-        if aceitos and aceitos[0].conhecimento.get("addon_id"):
-            for i, c in enumerate(aceitos):
-                if (not c.conhecimento.get("addon_id")
-                        and c.confianca >= margem_dono * aceitos[0].confianca
-                        and (not topo_verbete or self._mesmas_palavras(consulta, c))):
-                    aceitos.insert(0, aceitos.pop(i))
-                    break
+        candidatos, aceitos, limiar = self.buscar(consulta, busca)
         etapas.marcar(f"Busca · {algoritmo_busca.titulo}", {
             "limiar": limiar,
             "candidatos": [
@@ -409,6 +460,40 @@ class Assistente:
         por_id = {c.id: c.conhecimento for c in aceitos}
         fontes = [self._fonte(por_id[i]) for i in gerada.fontes if i in por_id]
         return gerada.texto, "conhecimento", fontes
+
+    def buscar(self, consulta, busca: str, limite: int = 5) -> tuple[list, list, float]:
+        """
+        Etapa de busca do pipeline, separada para ser reaproveitada (a
+        recomendação de algoritmo dos addons usa este mesmo caminho).
+        Devolve (candidatos, aceitos, limiar), com os aceitos já ordenados.
+        """
+        # Parâmetros em vigor (dono > addon ativo > padrão; ver configuracoes.py)
+        config = self.configuracoes.efetivas()
+        self.contexto.limiares = {nome: config[f"limiar.{nome}"]["valor"]
+                                  for nome in BUSCAS if f"limiar.{nome}" in config}
+        margem_dono = config["prioridade_dono.margem"]["valor"]
+
+        limiar = self.contexto.limiar(busca)
+        candidatos = self._filtrar_verbetes(
+            consulta, BUSCAS[busca].buscar(consulta, self.contexto, limite=limite))
+        aceitos = [c for c in candidatos if c.confianca >= limiar]
+        # Prioridade do dono: se o melhor resultado veio de um addon, mas há
+        # algo ensinado pelo dono quase tão relevante (por padrão, até 10%
+        # abaixo), vale o do dono. A margem existe porque respostas mais longas
+        # pontuam um pouco menos em alguns algoritmos, mesmo respondendo a
+        # mesma coisa. Ajustável em Configurações (prioridade_dono.margem).
+        # Um verbete exato (dicionário) só perde para algo do dono que também
+        # seja exatamente aquela palavra; senão, "nha" (Cabo Verde) seria
+        # trocado por "senha do wifi", que o Fuzzy acha parecido.
+        topo_verbete = bool(aceitos) and aceitos[0].detalhes.get("verbete") == "palavra exata"
+        if aceitos and aceitos[0].conhecimento.get("addon_id"):
+            for i, c in enumerate(aceitos):
+                if (not c.conhecimento.get("addon_id")
+                        and c.confianca >= margem_dono * aceitos[0].confianca
+                        and (not topo_verbete or self._mesmas_palavras(consulta, c))):
+                    aceitos.insert(0, aceitos.pop(i))
+                    break
+        return candidatos, aceitos, limiar
 
     def _filtrar_verbetes(self, consulta, candidatos: list) -> list:
         """

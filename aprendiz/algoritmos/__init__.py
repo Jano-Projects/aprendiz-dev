@@ -12,6 +12,13 @@ from aprendiz.algoritmos.base import (
 )
 
 
+def titulo_curto(registro: dict, nome: str) -> str:
+    """Título sem o "(padrão)", para frases como "BM25 + Direta"."""
+    if nome not in registro:
+        return f"{nome} (não existe nesta versão)"
+    return registro[nome].titulo.replace(" (padrão)", "")
+
+
 def listar_algoritmos() -> dict:
     """Formato usado pela interface para montar os seletores."""
     def info(a):
@@ -29,5 +36,5 @@ def listar_algoritmos() -> dict:
 
 __all__ = [
     "BUSCAS", "RESPOSTAS", "AlgoritmoBusca", "AlgoritmoResposta", "Candidato",
-    "ContextoBusca", "RespostaGerada", "listar_algoritmos", "registrar",
+    "ContextoBusca", "RespostaGerada", "listar_algoritmos", "registrar", "titulo_curto",
 ]

@@ -249,6 +249,7 @@
         <button type="button" class="botao-icone" data-fechar aria-label="Fechar"><svg class="ic"><use href="#i-x"/></svg></button>
       </div>
       <div class="resumo-addon" id="instalar-resumo"></div>
+      <div class="opcoes-instalar" id="instalar-opcoes"></div>
       <div class="acoes-dialogo">
         <button type="button" class="botao" data-fechar>Cancelar</button>
         <button type="submit" value="instalar" class="botao botao-primario" id="btn-confirmar-instalar"><svg class="ic"><use href="#i-check"/></svg> Instalar</button>
@@ -276,6 +277,15 @@
         <label class="largo-total">Descrição <input id="exp-descricao" maxlength="500" placeholder="O que este addon ensina"></label>
       </div>
       <div class="lista-base" id="exp-itens"></div>
+      <div class="bloco-recomendacao">
+        <h4><svg class="ic"><use href="#i-algoritmo"/></svg> Algoritmos recomendados para quem instalar</h4>
+        <div class="grade-campos">
+          <label>Busca <select id="exp-busca"></select></label>
+          <label>Resposta <select id="exp-resposta"></select></label>
+        </div>
+        <div class="linha-teste"><small class="ajuda" id="exp-teste"></small>
+          <button type="button" class="acao" id="btn-recalcular"><svg class="ic"><use href="#i-reset"/></svg><span>Testar de novo</span></button></div>
+      </div>
       <div class="acoes-dialogo">
         <span class="contador" id="exp-resumo"></span>
         <button type="button" class="botao" data-fechar>Cancelar</button>

@@ -33,7 +33,48 @@ Itens com cara de **dado pessoal** vêm **desmarcados** e com um aviso: senha, e
 CPF, número longo, endereço, chave Pix… É uma heurística (`aprendiz/core/exportacao.py`):
 ajuda a revisar, mas não substitui a sua leitura.
 
-Todo addon exportado pelo app sai com `"origem": "terceiros"`.
+Todo addon exportado pelo app sai com `"origem": "terceiros"`. Os algoritmos padrão que você
+escolheu não vão como parâmetros: vão como **recomendação** (veja abaixo), que quem instala
+aceita ou não.
+
+## Algoritmo recomendado e grupos
+
+Cada addon pode dizer **qual busca e qual resposta funcionam melhor com ele**:
+
+```json
+"recomendado": {"busca": "bm25", "resposta": "direta", "acerto": 1.0}
+```
+
+A recomendação não é um palpite: `ferramentas/criar_addon.py` e a exportação do app montam um
+Aprendiz temporário só com os itens do addon e fazem perguntas parecidas com as de uma pessoa
+(a própria pergunta, a pergunta com um erro de digitação, "o que significa…" nos verbetes, o
+começo do texto nas notas). O algoritmo de busca que mais acerta em primeiro lugar é o
+recomendado; num empate, vale o mais leve (BM25, TF-IDF, Híbrido, Fuzzy). A resposta é a
+**Extrativa** quando a maior parte do conteúdo são textos longos, e a **Direta** nos outros
+casos. O `acerto` é a fração das perguntas do teste que aquele algoritmo acertou
+(`aprendiz/core/recomendacao.py`).
+
+**Ao instalar**, a tela de confirmação mostra a recomendação e oferece:
+
+- **Usar como padrão:** troca os algoritmos de busca e resposta do app. Vem marcada, a não
+  ser que outros addons ativos recomendem um padrão diferente.
+- **Ativar também os addons do mesmo grupo** que estiverem desativados.
+
+**Grupos.** Na tela de Addons, os addons aparecem agrupados pela recomendação (por exemplo,
+"BM25 · Direta"). Um addon sem `recomendado` que traga `busca.padrao`/`resposta.padrao` em
+`parametros.json` entra no grupo desses parâmetros; addons só de personalização ficam em
+"Sem recomendação". Em cada grupo:
+
+- **Ativar grupo / Desativar grupo** liga ou desliga todos de uma vez.
+- **Usar este grupo** ativa os addons do grupo, aplica o padrão dele e pergunta se deve
+  desativar os addons de outros padrões, para todos funcionarem no mesmo ambiente de busca.
+
+**Ao exportar**, o app mostra o resultado do teste com os itens marcados e deixa trocar a busca
+e a resposta antes de gerar o arquivo. O botão **Testar de novo** refaz o teste depois de mudar
+a seleção.
+
+Algoritmos que não existem na versão do app que instala são aceitos no manifesto, mas a tela
+avisa e o padrão atual continua valendo.
 
 ## Classificação
 
@@ -50,9 +91,8 @@ declarou.
 | `algoritmo` | habilita um novo algoritmo | (código) | **recusado** |
 | `aplicacao` | modifica a aplicação | (código) | **recusado** |
 
-`algoritmo` e `aplicacao` já existem no formato, pensando na loja futura, mas esta versão só
-aceita **addons de dados**. Um addon que declare um desses tipos é recusado com uma mensagem
-clara.
+`algoritmo` e `aplicacao` fazem parte do formato, mas o Aprendiz só instala **addons de
+dados**: um addon que declare um desses tipos é recusado com uma mensagem clara.
 
 ## Origem: oficial ou de terceiros
 
@@ -61,9 +101,9 @@ clara.
 | `oficial` | a Jano Projects | **Oficial Jano** |
 | `terceiros` | qualquer outra pessoa (padrão) | **Terceiros**, com aviso para conferir a fonte |
 
-> **Importante:** por enquanto a origem é só uma **declaração do arquivo**. Qualquer pessoa
-> pode escrever `"oficial"` num manifesto. A confirmação virá da loja: o catálogo vai indicar
-> quais addons são oficiais e, mais adiante, os arquivos poderão ser assinados.
+> **Importante:** a origem é uma **declaração do arquivo**. Qualquer pessoa pode escrever
+> `"oficial"` num manifesto, e o app não tem como confirmar quem o publicou. Baixe addons
+> oficiais da loja da Jano Projects, que confere cada arquivo e publica o SHA-256 dele.
 
 ## Parâmetros e personalização
 
@@ -129,8 +169,9 @@ meu-addon/
   `"editor": "Jano Projects"`.
 - `dependencias`: addons que este complementa. Não bloqueiam a instalação; a tela de
   confirmação mostra se cada um está instalado, desativado, desatualizado ou ausente.
-- `classificacao`, `formato` e `app` são **preenchidos pela ferramenta** a partir dos arquivos e
-  da versão do Aprendiz. Para exigir uma versão mínima diferente da atual, informe
+- `classificacao`, `formato`, `app` e `recomendado` são **preenchidos pela ferramenta** a partir
+  dos arquivos, da versão do Aprendiz e do teste dos algoritmos. Para fixar outra recomendação,
+  escreva `"recomendado": {"busca": "hibrido", "resposta": "extrativa"}` no manifesto. Para exigir uma versão mínima diferente da atual, informe
   `"app": {"versao_minima": "0.4.0"}`.
 
 **perguntas.txt**
@@ -232,6 +273,7 @@ python ferramentas/criar_addon.py --conferir meu-addon.aprendiz    # mesma valid
   "classificacao": ["memoria", "linguagem", "parametros"],
   "app": {"criado_com": "0.4.0", "versao_minima": "0.4.0"},
   "dependencias": [{"id": "conversoes-medidas", "versao": "1.1.0", "nome": "Conversões de medidas"}],
+  "recomendado": {"busca": "bm25", "resposta": "direta", "acerto": 1.0},
   "criado_em": "2026-11-17"
 }
 ```
@@ -267,14 +309,5 @@ Addons vêm da internet, então o Aprendiz os trata como **dados não confiávei
 
 O que a validação **não** garante é que o conteúdo esteja **correto**, nem que um addon
 "oficial" seja mesmo da Jano Projects. Instale addons de fontes em que você confia.
-
-## A loja de addons (planejamento)
-
-A loja será um site estático, sem servidor:
-
-1. Um repositório com os arquivos `.aprendiz` e um `catalogo.json` com nome, descrição,
-   versão, classificação, origem, versão mínima do app, link de download e o **SHA-256** de cada
-   arquivo. É o catálogo que vai **confirmar** quais addons são oficiais.
-2. Uma página (GitHub Pages) que lê o catálogo, permite buscar e baixar.
-3. Mais adiante: o app lê o catálogo, confere o SHA-256 antes de instalar e verifica a
-   assinatura dos addons oficiais. O comando `criar_addon.py --conferir` já mostra o hash.
+O comando `criar_addon.py --conferir` mostra o SHA-256 de um arquivo, para comparar com o
+publicado na loja.

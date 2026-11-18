@@ -6,5 +6,8 @@
   "descricao": "Sobe os limiares de confiança: o assistente responde só quando tem bastante certeza e diz \"ainda não sei\" com mais frequência. Addon de exemplo de parâmetros.",
   "licenca": "CC0-1.0",
   "origem": "oficial",
-  "editor": "Jano Projects"
+  "editor": "Jano Projects",
+  "app": {
+    "versao_minima": "0.4.0"
+  }
 }

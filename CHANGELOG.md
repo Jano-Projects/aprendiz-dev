@@ -6,6 +6,27 @@ seguem o [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ## [Não lançado]
 
+## [0.5.0] - 2026-11-17
+
+### Adicionado
+- **Algoritmo recomendado** no manifesto dos addons (`recomendado`: busca, resposta e acerto).
+  `criar_addon.py` e a exportação calculam a recomendação testando os quatro algoritmos de
+  busca com o próprio conteúdo (`aprendiz/core/recomendacao.py`).
+- Na instalação: a recomendação aparece na confirmação, com as opções **Usar como padrão** e
+  **Ativar também os addons do mesmo grupo**.
+- **Grupos de addons** na tela de Addons, pela recomendação: ativar ou desativar o grupo
+  inteiro e **Usar este grupo** (ativa, aplica o padrão e oferece desativar os de outros
+  padrões).
+- Na exportação: resultado do teste, escolha da busca e da resposta recomendadas e o botão
+  **Testar de novo**.
+- Rotas `GET /api/addons/grupos`, `POST /api/addons/grupo`, `PUT /api/padrao` e
+  `POST /api/exportar/recomendar`.
+
+### Mudado
+- A etapa de busca do pipeline virou o método `Assistente.buscar()`, reaproveitado pelo teste
+  de recomendação.
+- README e documentação descrevem só o que o projeto faz hoje (sem roteiro de planos).
+
 ## [0.4.1] - 2026-11-17
 
 ### Adicionado
@@ -97,7 +118,8 @@ Primeira versão pública.
 - Instaladores para Linux e Windows que instalam o Python se faltar, verificador de
   instalação, executável via PyInstaller e CI em Windows, Ubuntu, Fedora e Debian.
 
-[Não lançado]: https://github.com/Jano-Projects/aprendiz-dev/compare/v0.4.1...HEAD
+[Não lançado]: https://github.com/Jano-Projects/aprendiz-dev/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/Jano-Projects/aprendiz-dev/compare/v0.4.1...v0.5.0
 [0.4.1]: https://github.com/Jano-Projects/aprendiz-dev/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/Jano-Projects/aprendiz-dev/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/Jano-Projects/aprendiz-dev/releases/tag/v0.3.0

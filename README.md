@@ -18,8 +18,7 @@ E um projeto aberto para **estudar Processamento de Linguagem Natural** na prát
 </div>
 
 > 🧑‍💻 **Este repositório é para desenvolvedores**: o código-fonte para estudar, modificar e
-> contribuir. Versões prontas para instalar com dois cliques (executáveis) serão publicadas
-> separadamente, na aba **Releases**.
+> contribuir.
 
 ---
 
@@ -34,7 +33,6 @@ E um projeto aberto para **estudar Processamento de Linguagem Natural** na prát
 - [Estrutura do projeto](#estrutura-do-projeto)
 - [Desenvolvimento](#desenvolvimento)
 - [Onde ficam os dados](#onde-ficam-os-dados)
-- [Roteiro](#roteiro)
 - [Contribuindo](#contribuindo) · [Licença](#licença)
 
 ## O que é
@@ -61,6 +59,9 @@ comentada em português. Por isso ele roda até em máquinas bem modestas.
 | 🎓 **Aprende pelo chat** | `aprenda que a senha do wifi é casa123` · `pergunta: … resposta: …` · `anote: …` |
 | 🔁 **Aprende com correções** | Errou? *Corrigir* transforma a resposta certa em ensinamento |
 | 🧩 **Addons** | Pacotes `.aprendiz` (memória, linguagem, parâmetros, personalização) com confirmação antes de instalar ([docs](docs/addons.md)) |
+| 📖 **Dicionários** | Verbetes que respondem a "o que significa…" sem atrapalhar o resto da conversa |
+| 🧪 **Algoritmo recomendado** | Cada addon traz a busca e a resposta que funcionam melhor com ele, medidas num teste com o próprio conteúdo |
+| 🗂️ **Grupos de addons** | Addons com a mesma recomendação são ativados juntos, no mesmo padrão de busca |
 | 📦 **Exporta o que você ensinou** | Gera um addon para compartilhar, escolhendo item a item; dados pessoais vêm desmarcados |
 | 🎨 **Configurações** | Limiares, algoritmos padrão, nome, cor e boas-vindas do assistente |
 | 🔍 **Seletor de algoritmos** | 4 de busca e 2 de resposta, cada um com explicação no botão **?** |
@@ -120,7 +121,8 @@ Detalhes, executável e problemas comuns: [docs/empacotamento.md](docs/empacotam
 | 7 | [`algoritmos/resposta/extrativa.py`](aprendiz/algoritmos/resposta/extrativa.py) | TextRank |
 | 8 | [`memoria/banco.py`](aprendiz/memoria/banco.py) | SQLite, FTS5, transações e migrações |
 | 9 | [`addons.py`](aprendiz/addons.py) · [`configuracoes.py`](aprendiz/configuracoes.py) | Leitura segura de arquivos não confiáveis e lista fechada de ajustes |
-| 10 | [`api/servidor.py`](aprendiz/api/servidor.py) · [`web/app.js`](aprendiz/web/app.js) | Como a interface conversa com o núcleo |
+| 10 | [`core/recomendacao.py`](aprendiz/core/recomendacao.py) | Escolher um algoritmo medindo, não chutando |
+| 11 | [`api/servidor.py`](aprendiz/api/servidor.py) · [`web/app.js`](aprendiz/web/app.js) | Como a interface conversa com o núcleo |
 
 **Documentação:**
 
@@ -131,7 +133,7 @@ Detalhes, executável e problemas comuns: [docs/empacotamento.md](docs/empacotam
 | [Arquitetura](docs/arquitetura.md) | Camadas, decisões de projeto, tabelas e migrações |
 | [Estrutura](docs/estrutura.md) | Mapa indentado de **todos** os arquivos, com o papel de cada um |
 | [Criar um algoritmo](docs/criar-algoritmo.md) | Como adicionar o seu ao seletor |
-| [Addons](docs/addons.md) | Formato `.aprendiz` v2, classificação, origem, exportação e segurança |
+| [Addons](docs/addons.md) | Formato `.aprendiz`, classificação, origem, dicionários, recomendação, grupos, exportação e segurança |
 | [Empacotamento](docs/empacotamento.md) | Instaladores, executável e problemas comuns |
 
 ## Os algoritmos
@@ -169,7 +171,7 @@ Resumo. O mapa completo, com **todos** os arquivos comentados, está em
 ```
 aprendiz/
 ├── aprendiz/                  # o pacote Python
-│   ├── core/assistente.py     #   pipeline: normalizar → interpretar → buscar → responder
+│   ├── core/                  #   assistente.py: o pipeline; exportacao.py; recomendacao.py
 │   ├── linguagem/             #   PLN clássico: normalizador, stemmer, Naive Bayes, entidades
 │   ├── algoritmos/            #   o seletor (padrão Strategy)
 │   │   ├── busca/             #     bm25, tfidf, fuzzy, hibrido
@@ -222,19 +224,6 @@ Toda a memória fica em **um único arquivo SQLite**, fora da pasta do programa:
 
 Para fazer backup, basta copiar esse arquivo. O reset salva antes uma cópia em `backups/`, na
 mesma pasta. Para usar outra pasta, defina a variável de ambiente `APRENDIZ_DADOS`.
-
-## Roteiro
-
-- [x] App desktop local: núcleo de PLN, interface, instaladores, CI
-- [x] Addons: pacotes de conhecimento importáveis
-- [x] Addons formato 2: classificação, origem, dependências e exportação pelo app
-- [x] Explicação dos algoritmos dentro do app
-- [ ] Atalhos com ícone no menu do sistema (Linux e Windows)
-- [ ] Loja de addons: catálogo online com verificação SHA-256
-- [ ] Importação de PDF
-- [ ] Modelo de linguagem minúsculo, opcional, para redigir respostas
-- [ ] Exportar e importar a base entre dispositivos
-- [ ] Acesso pelo celular
 
 ## Contribuindo
 

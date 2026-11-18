@@ -28,10 +28,14 @@ A interface (pasta web/) conversa com estas rotas via fetch() em JSON:
     GET    /api/addons                    → addons instalados
     POST   /api/addons/inspecionar        → lê um .aprendiz SEM instalar (confirmação)
     POST   /api/addons                    → instala/atualiza um arquivo .aprendiz
+    GET    /api/addons/grupos             → addons agrupados pelo padrão recomendado
+    POST   /api/addons/grupo              → ativa/desativa vários addons de uma vez
+    PUT    /api/padrao                    → algoritmos padrão de busca e resposta
     PATCH  /api/addons/{id}               → ativa ou desativa
     DELETE /api/addons/{id}               → remove
 
     GET    /api/exportar                  → o que pode virar addon (prévia, com avisos)
+    POST   /api/exportar/recomendar       → testa os algoritmos com os itens marcados
     POST   /api/exportar                  → gera o .aprendiz com os itens marcados
 
     GET    /api/configuracoes             → parâmetros e personalização em vigor
@@ -105,6 +109,9 @@ class PedidoAddon(BaseModel):
     # dependência extra para upload "multipart".
     nome_arquivo: str
     conteudo_base64: str
+    # Opções da tela de confirmação (só valem ao instalar):
+    usar_recomendacao: bool = False   # vira o padrão de busca/resposta do dono
+    ativar_grupo: bool = False        # ativa os addons do mesmo grupo
 
 
 class PedidoConfiguracao(BaseModel):
@@ -119,6 +126,23 @@ class PedidoExportacao(BaseModel):
     parametros: list[str] = []
     personalizacao: list[str] = []
     dependencias: list[str] = []
+    recomendado: dict[str, str] | None = None
+
+
+class PedidoGrupo(BaseModel):
+    ids: list[str]
+    ativo: bool
+
+
+class PedidoPadrao(BaseModel):
+    busca: str
+    resposta: str
+
+
+class PedidoRecomendar(BaseModel):
+    conhecimentos: list[str] = []
+    abreviacoes: list[str] = []
+    sinonimos: list[str] = []
 
 
 class PedidoAtivar(BaseModel):
@@ -305,14 +329,56 @@ def criar_app(caminho_banco: str | Path | None = None) -> FastAPI:
     @app.post("/api/addons")
     def instalar_addon(pedido: PedidoAddon):
         try:
-            return assistente.instalar_addon(_bytes_do_addon(pedido))
+            resultado = assistente.instalar_addon(_bytes_do_addon(pedido))
         except ErroAddon as erro:
             raise HTTPException(400, str(erro)) from erro
+        addon = resultado["addon"]
+        rec = (addon["manifesto"] or {}).get("recomendado")
+        if pedido.usar_recomendacao and rec:
+            try:
+                assistente.usar_padrao(rec["busca"], rec["resposta"])
+            except ValueError:
+                pass  # algoritmo que não existe nesta versão: mantém o atual
+        if pedido.ativar_grupo:
+            grupo = next((g for g in assistente.grupos_de_addons()
+                          if any(a["id"] == addon["id"] for a in g["addons"])), None)
+            if grupo and grupo["chave"]:
+                assistente.definir_addons_ativos([a["id"] for a in grupo["addons"]], True)
+        return resultado
+
+    @app.get("/api/addons/grupos")
+    def grupos_de_addons():
+        """Addons agrupados pelo padrão de busca e resposta que recomendam."""
+        return assistente.grupos_de_addons()
+
+    @app.post("/api/addons/grupo")
+    def ativar_varios(pedido: PedidoGrupo):
+        """Ativa ou desativa vários addons de uma vez (ex.: um grupo inteiro)."""
+        return {"alterados": assistente.definir_addons_ativos(pedido.ids, pedido.ativo)}
+
+    @app.put("/api/padrao")
+    def usar_padrao(pedido: PedidoPadrao):
+        """Define de uma vez os algoritmos padrão de busca e de resposta."""
+        try:
+            assistente.usar_padrao(pedido.busca, pedido.resposta)
+        except ValueError as erro:
+            raise HTTPException(400, str(erro)) from erro
+        return assistente.configuracoes.descrever()
 
     # ------------------------------------------------------------ exportação
     @app.get("/api/exportar")
     def previa_exportacao():
         return exportacao.previa(banco)
+
+    @app.post("/api/exportar/recomendar")
+    def recomendar_exportacao(pedido: PedidoRecomendar):
+        """Refaz o teste de algoritmos só com os itens marcados."""
+        dados = exportacao.previa(banco, recomendar=False)
+        itens = [k for k in dados["conhecimentos"] if k["id"] in set(pedido.conhecimentos)]
+        linguagem = {t: {e["termo"]: e["valor"] for e in dados["linguagem"][t]
+                         if e["termo"] in set(getattr(pedido, t))}
+                     for t in ("abreviacoes", "sinonimos")}
+        return exportacao.recomendar_para(itens, linguagem)
 
     @app.post("/api/exportar")
     def exportar(pedido: PedidoExportacao):

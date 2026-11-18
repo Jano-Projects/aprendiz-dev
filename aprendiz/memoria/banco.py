@@ -2,8 +2,7 @@
 Camada de acesso ao banco SQLite.
 
 Por que SQLite?
-    • É um arquivo só: copiar o arquivo = copiar toda a memória do assistente
-      (isso facilita a migração entre dispositivos, prevista para a Fase 3).
+    • É um arquivo só: copiar o arquivo = copiar toda a memória do assistente.
     • Já vem embutido no Python: zero instalação, zero servidor.
     • Tem busca textual nativa (FTS5) com ranking BM25 — usamos isso no
       algoritmo de busca padrão.
@@ -141,8 +140,8 @@ def agora() -> str:
 
 
 def novo_id() -> str:
-    """IDs aleatórios (UUID4) permitem mesclar bases de aparelhos diferentes
-    sem colisão — importante para a sincronização da Fase 3."""
+    """IDs aleatórios (UUID4): dois bancos diferentes nunca geram o mesmo id,
+    então registros de bases distintas podem ser juntados sem colisão."""
     return uuid.uuid4().hex
 
 
@@ -623,6 +622,11 @@ class Banco:
         self.versao_conhecimento += 1
         self.versao_linguagem += 1
         return cur.rowcount > 0
+
+    def configuracoes_do_addon(self, id: str) -> dict[str, Any]:
+        """Parâmetros e personalização que um addon trouxe (ativo ou não)."""
+        return {l["chave"]: json.loads(l["valor"]) for l in self._consultar(
+            "SELECT chave, valor FROM configuracoes WHERE addon_id = ?", (id,))}
 
     # ------------------------------------------------------------------ configurações
     def linhas_configuracoes(self) -> list[dict[str, Any]]:

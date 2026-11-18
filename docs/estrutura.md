@@ -47,7 +47,8 @@ aprendiz/
 │   ├── core/                            # Núcleo: o pipeline que conecta linguagem, memória e algoritmos.
 │   │   ├── __init__.py                  # Núcleo: o pipeline que conecta linguagem, memória e algoritmos.
 │   │   ├── assistente.py                # O pipeline: a classe que junta linguagem, memória e algoritmos.
-│   │   └── exportacao.py                # Exportação: transforma o que o DONO ensinou num addon (.aprendiz) para compartilhar.
+│   │   ├── exportacao.py                # Exportação: transforma o que o DONO ensinou num addon (.aprendiz) para compartilhar.
+│   │   └── recomendacao.py              # Recomendação de algoritmos para um addon: qual BUSCA e qual RESPOSTA usar.
 │   ├── linguagem/                       # Processamento de linguagem natural (PLN) clássico, sem redes neurais.
 │   │   ├── __init__.py                  # Processamento de linguagem natural (PLN) clássico, sem redes neurais.
 │   │   ├── entidades.py                 # Extração de entidades com expressões regulares (regex).
@@ -109,7 +110,8 @@ aprendiz/
 │   ├── test_exportacao.py               # Testes da exportação: prévia com avisos de privacidade, escolha de itens e ida e volta.
 │   ├── test_formato2.py                 # Testes do formato 2: origem, classificação, versão do app, dependências e configurações.
 │   ├── test_girias.py                   # Testes da 0.4.1: verbetes (dicionário), stopwords e intenções vindas de addons de…
-│   └── test_linguagem.py                # Testes do processamento de linguagem: radicais, normalização, intenções, entidades.
+│   ├── test_linguagem.py                # Testes do processamento de linguagem: radicais, normalização, intenções, entidades.
+│   └── test_recomendacao.py             # Testes da 0.5: recomendação de algoritmos, grupos de addons e as opções ao instalar.
 ├── .editorconfig                        # Padrão de indentação e fim de linha para qualquer editor
 ├── .gitattributes                       # Fins de linha corretos por tipo de arquivo (LF/CRLF)
 ├── .gitignore                           # O que nunca vai para o Git (ambiente, bancos, builds)

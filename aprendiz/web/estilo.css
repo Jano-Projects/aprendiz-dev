@@ -416,6 +416,29 @@ dialog::backdrop { background: rgba(10, 10, 25, .5); backdrop-filter: blur(2px);
 .linha-config .origem-config { grid-column: 1 / -1; display: flex; align-items: center; gap: 8px; }
 .linha-config .origem-config .acao { padding: 2px 6px; }
 
+/* Grupos de addons (mesmo padrão de busca e resposta) */
+.grupo-addons { display: flex; flex-direction: column; gap: 8px; padding: 10px; border: 1px dashed var(--borda); border-radius: calc(var(--raio) + 4px); }
+.grupo-addons.em-uso { border-style: solid; border-color: var(--primaria); background: color-mix(in srgb, var(--primaria-suave) 40%, transparent); }
+.grupo-addons > header { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 2px 4px; }
+.grupo-addons > header .texto { flex: 1; display: flex; flex-direction: column; min-width: 180px; }
+.grupo-addons > header small { color: var(--texto-suave); font-size: 12.5px; }
+.acoes-grupo { display: flex; gap: 6px; align-items: center; }
+.botao.pequeno { padding: 5px 12px; font-size: 13px; }
+
+/* Opções da instalação e recomendação na exportação */
+.opcoes-instalar { display: flex; flex-direction: column; gap: 6px; }
+.opcoes-instalar:empty { display: none; }
+.dialogo label.opcao-instalar { flex-direction: row; align-items: flex-start; gap: 10px; padding: 9px 12px; border: 1px solid var(--borda); border-radius: 10px; color: var(--texto); cursor: pointer; }
+.opcao-instalar:has(input:checked) { border-color: var(--primaria); background: var(--primaria-suave); }
+.opcao-instalar input { margin-top: 3px; accent-color: var(--primaria); }
+.opcao-instalar span { display: flex; flex-direction: column; font-size: 14px; }
+.opcao-instalar small { color: var(--texto-suave); }
+.bloco-recomendacao { display: flex; flex-direction: column; gap: 8px; padding: 12px 14px; border: 1px solid var(--borda); border-radius: var(--raio); }
+.bloco-recomendacao h4 { margin: 0; font-size: 13px; display: flex; align-items: center; gap: 6px; }
+.bloco-recomendacao h4 .ic { color: var(--primaria); }
+.linha-teste { display: flex; align-items: center; gap: 8px; }
+.linha-teste .ajuda { flex: 1; }
+
 /* Chave liga/desliga */
 .dialogo label.chave { flex-direction: row; }
 .chave { position: relative; display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--texto-suave); cursor: pointer; user-select: none; }

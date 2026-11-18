@@ -22,18 +22,17 @@ O Aprendiz tem três camadas que conversam por interfaces simples:
 ## Decisões de projeto
 
 **Servidor web local em vez de uma interface nativa (Tkinter, Qt etc.)**
-A mesma interface funciona no desktop e, na Fase 4, no celular. HTML/CSS é o jeito mais
+A interface é uma página web servida localmente. HTML/CSS é o jeito mais
 acessível de fazer uma interface bonita, e quem estuda o projeto consegue abrir o
 DevTools do navegador e ver cada requisição.
 
 **SQLite**
 Um arquivo só, sem servidor, embutido no Python, com busca textual (FTS5) e ranking BM25
-nativos. Copiar o arquivo é copiar toda a memória, o que facilita a sincronização da Fase 3.
+nativos. Copiar o arquivo é copiar toda a memória.
 
 **Sem modelo de linguagem**
 Técnicas clássicas resolvem bem o problema de "achar o que foi ensinado", rodam em
-milissegundos e cabem em qualquer máquina. Um modelo pequeno pode entrar na Fase 2 como
-**opcional**, só para redigir respostas.
+milissegundos e cabem em qualquer máquina.
 
 **Banco separado da linguagem**
 `Banco` só lê e grava. Quem entende texto é `Linguagem`. Quem decide é o `Assistente`.
@@ -97,6 +96,14 @@ A cada pergunta, o `Assistente` lê as configurações uma vez e preenche
 `ContextoBusca.limiares`; os algoritmos consultam `ctx.limiar(nome)` em vez do atributo da
 classe, que passa a ser só o padrão.
 
+## Recomendação de algoritmos e grupos
+
+`aprendiz/core/recomendacao.py` cria um banco temporário com os itens de um addon e mede o
+acerto@1 de cada algoritmo de busca, usando `Assistente.buscar()`, a mesma etapa de busca do
+pipeline. `addons.chave_de_grupo()` define o grupo de cada addon pela recomendação (ou pelos
+parâmetros `busca.padrao`/`resposta.padrao`), e `Assistente.grupos_de_addons()` monta os grupos
+mostrados na tela de Addons.
+
 ## Exportação
 
 `aprendiz/core/exportacao.py` monta a prévia (o que o dono ensinou, a linguagem que difere das
@@ -120,5 +127,4 @@ copiar o arquivo "na mão". Depois, `Banco.resetar()` apaga as partes escolhidas
 `semear()` para regravar o banco de linguagem inicial. Os contadores de versão aumentam, então
 todos os caches (TF-IDF, fuzzy, vocabulário, classificador) se reconstroem sozinhos.
 
-Os IDs são UUIDs aleatórios, então bases de aparelhos diferentes podem ser mescladas sem
-colisão (Fase 3).
+Os IDs são UUIDs aleatórios: dois bancos nunca geram o mesmo id.
