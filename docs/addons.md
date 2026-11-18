@@ -321,6 +321,30 @@ No `conhecimentos.json`, isso é o campo `"variacoes": ["…", "…"]`. A primei
 pergunta principal, a que aparece na base de conhecimento. O teste de recomendação também usa
 as variações para medir o acerto dos algoritmos.
 
+### Código nas respostas
+
+As respostas aceitam Markdown, inclusive blocos de código entre linhas com três crases. No
+`perguntas.txt` (e no `verbetes.txt`), o que está **dentro** de um bloco é copiado como está:
+a indentação, as linhas em branco e as linhas que começam com `#` (um `#include` do C, um
+comentário do Python) são mantidas. Fora do bloco valem as regras de sempre: linha em branco
+encerra a resposta e linha com `#` é comentário. Um bloco aberto e não fechado é recusado.
+
+````
+P: hello world em c
+R: Assim:
+```c
+#include <stdio.h>
+
+int main(void) {
+    printf("Olá!\n");
+}
+```
+Compile com `gcc ola.c -o ola`.
+````
+
+Os addons de programação da loja (trilhas de C, C++, SQL, Python e "Aprendiz por dentro") são
+escritos assim.
+
 ### Dicas para um bom addon
 
 - Escreva as perguntas do jeito que as pessoas perguntam ("quantos ml tem uma xícara"), não

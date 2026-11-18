@@ -5,7 +5,8 @@ Exemplo do caminho completo de "Vc sabe qual o HORÁRIO da farmásia?":
 
     1. minúsculas + sem acento  → "vc sabe qual o horario da farmasia?"
     2. pontuação vira espaço    → "vc sabe qual o horario da farmasia"
-       (antes, "wi-fi" e "e-mail" viram "wifi" e "email")
+       (antes, "wi-fi" e "e-mail" viram "wifi" e "email", e
+       "c++" e "c#" viram "cpp" e "csharp")
     3. tokens (palavras)        → [vc, sabe, qual, o, horario, da, farmasia]
     4. abreviações              → [voce, sabe, qual, o, horario, da, farmasia]
     5. correção de digitação    → farmasia → farmacia (se "farmacia" existir na base)
@@ -46,9 +47,15 @@ _NAO_ALFANUMERICO = re.compile(r"[^a-z0-9]+")
 # Só para 1 ou 2 letras, para não colar palavras compostas ("segunda-feira").
 _PREFIXO_HIFEN = re.compile(r"\b([a-z]{1,2})-(?=[a-z])")
 
+# Nomes de linguagens com símbolo, que a pontuação apagaria: sem isto,
+# "c++", "c#" e "c" virariam a mesma palavra. "c++" → "cpp", "g++" → "gpp",
+# "notepad++" → "notepadpp", "c#" → "csharp", "f#" → "fsharp".
+_MAIS_MAIS = re.compile(r"\b([a-z]+)\+\+")
+_SUSTENIDO = re.compile(r"\b([cf])#")
+
 # Versão das regras de normalização. Se ela mudar, os textos de busca já
 # gravados ficam desatualizados: o Assistente reindexa a base ao abrir.
-VERSAO_NORMALIZACAO = 2
+VERSAO_NORMALIZACAO = 3
 
 
 def remover_acentos(texto: str) -> str:
@@ -67,6 +74,8 @@ def normalizar(texto: str) -> str:
     """Minúsculas, sem acento, só letras/números separados por um espaço."""
     texto = remover_acentos(texto.lower())
     texto = _PREFIXO_HIFEN.sub(r"\1", texto)
+    texto = _MAIS_MAIS.sub(r"\1pp", texto)
+    texto = _SUSTENIDO.sub(r"\1sharp", texto)
     return _NAO_ALFANUMERICO.sub(" ", texto).strip()
 
 
