@@ -44,13 +44,19 @@ Um arquivo .aprendiz é um ZIP comum com arquivos JSON:
           "dependencias": [
             {"id": "atalhos-linux", "versao": "1.0.0", "nome": "Atalhos do Linux"}
           ],
-          "recomendado": {"busca": "bm25", "resposta": "direta", "acerto": 0.97}
+          "recomendado": {"busca": "bm25", "resposta": "direta", "acerto": 0.97},
+          "complementa": ["girias-brasil", "girias-portugal"]          (opcional, 0.9+)
         }
 
     "recomendado" (opcional, Aprendiz 0.5+): o algoritmo de busca e o montador
     de resposta que funcionam melhor com este conteúdo, medidos por um teste
     com os próprios itens (veja core/recomendacao.py). O app mostra a
     recomendação ao instalar e agrupa addons que pedem o mesmo padrão.
+
+    "complementa" (opcional, Aprendiz 0.9+): ids de addons que este COMPLETA
+    sem depender deles. Um addon sem recomendação própria (compreensão,
+    diálogo, vetores, personalização) entra no grupo dos addons de que
+    depende ou que complementa (ver core/assistente.py, grupos_de_addons).
 
     conhecimentos.json:
         [
@@ -313,6 +319,21 @@ def validar_dependencias(bruto: Any) -> list[dict[str, Any]]:
     return saida
 
 
+def validar_complementa(bruto: Any, id_: str) -> list[str]:
+    """Lista de ids de addons que este complementa (só ids; repetidos são ignorados)."""
+    if bruto is None:
+        return []
+    if not isinstance(bruto, list) or len(bruto) > MAX_DEPENDENCIAS:
+        raise ErroAddon(f"'complementa' precisa ser uma lista de até {MAX_DEPENDENCIAS} ids.")
+    saida: list[str] = []
+    for i, item in enumerate(bruto, start=1):
+        if not isinstance(item, str) or not PADRAO_ID.match(item):
+            raise ErroAddon(f"O item nº {i} de 'complementa' precisa ser o id de um addon.")
+        if item != id_ and item not in saida:
+            saida.append(item)
+    return saida
+
+
 def validar_recomendado(bruto: Any) -> dict[str, Any] | None:
     """
     Algoritmos recomendados. Nomes desconhecidos NÃO são recusados (o addon
@@ -343,7 +364,8 @@ def chave_de_grupo(manifesto: dict[str, Any], parametros: dict[str, Any] | None 
     Addons que pedem o mesmo padrão de busca e resposta formam um GRUPO, que
     pode ser ativado de uma vez. A chave vem da recomendação do manifesto ou,
     se não houver, dos parâmetros busca.padrao/resposta.padrao que o addon traz.
-    Addons só de personalização não entram em grupo (None).
+    Addons sem recomendação nem parâmetros devolvem None: o grupo deles é
+    herdado dos addons relacionados (ver relacionados_do_grupo).
     """
     rec = manifesto.get("recomendado") or {}
     parametros = parametros or {}
@@ -352,6 +374,12 @@ def chave_de_grupo(manifesto: dict[str, Any], parametros: dict[str, Any] | None 
     if not busca:
         return None
     return f"{busca}+{resposta or 'direta'}"
+
+
+def relacionados_do_grupo(manifesto: dict[str, Any]) -> list[str]:
+    """Addons de quem um addon sem recomendação própria herda o grupo."""
+    return [d["id"] for d in manifesto.get("dependencias") or []] + list(
+        manifesto.get("complementa") or [])
 
 
 def validar_app(bruto: Any) -> dict[str, str | None]:
@@ -399,7 +427,7 @@ def validar_manifesto(bruto: Any) -> dict[str, Any]:
         # pelos arquivos presentes (ver ler_pacote).
         manifesto.update(origem="terceiros", classificacao=None,
                          app={"criado_com": None, "versao_minima": None}, dependencias=[],
-                         recomendado=None, regiao=None)
+                         recomendado=None, regiao=None, complementa=[])
         return manifesto
 
     origem = bruto.get("origem", "terceiros")
@@ -411,6 +439,7 @@ def validar_manifesto(bruto: Any) -> dict[str, Any]:
     manifesto["dependencias"] = validar_dependencias(bruto.get("dependencias"))
     manifesto["recomendado"] = validar_recomendado(bruto.get("recomendado"))
     manifesto["regiao"] = validar_regiao(bruto.get("regiao"))
+    manifesto["complementa"] = validar_complementa(bruto.get("complementa"), id_)
     if any(d["id"] == id_ for d in manifesto["dependencias"]):
         raise ErroAddon("Um addon não pode depender de si mesmo.")
 

@@ -73,8 +73,21 @@ casos. O `acerto` é a fração das perguntas do teste que aquele algoritmo acer
 
 **Grupos.** Na tela de Addons, os addons aparecem agrupados pela recomendação (por exemplo,
 "BM25 · Direta"). Um addon sem `recomendado` que traga `busca.padrao`/`resposta.padrao` em
-`parametros.json` entra no grupo desses parâmetros; addons só de personalização ficam em
-"Sem recomendação". Em cada grupo:
+`parametros.json` entra no grupo desses parâmetros.
+
+Addons de **apoio** não têm recomendação própria: compreensão, diálogo e vetores não trazem
+conhecimentos para testar, e personalização só muda a aparência. A partir da 0.9 eles
+**herdam** o grupo dos addons relacionados: os de que dependem, os que declaram em
+`"complementa"` no manifesto e, se nenhum desses tiver grupo, os que dependem deles. Vale o
+grupo mais comum, e a herança se propaga (Vetores depende de Compreensão, que complementa os
+addons de português: os três ficam no grupo do português).
+
+```json
+"complementa": ["girias-brasil", "girias-portugal", "girias-angola"]
+```
+
+Só fica em "Sem recomendação" quem não tem nenhum relacionado com grupo (os temas, por
+exemplo). Em cada grupo:
 
 - **Ativar grupo / Desativar grupo** liga ou desliga todos de uma vez.
 - **Usar este grupo** ativa os addons do grupo, aplica o padrão dele e pergunta se deve

@@ -34,6 +34,7 @@ from aprendiz import addons as pacotes
 from aprendiz.algoritmos import BUSCAS, RESPOSTAS, ContextoBusca, titulo_curto
 from aprendiz.configuracoes import Configuracoes
 from aprendiz.core.compreensao import Compreensao, FRASE_TIPO, resposta_dinamica
+from aprendiz.core.dialogo import SO_SEM_ASSUNTO, Dialogo
 from aprendiz.core.dicionario import Dicionario
 from aprendiz.core import revisao
 from aprendiz.memoria.banco import lista_json
@@ -71,6 +72,8 @@ MSG_NAO_SEI = (
     "**Ensinar isso** logo abaixo, ou escrevendo algo como "
     "`aprenda que ... é ...`."
 )
+MAX_PROFUNDIDADE = 2  # o diálogo pode reprocessar a mensagem (resto, continuação)
+
 MSG_SEM_NORMA = (
     "Para revisar textos, preciso de um addon de **norma** ativo: os addons de português "
     "de cada país (Brasil, Portugal, Angola, Moçambique, Cabo Verde, Guiné-Bissau, São Tomé "
@@ -123,6 +126,7 @@ class Assistente:
         self.configuracoes = Configuracoes(banco)
         self.dicionario = Dicionario(banco, self.linguagem)
         self.compreensao = Compreensao(banco, self.linguagem)
+        self.dialogo = Dialogo(banco, self.linguagem)
         self.revisor = revisao.Revisor(banco, self.linguagem.lexico)
         self.classificador = ClassificadorIntencoes()
         self._versao_classificador = -1
@@ -216,7 +220,8 @@ class Assistente:
         anterior = instalados.get(pacote.manifesto["id"])
 
         # Recomendação de algoritmos e o GRUPO de addons que pedem o mesmo padrão.
-        chave = pacotes.chave_de_grupo(pacote.manifesto, pacote.parametros)
+        chave = (pacotes.chave_de_grupo(pacote.manifesto, pacote.parametros)
+                 or self._chaves_de_grupo(pacote.manifesto)[pacote.manifesto["id"]][0])
         grupo = next((g for g in self.grupos_de_addons() if g["chave"] == chave), None)
         rec = pacote.manifesto.get("recomendado")
         if rec:
@@ -283,18 +288,70 @@ class Assistente:
     def _titulo_algoritmo(registro: dict, nome: str) -> str:
         return titulo_curto(registro, nome)
 
+    def _chaves_de_grupo(self, extra: dict[str, Any] | None = None) -> dict[str, tuple[str | None, bool]]:
+        """
+        id → (chave do grupo, herdada?) de cada addon instalado (e de `extra`,
+        o manifesto de um addon que ainda vai ser instalado).
+
+        A chave PRÓPRIA vem da recomendação do addon (addons.chave_de_grupo).
+        Addons de apoio não têm recomendação: compreensão, diálogo e vetores
+        não trazem conhecimentos para testar, e personalização só muda a
+        aparência. Eles HERDAM o grupo dos addons relacionados:
+
+            1. os de que dependem e os que declaram em "complementa";
+            2. se nenhum desses tiver grupo, os que dependem DELES.
+
+        Vale a chave mais comum entre os relacionados. A herança se propaga:
+        Vetores depende de Compreensão, que complementa os addons de
+        português → os três ficam no grupo do português. Sem nenhum
+        relacionado com grupo, o addon continua sem grupo (ex.: temas).
+        """
+        manifestos = {a["id"]: (a["manifesto"] or {}, self.banco.configuracoes_do_addon(a["id"]))
+                      for a in self.banco.listar_addons()}
+        if extra:
+            manifestos[extra["id"]] = (extra, {})
+        chaves = {i: pacotes.chave_de_grupo(m, p) for i, (m, p) in manifestos.items()}
+        herdadas: set[str] = set()
+        relacionados = {i: [r for r in pacotes.relacionados_do_grupo(m) if r in manifestos]
+                        for i, (m, _) in manifestos.items()}
+        dependentes: dict[str, list[str]] = {i: [] for i in manifestos}
+        for i, rels in relacionados.items():
+            for r in rels:
+                dependentes[r].append(i)
+
+        def mais_comum(ids: list[str]) -> str | None:
+            contagem: dict[str, int] = {}
+            for r in ids:
+                if chaves.get(r):
+                    contagem[chaves[r]] = contagem.get(chaves[r], 0) + 1
+            return max(contagem, key=lambda c: (contagem[c], c)) if contagem else None
+
+        mudou = True
+        while mudou:  # cada volta resolve mais um "elo" (vetores → compreensão → português)
+            mudou = False
+            for i in manifestos:
+                if chaves[i]:
+                    continue
+                chave = mais_comum(relacionados[i]) or mais_comum(dependentes[i])
+                if chave:
+                    chaves[i] = chave
+                    herdadas.add(i)
+                    mudou = True
+        return {i: (chaves[i], i in herdadas) for i in manifestos}
+
     def grupos_de_addons(self) -> list[dict[str, Any]]:
         """
         Addons instalados agrupados pelo padrão de busca e resposta que pedem
-        (ver addons.chave_de_grupo). Addons sem recomendação ficam num grupo
-        à parte, com chave None. Cada grupo diz se o padrão dele está em uso.
+        (ver _chaves_de_grupo). Addons sem grupo próprio nem herdado ficam
+        num grupo à parte, com chave None. Cada grupo diz se o padrão dele
+        está em uso.
         """
         config = self.configuracoes.efetivas()
         em_uso = f"{config['busca.padrao']['valor']}+{config['resposta.padrao']['valor']}"
+        chaves = self._chaves_de_grupo()
         grupos: dict[str | None, dict[str, Any]] = {}
         for a in self.banco.listar_addons():
-            chave = pacotes.chave_de_grupo(a["manifesto"] or {},
-                                           self.banco.configuracoes_do_addon(a["id"]))
+            chave, herdada = chaves[a["id"]]
             if chave not in grupos:
                 busca, _, resposta = (chave or "+").partition("+")
                 grupos[chave] = {
@@ -306,7 +363,7 @@ class Assistente:
                     "addons": [],
                 }
             grupos[chave]["addons"].append(
-                {"id": a["id"], "nome": a["nome"], "ativo": bool(a["ativo"])})
+                {"id": a["id"], "nome": a["nome"], "ativo": bool(a["ativo"]), "apoio": herdada})
         # Grupos com recomendação primeiro (o em uso no topo); "sem recomendação" por último.
         return sorted(grupos.values(),
                       key=lambda g: (g["chave"] is None, not g["em_uso"], g["titulo"]))
@@ -393,10 +450,12 @@ class Assistente:
         if not conversa_id or not self.banco.obter_conversa(conversa_id):
             titulo = mensagem[:48] + ("…" if len(mensagem) > 48 else "")
             conversa_id = self.banco.criar_conversa(titulo)["id"]
+        contexto = self._contexto(conversa_id)
         msg_usuario = self.banco.adicionar_mensagem(conversa_id, "usuario", mensagem)
 
         etapas = Etapas()
-        texto_resposta, tipo, fontes = self._pipeline(mensagem, busca, resposta, etapas)
+        texto_resposta, tipo, fontes = self._pipeline(mensagem, busca, resposta, etapas,
+                                                      contexto)
 
         meta = {
             "tipo": tipo,
@@ -418,9 +477,29 @@ class Assistente:
             "mensagem": msg_assistente,
         }
 
-    def _pipeline(self, mensagem: str, busca: str, resposta: str,
-                  etapas: Etapas) -> tuple[str, str, list[dict]]:
+    def _contexto(self, conversa_id: str) -> dict[str, Any]:
+        """
+        A última troca da conversa: a pergunta da pessoa e a resposta (com o
+        meta: tipo, fontes, candidatos da busca, recomendação). É o que o
+        diálogo usa para "não entendi", "não era isso", "sim" e "e em...?".
+        """
+        anterior: dict[str, Any] = {"pergunta": None, "resposta": None}
+        for m in reversed(self.banco.listar_mensagens(conversa_id)[-6:]):
+            if m["papel"] == "assistente" and anterior["resposta"] is None:
+                anterior["resposta"] = m
+            elif m["papel"] == "usuario" and anterior["resposta"] is not None:
+                # A pergunta "de verdade" é a que a resposta tratou (uma
+                # continuação já reescrita fica no meta da resposta).
+                meta = anterior["resposta"].get("meta") or {}
+                anterior["pergunta"] = meta.get("entendida") or m["texto"]
+                break
+        return anterior
+
+    def _pipeline(self, mensagem: str, busca: str, resposta: str, etapas: Etapas,
+                  contexto: dict[str, Any] | None = None,
+                  profundidade: int = 0) -> tuple[str, str, list[dict]]:
         """Executa as etapas e devolve (texto, tipo, fontes)."""
+        contexto = contexto or {"pergunta": None, "resposta": None}
         # 1. Normalização ----------------------------------------------------
         consulta = self.linguagem.processar(mensagem)
         etapas.marcar("Normalização", consulta.como_dict())
@@ -457,6 +536,16 @@ class Assistente:
             if resposta_dic and not self._dono_ensinou_exatamente(consulta):
                 texto, verbetes = resposta_dic
                 return texto, "conhecimento", [self._fonte(v) for v in verbetes]
+
+        # 2c. Diálogo (addon de diálogo) -------------------------------------
+        # O QUE a pessoa faz com a frase: cumprimenta e pede algo, desabafa,
+        # pede opinião, reage à resposta anterior, continua a pergunta.
+        leitura = None
+        if self.dialogo.ativo and profundidade < MAX_PROFUNDIDADE:
+            respondido, leitura = self._dialogo(mensagem, consulta, busca, resposta, etapas,
+                                                contexto, profundidade)
+            if respondido:
+                return respondido
 
         # 3. Interpretação ----------------------------------------------------
         self._treinar_classificador()
@@ -512,6 +601,16 @@ class Assistente:
                 etapas.marcar("Resposta · Autoconhecimento", {"item": sobre_mim["id"]})
                 return texto, "autoconhecimento", []
 
+        # 4c. Sem assunto (addon de diálogo) --------------------------------
+        # "consegue fazer isso?", "me explica?": só palavras de conversa. Buscar
+        # "fazer" ou "explicar" na base só traria respostas sem relação.
+        if leitura is not None and not self.dialogo.assunto_real(consulta.tokens) \
+                and not self._dono_ensinou_exatamente(consulta):
+            texto = self.dialogo.sem_assunto(mensagem)
+            if texto:
+                etapas.marcar("Diálogo · sem assunto", {"palavras": ", ".join(consulta.tokens)})
+                return texto, "dialogo", []
+
         # 5. Busca -------------------------------------------------------------
         algoritmo_busca = BUSCAS[busca]
         candidatos, aceitos, limiar = self.buscar(consulta, busca)
@@ -551,6 +650,17 @@ class Assistente:
                                     "sentido (" + "; ".join(
                                         f"{de} → {', '.join(para)}" for de, para in usadas.items())
                                     + ").*\n\n")
+
+        # Pergunta reflexiva ("qual o sentido da vida?"): só vale o que a base
+        # traz se o conhecimento fala de TODAS as palavras do assunto ("sentido"
+        # sozinho, numa regra de gramática, não responde ao sentido da vida).
+        if aceitos and leitura and leitura.ato and leitura.ato["acao"] == "refletir" and not any(
+                self.dialogo.cobre(self.dialogo.assunto_real(consulta.tokens),
+                                   c.conhecimento.get("texto_busca") or "") for c in aceitos[:1]):
+            aceitos = []
+        if not aceitos and leitura and leitura.ato and leitura.ato["acao"] == "refletir":
+            etapas.marcar("Diálogo · reflexão", {"ato": leitura.ato["id"]})
+            return self.dialogo.texto(leitura.ato, mensagem, leitura.assunto), "dialogo", []
 
         if not aceitos:
             texto = MSG_NAO_SEI
@@ -594,6 +704,161 @@ class Assistente:
         por_id = {c.id: c.conhecimento for c in aceitos}
         fontes = [self._fonte(por_id[i]) for i in gerada.fontes if i in por_id]
         return nota_sentido + gerada.texto, "conhecimento", fontes
+
+    # ================================================================ DIÁLOGO
+    def _dialogo(self, mensagem: str, consulta, busca: str, resposta: str, etapas: Etapas,
+                 contexto: dict[str, Any], profundidade: int):
+        """
+        Etapa de diálogo. Devolve ((texto, tipo, fontes) ou None, leitura).
+        Quando a mensagem tem um cumprimento na frente ou é a continuação da
+        pergunta anterior, o pipeline roda de novo com a mensagem tratada, e
+        a resposta ganha o cumprimento na frente.
+        """
+        if self._dono_ensinou_exatamente(consulta):
+            return None, None  # o que o dono ensinou vale mais
+        leitura = self.dialogo.ler(mensagem, consulta.tokens)
+        anterior = contexto.get("pergunta")
+        tokens_resto = self.linguagem.processar(leitura.resto).tokens if leitura.abertura else consulta.tokens
+        leitura.continuacao = self.dialogo.continuar(tokens_resto, leitura.resto, anterior,
+                                                     self.compreensao)
+        etapas.marcar("Diálogo", leitura.como_dict())
+
+        def com_abertura(resultado):
+            texto, tipo, fontes = resultado
+            return (f"{leitura.abertura} {texto}" if leitura.abertura else texto), tipo, fontes
+
+        # Continuação: "e em Portugal?" → a pergunta anterior reescrita.
+        if leitura.continuacao:
+            etapas.meta["entendida"] = leitura.continuacao
+            texto, tipo, fontes = self._pipeline(leitura.continuacao, busca, resposta, etapas,
+                                                 contexto, profundidade + 1)
+            return com_abertura((f"*Entendi: “{leitura.continuacao}”.*\n\n{texto}", tipo, fontes)), leitura
+
+        ato = leitura.ato
+        acao = ato["acao"] if ato else None
+        tem_assunto = bool(leitura.assunto_real)
+        if acao in ("crise", "acolher"):
+            etapas.marcar(f"Diálogo · {ato['id']}", {"ação": acao})
+            return (self.dialogo.texto(ato, mensagem, leitura.assunto), "dialogo", []), leitura
+        if acao == "convidar" and not tem_assunto:
+            etapas.marcar(f"Diálogo · {ato['id']}", {"ação": acao})
+            return com_abertura((self.dialogo.texto(ato, mensagem), "dialogo", [])), leitura
+        if acao in SO_SEM_ASSUNTO and not tem_assunto:
+            return com_abertura(self._ato_de_contexto(ato, mensagem, busca, resposta, etapas,
+                                                      contexto, profundidade)), leitura
+        if acao == "opinar":
+            return com_abertura(self._opinar(ato, mensagem, leitura, busca, resposta, etapas,
+                                             contexto, profundidade)), leitura
+
+        # Pedido COM assunto ("consegue me ajudar com a senha do wifi?") ou
+        # cumprimento + pergunta: segue com o que interessa.
+        if acao == "convidar" and leitura.assunto and leitura.vago and ato.get("assunto_vago"):
+            etapas.marcar(f"Diálogo · {ato['id']}", {"ação": acao, "assunto vago": leitura.assunto})
+            return com_abertura((self.dialogo.texto(ato, mensagem, leitura.assunto, vago=True),
+                                 "dialogo", [])), leitura
+        if acao == "convidar" and leitura.assunto:
+            return com_abertura(self._pipeline(leitura.assunto, busca, resposta, etapas,
+                                               contexto, profundidade + 1)), leitura
+        if leitura.abertura and leitura.resto:
+            etapas.meta.setdefault("entendida", leitura.resto)
+            return com_abertura(self._pipeline(leitura.resto, busca, resposta, etapas,
+                                               contexto, profundidade + 1)), leitura
+        return None, leitura
+
+    def _ato_de_contexto(self, ato: dict, mensagem: str, busca: str, resposta: str,
+                         etapas: Etapas, contexto: dict[str, Any], profundidade: int):
+        """Atos que reagem à resposta anterior: não entendi, não era isso, sim, não."""
+        acao = ato["acao"]
+        anterior = contexto.get("resposta") or {}
+        meta = anterior.get("meta") or {}
+        etapas.marcar(f"Diálogo · {ato['id']}", {
+            "ação": acao, "resposta anterior": meta.get("tipo") or "nenhuma"})
+        padrao = (self.dialogo.texto(ato, mensagem), "dialogo", [])
+
+        if acao == "reformular" and meta.get("tipo") == "conhecimento" and meta.get("fontes"):
+            # A resposta anterior pode ter sido um resumo (Direta/Extrativa):
+            # mostra o texto inteiro de onde ela saiu, se ele trouxer algo a mais.
+            ja_dito = anterior.get("texto") or ""
+            partes, fontes, origem = [], [], []
+            for f in meta["fontes"][:2]:
+                c = self.banco.obter_conhecimento(f["id"])
+                if not c:
+                    continue
+                fontes.append(self._fonte(c))
+                origem.append(f"**{f['titulo']}**" + (f" (addon {f['addon']})" if f.get("addon") else ""))
+                if c["conteudo"].strip() not in ja_dito:
+                    partes.append(c["conteudo"])
+            if partes:
+                texto = ("Vou mostrar de outro jeito: este é o texto completo de onde tirei a "
+                         "resposta.\n\n" + "\n\n".join(partes)
+                         + "\n\nSe ainda não ficou claro, me diga qual parte e eu procuro de novo.")
+                return texto, "conhecimento", fontes
+            if origem:
+                return (self.dialogo.texto(ato, mensagem) + "\n\nA resposta anterior já era o "
+                        "texto inteiro que eu tenho, e veio de " + ", ".join(origem) + "."), \
+                    "dialogo", fontes
+        if acao == "reformular" and meta.get("tipo") == "desconhecido":
+            return ("Eu quis dizer que ainda não aprendi nada sobre isso: não está no que você "
+                    "me ensinou nem nos addons ativos. Se você souber a resposta, clique em "
+                    "**Ensinar isso** e eu passo a saber."), "dialogo", []
+
+        if acao == "outras_opcoes" and anterior:
+            usados = {f["id"] for f in meta.get("fontes") or []}
+            busca_anterior = next((e for e in (meta.get("explicacao") or {}).get("etapas", [])
+                                   if e["nome"].startswith("Busca")), None)
+            outros = [c["titulo"] for c in (busca_anterior or {}).get("dados", {}).get("candidatos", [])
+                      if c["id"] not in usados][:4]
+            texto = ("Desculpe, então não acertei. Se você souber a resposta certa, clique em "
+                     "**Corrigir** embaixo da minha resposta: a correção vira um ensinamento.")
+            if outros:
+                texto = ("Desculpe! Talvez você estivesse procurando um destes:\n\n"
+                         + "\n".join(f"- {t}" for t in outros) + "\n\n" + texto.split(". ", 1)[1])
+            return texto, "dialogo", []
+
+        rec = meta.get("recomendacao")
+        if acao == "confirmar" and rec and rec.get("acao") == "ativar" and contexto.get("pergunta"):
+            self.definir_addon_ativo(rec["id"], True)
+            pergunta = contexto["pergunta"]
+            etapas.marcar("Diálogo · ativar addon", {"addon": rec["nome"]})
+            texto, tipo, fontes = self._pipeline(pergunta, busca, resposta, etapas,
+                                                 {"pergunta": None, "resposta": None},
+                                                 profundidade + 1)
+            return (f"Ativei o addon **{rec['nome']}**. Sobre “{pergunta}”:\n\n{texto}",
+                    tipo, fontes)
+        if acao == "negar" and rec:
+            return "Tudo bem, deixei como está. Se precisar, é só perguntar.", "dialogo", []
+        return padrao
+
+    def _opinar(self, ato: dict, mensagem: str, leitura, busca: str, resposta: str,
+                etapas: Etapas, contexto: dict[str, Any], profundidade: int):
+        """
+        "O que você acha de X?": o Aprendiz não tem opinião própria e diz isso
+        com franqueza; em seguida mostra o que SABE sobre X (se souber).
+        Sem assunto ("o que você acha?"), o assunto é a pergunta anterior.
+        """
+        assunto = leitura.assunto if leitura.assunto_real else None
+        if not assunto and contexto.get("pergunta"):
+            assunto = contexto["pergunta"]
+        etapas.marcar(f"Diálogo · {ato['id']}", {"ação": "opinar", "assunto": assunto or "—"})
+        texto = self.dialogo.texto(ato, mensagem, assunto)
+        if not assunto:
+            return texto, "dialogo", []
+        # Opinião sobre um tema aberto ("o que você acha da vida?"): é uma pergunta
+        # reflexiva, e não uma busca pela palavra "vida" na base.
+        for forma in (assunto, f"o que é a {assunto}", f"o que é o {assunto}"):
+            tema = self.dialogo.ler(forma, self.linguagem.processar(forma).tokens)
+            if tema.ato and tema.ato["acao"] == "refletir":
+                etapas.marcar("Diálogo · reflexão", {"ato": tema.ato["id"], "tema": assunto})
+                return self.dialogo.texto(tema.ato, mensagem, assunto), "dialogo", []
+        sub = Etapas()
+        achado, tipo, fontes = self._pipeline(assunto, busca, resposta, sub,
+                                              {"pergunta": None, "resposta": None},
+                                              MAX_PROFUNDIDADE)  # sem diálogo de novo
+        etapas.lista.extend(sub.lista)
+        if tipo == "conhecimento":
+            return f"{texto}\n\nO que eu sei sobre **{assunto}**:\n\n{achado}", tipo, fontes
+        return (f"{texto}\n\nE sobre **{assunto}** ainda não aprendi nada. Se quiser, me conte "
+                "o que você pensa: escreva `anote: ...` e eu guardo."), "dialogo", []
 
     # ================================================================ REVISÃO
     def normas_disponiveis(self) -> list[dict[str, Any]]:
