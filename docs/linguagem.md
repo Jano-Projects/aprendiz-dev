@@ -26,6 +26,11 @@ regular troca tudo o que não é letra ou número por espaço.
 Remover acentos parece perder informação, mas na prática melhora muito a busca: as pessoas
 digitam sem acento o tempo todo.
 
+Antes de a pontuação virar espaço, nomes de linguagem com símbolo ganham uma forma própria,
+senão "C", "C++" e "C#" virariam a mesma palavra: `c++` → `cpp`, `g++` → `gpp`,
+`c#` → `csharp`. (Mudar essa regra muda os radicais gravados; por isso
+`VERSAO_NORMALIZACAO` aumenta e a base é reindexada ao abrir o app.)
+
 ## 4. Abreviações
 
 Um dicionário simples (`vc → voce`, `oq → o que`). Pode virar mais de uma palavra.

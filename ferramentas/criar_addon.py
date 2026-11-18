@@ -108,6 +108,10 @@ def ler_perguntas(caminho: Path) -> list[dict]:
         T:          traduções do verbete, separadas por vírgula
         L:          variedade do verbete (id declarado em regiao.variedades)
         R:          a resposta (pode continuar nas linhas seguintes)
+
+    Dentro da resposta, um bloco de código entre linhas ``` é copiado como
+    está: a indentação, as linhas em branco e as linhas com # (como
+    #include ou um comentário do Python) são mantidas.
     """
     pares: list[dict] = []
     formas: list[str] = []
@@ -115,6 +119,7 @@ def ler_perguntas(caminho: Path) -> list[dict]:
     resposta: list[str] = []
     variedade = ""
     tipo = "pergunta"
+    em_codigo = False   # dentro de um bloco ``` da resposta?
 
     def fechar():
         nonlocal formas, traducoes, resposta, variedade
@@ -133,6 +138,11 @@ def ler_perguntas(caminho: Path) -> list[dict]:
         formas, traducoes, resposta, variedade = [], [], [], ""
 
     for numero, linha in enumerate(caminho.read_text(encoding="utf-8").splitlines(), 1):
+        if em_codigo:
+            # Código: copiado como está, sem interpretar #, P:, R: ou linha em branco.
+            resposta.append(linha.rstrip())
+            em_codigo = linha.count("```") % 2 == 0
+            continue
         prefixo = linha[:2].upper()
         if linha.lstrip().startswith("#"):
             continue
@@ -150,11 +160,15 @@ def ler_perguntas(caminho: Path) -> list[dict]:
             variedade = linha[2:].strip()
         elif prefixo == "R:":
             resposta = [linha[2:].strip()]
+            em_codigo = resposta[0].count("```") % 2 == 1
         elif resposta:
             resposta.append(linha.strip())  # resposta com mais de uma linha
+            em_codigo = linha.count("```") % 2 == 1
         else:
             raise SystemExit(f"{caminho.name}, linha {numero}: esperava 'P:', 'V:', 'T:', "
                              "'L:' ou 'R:'.")
+    if em_codigo:
+        raise SystemExit(f"{caminho.name}: bloco de código (```) aberto e não fechado.")
     fechar()
     return pares
 

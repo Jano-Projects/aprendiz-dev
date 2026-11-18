@@ -78,3 +78,10 @@ def test_regras_novas_de_normalizacao_reindexam_a_base(tmp_path):
     banco.definir_meta("assinatura_indice", "1")
     Assistente(banco)  # ao abrir, percebe a versão antiga e reindexa
     assert banco.todos_conhecimentos()[0]["texto_busca"] == "senh wifi casa123"
+
+
+def test_nomes_de_linguagem_com_simbolo_nao_viram_c():
+    assert normalizar("Ponteiro em C++?") == "ponteiro em cpp"
+    assert normalizar("compilar com g++") == "compilar com gpp"
+    assert normalizar("classes em C#") == "classes em csharp"
+    assert normalizar("struct em C") == "struct em c"

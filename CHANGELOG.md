@@ -6,6 +6,16 @@ seguem o [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ## [Não lançado]
 
+### Adicionado
+- `criar_addon.py`: blocos de código (três crases) nas respostas do `perguntas.txt` e do
+  `verbetes.txt` são copiados como estão: indentação, linhas em branco e linhas com `#`
+  (`#include`, comentários do Python) são mantidas. Bloco aberto e não fechado é recusado.
+  Veja "Código nas respostas" em `docs/addons.md`.
+
+### Mudado
+- Normalização: `c++` → `cpp`, `g++` → `gpp`, `c#` → `csharp` (antes, "C", "C++" e "C#"
+  viravam a mesma palavra "c"). `VERSAO_NORMALIZACAO` 3: a base é reindexada ao abrir.
+
 ## [0.8.0] - 2026-11-18
 
 ### Adicionado
