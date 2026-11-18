@@ -407,11 +407,19 @@ def resposta_dinamica(funcao: str, assistente) -> str:
         if assistente.compreensao.ativa:
             partes.append("- entender o tipo de pergunta, expressões e formas irregulares "
                           "das palavras, e indicar um addon quando não sei algo;")
+        if assistente.dialogo.ativo:
+            partes.append("- conversar além de pergunta e resposta: entendo pedidos de ajuda, "
+                          "desabafos e pedidos de opinião, e uso a conversa (\"não entendi\", "
+                          "\"não era isso\", \"e em Portugal?\");")
         if lexico.tem_vetores:
             partes.append("- procurar por sentido: se você usa uma palavra que não está na "
                           "base, tento as de significado parecido;")
         return "Eu consigo:\n\n" + "\n".join(partes)
     if funcao == "limitacoes":
+        contexto = ("- da conversa, só uso a última troca (para \"não entendi\", \"sim\", "
+                    "\"e em Portugal?\"); não tenho opiniões nem sentimentos próprios."
+                    if assistente.dialogo.ativo else
+                    "- não guardo o contexto da conversa: cada pergunta é respondida sozinha.")
         return ("Minhas limitações:\n\n"
                 "- **não acesso a internet**: não sei notícias, clima, cotações nem nada que "
                 "você não tenha me ensinado ou que não venha de um addon;\n"
@@ -420,7 +428,7 @@ def resposta_dinamica(funcao: str, assistente) -> str:
                 "- **não executo nada** no seu computador (não abro programas, não envio "
                 "mensagens, não crio lembretes);\n"
                 "- entendo **português**; outras línguas, só o que addons de dicionário trazem;\n"
-                "- não guardo o contexto da conversa: cada pergunta é respondida sozinha.")
+                + contexto)
     if funcao == "privacidade":
         return ("Tudo fica **no seu computador**, num banco de dados local:\n\n"
                 f"`{banco.caminho}`\n\nNada do que você me ensina ou pergunta é enviado para a "

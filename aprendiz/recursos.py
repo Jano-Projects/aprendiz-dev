@@ -39,7 +39,30 @@ compreensao.json  (classificação "compreensao")
            "descricao": "...", "palavras": ["xicara", "polegada", ...]}]
           → addons da loja oficial, para recomendar quando o Aprendiz não
             sabe responder. Gerado a partir do catálogo da loja.
-    }
+
+      "dialogo": {                                                  (0.9+)
+          "aberturas": {"bom dia": "Bom dia!", "ola": "Olá!"},
+              → cumprimentos que podem ABRIR uma frase ("Olá, consegue me
+                ajudar?"): são separados do resto e viram o começo da resposta
+          "conversa": ["conseguir", "ajudar", "explicar", "coisa"],
+              → palavras de conversa: sozinhas não são ASSUNTO, então não
+                disparam a busca ("consegue me ajudar?" não procura "ajudar")
+          "sem_assunto": ["Estou aqui! O que você quer saber?"],
+              → resposta quando a mensagem só tem palavras de conversa
+          "continuacoes": ["e em", "e no", "e o"],
+              → "e em Portugal?" continua a pergunta anterior da conversa
+          "atos": [
+              {"id": "pedido-ajuda", "acao": "convidar",
+               "gatilhos": ["consegue me ajudar"], "respostas": ["Claro! ..."],
+               "sem_assunto": ["..."], "assunto_vago": ["Qual {assunto}?"]}]
+                                                   (sem_assunto e assunto_vago: opcionais)
+              → atos de fala: O QUE a pessoa faz com a frase (pede ajuda,
+                desabafa, pede opinião, diz que não entendeu...). "acao" é
+                de uma lista fechada (ACOES_DIALOGO, abaixo); nas respostas,
+                {assunto} vira o assunto da mensagem. "assunto_vago" é para
+                um assunto indefinido ("me ajuda com UMA gíria de Angola?"):
+                o Aprendiz pergunta qual, em vez de chutar uma resposta.
+      }
 
 lemas.tsv  (opcional, junto com compreensao.json)
 -------------------------------------------------
@@ -116,6 +139,21 @@ TIPOS_PERGUNTA: dict[str, str] = {
     "pedido": "um pedido",
 }
 
+# O que o app faz com cada ato de fala (o addon diz COMO reconhecê-los).
+ACOES_DIALOGO: dict[str, str] = {
+    "convidar": "pedido sem assunto: convida a dizer o que precisa; com assunto, segue para a busca",
+    "responder": "responde com um dos textos (elogio, crítica, conversa)",
+    "acolher": "responde com um dos textos mesmo que a frase continue (desabafo, estado de ânimo)",
+    "crise": "sofrimento grave: responde antes de tudo, em qualquer posição da frase",
+    "opinar": "pede opinião: diz que não tem opinião própria e mostra o que sabe do assunto",
+    "refletir": "pergunta reflexiva ou abstrata: só responde se a base não tiver nada",
+    "reformular": "'não entendi': mostra a resposta anterior de outro jeito (o texto inteiro)",
+    "outras_opcoes": "'não era isso': mostra os outros candidatos da resposta anterior",
+    "confirmar": "'sim': aceita o que a resposta anterior ofereceu (ex.: ativar um addon)",
+    "negar": "'não': encerra o que a resposta anterior ofereceu",
+}
+MAX_RESPOSTAS = 20                  # textos por ato
+
 # Respostas de autoconhecimento que o APP calcula na hora (lista fechada).
 FUNCOES: dict[str, str] = {
     "versao": "nome e versão do Aprendiz",
@@ -191,12 +229,14 @@ def validar_compreensao(bruto: Any, normalizar) -> dict[str, Any]:
     if not isinstance(bruto, dict):
         raise ErroRecurso(f"{ARQUIVO_COMPREENSAO} precisa ser um objeto JSON.")
     conhecidas = {"expressoes", "tipos_pergunta", "autoconhecimento", "fora_de_alcance",
-                  "necessidades", "catalogo"}
+                  "necessidades", "catalogo", "dialogo"}
     sobrando = set(bruto) - conhecidas
     if sobrando:
         raise ErroRecurso(f"{ARQUIVO_COMPREENSAO} tem seções desconhecidas: "
                           f"{', '.join(sorted(sobrando))}.")
-    saida: dict[str, Any] = {k: [] for k in conhecidas}
+    # "dialogo" só entra na saída se vier no arquivo: assim um addon sem ele
+    # continua sendo aceito pelas versões anteriores à 0.9.
+    saida: dict[str, Any] = {k: [] for k in conhecidas - {"dialogo"}}
     saida["expressoes"] = {}
 
     expressoes = bruto.get("expressoes") or {}
@@ -277,11 +317,70 @@ def validar_compreensao(bruto: Any, normalizar) -> dict[str, Any]:
             "palavras": _palavras(item.get("palavras"), f"{campo}.palavras", normalizar),
         })
 
+    if bruto.get("dialogo"):
+        saida["dialogo"] = validar_dialogo(bruto["dialogo"], normalizar)
+
     for lista in ("tipos_pergunta", "autoconhecimento", "fora_de_alcance", "necessidades"):
         if len(saida[lista]) > MAX_ITENS:
             raise ErroRecurso(f"'{lista}' passa do limite de {MAX_ITENS} itens.")
     if not any(saida.values()):
         raise ErroRecurso(f"{ARQUIVO_COMPREENSAO} está vazio.")
+    return saida
+
+
+def _textos(valor: Any, campo: str) -> list[str]:
+    return [_texto(t, MAX_TEXTO, f"{campo}[{i}]")
+            for i, t in enumerate(_lista(valor, MAX_RESPOSTAS, campo), start=1)]
+
+
+def validar_dialogo(bruto: Any, normalizar) -> dict[str, Any]:
+    """A seção "dialogo" do compreensao.json (atos de fala e contexto, 0.9+)."""
+    if not isinstance(bruto, dict):
+        raise ErroRecurso("'dialogo' precisa ser um objeto JSON.")
+    conhecidas = {"aberturas", "conversa", "sem_assunto", "continuacoes", "atos"}
+    sobrando = set(bruto) - conhecidas
+    if sobrando:
+        raise ErroRecurso(f"'dialogo' tem chaves desconhecidas: {', '.join(sorted(sobrando))}.")
+    saida: dict[str, Any] = {"aberturas": {}, "conversa": [], "sem_assunto": [],
+                             "continuacoes": [], "atos": []}
+
+    aberturas = bruto.get("aberturas") or {}
+    if not isinstance(aberturas, dict) or len(aberturas) > MAX_ITENS:
+        raise ErroRecurso(f"'dialogo.aberturas' precisa ser um objeto com até {MAX_ITENS} itens.")
+    for frase, resposta in aberturas.items():
+        saida["aberturas"][_frase(frase, "dialogo.aberturas", normalizar)] = \
+            _texto(resposta, 120, f"dialogo.aberturas[{frase}]")
+
+    if bruto.get("conversa") is not None:
+        saida["conversa"] = _palavras(bruto["conversa"], "dialogo.conversa", normalizar)
+    if bruto.get("sem_assunto") is not None:
+        saida["sem_assunto"] = _textos(bruto["sem_assunto"], "dialogo.sem_assunto")
+    if bruto.get("continuacoes") is not None:
+        saida["continuacoes"] = _frases(bruto["continuacoes"], "dialogo.continuacoes", normalizar)
+
+    ids: set[str] = set()
+    atos = bruto.get("atos") or []
+    if not isinstance(atos, list) or len(atos) > MAX_ITENS:
+        raise ErroRecurso(f"'dialogo.atos' precisa ser uma lista com até {MAX_ITENS} itens.")
+    for i, item in enumerate(atos, start=1):
+        campo = f"dialogo.atos[{i}]"
+        if not isinstance(item, dict):
+            raise ErroRecurso(f"'{campo}' precisa ser um objeto JSON.")
+        id_ = item.get("id")
+        if not isinstance(id_, str) or not _ID.match(id_) or id_ in ids:
+            raise ErroRecurso(f"'{campo}.id' precisa ser único (letras minúsculas, números e hífen).")
+        ids.add(id_)
+        if item.get("acao") not in ACOES_DIALOGO:
+            raise ErroRecurso(f"'{campo}.acao' precisa ser uma destas: {', '.join(ACOES_DIALOGO)}.")
+        novo = {"id": id_, "acao": item["acao"],
+                "gatilhos": _frases(item.get("gatilhos"), f"{campo}.gatilhos", normalizar),
+                "respostas": _textos(item.get("respostas"), f"{campo}.respostas")}
+        for opcional in ("sem_assunto", "assunto_vago"):
+            if item.get(opcional) is not None:
+                novo[opcional] = _textos(item[opcional], f"{campo}.{opcional}")
+        saida["atos"].append(novo)
+    if not any(saida.values()):
+        raise ErroRecurso("'dialogo' está vazio.")
     return saida
 
 
