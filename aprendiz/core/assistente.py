@@ -25,6 +25,7 @@ from typing import Any
 
 from aprendiz import addons as pacotes
 from aprendiz.algoritmos import BUSCAS, RESPOSTAS, ContextoBusca
+from aprendiz.configuracoes import Configuracoes
 from aprendiz.linguagem import ClassificadorIntencoes, Linguagem, extrair_entidades
 from aprendiz.linguagem.normalizador import VERSAO_NORMALIZACAO
 from aprendiz.memoria import Banco
@@ -48,8 +49,6 @@ PADRAO_FATO = re.compile(
 # "anote: levar o carro na revisão em março"
 PADRAO_NOTA = re.compile(rf"^\s*{_VERBOS_ENSINO}\s*(?:que|isso|:)?\s*:?\s*(?P<n>.+)$",
                          re.I | re.S)
-
-MARGEM_PRIORIDADE_DONO = 0.9  # ver "Prioridade do dono" em _pipeline
 
 INTENCOES_SOCIAIS = {"saudacao", "despedida", "agradecimento", "ajuda"}
 PROBABILIDADE_MINIMA_SOCIAL = 0.45
@@ -98,6 +97,7 @@ class Assistente:
         self.banco = banco
         self.linguagem = Linguagem(banco)
         self.contexto = ContextoBusca(banco=banco, linguagem=self.linguagem)
+        self.configuracoes = Configuracoes(banco)
         self.classificador = ClassificadorIntencoes()
         self._versao_classificador = -1
         self._frases_exatas: dict[str, str] = {}  # frase normalizada → intenção
@@ -148,6 +148,35 @@ class Assistente:
         return len(docs)
 
     # ================================================================ ADDONS
+    def inspecionar_addon(self, dados: bytes) -> dict[str, Any]:
+        """
+        Lê e valida um .aprendiz SEM instalar: é o que a tela de confirmação
+        mostra (origem, classificação, totais, dependências, versão do app).
+        """
+        pacote = pacotes.ler_pacote(dados)  # lança ErroAddon se for inválido
+        instalados = {a["id"]: a for a in self.banco.listar_addons()}
+        dependencias = []
+        for dep in pacote.manifesto["dependencias"]:
+            atual = instalados.get(dep["id"])
+            if not atual:
+                situacao = "ausente"
+            elif pacotes.comparar_versoes(atual["versao"], dep["versao"]) < 0:
+                situacao = "desatualizado"
+            elif not atual["ativo"]:
+                situacao = "desativado"
+            else:
+                situacao = "instalado"
+            dependencias.append({**dep, "situacao": situacao,
+                                 "versao_instalada": atual["versao"] if atual else None})
+        # Configurações que o dono já definiu continuam valendo (dono > addon).
+        do_dono = {k for k, v in self.configuracoes.efetivas().items() if v["origem"] == "dono"}
+        resumo = pacotes.resumo(pacote)
+        for item in resumo["configuracoes"]:
+            item["dono_ja_definiu"] = item["chave"] in do_dono
+        anterior = instalados.get(pacote.manifesto["id"])
+        return {**resumo, "dependencias": dependencias,
+                "versao_anterior": anterior["versao"] if anterior else None}
+
     def instalar_addon(self, dados: bytes) -> dict[str, Any]:
         """
         Lê, valida e instala um arquivo .aprendiz. Se um addon com o mesmo id
@@ -162,7 +191,8 @@ class Assistente:
                 f"{k['pergunta'] or ''} {k['conteudo']}", corrigir=False).texto_busca}
             for k in pacote.conhecimentos
         ]
-        self.banco.instalar_addon(pacote.manifesto, conhecimentos, pacote.linguagem, pacote.hash)
+        self.banco.instalar_addon(pacote.manifesto, conhecimentos, pacote.linguagem,
+                                  pacote.hash, pacote.configuracoes)
 
         # Sinônimos/abreviações novos (ou removidos na atualização) mudam os
         # radicais de TODA a base, não só os do addon.
@@ -228,10 +258,13 @@ class Assistente:
 
     # ================================================================ CONVERSA
     def responder(self, mensagem: str, conversa_id: str | None = None,
-                  busca: str = "bm25", resposta: str = "direta") -> dict[str, Any]:
+                  busca: str | None = None, resposta: str | None = None) -> dict[str, Any]:
         mensagem = mensagem.strip()
         if not mensagem:
             raise ValueError("Mensagem vazia.")
+        # Sem escolha explícita, valem os algoritmos padrão das Configurações.
+        busca = busca or self.configuracoes.valor("busca.padrao")
+        resposta = resposta or self.configuracoes.valor("resposta.padrao")
         if busca not in BUSCAS:
             raise ValueError(f"Algoritmo de busca desconhecido: {busca}")
         if resposta not in RESPOSTAS:
@@ -313,25 +346,33 @@ class Assistente:
             return MSG_FORMATO_ENSINO, "social", []
 
         # 5. Busca -------------------------------------------------------------
+        # Parâmetros em vigor (dono > addon ativo > padrão; ver configuracoes.py)
+        config = self.configuracoes.efetivas()
+        self.contexto.limiares = {nome: config[f"limiar.{nome}"]["valor"]
+                                  for nome in BUSCAS if f"limiar.{nome}" in config}
+        margem_dono = config["prioridade_dono.margem"]["valor"]
+
         algoritmo_busca = BUSCAS[busca]
+        limiar = self.contexto.limiar(busca)
         candidatos = algoritmo_busca.buscar(consulta, self.contexto, limite=5)
-        aceitos = [c for c in candidatos if c.confianca >= algoritmo_busca.limiar]
+        aceitos = [c for c in candidatos if c.confianca >= limiar]
         # Prioridade do dono: se o melhor resultado veio de um addon, mas há
-        # algo ensinado pelo dono quase tão relevante (até 10% abaixo), vale
-        # o do dono. A margem existe porque respostas mais longas pontuam um
-        # pouco menos em alguns algoritmos, mesmo respondendo a mesma coisa.
+        # algo ensinado pelo dono quase tão relevante (por padrão, até 10%
+        # abaixo), vale o do dono. A margem existe porque respostas mais longas
+        # pontuam um pouco menos em alguns algoritmos, mesmo respondendo a
+        # mesma coisa. Ajustável em Configurações (prioridade_dono.margem).
         if aceitos and aceitos[0].conhecimento.get("addon_id"):
             for i, c in enumerate(aceitos):
                 if (not c.conhecimento.get("addon_id")
-                        and c.confianca >= MARGEM_PRIORIDADE_DONO * aceitos[0].confianca):
+                        and c.confianca >= margem_dono * aceitos[0].confianca):
                     aceitos.insert(0, aceitos.pop(i))
                     break
         etapas.marcar(f"Busca · {algoritmo_busca.titulo}", {
-            "limiar": algoritmo_busca.limiar,
+            "limiar": limiar,
             "candidatos": [
                 {"id": c.id, "titulo": self._titulo(c.conhecimento),
                  "confianca": c.confianca, "pontuacao": c.pontuacao,
-                 "aceito": c.confianca >= algoritmo_busca.limiar, "detalhes": c.detalhes}
+                 "aceito": c.confianca >= limiar, "detalhes": c.detalhes}
                 for c in candidatos
             ],
         })

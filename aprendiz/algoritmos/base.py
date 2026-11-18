@@ -32,6 +32,14 @@ class ContextoBusca:
     linguagem: Linguagem
     # Espaço para cada algoritmo guardar seus índices em memória entre buscas.
     cache: dict[str, Any] = field(default_factory=dict)
+    # Limiares em vigor (nome do algoritmo → valor). O Assistente preenche a
+    # cada pergunta a partir das Configurações; o que faltar usa o padrão
+    # declarado na classe do algoritmo.
+    limiares: dict[str, float] = field(default_factory=dict)
+
+    def limiar(self, nome: str) -> float:
+        """Confiança mínima em vigor para o algoritmo de busca `nome`."""
+        return self.limiares.get(nome, BUSCAS[nome].limiar)
 
 
 @dataclass
@@ -60,7 +68,7 @@ class AlgoritmoBusca(ABC):
     titulo: str = ""      # nome exibido na interface
     descricao: str = ""   # texto curto para o usuário entender a escolha
     explicacao: str = ""  # como funciona, em Markdown (aparece em "Como funciona?")
-    limiar: float = 0.5   # confiança mínima para considerar a resposta válida
+    limiar: float = 0.5   # confiança mínima PADRÃO (o dono ou um addon podem ajustar)
 
     @abstractmethod
     def buscar(self, consulta: TextoProcessado, ctx: ContextoBusca,

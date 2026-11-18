@@ -1,0 +1,10 @@
+{
+  "id": "modo-exigente",
+  "nome": "Modo exigente",
+  "versao": "1.0.0",
+  "autor": "Jano Projects",
+  "descricao": "Sobe os limiares de confiança: o assistente responde só quando tem bastante certeza e diz \"ainda não sei\" com mais frequência. Addon de exemplo de parâmetros.",
+  "licenca": "CC0-1.0",
+  "origem": "oficial",
+  "editor": "Jano Projects"
+}

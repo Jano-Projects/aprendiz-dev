@@ -67,7 +67,7 @@ limite, o cosseno vai de 0 a 1 e o WRatio de 0 a 100). A posição é comparáve
                 rrf[cand.id] = rrf.get(cand.id, 0.0) + 1 / (K_RRF + posicao)
                 docs[cand.id] = cand.conhecimento
                 relativa[cand.id] = max(relativa.get(cand.id, 0.0),
-                                        cand.confianca / algoritmo.limiar)
+                                        cand.confianca / ctx.limiar(nome))
                 por_algoritmo.setdefault(cand.id, {})[nome] = {
                     "posicao": posicao, "confianca": cand.confianca,
                 }

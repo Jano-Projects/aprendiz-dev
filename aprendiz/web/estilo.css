@@ -358,6 +358,64 @@ dialog::backdrop { background: rgba(10, 10, 25, .5); backdrop-filter: blur(2px);
 .versao { font-size: 11px; font-weight: 500; padding: 1px 7px; border-radius: 999px; background: var(--fundo-suave); color: var(--texto-suave); }
 .fonte.addon { border-color: var(--primaria); color: var(--primaria); }
 
+/* Selos de origem e classificação (addons formato 2) */
+.etiqueta .ic { width: 12px; height: 12px; }
+.etiqueta.oficial { background: var(--primaria-suave); color: var(--primaria); font-weight: 600; }
+.etiqueta.terceiros { background: var(--fundo-suave); color: var(--texto-suave); }
+.etiqueta.classe { background: transparent; border: 1px solid var(--borda); }
+.etiqueta.perigo { background: var(--perigo-suave); color: var(--perigo); }
+.etiqueta.addon { background: var(--fundo-suave); color: var(--primaria); }
+.cartao-addon .titulo .etiqueta { font-weight: 500; }
+.cartao-addon .deps { display: inline-flex; align-items: center; gap: 4px; }
+.cartao-addon .deps:empty { display: none; }
+.cartao-addon .deps .ic { width: 13px; height: 13px; }
+
+/* Confirmação de instalação */
+.resumo-addon { display: flex; flex-direction: column; gap: 12px; overflow-y: auto; }
+.resumo-addon .selos { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.resumo-addon .descricao { margin: 0; }
+.resumo-addon .descricao:empty { display: none; }
+.bloco-resumo { display: flex; flex-direction: column; gap: 4px; }
+.bloco-resumo h4 { margin: 0 0 2px; font-size: 13px; display: flex; align-items: center; gap: 6px; color: var(--texto-suave); }
+.linha-resumo { display: flex; align-items: center; gap: 8px; font-size: 14px; padding: 6px 10px; border-radius: 8px; background: var(--fundo-suave); }
+.linha-resumo > span { flex: 1; overflow-wrap: anywhere; }
+.linha-resumo small { color: var(--texto-suave); }
+.linha-resumo .ic { color: var(--texto-suave); flex-shrink: 0; }
+.linha-resumo.instalado .ic { color: var(--sucesso); }
+.linha-resumo.ausente .ic, .linha-resumo.desatualizado .ic, .linha-resumo.desativado .ic { color: var(--aviso); }
+.aviso-backup.alerta .ic { color: var(--aviso); }
+
+/* Exportar como addon */
+.grade-campos { display: grid; grid-template-columns: 2fr 1fr; gap: 10px 12px; }
+.grade-campos .largo-total { grid-column: 1 / -1; }
+.grupo-exportar { border: 1px solid var(--borda); border-radius: var(--raio); }
+.grupo-exportar summary { display: flex; align-items: center; gap: 8px; padding: 10px 14px; cursor: pointer; list-style: none; }
+.grupo-exportar summary::-webkit-details-marker { display: none; }
+.grupo-exportar summary .ic { color: var(--primaria); }
+.grupo-exportar .ajuda { padding: 0 14px 6px; }
+.dialogo label.marcar-todos { flex-direction: row; align-items: center; gap: 6px; margin-left: auto; }
+.grupo-exportar .itens { display: flex; flex-direction: column; padding: 0 8px 8px; max-height: 280px; overflow-y: auto; }
+.dialogo label.item-exportar { flex-direction: row; align-items: flex-start; gap: 10px; padding: 7px 8px; border-radius: 8px; color: var(--texto); cursor: pointer; }
+.item-exportar:hover { background: var(--fundo-suave); }
+.item-exportar input { margin-top: 3px; accent-color: var(--primaria); }
+.item-exportar .texto { display: flex; flex-direction: column; gap: 2px; min-width: 0; font-size: 14px; }
+.item-exportar .texto b { font-weight: 500; overflow-wrap: anywhere; }
+.item-exportar .texto small { color: var(--texto-suave); overflow-wrap: anywhere; }
+.item-exportar .etiqueta { align-self: flex-start; }
+.acoes-dialogo .contador { margin-right: auto; align-self: center; }
+
+/* Configurações: parâmetros e personalização */
+.lista-config { display: flex; flex-direction: column; gap: 6px; }
+.linha-config { display: grid; grid-template-columns: 1fr minmax(160px, 220px); gap: 4px 14px; align-items: center; padding: 10px 12px; border: 1px solid var(--borda); border-radius: 10px; }
+.linha-config .texto { display: flex; flex-direction: column; gap: 2px; font-size: 14px; }
+.linha-config .texto small { color: var(--texto-suave); font-size: 12.5px; }
+.linha-config .controle { display: flex; align-items: center; gap: 8px; }
+.linha-config .controle > select, .linha-config .controle > input[type=text], .linha-config .controle > input[type=range] { flex: 1; min-width: 0; }
+.linha-config .controle input[type=color] { width: 48px; height: 32px; padding: 2px; border-radius: 8px; }
+.linha-config output { font-variant-numeric: tabular-nums; font-size: 13px; min-width: 34px; text-align: right; }
+.linha-config .origem-config { grid-column: 1 / -1; display: flex; align-items: center; gap: 8px; }
+.linha-config .origem-config .acao { padding: 2px 6px; }
+
 /* Chave liga/desliga */
 .dialogo label.chave { flex-direction: row; }
 .chave { position: relative; display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--texto-suave); cursor: pointer; user-select: none; }
@@ -413,4 +471,9 @@ dialog::backdrop { background: rgba(10, 10, 25, .5); backdrop-filter: blur(2px);
   .avatar { display: none; }
   .assistente .bloco { max-width: 100%; }
   .dica { display: none; }
+  .grade-campos, .linha-config { grid-template-columns: 1fr; }
 }
+
+/* [hidden] precisa vencer o display de classes como .acao */
+[hidden] { display: none !important; }
+#dlg-config .dialogo { overflow-y: auto; }

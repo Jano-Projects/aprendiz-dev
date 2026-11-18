@@ -125,6 +125,11 @@ def abrir_janela_nativa(url: str) -> bool:
         import webview  # type: ignore
     except ImportError:
         return False
+    # Permite salvar arquivos gerados pela interface (ex.: exportar addon).
+    # A opção existe a partir do pywebview 4.3; em versões antigas é ignorada.
+    configuracoes = getattr(webview, "settings", None)
+    if isinstance(configuracoes, dict):
+        configuracoes["ALLOW_DOWNLOADS"] = True
     try:
         webview.create_window(config.NOME_APP, url, width=1120, height=780, min_size=(380, 500))
         webview.start()

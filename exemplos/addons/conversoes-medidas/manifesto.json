@@ -1,8 +1,10 @@
 {
   "id": "conversoes-medidas",
   "nome": "Conversões de medidas",
-  "versao": "1.0.0",
-  "autor": "Projeto Aprendiz",
+  "versao": "1.1.0",
+  "autor": "Jano Projects",
   "descricao": "Medidas de cozinha, distância, peso, volume, temperatura, área e pressão. Addon de exemplo.",
-  "licenca": "CC0-1.0"
+  "licenca": "CC0-1.0",
+  "origem": "oficial",
+  "editor": "Jano Projects"
 }

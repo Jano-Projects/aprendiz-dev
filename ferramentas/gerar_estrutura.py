@@ -40,8 +40,9 @@ DESCRICOES: dict[str, str] = {
     "docs/imagens": "Imagens usadas no README",
     "docs/imagens/tela-principal.png": "Captura da tela principal (README)",
     "exemplos": "Exemplos prontos para usar e estudar",
-    "exemplos/addons": "Addon de exemplo: fonte e arquivo .aprendiz gerado",
-    "exemplos/addons/conversoes-medidas": "Fonte do addon de exemplo",
+    "exemplos/addons": "Addons de exemplo (oficiais): fontes e arquivos .aprendiz gerados",
+    "exemplos/addons/conversoes-medidas": "Fonte de um addon de memória e linguagem",
+    "exemplos/addons/modo-exigente": "Fonte de um addon só de parâmetros",
     "ferramentas": "Utilitários para usuários e desenvolvedores",
     "tests": "Testes automatizados (pytest)",
     # ---- raiz
@@ -86,7 +87,10 @@ DESCRICOES: dict[str, str] = {
     # ---- exemplos e ferramentas
     "benchmarks/dados_exemplo.json": "Base e perguntas usadas no benchmark",
     "exemplos/addons/conversoes-medidas.aprendiz": "Addon pronto para importar",
-    "exemplos/addons/conversoes-medidas/manifesto.json": "Identidade do addon (id, nome, versão…)",
+    "exemplos/addons/modo-exigente.aprendiz": "Addon pronto para importar (limiares mais altos)",
+    "exemplos/addons/modo-exigente/manifesto.json": "Identidade do addon (origem oficial)",
+    "exemplos/addons/modo-exigente/parametros.json": "Limiares de confiança mais exigentes",
+    "exemplos/addons/conversoes-medidas/manifesto.json": "Identidade do addon (id, nome, versão, origem…)",
     "exemplos/addons/conversoes-medidas/perguntas.txt": "Pares P:/R: (o jeito mais fácil de escrever)",
     "exemplos/addons/conversoes-medidas/linguagem.json": "Sinônimos e abreviações do addon",
     "exemplos/addons/conversoes-medidas/forno.md": "Texto livre, dividido em trechos",

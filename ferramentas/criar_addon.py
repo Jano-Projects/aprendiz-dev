@@ -6,11 +6,18 @@ CRIAR a partir de uma pasta-fonte:
     python ferramentas/criar_addon.py exemplos/addons/conversoes-medidas
 
     A pasta pode ter:
-      manifesto.json      (obrigatório) id, nome, versao, autor, descricao, licenca, site
+      manifesto.json      (obrigatório) id, nome, versao, autor, descricao, licenca, site,
+                          origem ("oficial" só para a Jano Projects; o padrão é "terceiros"),
+                          editor, dependencias, app.versao_minima
       perguntas.txt       pares no formato abaixo (o jeito mais fácil de escrever)
       conhecimentos.json  lista [{"pergunta": "...", "conteudo": "..."}] (para quem gera por programa)
       linguagem.json      {"sinonimos": {...}, "abreviacoes": {...}}
+      parametros.json     {"limiar.bm25": 0.6, ...}         (chaves de aprendiz/configuracoes.py)
+      personalizacao.json {"personalizacao.cor": "#0f766e", ...}
       *.md / *.txt        textos livres, divididos automaticamente em trechos
+
+    A "classificacao" e o "app.criado_com" são preenchidos sozinhos a partir
+    do conteúdo e da versão do Aprendiz que gerou o arquivo (formato 2).
 
     Formato do perguntas.txt (blocos separados por linha em branco):
 
@@ -37,10 +44,11 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from aprendiz.addons import (  # noqa: E402
-    EXTENSAO, ErroAddon, criar_pacote, dividir_em_trechos, ler_pacote,
+    EXTENSAO, ORIGENS, ErroAddon, criar_pacote, dividir_em_trechos, ler_pacote,
 )
 
 ARQUIVOS_ESPECIAIS = {"manifesto.json", "conhecimentos.json", "linguagem.json",
+                      "parametros.json", "personalizacao.json",
                       "perguntas.txt", "leia-me.md", "readme.md"}
 
 
@@ -78,6 +86,7 @@ def criar(pasta: Path, saida: Path | None) -> None:
         raise SystemExit(f"Falta {manifesto_arq}")
     manifesto = json.loads(manifesto_arq.read_text(encoding="utf-8"))
     manifesto.pop("formato", None)
+    manifesto.pop("classificacao", None)  # sempre recalculada a partir dos arquivos
 
     conhecimentos: list[dict] = []
     if (pasta / "perguntas.txt").exists():
@@ -89,12 +98,13 @@ def criar(pasta: Path, saida: Path | None) -> None:
             for trecho in dividir_em_trechos(arquivo.read_text(encoding="utf-8")):
                 conhecimentos.append({"conteudo": trecho, "tipo": "trecho"})
 
-    linguagem = None
-    if (pasta / "linguagem.json").exists():
-        linguagem = json.loads((pasta / "linguagem.json").read_text(encoding="utf-8"))
+    def json_opcional(nome: str):
+        arquivo = pasta / nome
+        return json.loads(arquivo.read_text(encoding="utf-8")) if arquivo.exists() else None
 
     try:
-        dados = criar_pacote(manifesto, conhecimentos, linguagem)
+        dados = criar_pacote(manifesto, conhecimentos, json_opcional("linguagem.json"),
+                             json_opcional("parametros.json"), json_opcional("personalizacao.json"))
     except ErroAddon as erro:
         raise SystemExit(f"Addon inválido: {erro}")
 
@@ -113,10 +123,18 @@ def conferir(arquivo: Path) -> None:
     for k in p.conhecimentos:
         tipos[k["tipo"]] = tipos.get(k["tipo"], 0) + 1
     print(f"[OK] {m['nome']} {m['versao']}  (id: {m['id']})")
+    print(f"     origem: {ORIGENS[m['origem']]}" + (f" · editor: {m['editor']}" if m.get("editor") else ""))
+    print(f"     classificação: {', '.join(m['classificacao'])}")
     print(f"     autor: {m.get('autor') or '-'} · licença: {m.get('licenca') or '-'}")
+    app = m["app"]
+    print(f"     app: criado com {app['criado_com'] or '?'} · exige {app['versao_minima'] or '-'}")
+    for dep in m["dependencias"]:
+        print(f"     depende de: {dep['nome']} ({dep['id']}) {dep['versao']}")
     print(f"     conhecimentos: {len(p.conhecimentos)} {tipos}")
     for tipo, mapa in p.linguagem.items():
         print(f"     {tipo}: {len(mapa)}")
+    for chave, valor in p.configuracoes.items():
+        print(f"     {chave} = {valor}")
     print(f"     sha256: {p.hash}")
 
 

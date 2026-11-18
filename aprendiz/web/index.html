@@ -51,6 +51,10 @@
       <symbol id="i-addon" viewBox="0 0 24 24"><path d="M19.4 13a2 2 0 1 0 0-4H18V6a1 1 0 0 0-1-1h-3V3.6a2 2 0 1 0-4 0V5H7a1 1 0 0 0-1 1v3h1.4a2 2 0 1 1 0 4H6v4a1 1 0 0 0 1 1h3v-1.4a2 2 0 1 1 4 0V18h3a1 1 0 0 0 1-1v-4z"/></symbol>
       <symbol id="i-olho" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
       <symbol id="i-seta" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
+      <symbol id="i-exportar" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></symbol>
+      <symbol id="i-selo" viewBox="0 0 24 24"><path d="M12 2 15 5h4v4l3 3-3 3v4h-4l-3 3-3-3H5v-4l-3-3 3-3V5h4z"/><path d="m8.5 12 2.5 2.5 4.5-5"/></symbol>
+      <symbol id="i-pessoas" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2 20c0-3.5 3-6 7-6s7 2.5 7 6"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18 14c2.4.6 4 2.8 4 6"/></symbol>
+      <symbol id="i-link" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></symbol>
       <symbol id="i-algoritmo" viewBox="0 0 24 24"><circle cx="6" cy="6" r="3"/><circle cx="18" cy="18" r="3"/><path d="M6 9v3a3 3 0 0 0 3 3h6M18 15V9"/><path d="m15 6 3-3 3 3"/></symbol>
     </defs>
   </svg>
@@ -60,7 +64,7 @@
     <aside class="lateral" id="lateral">
       <div class="marca">
         <img src="/static/icone.svg" alt="" width="30" height="30">
-        <span>Aprendiz</span>
+        <span id="marca-nome">Aprendiz</span>
         <button class="botao-icone so-mobile" id="btn-fechar-menu" aria-label="Fechar menu">
           <svg class="ic"><use href="#i-x"/></svg></button>
       </div>
@@ -112,8 +116,8 @@
       <section class="mensagens" id="mensagens" aria-live="polite">
         <div class="boas-vindas" id="boas-vindas">
           <img src="/static/icone.svg" alt="" width="64" height="64">
-          <h2>Olá! Eu sou o Aprendiz.</h2>
-          <p>Eu só sei o que você me ensina, e tudo fica guardado neste computador.</p>
+          <h2>Olá! Eu sou o <span id="boas-vindas-nome">Aprendiz</span>.</h2>
+          <p id="boas-vindas-texto">Eu só sei o que você me ensina, e tudo fica guardado neste computador.</p>
           <div class="cartoes">
             <button class="cartao" data-texto="aprenda que a senha do wifi é casa123">
               <svg class="ic"><use href="#i-ensinar"/></svg>
@@ -223,16 +227,61 @@
         <h2><svg class="ic"><use href="#i-addon"/></svg> Addons</h2>
         <button class="botao-icone" data-fechar aria-label="Fechar"><svg class="ic"><use href="#i-x"/></svg></button>
       </div>
-      <p class="ajuda">Addons são pacotes de conhecimento prontos: baixe um arquivo
-        <code>.aprendiz</code> e importe aqui. Desativar um addon só o esconde das respostas;
-        nada é apagado. O que você ensina tem sempre prioridade.</p>
+      <p class="ajuda">Addons são pacotes prontos (conhecimentos, linguagem, parâmetros ou
+        personalização): baixe um arquivo <code>.aprendiz</code> e importe aqui. Antes de instalar,
+        você vê o que ele traz. Desativar um addon só o esconde; nada é apagado. O que você ensina
+        e configura tem sempre prioridade.</p>
       <div class="barra-base">
         <label class="botao botao-primario"><svg class="ic"><use href="#i-importar"/></svg> Importar addon (.aprendiz)
           <input type="file" id="addon-arquivo" accept=".aprendiz" hidden multiple>
         </label>
+        <button class="botao" id="btn-exportar"><svg class="ic"><use href="#i-exportar"/></svg> Exportar meu conhecimento…</button>
       </div>
       <div class="lista-base" id="lista-addons"></div>
     </div>
+  </dialog>
+
+  <!-- Confirmação antes de instalar um addon -->
+  <dialog id="dlg-instalar" class="dialogo-grande">
+    <form method="dialog" class="dialogo" id="form-instalar">
+      <div class="cabecalho-dialogo">
+        <h2><svg class="ic"><use href="#i-addon"/></svg> <span id="instalar-titulo">Instalar addon</span></h2>
+        <button type="button" class="botao-icone" data-fechar aria-label="Fechar"><svg class="ic"><use href="#i-x"/></svg></button>
+      </div>
+      <div class="resumo-addon" id="instalar-resumo"></div>
+      <div class="acoes-dialogo">
+        <button type="button" class="botao" data-fechar>Cancelar</button>
+        <button type="submit" value="instalar" class="botao botao-primario" id="btn-confirmar-instalar"><svg class="ic"><use href="#i-check"/></svg> Instalar</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Exportar o conhecimento do dono como addon -->
+  <dialog id="dlg-exportar" class="dialogo-grande">
+    <form class="dialogo" id="form-exportar">
+      <div class="cabecalho-dialogo">
+        <h2><svg class="ic"><use href="#i-exportar"/></svg> Exportar como addon</h2>
+        <button type="button" class="botao-icone" data-fechar aria-label="Fechar"><svg class="ic"><use href="#i-x"/></svg></button>
+      </div>
+      <p class="ajuda">Gera um arquivo <code>.aprendiz</code> com o que você marcar, para compartilhar.
+        Itens com cara de dado pessoal (senhas, e-mails, telefones, números longos…) vêm
+        <b>desmarcados</b>: revise antes de marcar. Addons instalados entram só como
+        <b>dependências</b> (nome e versão), sem copiar o conteúdo deles. Todo addon exportado
+        é marcado como <b>de terceiros</b>.</p>
+      <div class="grade-campos">
+        <label>Nome do addon <input id="exp-nome" required maxlength="80" placeholder="Ex.: Receitas da família"></label>
+        <label>Versão <input id="exp-versao" required maxlength="20" value="1.0.0" pattern="\d+(\.\d+){0,3}"></label>
+        <label>Autor <input id="exp-autor" maxlength="80" placeholder="Seu nome ou apelido"></label>
+        <label>Licença <input id="exp-licenca" maxlength="40" placeholder="Ex.: CC-BY-4.0"></label>
+        <label class="largo-total">Descrição <input id="exp-descricao" maxlength="500" placeholder="O que este addon ensina"></label>
+      </div>
+      <div class="lista-base" id="exp-itens"></div>
+      <div class="acoes-dialogo">
+        <span class="contador" id="exp-resumo"></span>
+        <button type="button" class="botao" data-fechar>Cancelar</button>
+        <button type="submit" class="botao botao-primario" id="btn-gerar-addon"><svg class="ic"><use href="#i-exportar"/></svg> Gerar arquivo</button>
+      </div>
+    </form>
   </dialog>
 
   <!-- Banco de linguagem -->
@@ -272,7 +321,7 @@
   </dialog>
 
   <!-- Configurações -->
-  <dialog id="dlg-config">
+  <dialog id="dlg-config" class="dialogo-grande">
     <div class="dialogo">
       <div class="cabecalho-dialogo">
         <h2><svg class="ic"><use href="#i-config"/></svg> Configurações</h2>
@@ -286,6 +335,18 @@
           <button data-tema="escuro"><svg class="ic"><use href="#i-lua"/></svg> Escuro</button>
           <button data-tema="sistema"><svg class="ic"><use href="#i-monitor"/></svg> Sistema</button>
         </div>
+      </section>
+
+      <section class="secao">
+        <h3>Personalização</h3>
+        <div class="lista-config" id="config-personalizacao"></div>
+      </section>
+
+      <section class="secao">
+        <h3>Parâmetros dos algoritmos</h3>
+        <p class="ajuda">Valem para todas as conversas. Um addon pode sugerir valores; o que você
+          define aqui sempre vence. <b>Padrão</b> devolve o valor ao addon ou ao padrão do app.</p>
+        <div class="lista-config" id="config-parametros"></div>
       </section>
 
       <section class="secao">
@@ -318,6 +379,8 @@
         <span><strong>Histórico de conversas</strong><small id="reset-info-conversas">todas as conversas</small></span></label>
       <label class="opcao"><input type="checkbox" id="reset-addons" checked>
         <span><strong>Addons instalados</strong><small id="reset-info-addons">desinstala todos os addons</small></span></label>
+      <label class="opcao"><input type="checkbox" id="reset-configuracoes" checked>
+        <span><strong>Configurações</strong><small>parâmetros e personalização voltam ao padrão</small></span></label>
       <div class="aviso-backup"><svg class="ic"><use href="#i-escudo"/></svg>
         <span>Uma cópia de segurança será salva em <code id="reset-pasta-backup">backups/</code> antes de apagar.</span></div>
       <label><span>Para confirmar, digite <strong>RESETAR</strong></span>

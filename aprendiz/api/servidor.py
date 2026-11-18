@@ -26,9 +26,17 @@ A interface (pasta web/) conversa com estas rotas via fetch() em JSON:
     POST   /api/importar                  → importa um arquivo .txt/.md
 
     GET    /api/addons                    → addons instalados
+    POST   /api/addons/inspecionar        → lê um .aprendiz SEM instalar (confirmação)
     POST   /api/addons                    → instala/atualiza um arquivo .aprendiz
     PATCH  /api/addons/{id}               → ativa ou desativa
     DELETE /api/addons/{id}               → remove
+
+    GET    /api/exportar                  → o que pode virar addon (prévia, com avisos)
+    POST   /api/exportar                  → gera o .aprendiz com os itens marcados
+
+    GET    /api/configuracoes             → parâmetros e personalização em vigor
+    PUT    /api/configuracoes/{chave}     → o dono define um valor
+    DELETE /api/configuracoes/{chave}     → volta ao valor do addon ou ao padrão
 
     GET    /api/linguagem                 → banco de linguagem
     POST   /api/linguagem/{tabela}        → adiciona abreviação/sinônimo/exemplo
@@ -43,18 +51,19 @@ from __future__ import annotations
 import base64
 import binascii
 import time
+from typing import Any
 from datetime import datetime
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from aprendiz import config
 from aprendiz.addons import ErroAddon
 from aprendiz.algoritmos import listar_algoritmos
-from aprendiz.core import Assistente
+from aprendiz.core import Assistente, exportacao
 from aprendiz.linguagem import normalizar
 from aprendiz.memoria import Banco
 
@@ -63,8 +72,8 @@ from aprendiz.memoria import Banco
 class PedidoChat(BaseModel):
     mensagem: str = Field(min_length=1, max_length=5000)
     conversa_id: str | None = None
-    busca: str = "bm25"
-    resposta: str = "direta"
+    busca: str | None = None     # sem valor → o padrão das Configurações
+    resposta: str | None = None
 
 
 class PedidoCorrecao(BaseModel):
@@ -87,6 +96,7 @@ class PedidoReset(BaseModel):
     linguagem: bool = True
     conversas: bool = True
     addons: bool = True
+    configuracoes: bool = True
     confirmacao: str  # precisa ser exatamente "RESETAR"
 
 
@@ -95,6 +105,20 @@ class PedidoAddon(BaseModel):
     # dependência extra para upload "multipart".
     nome_arquivo: str
     conteudo_base64: str
+
+
+class PedidoConfiguracao(BaseModel):
+    valor: Any
+
+
+class PedidoExportacao(BaseModel):
+    manifesto: dict[str, Any]
+    conhecimentos: list[str] = []
+    abreviacoes: list[str] = []
+    sinonimos: list[str] = []
+    parametros: list[str] = []
+    personalizacao: list[str] = []
+    dependencias: list[str] = []
 
 
 class PedidoAtivar(BaseModel):
@@ -153,7 +177,14 @@ def criar_app(caminho_banco: str | Path | None = None) -> FastAPI:
 
     @app.get("/api/algoritmos")
     def algoritmos():
-        return listar_algoritmos()
+        dados = listar_algoritmos()
+        # O limiar exibido é o que está EM VIGOR (o dono ou um addon podem ter mudado).
+        efetivas = assistente.configuracoes.efetivas()
+        for a in dados["busca"]:
+            chave = f"limiar.{a['nome']}"
+            if chave in efetivas:
+                a["limiar_padrao"], a["limiar"] = a["limiar"], efetivas[chave]["valor"]
+        return dados
 
     # ------------------------------------------------------------ chat
     # Rotas declaradas com "def" (e não "async def") rodam numa thread
@@ -182,13 +213,14 @@ def criar_app(caminho_banco: str | Path | None = None) -> FastAPI:
         """
         if pedido.confirmacao != "RESETAR":
             raise HTTPException(400, 'Digite RESETAR para confirmar.')
-        if not (pedido.conhecimentos or pedido.linguagem or pedido.conversas or pedido.addons):
+        if not (pedido.conhecimentos or pedido.linguagem or pedido.conversas or pedido.addons
+                or pedido.configuracoes):
             raise HTTPException(400, "Escolha pelo menos uma parte para resetar.")
         carimbo = datetime.now().strftime("%Y%m%d-%H%M%S")
         backup = banco.fazer_backup(
             Path(banco.caminho).parent / "backups" / f"aprendiz-{carimbo}.db")
         apagados = banco.resetar(pedido.conhecimentos, pedido.linguagem,
-                                 pedido.conversas, pedido.addons)
+                                 pedido.conversas, pedido.addons, pedido.configuracoes)
         if pedido.addons and not pedido.linguagem:
             assistente.reindexar()  # sinônimos de addons sumiram: refaz os radicais
         return {"ok": True, "backup": str(backup), "apagados": apagados}
@@ -254,18 +286,66 @@ def criar_app(caminho_banco: str | Path | None = None) -> FastAPI:
     def listar_addons():
         return banco.listar_addons()
 
-    @app.post("/api/addons")
-    def instalar_addon(pedido: PedidoAddon):
+    def _bytes_do_addon(pedido: PedidoAddon) -> bytes:
         if not pedido.nome_arquivo.lower().endswith(".aprendiz"):
             raise HTTPException(400, "Escolha um arquivo de addon (.aprendiz).")
         try:
-            dados = base64.b64decode(pedido.conteudo_base64, validate=True)
+            return base64.b64decode(pedido.conteudo_base64, validate=True)
         except (binascii.Error, ValueError):
             raise HTTPException(400, "Arquivo corrompido no envio.") from None
+
+    @app.post("/api/addons/inspecionar")
+    def inspecionar_addon(pedido: PedidoAddon):
+        """Lê o arquivo SEM instalar: alimenta a tela de confirmação."""
         try:
-            return assistente.instalar_addon(dados)
+            return assistente.inspecionar_addon(_bytes_do_addon(pedido))
         except ErroAddon as erro:
             raise HTTPException(400, str(erro)) from erro
+
+    @app.post("/api/addons")
+    def instalar_addon(pedido: PedidoAddon):
+        try:
+            return assistente.instalar_addon(_bytes_do_addon(pedido))
+        except ErroAddon as erro:
+            raise HTTPException(400, str(erro)) from erro
+
+    # ------------------------------------------------------------ exportação
+    @app.get("/api/exportar")
+    def previa_exportacao():
+        return exportacao.previa(banco)
+
+    @app.post("/api/exportar")
+    def exportar(pedido: PedidoExportacao):
+        try:
+            # model_dump() é do Pydantic 2; .dict() mantém compatibilidade com o 1.
+            escolha = pedido.model_dump() if hasattr(pedido, "model_dump") else pedido.dict()
+            nome, dados = exportacao.exportar(banco, escolha)
+        except ErroAddon as erro:
+            raise HTTPException(400, str(erro)) from erro
+        return Response(dados, media_type="application/zip", headers={
+            "Content-Disposition": f'attachment; filename="{nome}"'})
+
+    # ------------------------------------------------------------ configurações
+    @app.get("/api/configuracoes")
+    def listar_configuracoes():
+        return assistente.configuracoes.descrever()
+
+    @app.put("/api/configuracoes/{chave}")
+    def definir_configuracao(chave: str, pedido: PedidoConfiguracao):
+        try:
+            assistente.configuracoes.definir(chave, pedido.valor)
+        except ValueError as erro:
+            raise HTTPException(400, str(erro)) from erro
+        return assistente.configuracoes.descrever()
+
+    @app.delete("/api/configuracoes/{chave}")
+    def remover_configuracao(chave: str):
+        """Volta a chave ao valor do addon ativo ou ao padrão."""
+        try:
+            assistente.configuracoes.remover(chave)
+        except ValueError as erro:
+            raise HTTPException(404, str(erro)) from erro
+        return assistente.configuracoes.descrever()
 
     @app.patch("/api/addons/{addon_id}")
     def ativar_addon(addon_id: str, pedido: PedidoAtivar):

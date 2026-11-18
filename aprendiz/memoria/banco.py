@@ -88,7 +88,18 @@ CREATE TABLE IF NOT EXISTS addons (
     site         TEXT,
     ativo        INTEGER NOT NULL DEFAULT 1,
     instalado_em TEXT NOT NULL,
-    hash         TEXT
+    hash         TEXT,
+    manifesto    TEXT              -- manifesto completo em JSON (origem, classificação…)
+);
+
+-- Configurações (parâmetros e personalização). addon_id vazio = definida pelo
+-- dono; preenchido = trazida por um addon (vale só com ele ativo).
+-- Precedência: dono > addon ativo mais recente > padrão (ver configuracoes.py).
+CREATE TABLE IF NOT EXISTS configuracoes (
+    chave    TEXT NOT NULL,
+    valor    TEXT NOT NULL,        -- JSON
+    addon_id TEXT NOT NULL DEFAULT '',
+    PRIMARY KEY (chave, addon_id)
 );
 
 -- Sinônimos e abreviações trazidos por addons. Valem só com o addon ativo,
@@ -170,10 +181,13 @@ class Banco:
         versao = c.execute("SELECT valor FROM meta WHERE chave = 'versao_esquema'").fetchone()
         versao = int(versao["valor"]) if versao else 0
         semeado = c.execute("SELECT 1 FROM meta WHERE chave = 'semeado'").fetchone()
-        if semeado and versao < 3:                  # 0.2 → 0.2.1: sinônimos novos
+        if semeado and versao < 3:                  # 0.2 → 0.3: sinônimos novos
             c.executemany("INSERT OR IGNORE INTO sinonimos VALUES (?, ?)",
                           sementes.SINONIMOS_V3.items())
-        c.execute("INSERT OR REPLACE INTO meta VALUES ('versao_esquema', '3')")
+        colunas_addons = {linha["name"] for linha in c.execute("PRAGMA table_info(addons)")}
+        if "manifesto" not in colunas_addons:       # 0.3 → 0.4: addons formato 2
+            c.execute("ALTER TABLE addons ADD COLUMN manifesto TEXT")
+        c.execute("INSERT OR REPLACE INTO meta VALUES ('versao_esquema', '4')")
         c.commit()
 
     # ------------------------------------------------------------------ utilidades
@@ -243,7 +257,8 @@ class Banco:
         return destino
 
     def resetar(self, conhecimentos: bool = True, linguagem: bool = True,
-                conversas: bool = True, addons: bool = True) -> dict[str, int]:
+                conversas: bool = True, addons: bool = True,
+                configuracoes: bool = True) -> dict[str, int]:
         """
         Volta o assistente ao estado inicial ("modelo de fábrica").
 
@@ -252,11 +267,13 @@ class Banco:
                             intenções e respostas prontas às sementes
             conversas     → apaga o histórico de conversas
             addons        → desinstala todos os addons
+            configuracoes → volta parâmetros e personalização do dono ao padrão
 
         Devolve quantos registros foram apagados de cada parte.
         Quem chama (a API) faz um backup antes. Aqui só apagamos.
         """
-        apagados = {"conhecimentos": 0, "conversas": 0, "linguagem": 0, "addons": 0}
+        apagados = {"conhecimentos": 0, "conversas": 0, "linguagem": 0, "addons": 0,
+                    "configuracoes": 0}
         with self._trava:
             c = self._con
             if conhecimentos:  # só o que o dono ensinou; addons têm opção própria
@@ -269,7 +286,11 @@ class Banco:
                           "(SELECT id FROM conhecimentos WHERE addon_id IS NOT NULL)")
                 c.execute("DELETE FROM conhecimentos WHERE addon_id IS NOT NULL")
                 c.execute("DELETE FROM addon_linguagem")
+                c.execute("DELETE FROM configuracoes WHERE addon_id != ''")
                 apagados["addons"] = c.execute("DELETE FROM addons").rowcount
+            if configuracoes:
+                apagados["configuracoes"] = c.execute(
+                    "DELETE FROM configuracoes WHERE addon_id = ''").rowcount
             if conversas:
                 c.execute("DELETE FROM mensagens")
                 apagados["conversas"] = c.execute("DELETE FROM conversas").rowcount
@@ -465,19 +486,24 @@ class Banco:
 
     # ------------------------------------------------------------------ addons
     def listar_addons(self) -> list[dict[str, Any]]:
-        return self._consultar(
+        addons = self._consultar(
             "SELECT a.*, "
             "(SELECT COUNT(*) FROM conhecimentos c WHERE c.addon_id = a.id) AS total_conhecimentos, "
-            "(SELECT COUNT(*) FROM addon_linguagem l WHERE l.addon_id = a.id) AS total_linguagem "
+            "(SELECT COUNT(*) FROM addon_linguagem l WHERE l.addon_id = a.id) AS total_linguagem, "
+            "(SELECT COUNT(*) FROM configuracoes g WHERE g.addon_id = a.id) AS total_configuracoes "
             "FROM addons a ORDER BY a.nome COLLATE NOCASE"
         )
+        for a in addons:
+            a["manifesto"] = json.loads(a["manifesto"]) if a["manifesto"] else {}
+        return addons
 
     def obter_addon(self, id: str) -> dict[str, Any] | None:
         linhas = [a for a in self.listar_addons() if a["id"] == id]
         return linhas[0] if linhas else None
 
     def instalar_addon(self, manifesto: dict[str, Any], conhecimentos: list[dict[str, Any]],
-                       linguagem: dict[str, dict[str, str]], hash_arquivo: str) -> None:
+                       linguagem: dict[str, dict[str, str]], hash_arquivo: str,
+                       configuracoes: dict[str, Any] | None = None) -> None:
         """
         Grava um addon inteiro numa única transação: ou entra tudo, ou nada.
         Se o addon já existia (mesmo id), a versão antiga é substituída,
@@ -485,6 +511,7 @@ class Banco:
 
         `conhecimentos` já chega com o texto de busca calculado (o Assistente
         cuida disso), no formato: {pergunta, conteudo, tipo, texto_busca}.
+        `configuracoes` junta parâmetros e personalização, já validados.
         """
         momento = agora()
         with self._trava:
@@ -496,11 +523,11 @@ class Banco:
                 self._apagar_addon(manifesto["id"])
                 c.execute(
                     "INSERT INTO addons (id, nome, versao, autor, descricao, licenca, site, "
-                    "ativo, instalado_em, hash) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                    "ativo, instalado_em, hash, manifesto) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                     (manifesto["id"], manifesto["nome"], manifesto["versao"],
                      manifesto.get("autor"), manifesto.get("descricao"),
                      manifesto.get("licenca"), manifesto.get("site"),
-                     ativo, momento, hash_arquivo),
+                     ativo, momento, hash_arquivo, json.dumps(manifesto, ensure_ascii=False)),
                 )
                 origem = f"addon:{manifesto['id']}"
                 linhas = [(novo_id(), k["tipo"], k.get("pergunta"), k["conteudo"], origem,
@@ -516,6 +543,10 @@ class Banco:
                     "INSERT OR REPLACE INTO addon_linguagem VALUES (?, ?, ?, ?)",
                     [(manifesto["id"], tipo, termo, valor)
                      for tipo, mapa in linguagem.items() for termo, valor in mapa.items()])
+                c.executemany(
+                    "INSERT OR REPLACE INTO configuracoes (chave, valor, addon_id) VALUES (?, ?, ?)",
+                    [(chave, json.dumps(valor), manifesto["id"])
+                     for chave, valor in (configuracoes or {}).items()])
                 c.commit()
             except Exception:
                 c.rollback()
@@ -530,6 +561,7 @@ class Banco:
                   "(SELECT id FROM conhecimentos WHERE addon_id = ?)", (id,))
         c.execute("DELETE FROM conhecimentos WHERE addon_id = ?", (id,))
         c.execute("DELETE FROM addon_linguagem WHERE addon_id = ?", (id,))
+        c.execute("DELETE FROM configuracoes WHERE addon_id = ?", (id,))
         c.execute("DELETE FROM addons WHERE id = ?", (id,))
 
     def remover_addon(self, id: str) -> bool:
@@ -547,6 +579,27 @@ class Banco:
         self.versao_conhecimento += 1
         self.versao_linguagem += 1
         return cur.rowcount > 0
+
+    # ------------------------------------------------------------------ configurações
+    def linhas_configuracoes(self) -> list[dict[str, Any]]:
+        """
+        Todas as configurações que valem agora, já na ordem de precedência:
+        primeiro as do dono, depois as de addons ATIVOS (o mais recente antes).
+        Configuracoes.efetivas() pega a primeira de cada chave.
+        """
+        return self._consultar(
+            "SELECT g.chave, g.valor, g.addon_id, a.nome AS addon_nome FROM configuracoes g "
+            "LEFT JOIN addons a ON a.id = g.addon_id "
+            "WHERE g.addon_id = '' OR a.ativo = 1 "
+            "ORDER BY (g.addon_id != ''), a.instalado_em DESC"
+        )
+
+    def definir_configuracao(self, chave: str, valor_json: str) -> None:
+        self._executar("INSERT OR REPLACE INTO configuracoes (chave, valor, addon_id) "
+                       "VALUES (?, ?, '')", (chave, valor_json))
+
+    def remover_configuracao(self, chave: str) -> None:
+        self._executar("DELETE FROM configuracoes WHERE chave = ? AND addon_id = ''", (chave,))
 
     # ------------------------------------------------------------------ conversas
     def criar_conversa(self, titulo: str = "Nova conversa") -> dict[str, Any]:

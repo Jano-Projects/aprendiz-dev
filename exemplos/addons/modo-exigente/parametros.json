@@ -1,0 +1,6 @@
+{
+  "limiar.bm25": 0.7,
+  "limiar.tfidf": 0.4,
+  "limiar.fuzzy": 0.85,
+  "limiar.hibrido": 0.65
+}

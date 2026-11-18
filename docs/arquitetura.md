@@ -78,18 +78,38 @@ API chama `Assistente.reindexar()` nesses casos.
 | `abreviacoes`, `sinonimos`, `stopwords` | banco de linguagem |
 | `intencoes_exemplos`, `respostas_padrao` | treino do classificador e respostas sociais |
 | `conversas`, `mensagens` | histórico; `mensagens.meta` guarda a explicação em JSON |
-| `addons` | addons instalados (manifesto, ativo/desativado, hash do arquivo) |
+| `addons` | addons instalados (manifesto completo em JSON, ativo/desativado, hash do arquivo) |
 | `addon_linguagem` | sinônimos e abreviações de addons (valem só com o addon ativo) |
+| `configuracoes` | parâmetros e personalização: `addon_id` vazio = do dono; preenchido = de um addon |
 
 Conhecimentos de addons ficam na própria tabela `conhecimentos`, com a coluna `addon_id`
 preenchida. A busca filtra os addons desativados dentro do SQL (BM25) ou ao montar os índices
 (TF-IDF, fuzzy).
 
+## Configurações (parâmetros e personalização)
+
+`aprendiz/configuracoes.py` define uma **lista fechada** de chaves (limiares, algoritmos padrão,
+margem de prioridade do dono, nome, cor e boas-vindas), cada uma com validador e valor padrão.
+`Configuracoes.efetivas()` resolve, para cada chave, o valor em vigor na ordem
+**dono > addon ativo mais recente > padrão** e informa a origem, que a interface mostra.
+
+A cada pergunta, o `Assistente` lê as configurações uma vez e preenche
+`ContextoBusca.limiares`; os algoritmos consultam `ctx.limiar(nome)` em vez do atributo da
+classe, que passa a ser só o padrão.
+
+## Exportação
+
+`aprendiz/core/exportacao.py` monta a prévia (o que o dono ensinou, a linguagem que difere das
+sementes, as configurações do dono e os addons instalados como dependências) com avisos de
+possível dado pessoal, e gera o `.aprendiz` com `addons.criar_pacote()`, que valida o arquivo
+com as mesmas regras da importação.
+
 ## Migrações
 
 `Banco._migrar()` atualiza bancos criados por versões anteriores ao abrir o app. Por exemplo,
 ele acrescenta a coluna `addon_id` em bancos da versão 0.1. Os passos são idempotentes, e a
-versão da estrutura fica em `meta.versao_esquema`.
+versão da estrutura fica em `meta.versao_esquema` (4 a partir da 0.4: coluna
+`addons.manifesto` e tabela `configuracoes`).
 
 ## Reset e cópias de segurança
 

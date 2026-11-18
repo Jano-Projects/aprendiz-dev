@@ -8,7 +8,8 @@
  *   4. Conversas (barra lateral)
  *   5. Mensagens (renderização, envio, efeito de digitação)
  *   6. Painel "Por que respondi isso?"
- *   7. Diálogos: ensinar, corrigir, base, addons, linguagem, configurações, reset
+ *   7. Diálogos: ensinar, corrigir, base, addons (instalar/exportar),
+ *      linguagem, configurações (parâmetros/personalização), reset
  *   8. Inicialização
  *
  * Toda comunicação com o "cérebro" é feita pela API local (/api/...),
@@ -75,6 +76,8 @@
     algoritmos: { busca: [], resposta: [] },
     abaLinguagem: "abreviacoes",
     status: null,
+    config: {},        // chave → item de /api/configuracoes (valor, origem…)
+    exportacao: null,  // prévia carregada no diálogo "Exportar como addon"
   };
 
   const midiaEscura = window.matchMedia ? window.matchMedia("(prefers-color-scheme: dark)") : null;
@@ -94,11 +97,66 @@
     });
   }
 
-  // =========================================================== 3. SELETORES
+  // =========================================================== 3. SELETORES E CONFIGURAÇÕES
+  // Os algoritmos escolhidos ficam no SERVIDOR (Configurações → busca.padrao /
+  // resposta.padrao), junto com os demais parâmetros. Assim a escolha vale
+  // para qualquer janela e pode ser exportada num addon.
   async function carregarAlgoritmos() {
     estado.algoritmos = await api("/api/algoritmos");
-    preencherSeletor($("#sel-busca"), estado.algoritmos.busca, preferencias.ler("busca", "bm25"));
-    preencherSeletor($("#sel-resposta"), estado.algoritmos.resposta, preferencias.ler("resposta", "direta"));
+    preencherSeletor($("#sel-busca"), estado.algoritmos.busca, valorConfig("busca.padrao", "bm25"));
+    preencherSeletor($("#sel-resposta"), estado.algoritmos.resposta, valorConfig("resposta.padrao", "direta"));
+  }
+
+  function valorConfig(chave, padrao) {
+    const item = estado.config[chave];
+    return item ? item.valor : padrao;
+  }
+
+  /** Guarda a lista de /api/configuracoes e aplica a personalização na tela. */
+  function guardarConfig(lista) {
+    estado.config = {};
+    lista.forEach((item) => { estado.config[item.chave] = item; });
+    aplicarPersonalizacao();
+  }
+
+  async function carregarConfiguracoes() {
+    guardarConfig(await api("/api/configuracoes"));
+  }
+
+  /** Grava uma configuração do dono (valor null = voltar ao padrão/addon). */
+  async function salvarConfig(chave, valor) {
+    const caminho = "/api/configuracoes/" + encodeURIComponent(chave);
+    const lista = valor === null
+      ? await api(caminho, { metodo: "DELETE" })
+      : await api(caminho, { metodo: "PUT", corpo: { valor } });
+    guardarConfig(lista);
+    if (chave.startsWith("limiar.") || chave.endsWith(".padrao")) await carregarAlgoritmos();
+  }
+
+  /** Nome, cor e mensagem de boas-vindas (personalização do dono ou de um addon). */
+  function aplicarPersonalizacao() {
+    const nome = valorConfig("personalizacao.nome", "Aprendiz");
+    $("#marca-nome").textContent = nome;
+    document.title = nome;
+    // A tela de boas-vindas sai do documento durante uma conversa, então a
+    // procuramos pela referência guardada na inicialização.
+    const inicio = boasVindas || $("#boas-vindas");
+    $("#boas-vindas-nome", inicio).textContent = nome;
+    $("#boas-vindas-texto", inicio).textContent = valorConfig("personalizacao.boas_vindas", "");
+
+    // A cor padrão tem tons ajustados à mão para cada tema; uma cor
+    // personalizada gera os tons derivados com color-mix().
+    const cor = estado.config["personalizacao.cor"];
+    const raiz = document.documentElement.style;
+    const variaveis = ["--primaria", "--primaria-hover", "--primaria-suave", "--fundo-usuario"];
+    if (cor && cor.origem !== "padrao") {
+      raiz.setProperty("--primaria", cor.valor);
+      raiz.setProperty("--fundo-usuario", cor.valor);
+      raiz.setProperty("--primaria-hover", `color-mix(in srgb, ${cor.valor} 82%, black)`);
+      raiz.setProperty("--primaria-suave", `color-mix(in srgb, ${cor.valor} 14%, var(--fundo))`);
+    } else {
+      variaveis.forEach((v) => raiz.removeProperty(v));
+    }
   }
 
   function preencherSeletor(select, lista, escolhido) {
@@ -566,6 +624,29 @@
 
   function plural(n, singular, pluralTexto) { return `${n} ${n === 1 ? singular : pluralTexto}`; }
 
+  const CLASSIFICACOES = {
+    memoria: "Memória", linguagem: "Linguagem", parametros: "Parâmetros",
+    personalizacao: "Personalização", algoritmo: "Algoritmo", aplicacao: "Aplicação",
+  };
+
+  /** Selo de origem. "Oficial" é uma declaração do arquivo até a loja assinar os addons. */
+  function seloOrigem(origem) {
+    return origem === "oficial"
+      ? `<span class="etiqueta oficial" title="Declarado como oficial da Jano Projects pelo próprio arquivo">${icone("selo")}Oficial Jano</span>`
+      : `<span class="etiqueta terceiros" title="Feito por outra pessoa: confira a fonte">${icone("pessoas")}Terceiros</span>`;
+  }
+
+  function selosClassificacao(lista) {
+    return (lista || []).map((t) => `<span class="etiqueta classe">${esc(CLASSIFICACOES[t] || t)}</span>`).join("");
+  }
+
+  /** Addons do formato 1 não têm classificação no manifesto: deduz pelo conteúdo. */
+  function classificacaoDoAddon(a) {
+    const m = a.manifesto || {};
+    if (m.classificacao) return m.classificacao;
+    return [a.total_conhecimentos && "memoria", a.total_linguagem && "linguagem"].filter(Boolean);
+  }
+
   async function carregarAddons() {
     const lista = $("#lista-addons");
     const itens = await api("/api/addons");
@@ -577,7 +658,8 @@
       const cartao = criar(`
         <div class="cartao-addon ${a.ativo ? "" : "inativo"}">
           ${icone("addon", "icone-addon")}
-          <div class="titulo"><span class="nome"></span><span class="versao"></span></div>
+          <div class="titulo"><span class="nome"></span><span class="versao"></span>
+            ${seloOrigem((a.manifesto || {}).origem)}${selosClassificacao(classificacaoDoAddon(a))}</div>
           <label class="chave" title="Usar este addon nas respostas">
             <span class="estado">${a.ativo ? "Ativo" : "Desativado"}</span>
             <input type="checkbox" ${a.ativo ? "checked" : ""} aria-label="Ativar addon">
@@ -585,7 +667,12 @@
           <div class="descricao"></div>
           <div class="rodape">
             <span class="autor"></span>
-            <span>${plural(a.total_conhecimentos, "conhecimento", "conhecimentos")}${a.total_linguagem ? " · " + plural(a.total_linguagem, "termo de linguagem", "termos de linguagem") : ""}</span>
+            <span>${[
+              a.total_conhecimentos && plural(a.total_conhecimentos, "conhecimento", "conhecimentos"),
+              a.total_linguagem && plural(a.total_linguagem, "termo de linguagem", "termos de linguagem"),
+              a.total_configuracoes && plural(a.total_configuracoes, "configuração", "configurações"),
+            ].filter(Boolean).join(" · ")}</span>
+            <span class="deps"></span>
             <span class="acoes-addon">
               <button class="acao ver">${icone("olho")}<span>Ver conteúdo</span></button>
               ${a.site ? `<a class="acao" href="${esc(a.site)}" target="_blank" rel="noopener noreferrer">${icone("info")}<span>Site</span></a>` : ""}
@@ -597,6 +684,11 @@
       $(".versao", cartao).textContent = "v" + a.versao;
       $(".descricao", cartao).textContent = a.descricao || "";
       $(".autor", cartao).textContent = [a.autor && "por " + a.autor, a.licenca].filter(Boolean).join(" · ");
+      const deps = (a.manifesto || {}).dependencias || [];
+      if (deps.length) {
+        $(".deps", cartao).innerHTML = icone("link");
+        $(".deps", cartao).append("depende de " + deps.map((d) => `${d.nome} v${d.versao}`).join(", "));
+      }
 
       $(".chave input", cartao).addEventListener("change", async (ev) => {
         const ativo = ev.target.checked;
@@ -637,12 +729,95 @@
     });
   }
 
+  const SITUACAO_DEPENDENCIA = {
+    instalado: ["check", "instalado"],
+    desativado: ["alerta", "instalado, mas desativado"],
+    desatualizado: ["alerta", "instalado em versão mais antiga"],
+    ausente: ["alerta", "não instalado"],
+  };
+
+  /**
+   * Mostra o que o addon traz e espera a decisão do dono.
+   * Resolve true se ele clicar em Instalar.
+   */
+  function confirmarInstalacao(info) {
+    const m = info.manifesto;
+    const t = info.totais;
+    $("#instalar-titulo").textContent = info.versao_anterior
+      ? `Atualizar ${m.nome} (v${info.versao_anterior} → v${m.versao})` : `Instalar ${m.nome}`;
+
+    const resumo = $("#instalar-resumo");
+    resumo.innerHTML = `
+      <div class="selos">${seloOrigem(m.origem)}<span class="versao">v${esc(m.versao)}</span>${selosClassificacao(m.classificacao)}</div>
+      <p class="descricao"></p>
+      <dl class="dados">
+        <dt>Autor</dt><dd class="autor"></dd>
+        <dt>Traz</dt><dd>${[
+          t.conhecimentos && plural(t.conhecimentos, "conhecimento", "conhecimentos"),
+          t.linguagem && plural(t.linguagem, "termo de linguagem", "termos de linguagem"),
+          t.parametros && plural(t.parametros, "parâmetro", "parâmetros"),
+          t.personalizacao && plural(t.personalizacao, "personalização", "personalizações"),
+        ].filter(Boolean).join(" · ")}</dd>
+        <dt>Feito com</dt><dd>${m.app.criado_com ? "Aprendiz " + esc(m.app.criado_com) : "versão não informada"}${m.app.versao_minima ? ` (exige ${esc(m.app.versao_minima)} ou mais novo)` : ""}</dd>
+        <dt>SHA-256</dt><dd><code title="${esc(info.hash)}">${esc(info.hash.slice(0, 16))}…</code></dd>
+      </dl>`;
+    $(".descricao", resumo).textContent = m.descricao || "";
+    $(".autor", resumo).textContent = [m.autor, m.licenca].filter(Boolean).join(" · ") || "não informado";
+
+    if (m.origem !== "oficial") {
+      resumo.appendChild(criar(`<div class="aviso-backup alerta">${icone("pessoas")}<span>Addon de terceiros.
+        Só instale se confiar em quem o enviou. Ele contém apenas dados: nada é executado.</span></div>`));
+    }
+    if (info.dependencias.length) {
+      const bloco = criar(`<div class="bloco-resumo"><h4>${icone("link")} Complementa estes addons</h4></div>`);
+      info.dependencias.forEach((d) => {
+        const [nomeIcone, texto] = SITUACAO_DEPENDENCIA[d.situacao];
+        const linha = criar(`<div class="linha-resumo ${d.situacao}">${icone(nomeIcone)}<span></span><small></small></div>`);
+        $("span", linha).textContent = `${d.nome} v${d.versao}`;
+        $("small", linha).textContent = texto + (d.versao_instalada && d.situacao !== "instalado" ? ` (v${d.versao_instalada})` : "");
+        bloco.appendChild(linha);
+      });
+      if (info.dependencias.some((d) => d.situacao !== "instalado")) {
+        bloco.appendChild(criar(`<small class="ajuda">Ele funciona sozinho, mas as respostas ficam mais completas com as dependências instaladas e ativas.</small>`));
+      }
+      resumo.appendChild(bloco);
+    }
+    if (info.configuracoes.length) {
+      const bloco = criar(`<div class="bloco-resumo"><h4>${icone("config")} Ajusta</h4></div>`);
+      info.configuracoes.forEach((c) => {
+        const linha = criar(`<div class="linha-resumo">${icone("seta")}<span></span><small></small></div>`);
+        $("span", linha).textContent = `${c.titulo}: ${c.valor}`;
+        $("small", linha).textContent = c.dono_ja_definiu ? "você já definiu este valor; o seu continua valendo" : "";
+        bloco.appendChild(linha);
+      });
+      resumo.appendChild(bloco);
+    }
+    if (info.amostra.length) {
+      const bloco = criar(`<div class="bloco-resumo"><h4>${icone("olho")} Amostra</h4></div>`);
+      info.amostra.forEach((texto) => {
+        const linha = criar(`<div class="linha-resumo">${icone("base")}<span></span></div>`);
+        $("span", linha).textContent = texto;
+        bloco.appendChild(linha);
+      });
+      resumo.appendChild(bloco);
+    }
+
+    const dlg = $("#dlg-instalar");
+    return new Promise((resolver) => {
+      dlg.returnValue = "";
+      dlg.addEventListener("close", () => resolver(dlg.returnValue === "instalar"), { once: true });
+      dlg.showModal();
+    });
+  }
+
   $("#addon-arquivo").addEventListener("change", async (ev) => {
     for (const arquivo of ev.target.files) {
       try {
-        avisar(`Importando ${arquivo.name}…`, "importar");
-        const r = await api("/api/addons", { metodo: "POST", corpo: {
-          nome_arquivo: arquivo.name, conteudo_base64: await lerComoBase64(arquivo) } });
+        const corpo = { nome_arquivo: arquivo.name, conteudo_base64: await lerComoBase64(arquivo) };
+        const info = await api("/api/addons/inspecionar", { metodo: "POST", corpo });
+        if (!(await confirmarInstalacao(info))) continue;
+        avisar(`Instalando ${arquivo.name}…`, "importar");
+        const r = await api("/api/addons", { metodo: "POST", corpo });
         const a = r.addon;
         let mensagem = `${a.nome} instalado com ${plural(a.total_conhecimentos, "conhecimento", "conhecimentos")}.`;
         if (r.versao_anterior === a.versao) mensagem = `${a.nome} v${a.versao} reinstalado.`;
@@ -653,7 +828,135 @@
     ev.target.value = "";
     carregarAddons();
     atualizarStatus();
+    await carregarConfiguracoes();   // o addon pode ter trazido parâmetros/personalização
+    await carregarAlgoritmos();
   });
+
+  // ---- Exportar o conhecimento do dono como addon
+  async function abrirExportar() {
+    let dados;
+    try { dados = await api("/api/exportar"); }
+    catch (erro) { avisar(erro.message, "alerta"); return; }
+    estado.exportacao = dados;
+    const lista = $("#exp-itens");
+    lista.innerHTML = "";
+
+    /** Um grupo de caixas de seleção com "marcar todos". */
+    function grupo(titulo, nomeIcone, itens, ajuda) {
+      if (!itens.length) return;
+      const bloco = criar(`
+        <details class="grupo-exportar" open>
+          <summary>${icone(nomeIcone)}<strong></strong><span class="contador"></span>
+            <label class="marcar-todos"><input type="checkbox"> todos</label></summary>
+          ${ajuda ? `<p class="ajuda"></p>` : ""}
+          <div class="itens"></div>
+        </details>`);
+      $("strong", bloco).textContent = titulo;
+      if (ajuda) $(".ajuda", bloco).textContent = ajuda;
+      itens.forEach((item) => {
+        const linha = criar(`<label class="item-exportar">
+            <input type="checkbox" data-grupo="${esc(item.grupo)}" data-valor="${esc(item.valor)}" ${item.marcado ? "checked" : ""}>
+            <span class="texto"><b></b><small></small></span></label>`);
+        $("b", linha).textContent = item.titulo;
+        $("small", linha).textContent = item.detalhe || "";
+        (item.avisos || []).forEach((motivo) => {
+          const etiqueta = criar(`<span class="etiqueta perigo" title="Pode ser um dado pessoal">${icone("alerta")}<span></span></span>`);
+          $("span", etiqueta).textContent = motivo;
+          $(".texto", linha).appendChild(etiqueta);
+        });
+        $(".itens", bloco).appendChild(linha);
+      });
+      const todos = $(".marcar-todos input", bloco);
+      todos.addEventListener("click", (ev) => ev.stopPropagation());
+      todos.addEventListener("change", () => {
+        $$(".itens input", bloco).forEach((c) => { c.checked = todos.checked; });
+        contarExportacao();
+      });
+      $$(".itens input", bloco).forEach((c) => c.addEventListener("change", contarExportacao));
+      lista.appendChild(bloco);
+    }
+
+    const corta = (t, n) => (t.length > n ? t.slice(0, n - 1) + "…" : t);
+    grupo("Conhecimentos", "base", dados.conhecimentos.map((k) => ({
+      grupo: "conhecimentos", valor: k.id, marcado: k.marcado, avisos: k.avisos,
+      titulo: corta(k.pergunta || k.conteudo, 90), detalhe: k.pergunta ? corta(k.conteudo, 140) : "",
+    })));
+    ["sinonimos", "abreviacoes"].forEach((tipo) => grupo(
+      tipo === "sinonimos" ? "Sinônimos" : "Abreviações", "linguagem",
+      dados.linguagem[tipo].map((l) => ({ grupo: tipo, valor: l.termo, marcado: true,
+        titulo: `${l.termo} → ${l.valor}` }))));
+    grupo("Parâmetros", "config", dados.parametros.map((c) => ({
+      grupo: "parametros", valor: c.chave, marcado: c.marcado, titulo: `${c.titulo}: ${c.valor}` })));
+    grupo("Personalização", "editar", dados.personalizacao.map((c) => ({
+      grupo: "personalizacao", valor: c.chave, marcado: c.marcado, titulo: `${c.titulo}: ${c.valor}` })));
+    grupo("Dependências (addons instalados)", "link", dados.dependencias.map((d) => ({
+      grupo: "dependencias", valor: d.id, marcado: d.marcado,
+      titulo: `${d.nome} v${d.versao}`,
+      detalhe: (d.origem === "oficial" ? "oficial Jano" : "de terceiros") + (d.ativo ? "" : " · desativado"),
+    })), "Só o nome e a versão vão no arquivo, para quem receber saber o que instalar junto.");
+
+    if (!lista.children.length) {
+      lista.innerHTML = `<div class="vazio">${icone("base")}<div>Ainda não há nada seu para exportar.<br>Ensine algo ao assistente primeiro.</div></div>`;
+    }
+    contarExportacao();
+    $("#dlg-exportar").showModal();
+    $("#exp-nome").focus();
+  }
+
+  function contarExportacao() {
+    $$("#exp-itens .grupo-exportar").forEach((bloco) => {
+      const caixas = $$(".itens input", bloco);
+      const marcadas = caixas.filter((c) => c.checked).length;
+      $(".contador", bloco).textContent = `${marcadas} de ${caixas.length}`;
+      $(".marcar-todos input", bloco).checked = marcadas === caixas.length;
+    });
+    const conteudo = $$("#exp-itens input[data-grupo]:checked").filter((c) => c.dataset.grupo !== "dependencias").length;
+    $("#exp-resumo").textContent = conteudo ? plural(conteudo, "item marcado", "itens marcados") : "nada marcado";
+    $("#btn-gerar-addon").disabled = !conteudo;
+  }
+
+  $("#form-exportar").addEventListener("submit", async (ev) => {
+    ev.preventDefault();
+    const corpo = {
+      manifesto: {
+        nome: $("#exp-nome").value.trim(), versao: $("#exp-versao").value.trim(),
+        autor: $("#exp-autor").value.trim() || null, licenca: $("#exp-licenca").value.trim() || null,
+        descricao: $("#exp-descricao").value.trim() || null,
+      },
+      conhecimentos: [], abreviacoes: [], sinonimos: [], parametros: [], personalizacao: [], dependencias: [],
+    };
+    $$("#exp-itens input[data-grupo]:checked").forEach((c) => corpo[c.dataset.grupo].push(c.dataset.valor));
+
+    const botao = $("#btn-gerar-addon");
+    botao.disabled = true;
+    try {
+      // Aqui não usamos api(): a resposta é um arquivo (bytes), não JSON.
+      const resposta = await fetch("/api/exportar", {
+        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(corpo) });
+      if (!resposta.ok) {
+        const erro = await resposta.json().catch(() => ({}));
+        throw new Error(typeof erro.detail === "string" ? erro.detail : "Erro " + resposta.status);
+      }
+      const disposicao = resposta.headers.get("Content-Disposition") || "";
+      const nome = (disposicao.match(/filename="([^"]+)"/) || [])[1] || "meu-addon.aprendiz";
+      const url = URL.createObjectURL(await resposta.blob());
+      const link = criar(`<a hidden></a>`);
+      link.href = url;
+      link.download = nome;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 10000);
+      $("#dlg-exportar").close();
+      avisar(`${nome} gerado. Procure na sua pasta de downloads.`, "exportar");
+    } catch (erro) {
+      avisar(erro.message, "alerta");
+    } finally {
+      contarExportacao();
+    }
+  });
+
+  $("#btn-exportar").addEventListener("click", abrirExportar);
 
   // ---- Banco de linguagem
   const AJUDA_LINGUAGEM = {
@@ -716,8 +1019,77 @@
     return corte > 0 ? caminho.slice(0, corte) : caminho;
   }
 
+  /** Monta a lista de configurações de um tipo (parametros | personalizacao). */
+  function renderConfig(tipo) {
+    const lista = $("#config-" + tipo);
+    lista.innerHTML = "";
+    Object.values(estado.config).filter((c) => c.tipo === tipo).forEach((c) => {
+      const linha = criar(`
+        <div class="linha-config">
+          <div class="texto"><b></b><small></small></div>
+          <div class="controle"></div>
+          <div class="origem-config"><span class="etiqueta"></span>
+            <button class="acao restaurar" title="Voltar ao valor do addon ou ao padrão">${icone("reset")}<span>Padrão</span></button></div>
+        </div>`);
+      $("b", linha).textContent = c.titulo;
+      $("small", linha).textContent = c.descricao;
+      const etiqueta = $(".etiqueta", linha);
+      etiqueta.textContent = c.origem === "dono" ? "definido por você"
+        : c.origem === "addon" ? "do addon " + (c.addon_nome || c.addon_id) : "padrão";
+      etiqueta.classList.toggle("pergunta", c.origem === "dono");
+      etiqueta.classList.toggle("addon", c.origem === "addon");
+      $(".restaurar", linha).hidden = c.origem !== "dono";
+
+      const controle = $(".controle", linha);
+      let campo;
+      if (c.opcoes) {
+        campo = criar(`<select></select>`);
+        (estado.algoritmos[c.opcoes] || []).forEach((a) => {
+          const opcao = criar(`<option></option>`);
+          opcao.value = a.nome;
+          opcao.textContent = a.titulo;
+          campo.appendChild(opcao);
+        });
+      } else if (c.cor) {
+        campo = criar(`<input type="color">`);
+      } else if (typeof c.padrao === "number") {
+        campo = criar(`<input type="range">`);
+        campo.min = c.minimo; campo.max = c.maximo; campo.step = c.passo;
+        const saida = criar(`<output></output>`);
+        saida.textContent = Number(c.valor).toFixed(2);
+        campo.addEventListener("input", () => { saida.textContent = Number(campo.value).toFixed(2); });
+        controle.appendChild(saida);
+      } else {
+        campo = criar(`<input type="text">`);
+        campo.maxLength = c.chave.endsWith("nome") ? 30 : 200;
+      }
+      campo.value = c.valor;
+      campo.setAttribute("aria-label", c.titulo);
+      controle.prepend(campo);
+
+      campo.addEventListener("change", async () => {
+        const valor = typeof c.padrao === "number" ? Number(campo.value) : campo.value;
+        try { await salvarConfig(c.chave, valor); avisar(`${c.titulo} atualizado.`, "config"); }
+        catch (erro) { avisar(erro.message, "alerta"); }
+        renderTodasConfig();
+      });
+      $(".restaurar", linha).addEventListener("click", async () => {
+        try { await salvarConfig(c.chave, null); } catch (erro) { avisar(erro.message, "alerta"); }
+        renderTodasConfig();
+      });
+      lista.appendChild(linha);
+    });
+  }
+
+  function renderTodasConfig() {
+    renderConfig("personalizacao");
+    renderConfig("parametros");
+  }
+
   async function abrirConfig() {
     await atualizarStatus();
+    await carregarConfiguracoes();
+    renderTodasConfig();
     const s = estado.status || {};
     const separador = pastaDoBanco().includes("\\") ? "\\" : "/";
     $("#dados-instalacao").innerHTML = `
@@ -734,6 +1106,8 @@
   $$("#seg-tema button").forEach((b) => b.addEventListener("click", () => aplicarTema(b.dataset.tema)));
 
   // ---- Reset da memória
+  const PARTES_RESET = ["conhecimentos", "linguagem", "conversas", "addons", "configuracoes"];
+
   function abrirReset() {
     const s = estado.status || {};
     const separador = pastaDoBanco().includes("\\") ? "\\" : "/";
@@ -742,14 +1116,14 @@
     $("#reset-info-addons").textContent = `${s.addons ?? 0} addon(s) instalado(s)`;
     $("#reset-pasta-backup").textContent = pastaDoBanco() + separador + "backups";
     $("#reset-confirmacao").value = "";
-    ["conhecimentos", "linguagem", "conversas", "addons"].forEach((p) => { $("#reset-" + p).checked = true; });
+    PARTES_RESET.forEach((p) => { $("#reset-" + p).checked = true; });
     validarReset();
     $("#dlg-reset").showModal();
     $("#reset-confirmacao").focus();
   }
 
   function validarReset() {
-    const algumaParte = ["conhecimentos", "linguagem", "conversas", "addons"].some((p) => $("#reset-" + p).checked);
+    const algumaParte = PARTES_RESET.some((p) => $("#reset-" + p).checked);
     $("#btn-confirmar-reset").disabled = !(algumaParte && $("#reset-confirmacao").value.trim().toUpperCase() === "RESETAR");
   }
 
@@ -767,6 +1141,7 @@
         linguagem: $("#reset-linguagem").checked,
         conversas: $("#reset-conversas").checked,
         addons: $("#reset-addons").checked,
+        configuracoes: $("#reset-configuracoes").checked,
         confirmacao: "RESETAR",
       } });
       $("#dlg-reset").close();
@@ -774,6 +1149,8 @@
       novaConversa();
       await carregarConversas();
       await atualizarStatus();
+      await carregarConfiguracoes();
+      await carregarAlgoritmos();
       avisar("Memória resetada. Cópia de segurança salva em " + r.backup, "escudo");
     } catch (erro) {
       avisar(erro.message, "alerta");
@@ -832,9 +1209,10 @@
 
     ["busca", "resposta"].forEach((tipo) => {
       const sel = $("#sel-" + tipo);
-      sel.addEventListener("change", () => {
-        preferencias.gravar(tipo, sel.value);
+      sel.addEventListener("change", async () => {
         atualizarDica(sel, estado.algoritmos[tipo]);
+        try { await salvarConfig(tipo + ".padrao", sel.value); }
+        catch (erro) { avisar(erro.message, "alerta"); }
       });
     });
 
@@ -869,6 +1247,7 @@
     ligarEventos();
     atualizarBotaoEnviar();
     try {
+      await carregarConfiguracoes();
       await carregarAlgoritmos();
       await carregarConversas();
       await atualizarStatus();

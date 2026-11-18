@@ -46,7 +46,8 @@ aprendiz/
 │   │   └── servidor.py                  # Servidor HTTP local (FastAPI).
 │   ├── core/                            # Núcleo: o pipeline que conecta linguagem, memória e algoritmos.
 │   │   ├── __init__.py                  # Núcleo: o pipeline que conecta linguagem, memória e algoritmos.
-│   │   └── assistente.py                # O pipeline: a classe que junta linguagem, memória e algoritmos.
+│   │   ├── assistente.py                # O pipeline: a classe que junta linguagem, memória e algoritmos.
+│   │   └── exportacao.py                # Exportação: transforma o que o DONO ensinou num addon (.aprendiz) para compartilhar.
 │   ├── linguagem/                       # Processamento de linguagem natural (PLN) clássico, sem redes neurais.
 │   │   ├── __init__.py                  # Processamento de linguagem natural (PLN) clássico, sem redes neurais.
 │   │   ├── entidades.py                 # Extração de entidades com expressões regulares (regex).
@@ -65,8 +66,9 @@ aprendiz/
 │   │   └── markdown.js                  # Mini renderizador de Markdown com proteção contra XSS
 │   ├── __init__.py                      # Aprendiz — um assistente pessoal local, leve e offline.
 │   ├── __main__.py                      # Permite executar com `python -m aprendiz`.
-│   ├── addons.py                        # Addons: pacotes de conhecimento prontos, distribuídos em arquivos .aprendiz.
+│   ├── addons.py                        # Addons: pacotes prontos, distribuídos em arquivos .aprendiz.
 │   ├── config.py                        # Configurações globais do Aprendiz.
+│   ├── configuracoes.py                 # Configurações ajustáveis: parâmetros dos algoritmos e personalização da interface.
 │   └── desktop.py                       # Inicializador do app de desktop.
 ├── benchmarks/                          # Comparação dos algoritmos de busca
 │   ├── comparar.py                      # Benchmark: compara os algoritmos de busca num mesmo conjunto de perguntas.
@@ -82,13 +84,17 @@ aprendiz/
 │   ├── estrutura.md                     # Este mapa (gerado por ferramentas/gerar_estrutura.py)
 │   └── linguagem.md                     # O pipeline de PLN, etapa por etapa
 ├── exemplos/                            # Exemplos prontos para usar e estudar
-│   └── addons/                          # Addon de exemplo: fonte e arquivo .aprendiz gerado
-│       ├── conversoes-medidas/          # Fonte do addon de exemplo
+│   └── addons/                          # Addons de exemplo (oficiais): fontes e arquivos .aprendiz gerados
+│       ├── conversoes-medidas/          # Fonte de um addon de memória e linguagem
 │       │   ├── forno.md                 # Texto livre, dividido em trechos
 │       │   ├── linguagem.json           # Sinônimos e abreviações do addon
-│       │   ├── manifesto.json           # Identidade do addon (id, nome, versão…)
+│       │   ├── manifesto.json           # Identidade do addon (id, nome, versão, origem…)
 │       │   └── perguntas.txt            # Pares P:/R: (o jeito mais fácil de escrever)
-│       └── conversoes-medidas.aprendiz  # Addon pronto para importar
+│       ├── modo-exigente/               # Fonte de um addon só de parâmetros
+│       │   ├── manifesto.json           # Identidade do addon (origem oficial)
+│       │   └── parametros.json          # Limiares de confiança mais exigentes
+│       ├── conversoes-medidas.aprendiz  # Addon pronto para importar
+│       └── modo-exigente.aprendiz       # Addon pronto para importar (limiares mais altos)
 ├── ferramentas/                         # Utilitários para usuários e desenvolvedores
 │   ├── criar_addon.py                   # Cria (ou confere) um addon do Aprendiz — um arquivo .aprendiz.
 │   ├── gerar_estrutura.py               # Gera docs/estrutura.md: a árvore indentada de pastas e arquivos do projeto, com uma linha…
@@ -100,6 +106,8 @@ aprendiz/
 │   ├── test_algoritmos.py               # Testes dos algoritmos de busca e de resposta, e do pipeline completo.
 │   ├── test_api.py                      # Testes da API HTTP (o mesmo caminho que a interface usa).
 │   ├── test_documentacao.py             # Garante que o projeto continue documentado: todo arquivo tem explicação.
+│   ├── test_exportacao.py               # Testes da exportação: prévia com avisos de privacidade, escolha de itens e ida e volta.
+│   ├── test_formato2.py                 # Testes do formato 2: origem, classificação, versão do app, dependências e configurações.
 │   └── test_linguagem.py                # Testes do processamento de linguagem: radicais, normalização, intenções, entidades.
 ├── .editorconfig                        # Padrão de indentação e fim de linha para qualquer editor
 ├── .gitattributes                       # Fins de linha corretos por tipo de arquivo (LF/CRLF)

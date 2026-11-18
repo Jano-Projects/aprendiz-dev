@@ -6,6 +6,33 @@ seguem o [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ## [Não lançado]
 
+## [0.4.0] - 2026-11-17
+
+### Adicionado
+- **Formato de addon 2**: o manifesto registra `origem` (`oficial` da Jano Projects ou
+  `terceiros`), `classificacao` (memória, linguagem, parâmetros, personalização; algoritmo e
+  aplicação ficam reservados e são recusados), `app` (versão que gerou e versão mínima) e
+  `dependencias` (addons que ele complementa). Addons do formato 1 continuam sendo lidos.
+- **Exportar meu conhecimento** (Addons): gera um `.aprendiz` com os itens escolhidos.
+  Itens com cara de dado pessoal vêm desmarcados; addons instalados entram só como
+  dependências (id, versão e nome), sem copiar o conteúdo.
+- **Confirmação antes de instalar**: origem, classificação, totais, versão do app,
+  dependências (instalada, desativada, desatualizada ou ausente), parâmetros e amostra.
+- **Configurações de parâmetros e personalização**: algoritmos padrão, limiares de cada
+  busca, margem de prioridade do dono, nome, cor e mensagem de boas-vindas. Valem na ordem
+  dono > addon ativo > padrão, e a interface mostra de onde vem cada valor.
+- Addons podem trazer `parametros.json` e `personalizacao.json` (lista fechada de chaves).
+- Rotas `POST /api/addons/inspecionar`, `GET/POST /api/exportar` e `/api/configuracoes`.
+- Opção "Configurações" no reset da memória.
+- Addon de exemplo `modo-exigente` (só parâmetros).
+
+### Mudado
+- A escolha de algoritmo nos seletores agora fica no servidor (Configurações), e não mais no
+  navegador.
+- `/api/algoritmos` mostra o limiar em vigor (e o padrão em `limiar_padrao`).
+- O addon de exemplo `conversoes-medidas` passou para a versão 1.1.0, marcado como oficial.
+- Banco: `versao_esquema` 4 (coluna `addons.manifesto` e tabela `configuracoes`).
+
 ### Corrigido
 - Instalador do Windows: depois de instalar o Python, localiza o `python.exe` pelo Registro
   do Windows (PEP 514) e pelo lançador `py`, em vez de supor a pasta. Antes, falhava quando
@@ -56,4 +83,6 @@ Primeira versão pública.
 - Instaladores para Linux e Windows que instalam o Python se faltar, verificador de
   instalação, executável via PyInstaller e CI em Windows, Ubuntu, Fedora e Debian.
 
+[Não lançado]: https://github.com/Jano-Projects/aprendiz-dev/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/Jano-Projects/aprendiz-dev/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/Jano-Projects/aprendiz-dev/releases/tag/v0.3.0
