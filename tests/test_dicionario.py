@@ -174,3 +174,35 @@ def test_criar_addon_le_variacoes_e_traducoes(tmp_path):
 
 def test_em_portugues_pede_o_significado(com_dicionarios):
     assert texto(com_dicionarios, "como se diz kota em português?")[1] == "**kota**: pessoa mais velha."
+
+
+def test_criar_addon_preserva_blocos_de_codigo(tmp_path):
+    caminho = Path(__file__).resolve().parent.parent / "ferramentas" / "criar_addon.py"
+    spec = importlib.util.spec_from_file_location("criar_addon", caminho)
+    modulo = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(modulo)
+    arquivo = tmp_path / "perguntas.txt"
+    arquivo.write_text(
+        "P: como fazer um if em python\n"
+        "R: Assim:\n"
+        "```python\n"
+        "# comentário do Python\n"
+        "if x > 0:\n"
+        "    print(x)\n"
+        "\n"
+        "p: list = []\n"
+        "```\n"
+        "O bloco termina aqui.\n"
+        "\n"
+        "P: hello world em c\n"
+        "R: ```c\n#include <stdio.h>\n```\n",
+        encoding="utf-8")
+    itens = modulo.ler_perguntas(arquivo)
+    assert len(itens) == 2
+    assert itens[0]["conteudo"] == ("Assim:\n```python\n# comentário do Python\nif x > 0:\n"
+                                    "    print(x)\n\np: list = []\n```\nO bloco termina aqui.")
+    assert itens[1]["conteudo"] == "```c\n#include <stdio.h>\n```"
+
+    arquivo.write_text("P: x\nR: ```\naberto\n", encoding="utf-8")
+    with pytest.raises(SystemExit, match="não fechado"):
+        modulo.ler_perguntas(arquivo)
