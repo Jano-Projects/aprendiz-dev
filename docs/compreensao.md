@@ -4,12 +4,13 @@ A partir da versão 0.7, o Aprendiz aceita addons de **compreensão**: em vez de
 respostas, eles ensinam o app a **interpretar** o que a pessoa escreve. O motor está no app
 (`aprendiz/core/compreensao.py` e `aprendiz/linguagem/lexico.py`); os addons trazem só dados.
 
-A loja oficial distribui dois:
+A loja oficial distribui três:
 
 | Addon | Classificação | Tamanho | O que traz |
 |---|---|---|---|
 | **Compreensão do português** (`compreensao-portugues`) | `compreensao`, `linguagem` | ~0,8 MB | tipos de pergunta, expressões, autoconhecimento, limites, necessidades, catálogo da loja e um léxico com mais de 300 mil palavras (139 mil com lema) |
 | **Vetores de palavras do português** (`vetores-portugues`) | `vetores` | ~1,7 MB | vetores de sentido para cerca de 114 mil palavras (depende do anterior) |
+| **Diálogo do português** (`dialogo-portugues`) | `compreensao` | ~5 KB | atos de fala, palavras de conversa, cumprimentos e continuações (Aprendiz 0.9+; veja [Diálogo](#diálogo)) |
 
 Sem nenhum deles, o Aprendiz funciona exatamente como antes.
 
@@ -33,9 +34,13 @@ mensagem
   ├─ 1. Normalização ....... + expressões ("dar um jeito" → resolver)
   │                          + lemas ("fui" → ser), só fora das stopwords
   │                          + léxico: palavra que existe não é "corrigida"
-  ├─ 2. Ensino, dicionário, intenções (como antes)
+  ├─ 2. Ensino, revisão, dicionário (como antes)
+  ├─ 2c. Diálogo ........... cumprimento + pedido, desabafo, opinião, "não entendi",
+  │                          "e em Portugal?" (addon de diálogo, 0.9+)
+  ├─ 3. Intenções (como antes)
   ├─ 4. Intenção social .... não responde "oi" para "como selecionar tudo no windows"
   ├─ 4b. Compreensão ....... tipo da pergunta + assunto; perguntas sobre o Aprendiz
+  ├─ 4c. Sem assunto? ...... só palavras de conversa: convida a perguntar, sem buscar
   ├─ 5. Busca (como antes)
   ├─ 6. Nada encontrado? ... a. fora de alcance?  → explica a limitação
   │                          b. busca por sentido (vetores)
@@ -144,20 +149,66 @@ Cuidados para não inventar:
 Os vetores ficam num bloco de bytes por addon (`addon_recursos`, ~1,4 MB), lido uma vez; a
 tabela de palavras fica no SQLite.
 
+## Diálogo
+
+A compreensão entende **o que** a pessoa pergunta. O diálogo (0.9+, `aprendiz/core/dialogo.py`)
+entende **o que ela faz** com a frase, o que um ser humano percebe antes de tudo numa
+conversa. Os dados vêm da seção `dialogo` do `compreensao.json`, no addon **Diálogo do
+português**; sem ele, nada muda.
+
+| Mensagem | Sem diálogo | Com diálogo |
+|---|---|---|
+| "Olá, consegue me ajudar?" | a busca acha "ajudei-lhe" (Angola) pela palavra "ajudar" | "Olá! Claro, posso tentar! Me diga o que você quer saber…" |
+| "consegue me ajudar com uma gíria de Angola?" | chuta um verbete | "Claro! Me diga qual gíria de Angola você quer saber…" |
+| "estou meio perdido hoje" | "Olá! Em que posso ajudar?" (o classificador achou um cumprimento) | acolhe e convida a contar o que está acontecendo |
+| "o que você acha da vida?" | responde "leve-leve" | diz com franqueza que não tem opinião própria e mostra o que sabe do assunto |
+| "qual o sentido da vida?" | uma regra de gramática com "sentido" | resposta reflexiva, a não ser que você tenha ensinado a sua |
+| "não entendi" (depois de uma resposta) | "ainda não fui ensinado" | mostra o texto inteiro de onde a resposta saiu |
+| "não era isso" | "ainda não fui ensinado" | lista os outros candidatos da busca anterior e lembra do **Corrigir** |
+| "sim" (depois de "quer ativá-lo?") | cumprimento | ativa o addon e responde a pergunta anterior |
+| "e em Portugal?" (depois de "o que significa kota em Angola?") | procura "Portugal" | "o que significa kota em Portugal" |
+
+As peças:
+
+- **Aberturas**: cumprimentos no começo da frase ("Olá,", "bom dia,") são separados do resto e
+  viram o começo da resposta. Se a frase inteira é um ato ("tudo bem com você?"), o ato vence.
+- **Palavras de conversa** ("conseguir", "ajudar", "explicar", "coisa", "hoje"…): sozinhas não
+  são assunto. Uma mensagem só com elas não dispara a busca (etapa 4c).
+- **Atos de fala**: cada um tem gatilhos, textos de resposta e uma **ação** de uma lista
+  fechada do app (`recursos.ACOES_DIALOGO`): `convidar`, `responder`, `acolher`, `crise`,
+  `opinar`, `refletir`, `reformular`, `outras_opcoes`, `confirmar` e `negar`. O gatilho aceita
+  até duas palavras no meio ("estou **meio** perdido" casa com "estou perdido").
+- **Assunto vago**: "uma gíria", "alguma receita" (artigo indefinido) fazem o Aprendiz
+  perguntar qual, em vez de chutar.
+- **Contexto**: o Aprendiz guarda só a **última troca** da conversa (a pergunta e a resposta,
+  com as fontes e os candidatos da busca). É o que basta para "não entendi", "não era isso",
+  "sim", "não" e as **continuações** ("e em…", "e no…", "e o…").
+- **Crise**: frases de sofrimento grave são reconhecidas em qualquer posição e recebem, antes
+  de tudo, os contatos de apoio (CVV 188 no Brasil, SNS 24 em Portugal, número de emergência).
+
+O que o dono ensinou continua valendo mais: se você ensinou exatamente a pergunta, o diálogo
+não interfere.
+
+**Limites honestos.** O diálogo não "pensa": reconhece padrões de conversa e escolhe entre
+respostas escritas no addon. Ele não cria opiniões, não lembra a conversa inteira e não
+responde perguntas abertas com conteúdo que ninguém ensinou. O ganho é não responder fora de
+contexto e conduzir a conversa até uma pergunta que a base sabe responder.
+
 ## Formato dos arquivos
 
 Descritos em detalhe no início de `aprendiz/recursos.py`:
 
 | Arquivo | Classificação | Conteúdo |
 |---|---|---|
-| `compreensao.json` | `compreensao` | seções `expressoes`, `tipos_pergunta`, `autoconhecimento`, `fora_de_alcance`, `necessidades` e `catalogo` |
+| `compreensao.json` | `compreensao` | seções `expressoes`, `tipos_pergunta`, `autoconhecimento`, `fora_de_alcance`, `necessidades`, `catalogo` e `dialogo` (0.9+) |
 | `lemas.tsv` | (junto com `compreensao.json`) | `palavra<TAB>lema` ou só `palavra`, já normalizadas |
 | `vetores.bin` | `vetores` | binário: cabeçalho, palavras, índice de cada palavra e vetores `int8` |
 
 Segurança: tudo é validado como dado não confiável. Não há regex vinda de addon (só listas de
 palavras), as funções de autoconhecimento são uma lista fechada do app, o tamanho do
 `vetores.bin` precisa bater exatamente com o cabeçalho e os ids do catálogo só aceitam letras
-minúsculas, números e hífen.
+minúsculas, números e hífen. No diálogo, as ações são uma lista fechada do app e o único
+marcador nos textos é `{assunto}`, trocado por texto simples.
 
 ## Criar ou atualizar os addons oficiais
 

@@ -48,6 +48,7 @@ aprendiz/
 │   │   ├── __init__.py                  # Núcleo: o pipeline que conecta linguagem, memória e algoritmos.
 │   │   ├── assistente.py                # O pipeline: a classe que junta linguagem, memória e algoritmos.
 │   │   ├── compreensao.py               # Compreensão: o motor que usa os addons "compreensao" e "vetores" (0.7+).
+│   │   ├── dialogo.py                   # Diálogo: o motor que usa a seção "dialogo" dos addons de compreensão (0.9+).
 │   │   ├── dicionario.py                # Dicionário: consultas aos VERBETES dos addons, nos dois sentidos.
 │   │   ├── exportacao.py                # Exportação: transforma o que o DONO ensinou num addon (.aprendiz) para compartilhar.
 │   │   ├── recomendacao.py              # Recomendação de algoritmos para um addon: qual BUSCA e qual RESPOSTA usar.
@@ -115,6 +116,7 @@ aprendiz/
 │   ├── test_algoritmos.py               # Testes dos algoritmos de busca e de resposta, e do pipeline completo.
 │   ├── test_api.py                      # Testes da API HTTP (o mesmo caminho que a interface usa).
 │   ├── test_compreensao.py              # Testes da compreensão (0.7): addons "compreensao" e "vetores".
+│   ├── test_dialogo.py                  # Testes do diálogo (0.9): a seção "dialogo" dos addons de compreensão e a herança de grupo…
 │   ├── test_dicionario.py               # Testes da 0.6: dicionário nos dois sentidos (traduções e regiões), variações de pergunta…
 │   ├── test_documentacao.py             # Garante que o projeto continue documentado: todo arquivo tem explicação.
 │   ├── test_exportacao.py               # Testes da exportação: prévia com avisos de privacidade, escolha de itens e ida e volta.

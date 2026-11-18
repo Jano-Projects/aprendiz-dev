@@ -6,13 +6,36 @@ seguem o [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ## [Não lançado]
 
+## [0.9.0] - 2026-11-18
+
 ### Adicionado
+- **Diálogo** (`aprendiz/core/dialogo.py`): seção `dialogo` no `compreensao.json`, com
+  aberturas, palavras de conversa, continuações e **atos de fala** (pedir ajuda, desabafar,
+  pedir opinião, pergunta reflexiva, elogio, crítica, "não entendi", "não era isso", "sim",
+  "não" e crise). A ação de cada ato é de uma lista fechada (`recursos.ACOES_DIALOGO`). Veja
+  "Diálogo" em `docs/compreensao.md`.
+- **Contexto da conversa**: a última troca (pergunta, resposta, fontes, candidatos e
+  recomendação) é usada por "não entendi" (texto inteiro da fonte), "não era isso" (outros
+  candidatos), "sim" (ativa o addon recomendado e responde de novo) e pelas continuações
+  ("e em Portugal?" reescreve a pergunta anterior; a resposta mostra como foi entendida).
+- Etapa **4c · Sem assunto**: mensagem só com palavras de conversa ("consegue fazer isso?")
+  não dispara a busca.
+- Cumprimento no começo da frase ("Olá, consegue me ajudar?") vira o começo da resposta, e
+  o resto é tratado como mensagem.
+- Assunto vago ("me ajuda com uma gíria de Angola?"): o Aprendiz pergunta qual.
+- Manifesto: campo opcional **`complementa`** (ids de addons que este completa sem depender).
+- "O que você sabe fazer?" e "o que você não faz?" mencionam o diálogo quando ele está ativo.
 - `criar_addon.py`: blocos de código (três crases) nas respostas do `perguntas.txt` e do
   `verbetes.txt` são copiados como estão: indentação, linhas em branco e linhas com `#`
   (`#include`, comentários do Python) são mantidas. Bloco aberto e não fechado é recusado.
   Veja "Código nas respostas" em `docs/addons.md`.
 
 ### Mudado
+- **Grupos de addons**: addons sem recomendação própria (compreensão, diálogo, vetores,
+  personalização) herdam o grupo dos addons de que dependem ou que complementam, e, se
+  preciso, dos que dependem deles. Antes, todos ficavam em "Sem recomendação".
+- `compreensao.json` sem diálogo continua sendo gerado sem a chave `dialogo`, para seguir
+  aceito pelas versões 0.7 e 0.8.
 - Normalização: `c++` → `cpp`, `g++` → `gpp`, `c#` → `csharp` (antes, "C", "C++" e "C#"
   viravam a mesma palavra "c"). `VERSAO_NORMALIZACAO` 3: a base é reindexada ao abrir.
 
