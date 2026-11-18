@@ -48,6 +48,16 @@ _CORTESIA = {"voce", "sabe", "sabes", "me", "diga", "diz", "fala", "conta", "por
              "aprendiz", "ei", "oi", "ola", "entao", "e", "ai", "tu"}
 MAX_CORTESIA = 3
 
+# Marcadores de conversa no começo da frase: não mudam o pedido.
+# "mas você tem nome?" = "você tem nome?"; "e aí, qual o seu nome?" = "qual o seu nome?"
+_MARCADORES_INICIAIS = {"mas", "e", "entao", "ai", "tipo", "bom", "olha", "hm", "hum",
+                        "pois", "agora", "ok", "certo", "ei", "oi", "ola", "aprendiz"}
+# Referências ao próprio Aprendiz (2ª pessoa). Sem uma delas, "nome de cachorro"
+# não é pergunta sobre ele, mesmo tendo a palavra "nome".
+_SEGUNDA_PESSOA = {"voce", "voces", "tu", "te", "ti", "contigo", "seu", "sua", "seus", "suas",
+                   "teu", "tua", "teus", "tuas", "aprendiz"}
+SEMELHANCA_PALAVRAS_CHAVE = 85.0     # nota exibida quando o casamento é pelas palavras-chave
+
 SEMELHANCA_AUTOCONHECIMENTO = 90     # 0-100 (rapidfuzz), sobre as palavras inteiras
 SEMELHANCA_EXPANSAO = 0.62           # cosseno mínimo para trocar uma palavra
 FATOR_APELIDO = 0.85                 # palavra que só empresta o vetor de outra vale menos
@@ -124,8 +134,9 @@ class Compreensao:
                         vistos.add(frase)
                         dados["tipos_pergunta"].append((frase, item["tipo"], g))
             for item in doc.get("autoconhecimento", []):
-                auto[item["id"]] = {**item, "_frases": [
-                    " ".join(self._frase(p)) for p in item["perguntas"]]}
+                auto[item["id"]] = {**item,
+                                    "_frases": [" ".join(self._frase(p)) for p in item["perguntas"]],
+                                    "_chaves": self._chaves(item["perguntas"])}
             for item in doc.get("fora_de_alcance", []):
                 dados["fora_de_alcance"].append(
                     {**item, "_frases": [self._frase(g) for g in item["gatilhos"]]})
@@ -147,6 +158,19 @@ class Compreensao:
         self.dados = dados
         self._vetores_catalogo = {}
         self._versao = self.banco.versao_linguagem
+
+    def _chaves(self, perguntas: list[str]) -> list[frozenset]:
+        """
+        Palavras-chave (radicais sem stopwords) das perguntas que falam COM o
+        Aprendiz. "qual o seu nome" → {nom}. Servem para reconhecer as
+        variações que o addon não listou: "você tem nome?", "mas e o seu nome?".
+        """
+        chaves = []
+        for p in perguntas:
+            proc = self.linguagem.processar(p, corrigir=False)
+            if proc.radicais and _SEGUNDA_PESSOA & set(proc.tokens):
+                chaves.append(frozenset(proc.radicais))
+        return chaves
 
     @property
     def ativa(self) -> bool:
@@ -193,15 +217,12 @@ class Compreensao:
         """O item de autoconhecimento mais parecido com a mensagem, se houver."""
         self._carregar()
         tokens = list(consulta.tokens)
-        while tokens and tokens[0] in _CORTESIA and len(tokens) > 2:
-            # "aprendiz, qual a sua versão" = "qual a sua versão"
-            if tokens[0] in ("aprendiz", "ei", "oi", "ola"):
-                tokens.pop(0)
-            else:
-                break
-        while tokens and tokens[-1] in ("aprendiz", "por", "favor"):
+        while len(tokens) > 2 and tokens[0] in _MARCADORES_INICIAIS:
+            tokens.pop(0)  # "mas e aí, qual o seu nome" = "qual o seu nome"
+        while tokens and tokens[-1] in ("aprendiz", "por", "favor", "ne", "mesmo"):
             tokens.pop()
         texto = " ".join(tokens)
+        # 1º) a frase quase igual a uma das perguntas do addon
         melhor, nota_melhor = None, 0.0
         for item in self.dados["autoconhecimento"]:
             for frase in item["_frases"]:
@@ -212,6 +233,14 @@ class Compreensao:
                     melhor, nota_melhor = item, nota
         if melhor and nota_melhor >= SEMELHANCA_AUTOCONHECIMENTO:
             return {**melhor, "semelhanca": round(nota_melhor, 1)}
+        # 2º) mesmas palavras-chave, falando com o Aprendiz: "você tem nome?"
+        # casa com "qual o seu nome" ({nom}); "nome de cachorro" não (sem 2ª
+        # pessoa) e "você tem nome de cachorro?" também não (palavra a mais).
+        radicais = frozenset(consulta.radicais)
+        if radicais and _SEGUNDA_PESSOA & set(consulta.tokens):
+            for item in self.dados["autoconhecimento"]:
+                if radicais in item.get("_chaves", ()):
+                    return {**item, "semelhanca": SEMELHANCA_PALAVRAS_CHAVE}
         return None
 
     # ------------------------------------------------------------------ 3a. limites

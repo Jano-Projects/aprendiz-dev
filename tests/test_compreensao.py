@@ -25,6 +25,7 @@ COMPREENSAO = {
     "autoconhecimento": [
         {"id": "versao", "perguntas": ["qual a sua versao"], "funcao": "versao"},
         {"id": "ia", "perguntas": ["voce e uma ia"], "resposta": "Sou PLN clássico."},
+        {"id": "quem-sou", "perguntas": ["qual o seu nome"], "resposta": "Sou o Aprendiz."},
     ],
     "fora_de_alcance": [
         {"tema": "clima", "gatilhos": ["previsao do tempo"], "resposta": "Não sei o clima."},
@@ -165,6 +166,23 @@ def test_autoconhecimento_dinamico_e_fixo(assistente):
     r = assistente.responder("qual a sua versão?")["mensagem"]
     assert r["meta"]["tipo"] == "autoconhecimento" and config.VERSAO in r["texto"]
     assert assistente.responder("você é uma IA?")["mensagem"]["texto"] == "Sou PLN clássico."
+
+
+@pytest.mark.parametrize("mensagem", [
+    "Mas você tem nome?",            # marcador "mas" + palavras-chave
+    "Você tem nome?",                # palavras-chave {nome} + 2ª pessoa
+    "Mas e aí, qual é o seu nome?",  # vários marcadores no começo
+])
+def test_autoconhecimento_aceita_variacoes(assistente, mensagem):
+    assistente.instalar_addon(pacote_compreensao())
+    r = assistente.responder(mensagem)["mensagem"]
+    assert r["meta"]["tipo"] == "autoconhecimento" and r["texto"] == "Sou o Aprendiz."
+
+
+@pytest.mark.parametrize("mensagem", ["nome de cachorro", "você tem nome de cachorro para sugerir?"])
+def test_autoconhecimento_nao_sequestra_outros_assuntos(assistente, mensagem):
+    assistente.instalar_addon(pacote_compreensao())
+    assert assistente.responder(mensagem)["mensagem"]["meta"]["tipo"] != "autoconhecimento"
 
 
 def test_dono_vence_o_autoconhecimento(assistente):

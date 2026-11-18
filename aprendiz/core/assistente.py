@@ -579,6 +579,9 @@ class Assistente:
                 clara = False
         if analise and analise.necessidades:  # "tô com fome" pede algo, não cumprimenta
             clara = False
+        # Pergunta sobre o próprio Aprendiz não é cumprimento ("como você se chama?").
+        if clara and analise is not None and self.compreensao.autoconhecimento(consulta):
+            clara = False
         if principal["intencao"] in INTENCOES_SOCIAIS and curta and clara:
             texto = self.banco.resposta_padrao(principal["intencao"]) or "Certo!"
             etapas.marcar("Resposta social", {"intencao": principal["intencao"]})
@@ -668,8 +671,13 @@ class Assistente:
                 texto = (f"Entendi que você quer saber {FRASE_TIPO[analise.tipo]} "
                          f"**{analise.assunto}**, mas ainda não fui ensinado sobre isso. "
                          + MSG_NAO_SEI.split(". ", 1)[1])
-            if candidatos:
-                sugestoes = "\n".join(f"- {self._titulo(c.conhecimento)}" for c in candidatos[:3])
+            # Só sugere o que tem pelo menos uma palavra em comum com a pergunta:
+            # "o que é um animal?" não deve sugerir "me empresta ou empresta-me".
+            parecidos = [c for c in candidatos
+                         if set(consulta.radicais)
+                         & set((c.conhecimento.get("texto_busca") or "").split())]
+            if parecidos:
+                sugestoes = "\n".join(f"- {self._titulo(c.conhecimento)}" for c in parecidos[:3])
                 texto += f"\n\nTalvez você esteja procurando algo parecido com:\n{sugestoes}"
             # 6c. Algum addon da loja oficial trata disso?
             rec = self.compreensao.recomendar(consulta, analise) if analise is not None else None

@@ -168,10 +168,25 @@ RRF(d) = Σ  1 / (60 + posição de d no algoritmo i)
 | 3. farmácia do bairro | 2º → 1/62 | 2º → 1/62 | 2º → 1/62 | 0,04839 |
 | 2. senha do wifi | — | — | 3º → 1/63 | 0,01587 |
 
-**Confiança:** o híbrido aceita um documento se **pelo menos um** algoritmo estiver confiante.
-A fórmula `0,5 × max(confiança_i / limiar_i)`, limitada a 1, vale exatamente 0,5 (o limiar)
-quando algum algoritmo atinge o próprio limiar. No item 1, o TF-IDF dá 0,532 / 0,25 = 2,13,
-então a confiança fica em **1,0**.
+**Confiança:** a fórmula `0,5 × max(confiança_i / limiar_i)`, limitada a 1, vale exatamente
+0,5 (o limiar) quando algum algoritmo atinge o próprio limiar. No item 1, o TF-IDF dá
+0,532 / 0,25 = 2,13, então a confiança fica em **1,0**.
+
+**Consenso:** o RRF só ordena, e sempre existe um 1º lugar, mesmo quando nada serve. Por isso,
+para **aceitar** um documento o híbrido exige uma destas condições:
+
+1. o Fuzzy quase idêntico (≥ 0,95): a mesma frase, com pequenos erros de digitação;
+2. o BM25 (ou dois algoritmos) confiante **e** a pergunta falando do **assunto** do documento:
+   alguma palavra dela está na pergunta/variações dele (sem pergunta, nas 12 primeiras palavras
+   do conteúdo);
+3. dois algoritmos confiantes **e** todas as palavras da pergunta no documento;
+4. todas as palavras da pergunta no documento, **escritas exatamente igual**.
+
+BM25 e TF-IDF medem quase a mesma coisa (palavras em comum), então a concordância deles,
+sozinha, não basta. Exemplo: "nome de cachorro" contém "nome", e uma regra sobre o trema fala
+de "nomes estrangeiros". Nenhuma condição vale, e o documento fica logo abaixo do limiar: aparece
+em "Por que respondi isso?" (campo `consenso`), mas não vira resposta. Já "o que é trema?" passa
+pela condição 4.
 
 **Bom para:** o resultado mais robusto. **Limite:** roda os três algoritmos, então é o mais lento.
 

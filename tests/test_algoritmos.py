@@ -86,3 +86,27 @@ def test_novo_sinonimo_reindexa(assistente):
     assistente.banco.salvar_sinonimo("bike", "bicicleta")
     assistente.reindexar()
     assert "garagem" in assistente.responder("onde está a bike")["mensagem"]["texto"]
+
+
+def test_hibrido_exige_consenso(assistente):
+    """Uma palavra solta num texto longo não basta (print: "você tem nome?" → regra do trema)."""
+    assistente.ensinar("O trema foi abolido: linguiça, frequente; fica só em nomes estrangeiros, "
+                       "como Müller.", pergunta="o que mudou com o acordo ortográfico")
+    for i in range(6):  # base maior, para o TF-IDF ter com o que comparar
+        assistente.ensinar(f"Conteúdo de exemplo número {i} sobre outro assunto qualquer.",
+                           pergunta=f"assunto de exemplo {i}")
+    r = assistente.responder("nome de cachorro", busca="hibrido")["mensagem"]
+    assert r["meta"]["tipo"] == "desconhecido"
+    # ...mas o assunto do conhecimento continua sendo encontrado
+    r = assistente.responder("o que mudou no acordo ortográfico?", busca="hibrido")["mensagem"]
+    assert r["meta"]["tipo"] == "conhecimento"
+    # palavra escrita exatamente como no texto ("trema") ainda é aceita
+    r = assistente.responder("o que é trema?", busca="hibrido")["mensagem"]
+    assert r["meta"]["tipo"] == "conhecimento"
+
+
+def test_sugestoes_tem_palavra_em_comum(assistente):
+    """ "o que é um animal?" não sugere "me empresta ou empresta-me"."""
+    assistente.ensinar("Diga 'me empresta' no Brasil.", pergunta="me empresta ou empresta-me")
+    r = assistente.responder("o que é um animal?", busca="hibrido")["mensagem"]
+    assert "empresta" not in r["texto"]

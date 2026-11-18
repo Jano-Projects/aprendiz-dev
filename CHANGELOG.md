@@ -6,6 +6,17 @@ seguem o [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ## [Não lançado]
 
+### Corrigido
+- **Híbrido (RRF)** exige consenso para aceitar um resultado: um algoritmo confiante sozinho
+  não basta mais. "Você tem nome?" e "nome de cachorro" deixam de responder com a regra do
+  trema ("nomes estrangeiros"). O motivo aparece em "Por que respondi isso?" (`consenso`).
+  Veja `docs/algoritmos.md`.
+- **Autoconhecimento** ignora marcadores de conversa no começo ("mas", "e aí", "então") e
+  reconhece variações pelas palavras-chave: "mas você tem nome?" e "como você se chama?"
+  respondem quem é o Aprendiz, em vez de cair na busca ou num cumprimento.
+- **"Talvez você esteja procurando"** só sugere conhecimentos com pelo menos uma palavra em
+  comum com a pergunta ("o que é um animal?" não sugere mais "me empresta ou empresta-me").
+
 ## [0.9.0] - 2026-11-18
 
 ### Adicionado

@@ -91,7 +91,18 @@ acentos), e deixa o "não sei" mais preciso: "Entendi que você quer saber o que
 
 ### Autoconhecimento
 
-Perguntas sobre o próprio Aprendiz, comparadas com as do addon (semelhança mínima de 90%).
+Perguntas sobre o próprio Aprendiz, comparadas com as do addon em duas tentativas:
+
+1. **Frase parecida** (semelhança mínima de 90%), depois de tirar marcadores de conversa do
+   começo ("mas", "e", "então", "aí", "tipo", "olha"...): "mas e aí, qual é o seu nome?" vira
+   "qual é o seu nome".
+2. **Mesmas palavras-chave**, falando com o Aprendiz: se a mensagem tem uma referência a ele
+   (você, seu, teu, te, "aprendiz"...) e, sem as stopwords, exatamente as mesmas palavras de uma
+   das perguntas do item. "Você tem nome?" casa com "qual o seu nome" (as duas se reduzem a
+   `nome`); "nome de cachorro" não (não fala com ele) e "você tem nome de cachorro?" também não
+   (sobra "cachorro").
+
+Uma pergunta reconhecida aqui não é tratada como cumprimento ("como você se chama?").
 Há dois tipos de item:
 
 - **`funcao`**: a resposta é calculada pelo app na hora. A lista é fechada
