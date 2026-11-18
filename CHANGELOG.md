@@ -6,6 +6,38 @@ seguem o [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ## [Não lançado]
 
+## [0.8.0] - 2026-11-18
+
+### Adicionado
+- **Addons de norma** (classificação `norma`, arquivos `norma.json` e `vocabulario.tsv`): o
+  português de um país — vocabulário, ortografia em vigor (Acordo de 1990, anterior ou as
+  duas), grafias de outras normas, erros comuns, equivalências entre variantes, verbos e
+  regras de gramática. Validados por `aprendiz/normas.py`. Veja `docs/revisao.md`.
+- **Revisão de texto** (`aprendiz/core/revisao.py`): erros comuns, grafias de outra norma,
+  palavras fora do vocabulário (com sugestões por acento e por uma edição), regras de
+  gramática e palavras de outra variante, com o texto revisado. O vocabulário é consultado
+  por **busca binária** num bloco de bytes ordenado (milhões de formas sem montar listas na
+  memória); "dá-me", "fazê-lo" e "dir-te-ei" são conferidos pelo verbo.
+- Regras de gramática só com dados: elementos `palavras`, `classe` (lista fechada) e `nao`
+  (um ou vários), opções `opcional` e `na_pergunta`, sugestão com transformações de lista
+  fechada (`troca`, `infinitivo`, `gerundio`, `proclise`, `capital`, `minuscula`). Um padrão
+  não atravessa vírgula nem fim de frase.
+- Na conversa: `revise: …` (também "corrija", "verifique", "confira", com "em Portugal",
+  "no Brasil"…), `o certo é X ou Y?`, `como se escreve X?` e `está certo escrever X?`.
+- Tela **Revisar texto** (menu lateral), com o texto marcado por nível e o botão **Copiar
+  texto revisado**.
+- Configuração **Norma da revisão de texto** (`revisao.norma`); sem ela, vale a norma que
+  mais combina com o texto (no empate, Brasil e depois Portugal).
+- Rotas `GET /api/normas` e `POST /api/revisar`; `GET /api/algoritmos` traz as normas ativas.
+- **Variedades nos dicionários**: `regiao.variedades` no manifesto e `variedade` nos verbetes
+  (linha `L:` no `verbetes.txt`): "como se diz mandioca no Nordeste?", "batata na Madeira".
+- `criar_addon.py` empacota `norma.json` e `vocabulario.tsv` e mostra o resumo da norma.
+- "O que você sabe fazer?" menciona a revisão quando há normas ativas.
+
+### Mudado
+- Banco: `versao_esquema` 8 (coluna `variedade` em `conhecimentos`; normas em
+  `addon_recursos`). Addons de norma não fazem a base ser reindexada.
+
 ## [0.7.0] - 2026-11-18
 
 ### Adicionado

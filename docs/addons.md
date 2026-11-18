@@ -101,6 +101,7 @@ declarou.
 | `personalizacao` | customiza nome, cor e boas-vindas | `personalizacao.json` | aceito |
 | `compreensao` | interpretação de texto: tipos de pergunta, expressões, lemas, autoconhecimento, recomendação | `compreensao.json` (+ `lemas.tsv`) | aceito (0.7+) |
 | `vetores` | vetores de sentido das palavras | `vetores.bin` | aceito (0.7+) |
+| `norma` | norma da língua de um país: vocabulário, grafias, equivalências e regras de gramática, para a revisão de texto | `norma.json` (+ `vocabulario.tsv`) | aceito (0.8+) |
 | `algoritmo` | habilita um novo algoritmo | (código) | **recusado** |
 | `aplicacao` | modifica a aplicação | (código) | **recusado** |
 
@@ -110,6 +111,19 @@ dados**: um addon que declare um desses tipos é recusado com uma mensagem clara
 Os addons de **compreensão** e **vetores** não trazem respostas: ensinam o app a interpretar
 as perguntas e a indicar o addon certo quando não sabe algo. Veja
 [compreensao.md](compreensao.md).
+
+Os addons de **norma** ensinam o app a revisar textos pelo português de um país (ortografia,
+gramática e palavras de outras variantes). Veja [revisao.md](revisao.md).
+
+Nos **dicionários**, o manifesto pode declarar **variedades** (0.8+): regiões dentro da região
+ou línguas que convivem com o português, e cada verbete pode dizer a sua (`"variedade"`, linha
+`L:` no `verbetes.txt`):
+
+```json
+"regiao": {"nome": "Brasil", "artigo": "o", "termos": ["brasil", "brasileiro"],
+           "variedades": [{"id": "nordeste", "nome": "Nordeste", "artigo": "o",
+                           "termos": ["nordeste", "nordestino"]}]}
+```
 
 ## Origem: oficial ou de terceiros
 
@@ -332,6 +346,8 @@ palavras (`lemas.tsv`) e um binário de vetores (`vetores.bin`):
 | `compreensao.json` | se `compreensao` | regras de interpretação (0.7+; veja [compreensao.md](compreensao.md)) |
 | `lemas.tsv` | não | léxico e lemas, junto com `compreensao.json` (0.7+) |
 | `vetores.bin` | se `vetores` | vetores de palavras, binário validado byte a byte (0.7+) |
+| `norma.json` | se `norma` | norma da língua (0.8+; veja [revisao.md](revisao.md)) |
+| `vocabulario.tsv` | não | as formas da norma, uma por linha, junto com `norma.json` (0.8+) |
 
 **Manifesto completo** (como fica dentro do arquivo):
 

@@ -49,6 +49,7 @@ Todos os algoritmos de busca têm o mesmo método `buscar()`, e todos os de resp
 2. `Assistente.responder()` grava a mensagem do usuário e executa o pipeline:
    1. **Normalização**: `Linguagem.processar()`
    2. **Ensino explícito**: regex para "aprenda que…", "pergunta: … resposta: …", "anote: …"
+      — e, com addon de norma, **revisão de texto** ("revise: …", "o certo é X ou Y?")
    3. **Interpretação**: classificador Naive Bayes + extração de entidades
    4. **Intenção social**: "oi", "obrigado", "ajuda" recebem resposta pronta
    5. **Compreensão** (com addon de compreensão): tipo da pergunta, assunto, necessidades e
@@ -87,7 +88,7 @@ quando ela muda (ao abrir o app, instalar, ativar, desativar ou remover um addon
 | `addons` | addons instalados (manifesto completo em JSON, ativo/desativado, hash do arquivo) |
 | `addon_linguagem` | sinônimos e abreviações de addons (valem só com o addon ativo) |
 | `configuracoes` | parâmetros e personalização: `addon_id` vazio = do dono; preenchido = de um addon |
-| `addon_recursos` | arquivos de compreensão de cada addon (`compreensao.json`, informações e bloco de vetores) |
+| `addon_recursos` | arquivos de compreensão de cada addon (`compreensao.json`, informações e bloco de vetores) e de norma (`norma.json` e o bloco ordenado `vocabulario`) |
 | `addon_lexico` | palavras dos addons de compreensão e vetores: lema e número do vetor (consultadas palavra a palavra) |
 
 Conhecimentos de addons ficam na própria tabela `conhecimentos`, com a coluna `addon_id`
@@ -122,6 +123,13 @@ variações entram no texto de busca (BM25, TF-IDF) e viram alvos extras no Fuzz
 `aprendiz/core/compreensao.py` é o motor dos addons de compreensão; `aprendiz/linguagem/lexico.py`
 consulta lemas e vetores no SQLite com cache LRU; `aprendiz/recursos.py` valida os arquivos.
 Detalhes em [compreensao.md](compreensao.md).
+
+## Revisão de texto
+
+`aprendiz/core/revisao.py` é o motor dos addons de norma: tokens com posição, grafias de
+outra norma, vocabulário por busca binária num bloco de bytes, sugestões por edição e regras de
+gramática de tipos fixos. `aprendiz/normas.py` valida os arquivos. Detalhes em
+[revisao.md](revisao.md).
 
 ## Recomendação de algoritmos e grupos
 

@@ -12,6 +12,8 @@ A interface (pasta web/) conversa com estas rotas via fetch() em JSON:
     GET    /api/algoritmos                → opções do seletor
     POST   /api/chat                      → envia mensagem, recebe resposta + explicação
     POST   /api/corrigir                  → corrige uma resposta (vira ensinamento)
+    GET    /api/normas                    → normas da língua dos addons ativos (0.8+)
+    POST   /api/revisar                   → revisa um texto pela norma escolhida (0.8+)
     POST   /api/sinal                     → "sinal de vida" da interface (ver desktop.py)
     POST   /api/resetar                   → volta ao estado inicial (com backup antes)
     POST   /api/loja-oficial              → abre a loja oficial de addons no navegador
@@ -84,6 +86,11 @@ class PedidoChat(BaseModel):
     conversa_id: str | None = None
     busca: str | None = None     # sem valor → o padrão das Configurações
     resposta: str | None = None
+
+
+class PedidoRevisao(BaseModel):
+    texto: str = Field(..., min_length=1, max_length=20_000)
+    norma: str | None = Field(None, max_length=10)
 
 
 class PedidoCorrecao(BaseModel):
@@ -242,7 +249,22 @@ def criar_app(caminho_banco: str | Path | None = None) -> FastAPI:
             chave = f"limiar.{a['nome']}"
             if chave in efetivas:
                 a["limiar_padrao"], a["limiar"] = a["limiar"], efetivas[chave]["valor"]
+        # Normas dos addons ativos: opções da configuração "revisao.norma".
+        dados["normas"] = [{"nome": "", "titulo": "Automática"}] + [
+            {"nome": n["id"], "titulo": n["nome"]} for n in assistente.normas_disponiveis()]
         return dados
+
+    # ------------------------------------------------------------ revisão de texto
+    @app.get("/api/normas")
+    def normas():
+        return assistente.normas_disponiveis()
+
+    @app.post("/api/revisar")
+    def revisar(pedido: PedidoRevisao):
+        try:
+            return assistente.revisar_texto(pedido.texto, pedido.norma)
+        except ValueError as erro:
+            raise HTTPException(400, str(erro)) from erro
 
     # ------------------------------------------------------------ chat
     # Rotas declaradas com "def" (e não "async def") rodam numa thread

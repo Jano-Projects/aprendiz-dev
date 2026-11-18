@@ -123,7 +123,7 @@ def test_banco_da_0_4_0_e_migrado(tmp_path):
     con.close()
 
     banco = Banco(caminho)
-    assert banco.obter_meta("versao_esquema") == "7"
+    assert banco.obter_meta("versao_esquema") == "8"
     assert banco.mapa_sinonimos()["chicara"] == "xicara"           # dados preservados
     assert banco.obter_conhecimento("a1")["conteudo"] == "casa123"
     Assistente(banco).instalar_addon(pacote())                     # CHECK novo aceita

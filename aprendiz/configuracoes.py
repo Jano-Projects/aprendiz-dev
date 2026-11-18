@@ -60,6 +60,15 @@ def _texto(minimo: int, maximo: int) -> Callable[[Any], str]:
     return validar
 
 
+_NORMA = re.compile(r"^(pt-[A-Z]{2})?$")
+
+
+def _norma(valor: Any) -> str:
+    if not isinstance(valor, str) or not _NORMA.match(valor):
+        raise ValueError("use o id de uma norma (ex.: pt-BR, pt-PT) ou deixe vazio")
+    return valor
+
+
 def _cor(valor: Any) -> str:
     if not isinstance(valor, str) or not _COR.match(valor):
         raise ValueError("use uma cor no formato #RRGGBB")
@@ -114,6 +123,10 @@ DEFINICOES: dict[str, Definicao] = {d.chave: d for d in [
                 {"minimo": 0.05, "maximo": 1.0, "passo": 0.05})
       for nome, titulo in [("bm25", "BM25"), ("tfidf", "TF-IDF"),
                            ("fuzzy", "Fuzzy"), ("hibrido", "Híbrido")]],
+    Definicao("revisao.norma", "parametros", "Norma da revisão de texto",
+              "Norma usada para revisar textos quando a mensagem não diz qual "
+              "(precisa de um addon de norma). Automática = a que mais combina com o texto.",
+              "", _norma, {"opcoes": "normas"}),
     Definicao("prioridade_dono.margem", "parametros", "Prioridade do que você ensina",
               "O que você ensinou vence um addon se tiver pelo menos esta fração da "
               "confiança dele (0,9 = até 10% abaixo).",

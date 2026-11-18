@@ -81,6 +81,7 @@ DESCRICOES: dict[str, str] = {
     "docs/addons.md": "Formato .aprendiz, como criar addons e segurança",
     "docs/arquitetura.md": "Camadas, decisões de projeto e tabelas do banco",
     "docs/compreensao.md": "Addons de compreensão e vetores: lemas, tipos de pergunta, recomendação",
+    "docs/revisao.md": "Addons de norma e revisão de texto: vocabulário, grafias, regras de gramática",
     "docs/criar-algoritmo.md": "Passo a passo para adicionar um algoritmo ao seletor",
     "docs/empacotamento.md": "Instaladores, executável e problemas comuns",
     "docs/estrutura.md": "Este mapa (gerado por ferramentas/gerar_estrutura.py)",

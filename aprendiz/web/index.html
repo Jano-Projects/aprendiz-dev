@@ -55,6 +55,7 @@
       <symbol id="i-selo" viewBox="0 0 24 24"><path d="M12 2 15 5h4v4l3 3-3 3v4h-4l-3 3-3-3H5v-4l-3-3 3-3V5h4z"/><path d="m8.5 12 2.5 2.5 4.5-5"/></symbol>
       <symbol id="i-pessoas" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2 20c0-3.5 3-6 7-6s7 2.5 7 6"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18 14c2.4.6 4 2.8 4 6"/></symbol>
       <symbol id="i-link" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></symbol>
+      <symbol id="i-revisar" viewBox="0 0 24 24"><path d="M4 6h10M4 10h10M4 14h6"/><path d="m13 17 3 3 5-6"/></symbol>
       <symbol id="i-algoritmo" viewBox="0 0 24 24"><circle cx="6" cy="6" r="3"/><circle cx="18" cy="18" r="3"/><path d="M6 9v3a3 3 0 0 0 3 3h6M18 15V9"/><path d="m15 6 3-3 3 3"/></symbol>
     </defs>
   </svg>
@@ -84,6 +85,7 @@
         <button class="item-menu" id="btn-ensinar"><svg class="ic"><use href="#i-ensinar"/></svg> Ensinar</button>
         <button class="item-menu" id="btn-base"><svg class="ic"><use href="#i-base"/></svg> Base de conhecimento</button>
         <button class="item-menu" id="btn-addons"><svg class="ic"><use href="#i-addon"/></svg> Addons <span class="contador-menu" id="contador-addons"></span></button>
+        <button class="item-menu" id="btn-revisar"><svg class="ic"><use href="#i-revisar"/></svg> Revisar texto</button>
         <button class="item-menu" id="btn-linguagem"><svg class="ic"><use href="#i-linguagem"/></svg> Linguagem</button>
         <button class="item-menu" id="btn-config"><svg class="ic"><use href="#i-config"/></svg> Configurações</button>
         <div class="status" id="status">carregando…</div>
@@ -173,6 +175,32 @@
       <div class="acoes-dialogo">
         <button type="button" class="botao" data-fechar>Cancelar</button>
         <button type="submit" class="botao botao-primario" value="ok"><svg class="ic"><use href="#i-check"/></svg> Salvar</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Revisar texto (addons de norma, 0.8+) -->
+  <dialog id="dlg-revisar" class="dialogo-grande">
+    <form method="dialog" class="dialogo" id="form-revisar">
+      <div class="cabecalho-dialogo">
+        <h2><svg class="ic"><use href="#i-revisar"/></svg> Revisar texto</h2>
+        <button type="button" class="botao-icone" data-fechar aria-label="Fechar"><svg class="ic"><use href="#i-x"/></svg></button>
+      </div>
+      <p class="ajuda" id="revisar-ajuda">Ortografia, gramática e palavras de outras variantes, pela norma de um país (precisa de um addon de norma ativo).</p>
+      <label>Norma
+        <select id="revisar-norma"></select>
+      </label>
+      <label>Texto
+        <textarea id="revisar-texto" rows="7" maxlength="20000" required placeholder="Cole ou escreva o texto aqui."></textarea>
+      </label>
+      <div id="revisar-resultado" hidden>
+        <p class="resumo-revisao" id="revisar-resumo"></p>
+        <div class="texto-marcado" id="revisar-marcado"></div>
+        <ol class="lista-revisao" id="revisar-lista"></ol>
+      </div>
+      <div class="acoes-dialogo">
+        <button type="button" class="botao" id="btn-copiar-revisado" hidden><svg class="ic"><use href="#i-copiar"/></svg> Copiar texto revisado</button>
+        <button type="submit" class="botao botao-primario" value="ok"><svg class="ic"><use href="#i-check"/></svg> Revisar</button>
       </div>
     </form>
   </dialog>

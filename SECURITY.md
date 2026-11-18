@@ -12,7 +12,9 @@
   um binário de vetores com tamanho conferido byte a byte), nada é executado nem extraído para
   o disco, há limites de tamanho e cada campo é validado. Addons de compreensão não trazem
   expressões regulares, e as respostas que o app calcula vêm de uma lista fechada
-  (veja `docs/addons.md` e `docs/compreensao.md`).
+  (veja `docs/addons.md` e `docs/compreensao.md`). Addons de norma também não: as regras de
+  gramática usam só tipos, classes e transformações de listas fechadas do app
+  (veja `docs/revisao.md`).
 - **Recomendação de addon** não baixa nada: o botão só abre a loja oficial (endereço fixo)
   filtrada pelo id do addon, que precisa ter só letras minúsculas, números e hífen.
 - **A interface escapa todo texto** antes de exibir (proteção contra XSS).

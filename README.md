@@ -58,7 +58,8 @@ comentada em português. Por isso ele roda até em máquinas bem modestas.
 | 💬 **Chat moderno** | Histórico de conversas, tema claro/escuro, Markdown, ícones, responsivo |
 | 🎓 **Aprende pelo chat** | `aprenda que a senha do wifi é casa123` · `pergunta: … resposta: …` · `anote: …` |
 | 🔁 **Aprende com correções** | Errou? *Corrigir* transforma a resposta certa em ensinamento |
-| 🧩 **Addons** | Pacotes `.aprendiz` (memória, linguagem, parâmetros, personalização, compreensão, vetores) com confirmação antes de instalar ([docs](docs/addons.md)) |
+| 🧩 **Addons** | Pacotes `.aprendiz` (memória, linguagem, parâmetros, personalização, compreensão, vetores, norma) com confirmação antes de instalar ([docs](docs/addons.md)) |
+| ✍️ **Revisão de texto** | Com um addon de norma: ortografia, gramática e palavras de outras variantes pelo português de cada país (Brasil, Portugal, Angola, Moçambique, Cabo Verde, Guiné-Bissau, São Tomé e Príncipe, Timor-Leste): `revise: …`, `o certo é X ou Y?` e a tela **Revisar texto** ([docs](docs/revisao.md)) |
 | 🧠 **Compreensão** | Com o addon de compreensão: tipo de pergunta, expressões, formas irregulares, perguntas sobre o próprio app, limites de um assistente offline e indicação do addon certo quando não sabe algo ([docs](docs/compreensao.md)) |
 | 🧭 **Busca por sentido** | Com o addon de vetores: se a palavra não está na base, tenta as de sentido parecido |
 | 📖 **Dicionários** | Respondem nos dois sentidos, "o que significa kota?" e "como se diz dinheiro em Angola?", sem atrapalhar o resto da conversa |
@@ -176,7 +177,7 @@ Resumo. O mapa completo, com **todos** os arquivos comentados, está em
 ```
 aprendiz/
 ├── aprendiz/                  # o pacote Python
-│   ├── core/                  #   assistente.py: o pipeline; compreensao.py; dicionario.py; exportacao.py…
+│   ├── core/                  #   assistente.py: o pipeline; compreensao.py; revisao.py; dicionario.py…
 │   ├── linguagem/             #   PLN clássico: normalizador, stemmer, léxico, Naive Bayes, entidades
 │   ├── algoritmos/            #   o seletor (padrão Strategy)
 │   │   ├── busca/             #     bm25, tfidf, fuzzy, hibrido
@@ -184,6 +185,7 @@ aprendiz/
 │   ├── memoria/               #   SQLite: conhecimento, linguagem, conversas, addons
 │   ├── addons.py              #   formato .aprendiz: leitura segura e criação
 │   ├── recursos.py            #   arquivos dos addons de compreensão e vetores
+│   ├── normas.py              #   arquivos dos addons de norma (vocabulário, regras de gramática)
 │   ├── configuracoes.py       #   parâmetros e personalização (dono > addon > padrão)
 │   ├── api/servidor.py        #   API local (FastAPI, só em 127.0.0.1)
 │   ├── web/                   #   interface: HTML, CSS e JS puros, offline

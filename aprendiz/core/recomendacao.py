@@ -96,7 +96,9 @@ def recomendar(conhecimentos: list[dict[str, Any]],
     from aprendiz.core.assistente import Assistente
     from aprendiz.memoria import Banco
 
-    itens = _amostra([k for k in conhecimentos if k.get("conteudo")])
+    # A variedade (0.8+) depende do manifesto do addon e não muda a busca.
+    itens = _amostra([{c: v for c, v in k.items() if c != "variedade"}
+                      for k in conhecimentos if k.get("conteudo")])
     if not itens:
         return None
 

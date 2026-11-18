@@ -7,6 +7,7 @@ Fluxo de uma mensagem (método `responder`):
        │
        ├─ 1. Normalização ........ linguagem.processar()
        ├─ 2. Ensino explícito? ... "aprenda que X é Y" / "pergunta: ... resposta: ..."
+       ├─ 2a. Revisão de texto ... "revise: ..." / "o certo é X ou Y?" (addon de norma)
        ├─ 3. Interpretação ....... intenção (Naive Bayes) + entidades (regex)
        ├─ 4. Intenção social? .... "oi", "obrigado", "ajuda" → resposta pronta
        ├─ 4b. Compreensão ........ tipo da pergunta; perguntas sobre o Aprendiz
@@ -34,6 +35,7 @@ from aprendiz.algoritmos import BUSCAS, RESPOSTAS, ContextoBusca, titulo_curto
 from aprendiz.configuracoes import Configuracoes
 from aprendiz.core.compreensao import Compreensao, FRASE_TIPO, resposta_dinamica
 from aprendiz.core.dicionario import Dicionario
+from aprendiz.core import revisao
 from aprendiz.memoria.banco import lista_json
 from aprendiz.linguagem import ClassificadorIntencoes, Linguagem, extrair_entidades
 from aprendiz.linguagem.normalizador import VERSAO_NORMALIZACAO
@@ -68,6 +70,12 @@ MSG_NAO_SEI = (
     "Ainda não fui ensinado sobre isso. Você pode me ensinar clicando em "
     "**Ensinar isso** logo abaixo, ou escrevendo algo como "
     "`aprenda que ... é ...`."
+)
+MSG_SEM_NORMA = (
+    "Para revisar textos, preciso de um addon de **norma** ativo: os addons de português "
+    "de cada país (Brasil, Portugal, Angola, Moçambique, Cabo Verde, Guiné-Bissau, São Tomé "
+    "e Príncipe e Timor-Leste) trazem o vocabulário e as regras de gramática. Eles estão "
+    "na loja oficial."
 )
 MSG_FORMATO_ENSINO = (
     "Entendi que você quer me ensinar algo, mas não consegui separar a "
@@ -115,6 +123,7 @@ class Assistente:
         self.configuracoes = Configuracoes(banco)
         self.dicionario = Dicionario(banco, self.linguagem)
         self.compreensao = Compreensao(banco, self.linguagem)
+        self.revisor = revisao.Revisor(banco, self.linguagem.lexico)
         self.classificador = ClassificadorIntencoes()
         self._versao_classificador = -1
         self._frases_exatas: dict[str, str] = {}  # frase normalizada → intenção
@@ -256,7 +265,8 @@ class Assistente:
             pacote.manifesto, conhecimentos, pacote.linguagem, pacote.hash,
             pacote.configuracoes,
             {"compreensao": pacote.compreensao, "lemas": pacote.lemas,
-             "vetores": pacote.vetores})
+             "vetores": pacote.vetores, "norma": pacote.norma,
+             "vocabulario": pacote.vocabulario})
 
         # Sinônimos/abreviações novos (ou removidos na atualização) mudam os
         # radicais de TODA a base, não só os do addon. Lemas e expressões de
@@ -426,6 +436,16 @@ class Assistente:
                 texto = f"Anotado! Guardei esta informação:\n\n{c['conteudo']}"
             return texto, "ensino", [self._fonte(c)]
 
+        # 2a. Revisão de texto (addon de norma) ------------------------------
+        # "revise: ...", "o certo é exceção ou excessão?", "como se escreve
+        # económico no Brasil?". Pedidos com "revise:" são sempre atendidos;
+        # as perguntas curtas cedem a vez ao que o dono ensinou.
+        pedido_revisao = revisao.interpretar(mensagem)
+        if pedido_revisao:
+            respondido = self._revisao(pedido_revisao, consulta, etapas)
+            if respondido:
+                return respondido
+
         # 2b. Dicionário ------------------------------------------------------
         # "como se diz aldeia em Guiné?", "o que é kota em Angola?"... Vem
         # antes das intenções porque "como se diz obrigado em Timor" não é um
@@ -527,10 +547,10 @@ class Assistente:
                     usadas = {}
                     for t in trocas:
                         usadas.setdefault(t["de"], []).append(t["para"])
-                    nota_sentido = ("_Não encontrei exatamente essas palavras; procurei pelo "
+                    nota_sentido = ("*Não encontrei exatamente essas palavras; procurei pelo "
                                     "sentido (" + "; ".join(
                                         f"{de} → {', '.join(para)}" for de, para in usadas.items())
-                                    + ")._\n\n")
+                                    + ").*\n\n")
 
         if not aceitos:
             texto = MSG_NAO_SEI
@@ -574,6 +594,81 @@ class Assistente:
         por_id = {c.id: c.conhecimento for c in aceitos}
         fontes = [self._fonte(por_id[i]) for i in gerada.fontes if i in por_id]
         return nota_sentido + gerada.texto, "conhecimento", fontes
+
+    # ================================================================ REVISÃO
+    def normas_disponiveis(self) -> list[dict[str, Any]]:
+        """Normas dos addons ativos (para a interface e a configuração)."""
+        return sorted((n.resumo() for n in self.revisor.normas().values()),
+                      key=lambda n: n["nome"])
+
+    def revisar_texto(self, texto: str, norma_id: str | None = None) -> dict[str, Any]:
+        """Revisão pedida pela interface (tela Revisar texto)."""
+        texto = (texto or "").strip()
+        if not texto:
+            raise ValueError("Escreva um texto para revisar.")
+        norma, motivo = self.revisor.escolher(
+            norma_id or None, texto=texto,
+            padrao=self.configuracoes.valor("revisao.norma") or None)
+        if not norma:
+            raise ValueError("Nenhum addon de norma está ativo. Instale um dos addons de "
+                             "português da loja oficial (Brasil, Portugal, Angola…).")
+        resultado = self.revisor.revisar(texto, norma)
+        resultado["motivo"] = motivo
+        return resultado
+
+    def _revisao(self, pedido, consulta, etapas: Etapas) -> tuple[str, str, list] | None:
+        """Atende um pedido de revisão; None = deixa o pipeline seguir."""
+        if not pedido.explicito and self._dono_ensinou_exatamente(consulta):
+            return None
+        texto_base = pedido.texto or " ".join(pedido.opcoes)
+        norma, motivo = self.revisor.escolher(
+            texto_norma=pedido.norma_texto, texto=texto_base,
+            padrao=self.configuracoes.valor("revisao.norma") or None)
+        if norma is None:
+            if not pedido.explicito:
+                return None
+            etapas.marcar("Revisão", {**pedido.como_dict(), "norma": "nenhuma ativa"})
+            return MSG_SEM_NORMA, "revisao", []
+        aviso = ""
+        if pedido.norma_texto and motivo != "pedida":
+            aviso = f"*Não tenho a norma “{pedido.norma_texto}”; usei {norma.nome}.*\n\n"
+
+        if pedido.acao == "grafar":
+            return self._grafar(pedido, etapas)
+
+        if pedido.acao == "comparar":
+            opcoes = self.revisor.comparar(pedido.opcoes, norma)
+            etapas.marcar("Revisão", {**pedido.como_dict(), "norma": norma.nome,
+                                      "certas": [o["opcao"] for o in opcoes if o["certa"]]})
+            return aviso + revisao.descrever_comparacao(opcoes, norma.resumo()), "revisao", []
+
+        resultado = self.revisor.revisar(pedido.texto, norma)
+        etapas.meta["revisao"] = {**resultado, "motivo": motivo}
+        etapas.marcar("Revisão", {**pedido.como_dict(), "norma": norma.nome, "motivo": motivo,
+                                  "apontamentos": len(resultado["apontamentos"])})
+        return aviso + revisao.descrever(resultado, motivo), "revisao", []
+
+    def _grafar(self, pedido, etapas: Etapas) -> tuple[str, str, list] | None:
+        """'como se escreve económico?' → a grafia em cada norma ativa."""
+        grafias = self.revisor.grafar(pedido.texto)
+        ativas = self.revisor.normas()
+        pedida = self.revisor.resolver_norma(pedido.norma_texto) if pedido.norma_texto else None
+        etapas.marcar("Revisão", {**pedido.como_dict(), "normas": len(grafias)})
+        if not any(grafias.values()):
+            return None                       # deixa a busca tentar (talvez o dono ensinou)
+        if pedida and grafias.get(pedida.id):
+            formas = " ou ".join(f"**{f}**" for f in grafias[pedida.id])
+            texto = f"Na norma **{pedida.nome}**, escreve-se {formas}."
+            outras = {i: f for i, f in grafias.items() if i != pedida.id and f}
+            if outras:
+                texto += "\n\nNas outras normas instaladas:\n\n" + "\n".join(
+                    f"- **{ativas[i].nome}:** {' ou '.join(f)}"
+                    for i, f in sorted(outras.items(), key=lambda par: ativas[par[0]].nome))
+            return texto, "revisao", []
+        linhas = [f"- **{ativas[i].nome}:** " + (" ou ".join(f"**{x}**" for x in f)
+                                                 if f else "não encontrei")
+                  for i, f in sorted(grafias.items(), key=lambda par: ativas[par[0]].nome)]
+        return f"Como se escreve *{pedido.texto}*:\n\n" + "\n".join(linhas), "revisao", []
 
     def buscar(self, consulta, busca: str, limite: int = 5) -> tuple[list, list, float]:
         """

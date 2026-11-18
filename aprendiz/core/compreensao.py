@@ -397,6 +397,11 @@ def resposta_dinamica(funcao: str, assistente) -> str:
         ]
         if any(a["manifesto"].get("regiao") for a in ativos):
             partes.append("- traduzir gírias e expressões dos países de língua portuguesa;")
+        normas = assistente.normas_disponiveis()
+        if normas:
+            nomes = ", ".join(n["nome"] for n in normas)
+            partes.append(f"- revisar textos pela norma da língua ({nomes}): escreva "
+                          "`revise: seu texto` ou pergunte `o certo é X ou Y?`;")
         lexico = assistente.linguagem.lexico
         lexico._atualizar()
         if assistente.compreensao.ativa:

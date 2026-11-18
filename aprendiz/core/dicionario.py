@@ -28,6 +28,13 @@ Como funciona:
     4. Se nada for encontrado, devolve None e o pipeline segue normalmente.
        Assim, "como se chama o seu pai?" não é sequestrado pelo dicionário.
 
+Variedades (0.8+): um dicionário pode declarar regiões dentro da sua região
+("Nordeste", "Sul" no Brasil) ou línguas que convivem com o português
+("kriol" na Guiné-Bissau, "tétum" em Timor-Leste), e cada verbete pode dizer
+de qual variedade é. "Como se diz mandioca no Nordeste?" filtra só os
+verbetes daquela variedade; "em Brasil" continua valendo para todos.
+Internamente, a região de uma variedade é a chave "<addon_id>/<variedade>".
+
 O índice é montado a partir dos verbetes de addons ATIVOS e refeito sempre
 que a base muda (versao_conhecimento do banco).
 """
@@ -146,6 +153,15 @@ class Dicionario:
             }
             for termo in [nome, *regiao.get("termos", [])]:
                 novo.apelidos.setdefault(normalizar(termo), set()).add(addon_id)
+            for v in regiao.get("variedades") or []:
+                chave_v = f"{addon_id}/{v['id']}"
+                novo.regioes[chave_v] = {
+                    "nome": v["nome"],
+                    "em": f"{_CONTRACOES['em'][v.get('artigo', '')]} {v['nome']}",
+                    "de": f"{_CONTRACOES['de'][v.get('artigo', '')]} {v['nome']}",
+                }
+                for termo in [v["nome"], *v.get("termos", [])]:
+                    novo.apelidos.setdefault(normalizar(termo), set()).add(chave_v)
 
         for doc in self.banco.conhecimentos_ativos():
             if doc["tipo"] != "verbete" or doc["addon_id"] not in addons:
@@ -303,8 +319,22 @@ class Dicionario:
         return None
 
     def _regiao(self, doc: dict, forma: str = "nome") -> str:
-        """Nome da região do verbete: forma "nome" (Brasil), "em" (no Brasil) ou "de" (do Brasil)."""
-        return self.indice().regioes.get(doc["addon_id"], {}).get(forma, "?")
+        """Nome da região do verbete: forma "nome" (Brasil), "em" (no Brasil) ou "de" (do Brasil).
+        Um verbete de uma variedade usa o nome dela ("no Nordeste")."""
+        regioes = self.indice().regioes
+        if doc.get("variedade"):
+            chave = f"{doc['addon_id']}/{doc['variedade']}"
+            if chave in regioes:
+                return regioes[chave].get(forma, "?")
+        return regioes.get(doc["addon_id"], {}).get(forma, "?")
+
+    @staticmethod
+    def _da_regiao(doc: dict, regioes: set[str] | None) -> bool:
+        """O verbete pertence a uma das regiões pedidas (país inteiro ou variedade)?"""
+        if not regioes:
+            return False
+        return (doc["addon_id"] in regioes
+                or (bool(doc.get("variedade")) and f"{doc['addon_id']}/{doc['variedade']}" in regioes))
 
     def _nao_tem(self, pedido: Pedido) -> str:
         if pedido.regioes is None:
@@ -316,7 +346,7 @@ class Dicionario:
     def _direto(self, pedido: Pedido, diretos: list[dict], _inversos) -> tuple[str, list] | None:
         if not diretos:
             return None
-        da_regiao = [d for d in diretos if pedido.regioes and d["addon_id"] in pedido.regioes]
+        da_regiao = [d for d in diretos if self._da_regiao(d, pedido.regioes)]
         if da_regiao or not pedido.regiao_texto:
             usados = da_regiao or diretos
             return "\n\n".join(d["conteudo"] for d in usados), usados
@@ -327,7 +357,7 @@ class Dicionario:
         if not inversos:
             return None
         palavra = inversos[0][1]  # a tradução como está no addon (com acentos)
-        da_regiao = [(d, t) for d, t in inversos if pedido.regioes and d["addon_id"] in pedido.regioes]
+        da_regiao = [(d, t) for d, t in inversos if self._da_regiao(d, pedido.regioes)]
 
         if da_regiao:
             regiao = self._regiao(da_regiao[0][0], "em")

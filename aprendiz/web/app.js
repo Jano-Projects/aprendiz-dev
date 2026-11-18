@@ -1375,6 +1375,68 @@
     fetch("/api/sinal", { method: "POST" }).catch(() => { /* servidor fora do ar */ });
   }
 
+  // =========================================================== REVISÃO DE TEXTO (0.8+)
+  let ultimaRevisao = null;
+
+  async function abrirRevisar() {
+    const normas = await api("/api/normas");
+    const sel = $("#revisar-norma");
+    sel.innerHTML = "";
+    const auto = criar(`<option value="">Automática (pelas Configurações ou pelo texto)</option>`);
+    sel.appendChild(auto);
+    normas.forEach((n) => {
+      const o = criar(`<option></option>`);
+      o.value = n.id;
+      o.textContent = `${n.nome} · ${n.ortografia === "1990" ? "Acordo de 1990" : n.ortografia === "1945" ? "ortografia anterior ao Acordo" : "as duas ortografias"}`;
+      sel.appendChild(o);
+    });
+    $("#revisar-ajuda").textContent = normas.length
+      ? "Ortografia, gramática e palavras de outras variantes, pela norma do país escolhido."
+      : "Nenhum addon de norma está ativo. Instale um dos addons de português da loja oficial (Brasil, Portugal, Angola…).";
+    $("#dlg-revisar").showModal();
+  }
+
+  /** Mostra o texto com os trechos apontados sublinhados (tudo escapado). */
+  function renderRevisao(r) {
+    ultimaRevisao = r;
+    $("#revisar-resultado").hidden = false;
+    const n = r.apontamentos.length;
+    $("#revisar-resumo").textContent = `Norma: ${r.norma.nome}. ` +
+      (n ? `${n} ${n === 1 ? "ponto" : "pontos"} a revisar.` : "Nada a apontar.");
+    let html = "", cursor = 0;
+    r.apontamentos.forEach((a, i) => {
+      html += esc(r.texto.slice(cursor, a.inicio));
+      html += `<mark class="nivel-${esc(a.nivel)}" title="${esc(a.nivel_titulo)}">${esc(r.texto.slice(a.inicio, a.fim))}<sup>${i + 1}</sup></mark>`;
+      cursor = a.fim;
+    });
+    html += esc(r.texto.slice(cursor));
+    $("#revisar-marcado").innerHTML = html.replace(/\n/g, "<br>");
+    const lista = $("#revisar-lista");
+    lista.innerHTML = "";
+    r.apontamentos.forEach((a) => {
+      const li = criar(`<li><span class="selo nivel-${esc(a.nivel)}"></span> <s></s> <b></b><div class="explicacao-revisao"></div></li>`);
+      $(".selo", li).textContent = a.nivel_titulo;
+      $("s", li).textContent = a.trecho;
+      $("b", li).textContent = a.sugestoes.length ? "→ " + a.sugestoes.join(" ou ") : "";
+      $(".explicacao-revisao", li).textContent = a.mensagem;
+      lista.appendChild(li);
+    });
+    $("#btn-copiar-revisado").hidden = r.texto_revisado === r.texto;
+  }
+
+  $("#form-revisar").addEventListener("submit", async (ev) => {
+    ev.preventDefault();
+    try {
+      const r = await api("/api/revisar", { metodo: "POST",
+        corpo: { texto: $("#revisar-texto").value, norma: $("#revisar-norma").value || null } });
+      renderRevisao(r);
+    } catch (erro) { avisar(erro.message, "alerta"); }
+  });
+  $("#btn-copiar-revisado").addEventListener("click", async () => {
+    try { await navigator.clipboard.writeText(ultimaRevisao.texto_revisado); avisar("Texto revisado copiado."); }
+    catch (e) { avisar("Não foi possível copiar.", "alerta"); }
+  });
+
   function ligarEventos() {
     const campo = $("#campo-mensagem");
 
@@ -1419,6 +1481,7 @@
     $("#btn-como-funciona").addEventListener("click", abrirComoFunciona);
     $("#btn-addons").addEventListener("click", () => { fecharMenuMobile(); $("#dlg-addons").showModal(); carregarAddons(); });
     $("#btn-linguagem").addEventListener("click", () => { fecharMenuMobile(); $("#dlg-linguagem").showModal(); carregarLinguagem(); });
+    $("#btn-revisar").addEventListener("click", () => { fecharMenuMobile(); abrirRevisar(); });
     $("#btn-config").addEventListener("click", () => { fecharMenuMobile(); abrirConfig(); });
     $("#btn-tema").addEventListener("click", () =>
       aplicarTema(document.documentElement.dataset.tema === "escuro" ? "claro" : "escuro"));

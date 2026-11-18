@@ -60,7 +60,10 @@ CREATE TABLE IF NOT EXISTS conhecimentos (
     --   traducoes → só em verbetes: o equivalente em português padrão, para
     --               a busca inversa ("como se diz ônibus em Portugal?")
     variacoes     TEXT,
-    traducoes     TEXT
+    traducoes     TEXT,
+    -- Só em verbetes (0.8+): a variedade regional ou a língua do termo
+    -- ("nordeste", "kriol"), declarada no manifesto do addon.
+    variedade     TEXT
 );
 
 -- Índice de busca textual (FTS5). Guarda só o id e o texto de busca.
@@ -127,6 +130,9 @@ CREATE TABLE IF NOT EXISTS addon_linguagem (
 --   compreensao.json → JSON já validado e normalizado
 --   vetores.info     → {"dimensoes": D, "quantidade": V} em JSON
 --   vetores.dados    → os vetores (int8 × V × D)
+-- e normas da língua (Aprendiz 0.8+, formato em aprendiz/normas.py):
+--   norma.json       → JSON já validado (grafias, equivalências, regras)
+--   vocabulario      → as formas da norma, ordenadas, uma por linha
 CREATE TABLE IF NOT EXISTS addon_recursos (
     addon_id TEXT NOT NULL REFERENCES addons(id) ON DELETE CASCADE,
     nome     TEXT NOT NULL,
@@ -253,7 +259,10 @@ class Banco:
                 c.execute(f"ALTER TABLE conhecimentos ADD COLUMN {coluna} TEXT")
         # 0.6 → 0.7: addon_recursos e addon_lexico são tabelas novas (o
         # ESQUEMA as cria); nada a converter.
-        c.execute("INSERT OR REPLACE INTO meta VALUES ('versao_esquema', '7')")
+        # 0.7 → 0.8: variedade dos verbetes. As normas ficam em addon_recursos.
+        if "variedade" not in colunas:
+            c.execute("ALTER TABLE conhecimentos ADD COLUMN variedade TEXT")
+        c.execute("INSERT OR REPLACE INTO meta VALUES ('versao_esquema', '8')")
         c.commit()
 
     def _ampliar_check(self, tabela: str, marca: str, colunas: list[str]) -> None:
@@ -590,7 +599,10 @@ class Banco:
             "(SELECT COUNT(*) FROM conhecimentos c WHERE c.addon_id = a.id) AS total_conhecimentos, "
             "(SELECT COUNT(*) FROM addon_linguagem l WHERE l.addon_id = a.id) AS total_linguagem, "
             "(SELECT COUNT(*) FROM configuracoes g WHERE g.addon_id = a.id) AS total_configuracoes, "
-            "(SELECT COUNT(*) FROM addon_recursos r WHERE r.addon_id = a.id) AS total_recursos "
+            "(SELECT COUNT(*) FROM addon_recursos r WHERE r.addon_id = a.id "
+            "  AND r.nome NOT IN ('norma.json', 'vocabulario')) AS total_recursos, "
+            "(SELECT COUNT(*) FROM addon_recursos r WHERE r.addon_id = a.id "
+            "  AND r.nome = 'norma.json') AS total_norma "
             "FROM addons a ORDER BY a.nome COLLATE NOCASE"
         )
         for a in addons:
@@ -614,7 +626,8 @@ class Banco:
         cuida disso), no formato: {pergunta, conteudo, tipo, texto_busca}.
         `configuracoes` junta parâmetros e personalização, já validados.
         `recursos` (0.7+): {"compreensao": dict, "lemas": [(palavra, lema)],
-        "vetores": recursos.Vetores}, todos opcionais e já validados.
+        "vetores": recursos.Vetores, "norma": dict, "vocabulario": bytes},
+        todos opcionais e já validados.
         """
         recursos = recursos or {}
         momento = agora()
@@ -638,12 +651,13 @@ class Banco:
                     return json.dumps(valor, ensure_ascii=False) if valor else None
                 linhas = [(novo_id(), k["tipo"], k.get("pergunta"), k["conteudo"], origem,
                            k["texto_busca"], momento, momento, manifesto["id"],
-                           lista(k.get("variacoes")), lista(k.get("traducoes")))
+                           lista(k.get("variacoes")), lista(k.get("traducoes")),
+                           k.get("variedade"))
                           for k in conhecimentos]
                 c.executemany(
                     "INSERT INTO conhecimentos (id, tipo, pergunta, conteudo, origem, "
-                    "texto_busca, criado_em, atualizado_em, addon_id, variacoes, traducoes) "
-                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", linhas)
+                    "texto_busca, criado_em, atualizado_em, addon_id, variacoes, traducoes, "
+                    "variedade) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", linhas)
                 c.executemany("INSERT INTO conhecimentos_fts (id, texto) VALUES (?, ?)",
                               [(l[0], l[5]) for l in linhas])
                 c.executemany(
@@ -688,6 +702,13 @@ class Banco:
                 lexico.setdefault(palavra, [None, None])[1] = indice if original else -(indice + 1)
         c.executemany("INSERT INTO addon_lexico VALUES (?, ?, ?, ?)",
                       ((p, addon_id, l, v) for p, (l, v) in lexico.items()))
+        if recursos.get("norma"):
+            c.execute("INSERT INTO addon_recursos VALUES (?, ?, ?)",
+                      (addon_id, "norma.json",
+                       json.dumps(recursos["norma"], ensure_ascii=False).encode("utf-8")))
+        if recursos.get("vocabulario"):
+            c.execute("INSERT INTO addon_recursos VALUES (?, ?, ?)",
+                      (addon_id, "vocabulario", recursos["vocabulario"]))
 
     def _apagar_addon(self, id: str) -> None:
         """Apaga sem commit (usado dentro de transações)."""

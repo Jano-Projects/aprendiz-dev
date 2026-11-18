@@ -20,8 +20,12 @@ Um arquivo .aprendiz é um ZIP comum com arquivos JSON:
     compreensao.json     classificação "compreensao"    → interpretação de texto (0.7+)
       + lemas.tsv          (opcional) formas das palavras e seus lemas
     vetores.bin          classificação "vetores"        → vetores de palavras (0.7+)
+    norma.json           classificação "norma"          → norma da língua: grafias,
+                                                          equivalências e regras (0.8+)
+      + vocabulario.tsv    (opcional) todas as formas da norma, com acentos
 
-    Os arquivos de compreensão e vetores estão descritos em aprendiz/recursos.py.
+    Os arquivos de compreensão e vetores estão descritos em aprendiz/recursos.py;
+    os de norma, em aprendiz/normas.py.
 
     manifesto.json:
         {
@@ -64,8 +68,12 @@ Um arquivo .aprendiz é um ZIP comum com arquivos JSON:
               chegar à mesma resposta (num verbete: outras grafias do termo)
           "traducoes": ["aldeia", "povoado"]   → só em verbetes: o equivalente
               em português padrão, para "como se diz aldeia em <região>?"
+          "variedade": "nordeste"   (0.8+) → só em verbetes: a variedade
+              regional (ou língua crioula) do termo, declarada no manifesto
         E no manifesto de um dicionário:
-          "regiao": {"nome": "Guiné-Bissau", "artigo": "a", "termos": ["guine", "kriol", ...]}
+          "regiao": {"nome": "Guiné-Bissau", "artigo": "a", "termos": ["guine", "kriol", ...],
+                     "variedades": [{"id": "kriol", "nome": "kriol", "artigo": "o",
+                                     "termos": ["kriol", "crioulo guineense"]}]}   (0.8+)
 
     linguagem.json (todas as chaves são opcionais):
         {"sinonimos":   {"chicara": "xicara"},
@@ -87,6 +95,7 @@ Diz o que o addon MEXE no Aprendiz. Precisa bater com os arquivos presentes:
     personalizacao  customiza nome, cor e boas-vindas        ✔ aceito
     compreensao     interpretação de texto (dados)           ✔ aceito (0.7+)
     vetores         vetores de palavras (dados)              ✔ aceito (0.7+)
+    norma           norma da língua: vocabulário e regras    ✔ aceito (0.8+)
     algoritmo       habilita um novo algoritmo (código)      ✘ recusado
     aplicacao       modifica a aplicação (código)            ✘ recusado
 
@@ -131,7 +140,7 @@ from typing import Any
 
 from aprendiz import __version__
 from aprendiz import configuracoes as cfg
-from aprendiz import recursos
+from aprendiz import normas, recursos
 from aprendiz.linguagem import normalizar
 from aprendiz.memoria.sementes import INTENCOES
 
@@ -148,6 +157,7 @@ MAX_CONTEUDO = 20_000                    # caracteres por conhecimento
 MAX_PERGUNTA = 500
 MAX_DEPENDENCIAS = 50
 MAX_VARIACOES = 30                       # variações / traduções por conhecimento
+MAX_VARIEDADES = 40                      # variedades regionais num dicionário
 
 PADRAO_ID = re.compile(r"^[a-z0-9][a-z0-9-]{1,62}$")
 PADRAO_NOME_ALGORITMO = re.compile(r"^[a-z0-9_-]{1,30}$")
@@ -176,6 +186,7 @@ CLASSIFICACOES: dict[str, tuple[str, str | None, bool]] = {
     "personalizacao": ("Customiza a interface", "personalizacao.json", True),
     "compreensao": ("Amplia a compreensão de texto", recursos.ARQUIVO_COMPREENSAO, True),
     "vetores": ("Traz vetores de palavras", recursos.ARQUIVO_VETORES, True),
+    "norma": ("Traz uma norma da língua (vocabulário e gramática)", normas.ARQUIVO_NORMA, True),
     "algoritmo": ("Habilita um novo algoritmo", None, False),
     "aplicacao": ("Modifica a aplicação", None, False),
 }
@@ -195,6 +206,8 @@ class Pacote:
     compreensao: dict[str, Any] = field(default_factory=dict)
     lemas: list[tuple[str, str]] = field(default_factory=list)
     vetores: recursos.Vetores | None = None
+    norma: dict[str, Any] = field(default_factory=dict)
+    vocabulario: bytes | None = None      # bloco ordenado (ver normas.validar_vocabulario)
     hash: str = ""
 
     @property
@@ -274,7 +287,7 @@ def validar_classificacao(bruto: Any) -> list[str]:
         if not aceito:
             raise ErroAddon(f"Este addon é do tipo \"{titulo}\" e traria código. Esta versão "
                             "do Aprendiz só aceita addons de dados (memória, linguagem, "
-                            "parâmetros, personalização, compreensão e vetores).")
+                            "parâmetros, personalização, compreensão, vetores e norma).")
         if tipo not in saida:
             saida.append(tipo)
     return saida
@@ -437,11 +450,20 @@ def validar_conhecimentos(bruto: Any) -> list[dict[str, Any]]:
                                      f"traducoes (nº {i})")
         if traducoes and tipo != "verbete":
             raise ErroAddon(f"Só verbetes têm 'traducoes' (conhecimento nº {i}).")
+        variedade = item.get("variedade")
+        if variedade is not None:
+            if tipo != "verbete":
+                raise ErroAddon(f"Só verbetes têm 'variedade' (conhecimento nº {i}).")
+            if not isinstance(variedade, str) or not PADRAO_ID.match(variedade):
+                raise ErroAddon(f"A 'variedade' do conhecimento nº {i} precisa ser um id "
+                                "(letras minúsculas, números e hífen).")
         novo = {"pergunta": pergunta, "conteudo": conteudo, "tipo": tipo}
         if variacoes:
             novo["variacoes"] = variacoes
         if traducoes:
             novo["traducoes"] = traducoes
+        if variedade:
+            novo["variedade"] = variedade
         saida.append(novo)
     return saida
 
@@ -478,7 +500,36 @@ def validar_regiao(bruto: Any) -> dict[str, Any] | None:
     artigo = bruto.get("artigo", "")
     if artigo not in ("", "o", "a", "os", "as"):
         raise ErroAddon("'regiao.artigo' precisa ser \"o\", \"a\", \"os\", \"as\" ou vazio.")
-    return {"nome": nome, "termos": termos, "artigo": artigo}
+    regiao = {"nome": nome, "termos": termos, "artigo": artigo}
+
+    # Variedades (0.8+): regiões dentro da região ("Nordeste" no Brasil) ou
+    # línguas que convivem com o português ("kriol" na Guiné-Bissau). Cada
+    # verbete pode dizer de qual variedade é ("variedade": "nordeste").
+    variedades = bruto.get("variedades")
+    if variedades is not None:
+        if not isinstance(variedades, list) or len(variedades) > MAX_VARIEDADES:
+            raise ErroAddon(f"'regiao.variedades' precisa ser uma lista de até "
+                            f"{MAX_VARIEDADES} itens.")
+        regiao["variedades"] = []
+        for i, v in enumerate(variedades, start=1):
+            campo = f"regiao.variedades[{i}]"
+            if not isinstance(v, dict) or not isinstance(v.get("id"), str) \
+                    or not PADRAO_ID.match(v["id"]):
+                raise ErroAddon(f"'{campo}.id' precisa ter letras minúsculas, números e hífen.")
+            if any(x["id"] == v["id"] for x in regiao["variedades"]):
+                raise ErroAddon(f"'{campo}.id' repetido: {v['id']!r}.")
+            artigo_v = v.get("artigo", "")
+            if artigo_v not in ("", "o", "a", "os", "as"):
+                raise ErroAddon(f"'{campo}.artigo' precisa ser \"o\", \"a\", \"os\", \"as\" ou vazio.")
+            nome_v = _limpar(v.get("nome", ""), 60, f"{campo}.nome")
+            if not nome_v:
+                raise ErroAddon(f"'{campo}' precisa de um 'nome'.")
+            regiao["variedades"].append({
+                "id": v["id"], "nome": nome_v, "artigo": artigo_v,
+                "termos": _lista_de_textos(v.get("termos"), 40, 40, f"{campo}.termos"),
+                "descricao": _limpar(v.get("descricao") or "", 500, f"{campo}.descricao"),
+            })
+    return regiao
 
 
 def validar_linguagem(bruto: Any) -> dict[str, dict[str, str]]:
@@ -569,6 +620,7 @@ def classificacao_de(pacote: Pacote) -> list[str]:
         ("memoria", pacote.conhecimentos), ("linguagem", pacote.linguagem),
         ("parametros", pacote.parametros), ("personalizacao", pacote.personalizacao),
         ("compreensao", pacote.compreensao), ("vetores", pacote.vetores),
+        ("norma", pacote.norma),
     ) if tem]
 
 
@@ -603,7 +655,14 @@ def ler_pacote(dados: bytes) -> Pacote:
     presentes = classificacao_de(pacote)
     if not presentes:
         raise ErroAddon("O addon está vazio: não traz conhecimentos, linguagem, "
-                        "parâmetros, personalização, compreensão nem vetores.")
+                        "parâmetros, personalização, compreensão, vetores nem norma.")
+    # Verbetes só podem citar variedades declaradas no manifesto.
+    declaradas = {v["id"] for v in ((manifesto.get("regiao") or {}).get("variedades") or [])}
+    for k in pacote.conhecimentos:
+        if k.get("variedade") and k["variedade"] not in declaradas:
+            raise ErroAddon(f"O verbete {k['pergunta']!r} cita a variedade "
+                            f"{k['variedade']!r}, que o manifesto não declara em "
+                            "'regiao.variedades'.")
     if v1:
         manifesto["classificacao"] = presentes
     else:
@@ -638,6 +697,18 @@ def _ler_recursos(zip_: zipfile.ZipFile, pacote: Pacote) -> None:
             pacote.vetores = recursos.validar_vetores(vetores)
     except recursos.ErroRecurso as erro:
         raise ErroAddon(str(erro)) from None
+    try:
+        bruto = _ler_json(zip_, normas.ARQUIVO_NORMA, False)
+        if bruto is not None:
+            pacote.norma = normas.validar_norma(bruto)
+        vocabulario = _ler_bytes(zip_, normas.ARQUIVO_VOCABULARIO)
+        if vocabulario is not None:
+            if bruto is None:
+                raise ErroAddon(f"{normas.ARQUIVO_VOCABULARIO} só pode vir junto com "
+                                f"{normas.ARQUIVO_NORMA}.")
+            pacote.vocabulario = normas.validar_vocabulario(vocabulario)
+    except normas.ErroNorma as erro:
+        raise ErroAddon(str(erro)) from None
 
 
 def criar_pacote(manifesto: dict[str, Any], conhecimentos: list[dict[str, Any]] | None = None,
@@ -646,7 +717,9 @@ def criar_pacote(manifesto: dict[str, Any], conhecimentos: list[dict[str, Any]] 
                  personalizacao: dict[str, Any] | None = None,
                  compreensao: dict[str, Any] | None = None,
                  lemas: list[tuple[str, str]] | None = None,
-                 vetores: recursos.Vetores | None = None) -> bytes:
+                 vetores: recursos.Vetores | None = None,
+                 norma: dict[str, Any] | None = None,
+                 vocabulario: bytes | None = None) -> bytes:
     """
     Gera os bytes de um arquivo .aprendiz (formato 2). Preenche o que der
     para deduzir (classificação, versão do app) e valida tudo com as mesmas
@@ -657,7 +730,7 @@ def criar_pacote(manifesto: dict[str, Any], conhecimentos: list[dict[str, Any]] 
     parametros = parametros or {}
     personalizacao = personalizacao or {}
     provisorio = Pacote({}, conhecimentos, linguagem, parametros, personalizacao,
-                        compreensao or {}, lemas or [], vetores)
+                        compreensao or {}, lemas or [], vetores, norma or {})
     manifesto = {
         "formato": FORMATO,
         "origem": "terceiros",
@@ -688,6 +761,11 @@ def criar_pacote(manifesto: dict[str, Any], conhecimentos: list[dict[str, Any]] 
                 f"{p}\t{l}" if l else p for p, l in lemas) + "\n")
         if vetores:
             zip_.writestr(recursos.ARQUIVO_VETORES, vetores.como_bytes())
+        if norma:
+            gravar(normas.ARQUIVO_NORMA, norma)
+        if vocabulario:
+            # O bloco ordenado já é um vocabulario.tsv válido (uma forma por linha).
+            zip_.writestr(normas.ARQUIVO_VOCABULARIO, vocabulario.strip(b"\n") + b"\n")
     dados = buffer.getvalue()
     ler_pacote(dados)  # garante que o que geramos é um addon válido
     return dados
@@ -709,7 +787,11 @@ def resumo(pacote: Pacote) -> dict[str, Any]:
             "compreensao": sum(len(v) for v in pacote.compreensao.values()),
             "lemas": len(pacote.lemas),
             "vetores": len(pacote.vetores.palavras) if pacote.vetores else 0,
+            "regras": len(pacote.norma.get("regras") or []),
+            "grafias": len(pacote.norma.get("grafias") or {}),
+            "vocabulario": len(normas.Vocabulario(pacote.vocabulario)) if pacote.vocabulario else 0,
         },
+        "norma": pacote.norma.get("norma") if pacote.norma else None,
         "configuracoes": [{"chave": k, "titulo": cfg.DEFINICOES[k].titulo, "valor": v}
                           for k, v in pacote.configuracoes.items()],
         "amostra": [k["pergunta"] or k["conteudo"][:80] for k in pacote.conhecimentos[:5]],

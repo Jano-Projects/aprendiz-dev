@@ -18,6 +18,9 @@ CRIAR a partir de uma pasta-fonte:
       compreensao.json    interpretação de texto (Aprendiz 0.7+; veja aprendiz/recursos.py)
       lemas.tsv           formas → lemas, junto com compreensao.json
       vetores.bin         vetores de palavras (Aprendiz 0.7+)
+      norma.json          norma da língua: grafias, equivalências e regras de gramática
+                          (Aprendiz 0.8+; veja aprendiz/normas.py)
+      vocabulario.tsv     todas as formas da norma, uma por linha, junto com norma.json
       *.md / *.txt        textos livres, divididos automaticamente em trechos
 
     A "classificacao" e o "app.criado_com" são preenchidos sozinhos a partir
@@ -56,6 +59,15 @@ CRIAR a partir de uma pasta-fonte:
     muito em Angola?"). No manifesto.json do dicionário, declare a região:
         "regiao": {"nome": "Angola", "termos": ["angola", "angolano", "angolanos"]}
 
+    Uma linha L: (Aprendiz 0.8+) diz a VARIEDADE do verbete: uma região
+    dentro do país ou uma língua que convive com o português, declarada em
+    "regiao.variedades" no manifesto:
+
+        V: macaxeira
+        L: nordeste
+        T: mandioca
+        R: **macaxeira** (Nordeste): mandioca.
+
     Num dicionário, coloque em linguagem.json as stopwords "significa",
     "significado", "quer" e "dizer" (veja os addons de gírias da loja).
 
@@ -78,12 +90,13 @@ from aprendiz.core.recomendacao import recomendar  # noqa: E402
 from aprendiz.addons import (  # noqa: E402
     EXTENSAO, ORIGENS, ErroAddon, criar_pacote, dividir_em_trechos, ler_pacote,
 )
-from aprendiz import recursos  # noqa: E402
+from aprendiz import normas, recursos  # noqa: E402
 from aprendiz.linguagem import normalizar  # noqa: E402
 
 ARQUIVOS_ESPECIAIS = {"manifesto.json", "conhecimentos.json", "linguagem.json",
                       "parametros.json", "personalizacao.json", "compreensao.json",
-                      "lemas.tsv", "perguntas.txt", "verbetes.txt", "leia-me.md", "readme.md"}
+                      "lemas.tsv", "perguntas.txt", "verbetes.txt", "leia-me.md", "readme.md",
+                      "norma.json", "vocabulario.tsv"}
 
 
 def ler_perguntas(caminho: Path) -> list[dict]:
@@ -93,27 +106,31 @@ def ler_perguntas(caminho: Path) -> list[dict]:
         P: (ou V:)  a pergunta (ou o termo); linhas P:/V: a mais no MESMO
                     bloco viram "variacoes" (outros jeitos de perguntar)
         T:          traduções do verbete, separadas por vírgula
+        L:          variedade do verbete (id declarado em regiao.variedades)
         R:          a resposta (pode continuar nas linhas seguintes)
     """
     pares: list[dict] = []
     formas: list[str] = []
     traducoes: list[str] = []
     resposta: list[str] = []
+    variedade = ""
     tipo = "pergunta"
 
     def fechar():
-        nonlocal formas, traducoes, resposta
+        nonlocal formas, traducoes, resposta, variedade
         if formas and resposta:
             item = {"pergunta": formas[0], "conteudo": "\n".join(resposta).strip(), "tipo": tipo}
             if formas[1:]:
                 item["variacoes"] = formas[1:]
             if traducoes:
                 item["traducoes"] = traducoes
+            if variedade:
+                item["variedade"] = variedade
             pares.append(item)
         elif formas or resposta or traducoes:
             raise SystemExit(f"{caminho.name}: bloco incompleto perto de "
                              f"{(formas or resposta or traducoes)[0]!r}")
-        formas, traducoes, resposta = [], [], []
+        formas, traducoes, resposta, variedade = [], [], [], ""
 
     for numero, linha in enumerate(caminho.read_text(encoding="utf-8").splitlines(), 1):
         prefixo = linha[:2].upper()
@@ -129,12 +146,15 @@ def ler_perguntas(caminho: Path) -> list[dict]:
             formas.append(linha[2:].strip())
         elif prefixo == "T:":
             traducoes += [t.strip() for t in linha[2:].split(",") if t.strip()]
+        elif prefixo == "L:":
+            variedade = linha[2:].strip()
         elif prefixo == "R:":
             resposta = [linha[2:].strip()]
         elif resposta:
             resposta.append(linha.strip())  # resposta com mais de uma linha
         else:
-            raise SystemExit(f"{caminho.name}, linha {numero}: esperava 'P:', 'V:', 'T:' ou 'R:'.")
+            raise SystemExit(f"{caminho.name}, linha {numero}: esperava 'P:', 'V:', 'T:', "
+                             "'L:' ou 'R:'.")
     fechar()
     return pares
 
@@ -179,10 +199,17 @@ def criar(pasta: Path, saida: Path | None) -> None:
                  if (pasta / "lemas.tsv").exists() else None)
         vetores = (recursos.validar_vetores((pasta / "vetores.bin").read_bytes())
                    if (pasta / "vetores.bin").exists() else None)
+        norma = json_opcional("norma.json")
+        if norma is not None:
+            normas.validar_norma(norma)          # erro com mensagem clara antes de empacotar
+        vocabulario = ((pasta / "vocabulario.tsv").read_bytes()
+                       if (pasta / "vocabulario.tsv").exists() else None)
+        if vocabulario is not None:
+            vocabulario = normas.validar_vocabulario(vocabulario)
         dados = criar_pacote(manifesto, conhecimentos, linguagem,
                              json_opcional("parametros.json"), json_opcional("personalizacao.json"),
-                             compreensao, lemas, vetores)
-    except (ErroAddon, recursos.ErroRecurso) as erro:
+                             compreensao, lemas, vetores, norma, vocabulario)
+    except (ErroAddon, recursos.ErroRecurso, normas.ErroNorma) as erro:
         raise SystemExit(f"Addon inválido: {erro}")
 
     saida = saida or pasta.parent / f"{manifesto['id']}{EXTENSAO}"
@@ -224,6 +251,14 @@ def conferir(arquivo: Path) -> None:
     if p.vetores:
         print(f"     vetores: {len(p.vetores.palavras)} palavras, {p.vetores.quantidade} vetores "
               f"de {p.vetores.dimensoes} dimensões")
+    if p.norma:
+        n = p.norma["norma"]
+        print(f"     norma: {n['nome']} ({n['id']}) · ortografia {n['ortografia']} · "
+              f"{len(p.norma['regras'])} regras · {len(p.norma['grafias'])} grafias · "
+              f"{len(p.norma['equivalencias'])} equivalências · "
+              f"{len(p.norma['erros_comuns'])} erros comuns · {len(p.norma['verbos'])} verbos")
+    if p.vocabulario:
+        print(f"     vocabulário: {len(normas.Vocabulario(p.vocabulario))} formas")
     print(f"     sha256: {p.hash}")
 
 

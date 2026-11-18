@@ -50,7 +50,8 @@ aprendiz/
 │   │   ├── compreensao.py               # Compreensão: o motor que usa os addons "compreensao" e "vetores" (0.7+).
 │   │   ├── dicionario.py                # Dicionário: consultas aos VERBETES dos addons, nos dois sentidos.
 │   │   ├── exportacao.py                # Exportação: transforma o que o DONO ensinou num addon (.aprendiz) para compartilhar.
-│   │   └── recomendacao.py              # Recomendação de algoritmos para um addon: qual BUSCA e qual RESPOSTA usar.
+│   │   ├── recomendacao.py              # Recomendação de algoritmos para um addon: qual BUSCA e qual RESPOSTA usar.
+│   │   └── revisao.py                   # Revisão de texto pela NORMA de um país (Aprendiz 0.8+).
 │   ├── linguagem/                       # Processamento de linguagem natural (PLN) clássico, sem redes neurais.
 │   │   ├── __init__.py                  # Processamento de linguagem natural (PLN) clássico, sem redes neurais.
 │   │   ├── entidades.py                 # Extração de entidades com expressões regulares (regex).
@@ -74,6 +75,7 @@ aprendiz/
 │   ├── config.py                        # Configurações globais do Aprendiz.
 │   ├── configuracoes.py                 # Configurações ajustáveis: parâmetros dos algoritmos e personalização da interface.
 │   ├── desktop.py                       # Inicializador do app de desktop.
+│   ├── normas.py                        # Normas da língua (Aprendiz 0.8+): os arquivos que os addons "norma" trazem e a validação…
 │   └── recursos.py                      # Recursos de compreensão: os arquivos que os addons "compreensao" e "vetores" trazem…
 ├── benchmarks/                          # Comparação dos algoritmos de busca
 │   ├── comparar.py                      # Benchmark: compara os algoritmos de busca num mesmo conjunto de perguntas.
@@ -88,7 +90,8 @@ aprendiz/
 │   ├── criar-algoritmo.md               # Passo a passo para adicionar um algoritmo ao seletor
 │   ├── empacotamento.md                 # Instaladores, executável e problemas comuns
 │   ├── estrutura.md                     # Este mapa (gerado por ferramentas/gerar_estrutura.py)
-│   └── linguagem.md                     # O pipeline de PLN, etapa por etapa
+│   ├── linguagem.md                     # O pipeline de PLN, etapa por etapa
+│   └── revisao.md                       # Addons de norma e revisão de texto: vocabulário, grafias, regras de gramática
 ├── exemplos/                            # Exemplos prontos para usar e estudar
 │   └── addons/                          # Addons de exemplo (oficiais): fontes e arquivos .aprendiz gerados
 │       ├── conversoes-medidas/          # Fonte de um addon de memória e linguagem
@@ -119,7 +122,8 @@ aprendiz/
 │   ├── test_girias.py                   # Testes da 0.4.1: verbetes (dicionário), stopwords e intenções vindas de addons de…
 │   ├── test_linguagem.py                # Testes do processamento de linguagem: radicais, normalização, intenções, entidades.
 │   ├── test_loja_oficial.py             # Testes do link da loja oficial: endereço fixo, aberto pelo servidor no navegador do…
-│   └── test_recomendacao.py             # Testes da 0.5: recomendação de algoritmos, grupos de addons e as opções ao instalar.
+│   ├── test_recomendacao.py             # Testes da 0.5: recomendação de algoritmos, grupos de addons e as opções ao instalar.
+│   └── test_revisao.py                  # Testes das normas da língua e da revisão de texto (0.8).
 ├── .editorconfig                        # Padrão de indentação e fim de linha para qualquer editor
 ├── .gitattributes                       # Fins de linha corretos por tipo de arquivo (LF/CRLF)
 ├── .gitignore                           # O que nunca vai para o Git (ambiente, bancos, builds)
