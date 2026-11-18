@@ -55,7 +55,7 @@ _SUSTENIDO = re.compile(r"\b([cf])#")
 
 # Versão das regras de normalização. Se ela mudar, os textos de busca já
 # gravados ficam desatualizados: o Assistente reindexa a base ao abrir.
-VERSAO_NORMALIZACAO = 3
+VERSAO_NORMALIZACAO = 4
 
 
 def remover_acentos(texto: str) -> str:
@@ -246,11 +246,23 @@ class Linguagem:
         return saida
 
     def _aplicar_sinonimos(self, tokens: list[str], registro: dict[str, str]) -> list[str]:
+        """
+        Troca cada palavra pela forma principal do seu sinônimo. Tenta a palavra
+        como foi escrita e, se não achar, o LEMA dela: com "automovel → carro"
+        cadastrado, "automoveis" também vira "carro" (antes da 1.0, não virava).
+        Os sinônimos já chegam resolvidos (sem conflitos, cadeias seguidas):
+        ver linguagem/resolucao.py.
+        """
         saida = []
         for t in tokens:
-            if t in self.sinonimos:
-                registro[t] = self.sinonimos[t]
-                t = self.sinonimos[t]
+            alvo = self.sinonimos.get(t)
+            if alvo is None and self.lexico.tem_lemas and t not in self.stopwords:
+                lema = self.lexico.lema(t)
+                if lema and lema in self.sinonimos:
+                    alvo = self.sinonimos[lema]
+            if alvo is not None:
+                registro[t] = alvo
+                t = alvo
             saida.append(t)
         return saida
 

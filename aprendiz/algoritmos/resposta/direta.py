@@ -18,6 +18,9 @@ from aprendiz.linguagem import TextoProcessado
 class RespostaDireta(AlgoritmoResposta):
     nome = "direta"
     titulo = "Direta"
+    apelido = "Fiel"
+    quando_usar = "Respostas curtas, exatamente como você ensinou."
+    custo = "leve"
     descricao = "Responde com o conhecimento mais relevante, do jeito que foi ensinado."
     explicacao = """
 **Ideia:** devolver o conteúdo do melhor conhecimento encontrado, exatamente como foi ensinado.

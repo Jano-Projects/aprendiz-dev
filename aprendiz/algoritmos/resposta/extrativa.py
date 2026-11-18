@@ -68,6 +68,9 @@ def textrank(conjuntos: list[set[str]], d: float = 0.85, iteracoes: int = 30) ->
 class RespostaExtrativa(AlgoritmoResposta):
     nome = "extrativa"
     titulo = "Extrativa (resumo)"
+    apelido = "Resumo"
+    quando_usar = "Textos longos e arquivos importados: junta as frases mais úteis."
+    custo = "médio"
     descricao = "Junta as frases mais relevantes de vários conhecimentos. Boa para textos longos."
     explicacao = """
 **Ideia:** em vez de devolver textos inteiros, **escolher as frases** que respondem à pergunta.

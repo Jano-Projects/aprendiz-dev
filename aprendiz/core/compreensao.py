@@ -72,6 +72,7 @@ FRASE_TIPO = {
     "definicao": "o que é", "procedimento": "como", "localizacao": "onde fica",
     "tempo": "quando", "causa": "por que", "quantidade": "quanto",
     "pessoa": "quem", "escolha": "qual", "confirmacao": "se",
+    "panorama": "tudo sobre",
 }
 
 

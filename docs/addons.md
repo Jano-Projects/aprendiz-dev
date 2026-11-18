@@ -364,7 +364,10 @@ escritos assim.
   como títulos ("Xícara (volume)").
 - Uma informação por resposta. Respostas curtas funcionam melhor com a resposta *Direta*;
   textos longos, com a *Extrativa*.
-- Use `linguagem.json` para abreviações e grafias comuns do assunto.
+- Use `linguagem.json` para abreviações e grafias comuns do assunto. Se o mesmo termo já tem
+  outro valor em outro addon, ele vira **conflito** e não é trocado até o dono escolher
+  (veja "Vários addons juntos" em `docs/linguagem.md`). Confira antes de publicar:
+  `python ferramentas/conferir_addons.py seu-addon.aprendiz outros/*.aprendiz`.
 - Teste com o benchmark: crie um JSON de perguntas no formato de
   `benchmarks/dados_exemplo.json` e rode `python benchmarks/comparar.py --dados ...`.
 

@@ -98,6 +98,9 @@ def tem_consenso(algoritmos: dict[str, dict], consulta: TextoProcessado,
 class BuscaHibrida(AlgoritmoBusca):
     nome = "hibrido"
     titulo = "Híbrido (RRF)"
+    apelido = "Equilibrado"
+    quando_usar = "Uso geral: consulta os três e só responde quando há consenso."
+    custo = "pesado"
     descricao = "Junta BM25, TF-IDF e Fuzzy pela posição de cada resultado. Mais robusto."
     limiar = 0.5
     explicacao = """

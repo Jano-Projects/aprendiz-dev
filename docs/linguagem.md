@@ -34,7 +34,8 @@ senão "C", "C++" e "C#" virariam a mesma palavra: `c++` → `cpp`, `g++` → `g
 ## 4. Abreviações
 
 Um dicionário simples (`vc → voce`, `oq → o que`). Pode virar mais de uma palavra.
-Edite na interface, em **Linguagem → Abreviações**.
+Edite na interface, em **Linguagem → Abreviações**. As abreviações dos addons ativos são
+juntadas com as suas pelas regras de [Vários addons juntos](#vários-addons-juntos-10).
 
 ## 5. Correção de digitação
 
@@ -49,6 +50,31 @@ Ele não tenta "corrigir" para o português em geral, só para o que foi ensinad
 
 Cada termo é trocado pela sua forma principal (`automovel → carro`). Como isso acontece
 tanto ao ensinar quanto ao perguntar, os dois lados se encontram.
+
+Desde a 1.0, se a palavra escrita não tem sinônimo, o pipeline tenta o **lema** dela (com o
+addon de compreensão): com `automovel → carro` cadastrado, "automóveis" também vira "carro".
+
+### Vários addons juntos (1.0)
+
+Antes da 1.0, cada addon trazia pares "termo → valor" e o último instalado sobrescrevia os
+outros. Com vários addons de idioma, um termo podia mudar de sentido sem aviso, e uma cadeia
+(`automovel → carro`, `carro → veiculo`) parava no primeiro salto. Agora
+(`aprendiz/linguagem/resolucao.py`):
+
+| Situação | O que acontece |
+|---|---|
+| O dono cadastrou o termo | vale a entrada do dono, sempre |
+| Vários addons, mesmo valor | vale esse valor (não é conflito) |
+| Vários addons, valores diferentes | **conflito**: a palavra não é trocada até o dono escolher |
+| Cadeia `a → b → c` (sinônimos) | vira `a → c` e `b → c` |
+| Ciclo `a → b → a` (sinônimos) | vira o menor termo do ciclo, em ordem alfabética |
+
+Na tela **Linguagem**, os conflitos aparecem num quadro amarelo: um clique na opção cadastra
+a escolha como sua. Abaixo da lista ficam as entradas **vindas dos addons ativos**, com a
+origem de cada uma (só leitura; para mudar uma, cadastre o mesmo termo).
+
+Quem cria addons pode conferir isso antes de publicar:
+`python ferramentas/conferir_addons.py addons/*.aprendiz` (sai com código 1 se houver conflito).
 
 ## 7. Stopwords
 

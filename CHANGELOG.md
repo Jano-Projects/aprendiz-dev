@@ -6,6 +6,40 @@ seguem o [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ## [Não lançado]
 
+## [1.0.0] - 2026-11-18
+
+Primeira versão estável. A compreensão e o diálogo do português passam a conviver com vários
+addons de linguagem ao mesmo tempo, e a interface explica melhor cada modelo.
+
+### Adicionado
+- **Vários addons de linguagem juntos** (`aprendiz/linguagem/resolucao.py`): abreviações e
+  sinônimos de todos os addons ativos são juntados com regras fixas: o dono vence; o mesmo
+  termo com valores diferentes em addons diferentes vira **conflito** e não é trocado até o
+  dono escolher; cadeias de sinônimos (`a → b → c`) são seguidas e ciclos são resolvidos pelo
+  menor termo. Veja "Vários addons juntos" em `docs/linguagem.md`.
+- **Tela Linguagem**: quadro de conflitos (um clique escolhe a opção) e a lista, só leitura, das
+  entradas vindas dos addons ativos, com a origem. `GET /api/linguagem` ganhou `de_addons` e
+  `conflitos`.
+- **Nomes dos modelos**: cada algoritmo tem apelido (Rápido, Didático, Tolerante, Equilibrado,
+  Fiel, Resumo), "quando usar" e custo (leve, médio, pesado), exibidos no seletor e em "Como
+  funcionam os algoritmos". `GET /api/algoritmos` ganhou `apelido`, `quando_usar` e `custo`.
+- **Juntar e reinterpretar** (etapa 5b do pipeline, `docs/compreensao.md`):
+  - **panorama**: "o que você sabe sobre o carro?" junta numa lista tudo o que a base sabe sobre o
+    assunto. Novo tipo de pergunta `panorama` (`recursos.TIPOS_PERGUNTA`);
+  - **pedido composto**: "qual a senha do wifi e o horário da farmácia?" responde as duas partes;
+    se uma parte não tem resposta, entrega o resto e diz o que faltou;
+  - **só o assunto**: "quero fazer um bolo" busca de novo só por "bolo" quando a frase inteira
+    não acha nada.
+- **`ferramentas/conferir_addons.py`**: confere conflitos, cadeias e ciclos de linguagem entre
+  arquivos `.aprendiz` antes de publicar (sai com código 1 se houver conflito).
+
+### Mudado
+- **Sinônimos pelo lema**: sem sinônimo para a palavra escrita, o pipeline tenta o lema dela
+  ("automóveis" → "automóvel" → "carro"). A versão da normalização foi para 4, então a base é
+  reindexada sozinha ao abrir.
+- **Visual 1.0**: resposta do assistente sem balão (lida como texto), compositor flutuante,
+  cantos e sombras mais suaves (seção 9 de `aprendiz/web/estilo.css`).
+
 ### Corrigido
 - **Híbrido (RRF)** exige consenso para aceitar um resultado: um algoritmo confiante sozinho
   não basta mais. "Você tem nome?" e "nome de cachorro" deixam de responder com a regra do

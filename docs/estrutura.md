@@ -59,6 +59,7 @@ aprendiz/
 │   │   ├── intencoes.py                 # Classificador de intenções — Naive Bayes Multinomial, escrito do zero.
 │   │   ├── lexico.py                    # Léxico: lemas e vetores de palavras trazidos pelos addons de compreensão.
 │   │   ├── normalizador.py              # Normalizador: transforma a mensagem crua em algo que o computador compara bem.
+│   │   ├── resolucao.py                 # Junta as abreviações e os sinônimos de VÁRIOS addons sem que um estrague o outro.
 │   │   └── stemmer.py                   # Radicalizador (stemmer) para português — versão simplificada do RSLP.
 │   ├── memoria/                         # Memória do assistente: tudo fica num único arquivo SQLite.
 │   │   ├── __init__.py                  # Memória do assistente: tudo fica num único arquivo SQLite.
@@ -106,6 +107,7 @@ aprendiz/
 │       ├── conversoes-medidas.aprendiz  # Addon pronto para importar
 │       └── modo-exigente.aprendiz       # Addon pronto para importar (limiares mais altos)
 ├── ferramentas/                         # Utilitários para usuários e desenvolvedores
+│   ├── conferir_addons.py               # Confere se vários addons convivem bem antes de publicá-los ou ativá-los juntos.
 │   ├── criar_addon.py                   # Cria (ou confere) um addon do Aprendiz — um arquivo .aprendiz.
 │   ├── gerar_estrutura.py               # Gera docs/estrutura.md: a árvore indentada de pastas e arquivos do projeto, com uma linha…
 │   ├── instalar-windows.ps1             # Lógica do instalador Windows (baixa o Python se faltar)
@@ -122,9 +124,11 @@ aprendiz/
 │   ├── test_exportacao.py               # Testes da exportação: prévia com avisos de privacidade, escolha de itens e ida e volta.
 │   ├── test_formato2.py                 # Testes do formato 2: origem, classificação, versão do app, dependências e configurações.
 │   ├── test_girias.py                   # Testes da 0.4.1: verbetes (dicionário), stopwords e intenções vindas de addons de…
+│   ├── test_juntar.py                   # Testes de "juntar e reinterpretar" (1.0): panorama ("o que você sabe sobre X?"), pedido…
 │   ├── test_linguagem.py                # Testes do processamento de linguagem: radicais, normalização, intenções, entidades.
 │   ├── test_loja_oficial.py             # Testes do link da loja oficial: endereço fixo, aberto pelo servidor no navegador do…
 │   ├── test_recomendacao.py             # Testes da 0.5: recomendação de algoritmos, grupos de addons e as opções ao instalar.
+│   ├── test_resolucao.py                # Testes da junção de abreviações e sinônimos de vários addons (1.0).
 │   └── test_revisao.py                  # Testes das normas da língua e da revisão de texto (0.8).
 ├── .editorconfig                        # Padrão de indentação e fim de linha para qualquer editor
 ├── .gitattributes                       # Fins de linha corretos por tipo de arquivo (LF/CRLF)

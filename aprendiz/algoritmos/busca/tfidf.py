@@ -44,6 +44,9 @@ def _normalizar_vetor(vetor: dict[str, float]) -> dict[str, float]:
 class BuscaTFIDF(AlgoritmoBusca):
     nome = "tfidf"
     titulo = "TF-IDF + cosseno"
+    apelido = "Didático"
+    quando_usar = "Para estudar como uma busca funciona; bases pequenas e médias."
+    custo = "leve"
     descricao = "Vetores de pesos comparados pelo ângulo. Didático e equilibrado."
     limiar = 0.25
     explicacao = """

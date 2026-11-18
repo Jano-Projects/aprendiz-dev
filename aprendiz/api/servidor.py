@@ -494,6 +494,10 @@ def criar_app(caminho_banco: str | Path | None = None) -> FastAPI:
             "intencoes": [{"id": e["id"], "termo": e["intencao"], "valor": e["frase"]}
                           for e in banco.exemplos_intencoes()],
             "stopwords": sorted(banco.lista_stopwords(incluir_addons=False)),
+            # 1.0: o que vem dos addons (só leitura, com a origem) e os conflitos
+            # entre eles, que o dono resolve escolhendo uma das opções.
+            "de_addons": {t: banco.linguagem_de_addons(t) for t in ("abreviacoes", "sinonimos")},
+            "conflitos": banco.conflitos_linguagem(),
         }
 
     @app.post("/api/linguagem/{tabela}")

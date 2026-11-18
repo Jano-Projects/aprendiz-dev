@@ -39,7 +39,7 @@ from aprendiz.core.dicionario import Dicionario
 from aprendiz.core import revisao
 from aprendiz.memoria.banco import lista_json
 from aprendiz.linguagem import ClassificadorIntencoes, Linguagem, extrair_entidades
-from aprendiz.linguagem.normalizador import VERSAO_NORMALIZACAO
+from aprendiz.linguagem.normalizador import VERSAO_NORMALIZACAO, normalizar
 from aprendiz.memoria import Banco
 
 # ---------------------------------------------------------------------------
@@ -72,6 +72,16 @@ MSG_NAO_SEI = (
     "**Ensinar isso** logo abaixo, ou escrevendo algo como "
     "`aprenda que ... é ...`."
 )
+# Pedido composto (1.0): "qual a senha do wifi e o horário da farmácia?". A mensagem
+# é dividida em "?", ";" ou num " e " seguido de artigo ou palavra de pergunta.
+_DIVISOR_COMPOSTO = re.compile(
+    r"\s*[?;]\s+|\s+e\s+(?=(?:o|a|os|as|qual|quais|quando|onde|como|quanto|quantos|quantas|"
+    r"quem|que|do|da|dos|das)\b)", re.IGNORECASE)
+_PARTE_PERGUNTA = re.compile(
+    r"^(?:o que|por que|qual|quais|quando|onde|como|quanto|quantos|quantas|quem)\b", re.IGNORECASE)
+MAX_PARTES_COMPOSTO = 4
+MAX_ITENS_PANORAMA = 6
+PALAVRAS_COMUNS_ASSUNTO = 300  # "quero FAZER um bolo": as N mais comuns saem do assunto
 MAX_PROFUNDIDADE = 2  # o diálogo pode reprocessar a mensagem (resto, continuação)
 
 MSG_SEM_NORMA = (
@@ -627,6 +637,26 @@ class Assistente:
             ],
         })
 
+        # 5b. Juntar e reinterpretar (1.0) ------------------------------------
+        # "o que você sabe sobre o carro?" → tudo sobre carro, numa lista;
+        # "qual a senha do wifi e o horário da farmácia?" → as duas respostas;
+        # "quero fazer um bolo" → procura só o assunto ("bolo").
+        if analise is not None and analise.tipo == "panorama" and analise.assunto:
+            junto = self._panorama(analise.assunto, etapas)
+            if junto:
+                return junto
+        composto = self._composto(mensagem, busca, etapas)
+        if composto:
+            return composto
+        if not aceitos and analise is not None and analise.assunto:
+            so_assunto = self._so_o_assunto(analise.assunto, enxugar=True)
+            if so_assunto is not None and so_assunto.radicais != consulta.radicais:
+                c2, a2, _ = self.buscar(so_assunto, busca)
+                etapas.marcar("Busca · só o assunto", {
+                    "assunto": " ".join(so_assunto.conteudo), "encontrou": len(a2)})
+                if a2:
+                    candidatos, aceitos, consulta = c2, a2, so_assunto
+
         # 6. Modo estrito -----------------------------------------------------
         nota_sentido = ""
         if not aceitos and analise is not None:
@@ -712,6 +742,84 @@ class Assistente:
         por_id = {c.id: c.conhecimento for c in aceitos}
         fontes = [self._fonte(por_id[i]) for i in gerada.fontes if i in por_id]
         return nota_sentido + gerada.texto, "conhecimento", fontes
+
+    # ================================================================ JUNTAR (1.0)
+    def _so_o_assunto(self, assunto: str, enxugar: bool = False):
+        """
+        O assunto processado. Com enxugar=True (e o addon de vetores), sem as
+        palavras mais comuns da língua: "fazer um bolo" → "bolo".
+        """
+        proc = self.linguagem.processar(assunto)
+        lexico = self.linguagem.lexico
+        if enxugar and lexico.tem_vetores:
+            fortes = [p for p in proc.conteudo if not lexico.frequente(p, PALAVRAS_COMUNS_ASSUNTO)]
+            if fortes and len(fortes) < len(proc.conteudo):
+                proc = self.linguagem.processar(" ".join(fortes))
+        return proc if proc.radicais else None
+
+    def _panorama(self, assunto: str, etapas: Etapas) -> tuple[str, str, list] | None:
+        """
+        Tudo o que a base sabe sobre um assunto, numa lista: os conhecimentos
+        que têm TODAS as palavras do assunto. O que o dono ensinou vem primeiro.
+        """
+        # 1º o assunto inteiro ("acordo ortográfico"); se nada tiver TODAS as
+        # palavras, o assunto enxuto ("o que tenho que fazer com o carro" → "carro").
+        docs, proc = [], None
+        for enxugar in (False, True):
+            proc = self._so_o_assunto(assunto, enxugar)
+            if proc is None:
+                return None
+            alvo = set(proc.radicais)
+            for linha in self.banco.buscar_fts(" OR ".join(f'"{r}"' for r in alvo), 40):
+                doc = self.banco.obter_conhecimento(linha["id"])
+                if doc and doc.get("tipo") != "verbete" and alvo <= set(doc["texto_busca"].split()):
+                    docs.append(doc)
+            if docs:
+                break
+        docs.sort(key=lambda d: bool(d.get("addon_id")))  # do dono primeiro (sort estável)
+        etapas.marcar("Panorama", {"assunto": " ".join(proc.conteudo), "encontrou": len(docs)})
+        if not docs:
+            return None
+        mostrados = docs[:MAX_ITENS_PANORAMA]
+        # Como a pessoa escreveu (com acentos), sem o artigo do começo.
+        nome = re.sub(r"^(?:o|a|os|as|um|uma|uns|umas)\s+", "", assunto.strip(" ?!.,"), flags=re.I)
+        cabeca = (f"Sobre **{nome}**, encontrei isto:" if len(mostrados) > 1
+                  else f"Sobre **{nome}**, encontrei uma coisa:")
+        itens = [f"- **{_capitalizar(d['pergunta'])}:** {d['conteudo']}" if d.get("pergunta")
+                 else f"- {d['conteudo']}" for d in mostrados]
+        resto = len(docs) - len(mostrados)
+        rodape = f"\n\n*E mais {resto}. Pergunte algo mais específico para ver.*" if resto else ""
+        return cabeca + "\n\n" + "\n".join(itens) + rodape, "conhecimento", [self._fonte(d) for d in mostrados]
+
+    def _composto(self, mensagem: str, busca: str, etapas: Etapas) -> tuple[str, str, list] | None:
+        """
+        Várias perguntas numa mensagem só. Cada parte é buscada sozinha; se
+        pelo menos duas acham respostas DIFERENTES, a resposta junta todas.
+        Se só uma acha, mas outra parte é claramente uma PERGUNTA ("qual…",
+        "quando…"), entrega o que existe e diz o que faltou.
+        """
+        partes = [p.strip(" ?!.,") for p in _DIVISOR_COMPOSTO.split(mensagem)]
+        partes = [p for p in partes if p][:MAX_PARTES_COMPOSTO]
+        if len(partes) < 2:
+            return None
+        achados, faltaram, vistos = [], [], set()
+        for parte in partes:
+            proc = self.linguagem.processar(parte)
+            if not proc.conteudo:
+                continue
+            _, aceitos, _ = self.buscar(proc, busca)
+            if aceitos and aceitos[0].id not in vistos:
+                vistos.add(aceitos[0].id)
+                achados.append((parte, aceitos[0].conhecimento))
+            elif not aceitos and _PARTE_PERGUNTA.match(normalizar(parte)):
+                faltaram.append(parte)
+        if len(achados) < (1 if faltaram else 2):
+            return None
+        etapas.marcar("Pedido composto", {"partes": [p for p, _ in achados], "faltaram": faltaram})
+        texto = "\n\n".join(f"**{_capitalizar(p)}?**\n{d['conteudo']}" for p, d in achados)
+        if faltaram:
+            texto += "\n\n*Ainda não fui ensinado sobre: " + "; ".join(faltaram) + ".*"
+        return texto, "conhecimento", [self._fonte(d) for _, d in achados]
 
     # ================================================================ DIÁLOGO
     def _dialogo(self, mensagem: str, consulta, busca: str, resposta: str, etapas: Etapas,

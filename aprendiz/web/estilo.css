@@ -10,6 +10,7 @@
  *   6. Painel "Por que respondi isso?"
  *   7. Diálogos (ensinar, base, linguagem, configurações, reset)
  *   8. Responsivo (telas pequenas)
+ *   9. Visual 1.0 (refinamentos e peças novas: conflitos, chips, fichas de algoritmo)
  *
  * Usamos a fonte do sistema (nada baixado da internet).
  */
@@ -528,3 +529,59 @@ dialog::backdrop { background: rgba(10, 10, 25, .5); backdrop-filter: blur(2px);
 .lista-revisao s { opacity: .75; }
 .explicacao-revisao { font-size: .9em; opacity: .85; margin-top: .15rem; }
 .resumo-revisao { font-weight: 600; margin: .25rem 0; }
+
+
+/* ============================== 9. VISUAL 1.0 ============================== */
+/*
+ * Refinamentos da 1.0, num bloco só para ficar fácil de estudar (e de desfazer):
+ * resposta do assistente sem "balão" (lê como texto, igual aos chats atuais),
+ * compositor flutuante, cantos e sombras mais suaves e as peças novas da tela
+ * Linguagem e do "Como funciona".
+ */
+:root { --raio: 14px; --fundo-assistente: transparent; }
+[data-tema="escuro"] { --fundo-assistente: transparent; }
+
+.topo { backdrop-filter: saturate(1.4) blur(8px); }
+.seletor { border-radius: 999px; padding-left: 10px; }
+
+.assistente .balao { padding: 2px 0; border-radius: 0; max-width: 100%; }
+.assistente .balao.desconhecido { padding: 12px 16px; border-radius: var(--raio); }
+.assistente .balao.erro { padding: 10px 14px; border-radius: var(--raio); }
+.usuario .balao { border-radius: 20px 20px 6px 20px; padding: 9px 16px; }
+.balao h1, .balao h2, .balao h3 { font-size: 1.05em; margin: 12px 0 6px; }
+.balao table { border-collapse: collapse; margin: 6px 0; }
+.balao th, .balao td { border: 1px solid var(--borda); padding: 4px 10px; text-align: left; }
+
+.caixa-mensagem { border-radius: 22px; box-shadow: var(--sombra-leve), 0 8px 24px rgba(20, 20, 50, .06); }
+.botao-enviar { border-radius: 50%; }
+.cartao { border-radius: var(--raio); }
+.cartao:hover { transform: translateY(-2px); }
+
+.chip {
+  display: inline-flex; align-items: center; gap: 4px; padding: 2px 10px; margin: 2px 4px 2px 0;
+  border: 1px solid var(--borda); border-radius: 999px; background: var(--fundo-suave);
+  font-size: 12.5px; color: var(--texto);
+}
+button.chip:hover { border-color: var(--primaria); color: var(--primaria); background: var(--primaria-suave); }
+.chip.custo-leve { color: var(--sucesso); }
+.chip.custo-médio { color: var(--aviso); }
+.chip.custo-pesado { color: var(--perigo); }
+.ficha-algoritmo { padding: 10px 12px; margin-bottom: 10px; border-radius: 10px; background: var(--fundo-suave); }
+.ficha-algoritmo p { margin: 0 0 6px; }
+.ficha-algoritmo p:last-child { margin: 0; }
+
+.conflitos {
+  border: 1px solid color-mix(in srgb, var(--aviso) 45%, var(--borda)); border-radius: 12px;
+  background: color-mix(in srgb, var(--aviso) 7%, var(--fundo)); padding: 10px 12px; margin-bottom: 10px;
+  display: flex; flex-direction: column; gap: 6px; max-height: 32vh; overflow-y: auto; flex-shrink: 0;
+}
+.conflitos > p { margin: 0 0 4px; font-size: 13.5px; }
+.conflitos > p .ic { color: var(--aviso); vertical-align: -2px; }
+.linha-conflito { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.linha-conflito .termo { font-family: ui-monospace, monospace; min-width: 110px; }
+.linha-conflito .seta { color: var(--texto-suave); }
+
+.de-addons { flex-shrink: 0; margin-top: 12px; border-top: 1px solid var(--borda); padding-top: 10px; }
+.de-addons summary { cursor: pointer; color: var(--texto-suave); font-size: 13.5px; }
+.de-addons .lista-base { max-height: 30vh; min-height: 0; margin-top: 8px; }
+.linha-ling .origem { font-size: 11.5px; color: var(--texto-suave); white-space: nowrap; }

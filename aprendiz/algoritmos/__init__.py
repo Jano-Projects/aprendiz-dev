@@ -23,7 +23,8 @@ def listar_algoritmos() -> dict:
     """Formato usado pela interface para montar os seletores."""
     def info(a):
         dados = {"nome": a.nome, "titulo": a.titulo, "descricao": a.descricao,
-                 "explicacao": a.explicacao.strip()}
+                 "explicacao": a.explicacao.strip(), "apelido": a.apelido or a.titulo,
+                 "quando_usar": a.quando_usar, "custo": a.custo}
         if isinstance(a, AlgoritmoBusca):
             dados["limiar"] = a.limiar
         return dados

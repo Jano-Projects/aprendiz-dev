@@ -31,6 +31,9 @@ from aprendiz.linguagem import TextoProcessado
 class BuscaFuzzy(AlgoritmoBusca):
     nome = "fuzzy"
     titulo = "Fuzzy (tolerante a erros)"
+    apelido = "Tolerante"
+    quando_usar = "Perguntas curtas com muitos erros de digitação."
+    custo = "médio"
     descricao = "Compara letra a letra. Bom para erros de digitação e textos curtos."
     limiar = 0.75
     explicacao = """

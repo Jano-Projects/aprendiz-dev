@@ -32,6 +32,9 @@ from aprendiz.linguagem import TextoProcessado
 class BuscaBM25(AlgoritmoBusca):
     nome = "bm25"
     titulo = "BM25 (padrão)"
+    apelido = "Rápido"
+    quando_usar = "Bases grandes e perguntas escritas com as mesmas palavras do que foi ensinado."
+    custo = "leve"
     descricao = "Ranking clássico de buscadores, feito pelo próprio SQLite. O mais leve."
     limiar = 0.5  # pelo menos metade dos termos da pergunta precisa aparecer
     explicacao = """

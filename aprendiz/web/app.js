@@ -161,7 +161,7 @@
 
   function preencherSeletor(select, lista, escolhido) {
     select.innerHTML = lista
-      .map((a) => `<option value="${esc(a.nome)}" title="${esc(a.descricao)}">${esc(a.titulo)}</option>`)
+      .map((a) => `<option value="${esc(a.nome)}" title="${esc(a.descricao)}">${esc(a.apelido)} · ${esc(a.titulo)}</option>`)
       .join("");
     if (lista.some((a) => a.nome === escolhido)) select.value = escolhido;
     atualizarDica(select, lista);
@@ -169,7 +169,7 @@
 
   function atualizarDica(select, lista) {
     const a = lista.find((x) => x.nome === select.value);
-    select.closest(".seletor").title = a ? `${a.titulo}: ${a.descricao}` : "";
+    select.closest(".seletor").title = a ? `${a.apelido} (${a.titulo}): ${a.quando_usar || a.descricao}` : "";
   }
 
   // =========================================================== 4. CONVERSAS
@@ -363,7 +363,7 @@
 
   function nomeAlgoritmo(tipo, nome) {
     const a = (estado.algoritmos[tipo] || []).find((x) => x.nome === nome);
-    return a ? a.titulo : nome;
+    return a ? `${a.apelido} · ${a.titulo}` : nome;
   }
 
   /**
@@ -619,16 +619,20 @@
             </summary>
             <div class="corpo"></div>
           </details>`);
-        $("strong", item).textContent = a.titulo;
-        $("small", item).textContent = a.descricao + (a.limiar != null ? ` · limiar de confiança: ${a.limiar}` : "");
-        $(".corpo", item).innerHTML = window.Markdown.renderizar(a.explicacao || a.descricao);
+        $("strong", item).textContent = `${a.apelido} · ${a.titulo}`;
+        $("small", item).textContent = a.descricao;
+        $(".corpo", item).innerHTML = `<div class="ficha-algoritmo">
+            ${a.quando_usar ? `<p><b>Quando usar:</b> ${esc(a.quando_usar)}</p>` : ""}
+            <p><span class="chip custo-${esc(a.custo)}">custo ${esc(a.custo)}</span>
+            ${a.limiar != null ? `<span class="chip">limiar de confiança ${esc(String(a.limiar))}</span>` : ""}</p>
+          </div>` + window.Markdown.renderizar(a.explicacao || a.descricao);
         if (!usando) {
           const usar = criar(`<button class="botao">${icone("check")} Usar este algoritmo</button>`);
           usar.addEventListener("click", () => {
             const sel = $("#sel-" + tipo);
             sel.value = a.nome;
             sel.dispatchEvent(new Event("change"));
-            avisar(`${a.titulo} selecionado.`, "algoritmo");
+            avisar(`${a.apelido} (${a.titulo}) selecionado.`, "algoritmo");
             abrirComoFunciona();
           });
           $(".corpo", item).appendChild(usar);
@@ -1155,7 +1159,7 @@
     abreviacoes: ["Abreviação (ex.: vc)", "Significado (ex.: você)",
       "Abreviações são expandidas antes de tudo. Ao alterar, a base é reindexada."],
     sinonimos: ["Termo (ex.: automóvel)", "Trocar por (ex.: carro)",
-      "Cada sinônimo é trocado pela forma principal, então ensinar sobre 'carro' também responde 'automóvel'."],
+      "Cada sinônimo é trocado pela forma principal (também no plural e nas flexões), então ensinar sobre 'carro' também responde 'automóveis'. Cadeias são seguidas: automóvel → carro → veículo."],
     intencoes: ["Intenção (ex.: saudacao)", "Frase de exemplo (ex.: fala aí)",
       "Exemplos treinam o classificador Naive Bayes. Intenções sociais: saudacao, despedida, agradecimento, ajuda."],
   };
@@ -1185,6 +1189,54 @@
       });
       lista.appendChild(linha);
     });
+    mostrarConflitos(dados, aba);
+    mostrarDeAddons(dados, aba);
+  }
+
+  // Termos que addons diferentes explicam de jeitos diferentes: ficam sem troca
+  // até o dono escolher. Um clique na opção cadastra a escolha como dele.
+  function mostrarConflitos(dados, aba) {
+    const caixa = $("#conflitos-linguagem");
+    const conflitos = (dados.conflitos || {})[aba] || [];
+    caixa.hidden = !conflitos.length;
+    caixa.innerHTML = "";
+    if (!conflitos.length) return;
+    caixa.appendChild(criar(`<p>${icone("alerta")} <strong>${conflitos.length} ${conflitos.length === 1 ? "termo tem" : "termos têm"} significados diferentes nos addons.</strong> Enquanto você não escolhe, a palavra fica como foi escrita (melhor não trocar do que trocar pelo sentido errado).</p>`));
+    conflitos.forEach((c) => {
+      const linha = criar(`<div class="linha-conflito"><span class="termo"></span><span class="seta">→</span><span class="opcoes"></span></div>`);
+      $(".termo", linha).textContent = c.termo;
+      c.opcoes.forEach((o) => {
+        const b = criar(`<button class="chip" type="button"></button>`);
+        b.textContent = o.valor;
+        b.title = "Vem de: " + o.addons.join(", ") + ". Clique para usar esta.";
+        b.addEventListener("click", async () => {
+          await api("/api/linguagem/" + aba, { metodo: "POST", corpo: { termo: c.termo, valor: o.valor } });
+          avisar(`"${c.termo}" agora significa "${o.valor}".`, "check");
+          carregarLinguagem();
+        });
+        $(".opcoes", linha).appendChild(b);
+      });
+      caixa.appendChild(linha);
+    });
+  }
+
+  function mostrarDeAddons(dados, aba) {
+    const bloco = $("#ling-addons");
+    const itens = (dados.de_addons || {})[aba] || [];
+    bloco.hidden = !itens.length;
+    if (!itens.length) return;
+    const LIMITE = 300;
+    $("summary", bloco).textContent = `Vindos dos addons ativos (${itens.length})`;
+    const lista = $(".lista-base", bloco);
+    lista.innerHTML = "";
+    itens.slice(0, LIMITE).forEach((l) => {
+      const linha = criar(`<div class="linha-ling"><span class="termo"></span><span class="seta">→</span><span class="valor"></span><span class="origem"></span></div>`);
+      $(".termo", linha).textContent = l.termo;
+      $(".valor", linha).textContent = l.valor;
+      $(".origem", linha).textContent = l.addon;
+      lista.appendChild(linha);
+    });
+    if (itens.length > LIMITE) lista.appendChild(criar(`<p class="ajuda">Mostrando ${LIMITE} de ${itens.length}.</p>`));
   }
 
   $$(".aba").forEach((b) => b.addEventListener("click", () => {

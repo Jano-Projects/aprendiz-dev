@@ -527,19 +527,49 @@ class Banco:
             "SELECT l.termo, l.valor FROM addon_linguagem l JOIN addons a ON a.id = l.addon_id "
             "WHERE a.ativo = 1 AND l.tipo = ? ORDER BY a.instalado_em", (tipo,))}
 
+    def _entradas_de_addons(self, tipo: str) -> list[tuple[str, str, str]]:
+        """(termo, valor, nome do addon) de cada addon ATIVO, na ordem de instalação."""
+        return [(l["termo"], l["valor"], l["nome"]) for l in self._consultar(
+            "SELECT l.termo, l.valor, a.nome FROM addon_linguagem l JOIN addons a "
+            "ON a.id = l.addon_id WHERE a.ativo = 1 AND l.tipo = ? ORDER BY a.instalado_em",
+            (tipo,))]
+
+    def _resolvido(self, tipo: str) -> tuple[dict[str, str], list[dict]]:
+        """Mapa final + conflitos (ver linguagem/resolucao.py). Fica em cache por versão."""
+        from aprendiz.linguagem.resolucao import resolver
+        cache = getattr(self, "_cache_resolucao", {})
+        if cache.get("versao") != self.versao_linguagem:
+            cache = {"versao": self.versao_linguagem}
+            self._cache_resolucao = cache
+        if tipo not in cache:
+            coluna = "canonico" if tipo == "sinonimos" else "expansao"
+            dono = {l["termo"]: l[coluna] for l in self._consultar(
+                f"SELECT * FROM {tipo} ORDER BY termo")}
+            cache[tipo] = resolver(self._entradas_de_addons(tipo), dono,
+                                   encadear=(tipo == "sinonimos"))
+        return cache[tipo]
+
     def mapa_abreviacoes(self, incluir_addons: bool = True) -> dict[str, str]:
-        """Abreviações em uso. As do dono têm prioridade sobre as de addons."""
-        mapa = self._linguagem_de_addons("abreviacoes") if incluir_addons else {}
-        mapa.update({l["termo"]: l["expansao"]
-                     for l in self._consultar("SELECT * FROM abreviacoes ORDER BY termo")})
-        return mapa
+        """Abreviações em uso. As do dono vencem; conflitos entre addons ficam de fora."""
+        if not incluir_addons:
+            return {l["termo"]: l["expansao"]
+                    for l in self._consultar("SELECT * FROM abreviacoes ORDER BY termo")}
+        return dict(self._resolvido("abreviacoes")[0])
 
     def mapa_sinonimos(self, incluir_addons: bool = True) -> dict[str, str]:
-        """Sinônimos em uso. Os do dono têm prioridade sobre os de addons."""
-        mapa = self._linguagem_de_addons("sinonimos") if incluir_addons else {}
-        mapa.update({l["termo"]: l["canonico"]
-                     for l in self._consultar("SELECT * FROM sinonimos ORDER BY termo")})
-        return mapa
+        """Sinônimos em uso, já encadeados (a → b → c vira a → c). O dono vence."""
+        if not incluir_addons:
+            return {l["termo"]: l["canonico"]
+                    for l in self._consultar("SELECT * FROM sinonimos ORDER BY termo")}
+        return dict(self._resolvido("sinonimos")[0])
+
+    def conflitos_linguagem(self) -> dict[str, list[dict]]:
+        """Termos com valores diferentes em addons diferentes (o dono escolhe)."""
+        return {t: self._resolvido(t)[1] for t in ("abreviacoes", "sinonimos")}
+
+    def linguagem_de_addons(self, tipo: str) -> list[dict[str, str]]:
+        """Entradas dos addons ativos com a origem (só leitura, para a tela Linguagem)."""
+        return [{"termo": t, "valor": v, "addon": a} for t, v, a in self._entradas_de_addons(tipo)]
 
     def lista_stopwords(self, incluir_addons: bool = True) -> set[str]:
         """Stopwords em uso: as do dono + as de addons ATIVOS."""

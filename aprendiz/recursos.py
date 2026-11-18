@@ -137,6 +137,7 @@ TIPOS_PERGUNTA: dict[str, str] = {
     "escolha": "qual",
     "confirmacao": "se é verdade",
     "pedido": "um pedido",
+    "panorama": "tudo sobre",   # 1.0: "o que você sabe sobre X?" junta tudo sobre X
 }
 
 # O que o app faz com cada ato de fala (o addon diz COMO reconhecê-los).

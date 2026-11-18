@@ -69,6 +69,10 @@ class AlgoritmoBusca(ABC):
     descricao: str = ""   # texto curto para o usuário entender a escolha
     explicacao: str = ""  # como funciona, em Markdown (aparece em "Como funciona?")
     limiar: float = 0.5   # confiança mínima PADRÃO (o dono ou um addon podem ajustar)
+    # 1.0: como o modelo aparece para quem não é da área.
+    apelido: str = ""     # nome curto e humano (ex.: "Equilibrado")
+    quando_usar: str = "" # uma frase: em que situação escolher este
+    custo: str = "leve"   # "leve", "médio" ou "pesado" (processamento por pergunta)
 
     @abstractmethod
     def buscar(self, consulta: TextoProcessado, ctx: ContextoBusca,
@@ -81,6 +85,9 @@ class AlgoritmoResposta(ABC):
     titulo: str = ""
     descricao: str = ""
     explicacao: str = ""
+    apelido: str = ""
+    quando_usar: str = ""
+    custo: str = "leve"
 
     @abstractmethod
     def responder(self, consulta: TextoProcessado, candidatos: list[Candidato],

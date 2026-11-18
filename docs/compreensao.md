@@ -89,6 +89,22 @@ gatilho mais longo vence. O **assunto** é o resto da frase, tirado da mensagem 
 acentos), e deixa o "não sei" mais preciso: "Entendi que você quer saber o que é
 **fotossíntese**, mas ainda não fui ensinado sobre isso."
 
+### Juntar e reinterpretar (1.0)
+
+Três comportamentos do motor (`aprendiz/core/assistente.py`, etapa 5b) para entregar o que a
+pessoa quer quando existe na base, mesmo que ela não pergunte do jeito "certo":
+
+| Situação | Exemplo | O que acontece |
+|---|---|---|
+| **Panorama** (tipo de pergunta `panorama`) | "o que você sabe sobre o carro?", "tem algo sobre o carro?", "me lembra o que tenho que fazer com o carro" | Junta, numa lista, todos os conhecimentos que têm **todas** as palavras do assunto (até 6; os do dono primeiro). Tenta o assunto inteiro ("acordo ortográfico") e, se nada servir, o assunto enxuto. |
+| **Pedido composto** | "qual a senha do wifi e o horário da farmácia?" | Divide em "?", ";" ou num " e " seguido de artigo ou palavra de pergunta, busca cada parte sozinha e responde todas. Se uma parte que é claramente pergunta ("qual…", "quando…") não tem resposta, entrega o resto e avisa o que faltou. |
+| **Só o assunto** | "quero fazer um bolo" | Se a mensagem inteira não achou nada, busca de novo só o assunto, sem as palavras mais comuns da língua ("fazer"), com o addon de vetores ("bolo"). |
+
+Tudo passa pela mesma busca e pelo mesmo consenso do Híbrido: juntar nunca aceita algo que a
+busca normal recusaria. O painel "Por que respondi isso?" mostra as etapas **Panorama**,
+**Pedido composto** e **Busca · só o assunto**. O tipo `panorama` exige o Aprendiz 1.0
+(addon Compreensão do português 1.4.0+).
+
 ### Autoconhecimento
 
 Perguntas sobre o próprio Aprendiz, comparadas com as do addon em duas tentativas:

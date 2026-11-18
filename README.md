@@ -13,7 +13,7 @@ E um projeto aberto para **estudar Processamento de Linguagem Natural** na prát
 ![Offline](https://img.shields.io/badge/funciona-100%25%20offline-16a34a)
 [![Licença MIT](https://img.shields.io/badge/licen%C3%A7a-MIT-4f46e5)](LICENSE)
 
-<img src="docs/imagens/tela-principal.png" alt="Tela do Aprendiz: conversa e painel 'Por que respondi isso?'" width="820">
+<img src="docs/imagens/tela-principal.png" alt="Tela do Aprendiz 1.0: conversa respondida por um addon, com os seletores de modelo no topo" width="820">
 
 </div>
 
@@ -149,17 +149,21 @@ Detalhes, executável e problemas comuns: [docs/empacotamento.md](docs/empacotam
 pergunta ─► normalização ─► BUSCA ─► candidatos ─► limiar ─► RESPOSTA ─► texto
 ```
 
-| Busca | Ideia | Melhor para |
-|---|---|---|
-| **BM25** (padrão) | Ranking clássico de buscadores, calculado pelo SQLite (FTS5) | Uso geral, máquinas fracas |
-| **TF-IDF + cosseno** | Vetores de pesos comparados pelo ângulo | Estudo; perguntas com palavras diferentes |
-| **Fuzzy** | Similaridade letra a letra (Levenshtein, RapidFuzz) | Erros de digitação, textos curtos |
-| **Híbrido (RRF)** | Junta os três pela posição de cada resultado | O mais robusto |
+Cada modelo tem um **apelido** (como aparece no seletor), o nome técnico e um custo de
+processamento por pergunta. A tela **Como funcionam os algoritmos** (botão **?** no topo)
+explica cada um passo a passo.
 
-| Resposta | Ideia |
-|---|---|
-| **Direta** | O conhecimento mais relevante, como foi ensinado |
-| **Extrativa** | As frases mais relevantes de vários conhecimentos (relevância + TextRank) |
+| Busca | Apelido | Ideia | Quando usar | Custo |
+|---|---|---|---|---|
+| **BM25** (padrão) | Rápido | Ranking clássico de buscadores, calculado pelo SQLite (FTS5) | Bases grandes, perguntas com as mesmas palavras do que foi ensinado | leve |
+| **TF-IDF + cosseno** | Didático | Vetores de pesos comparados pelo ângulo | Estudar como uma busca funciona; bases pequenas e médias | leve |
+| **Fuzzy** | Tolerante | Similaridade letra a letra (Levenshtein, RapidFuzz) | Perguntas curtas com muitos erros de digitação | médio |
+| **Híbrido (RRF)** | Equilibrado | Junta os três pela posição e só aceita com **consenso** | Uso geral | pesado |
+
+| Resposta | Apelido | Ideia | Custo |
+|---|---|---|---|
+| **Direta** | Fiel | O conhecimento mais relevante, como foi ensinado | leve |
+| **Extrativa** | Resumo | As frases mais relevantes de vários conhecimentos (relevância + TextRank) | médio |
 
 Benchmark com os dados de exemplo (`python benchmarks/comparar.py`):
 
@@ -193,7 +197,7 @@ aprendiz/
 │   └── desktop.py             #   sobe o servidor e abre a janela
 ├── tests/                     # pytest: unidade, API, addons, documentação
 ├── benchmarks/                # comparação dos algoritmos
-├── ferramentas/               # verificar instalação, criar addons, gerar estrutura
+├── ferramentas/               # verificar instalação, criar e conferir addons, gerar estrutura
 ├── exemplos/addons/           # addons de exemplo (fonte + .aprendiz)
 ├── docs/                      # documentação de estudo
 ├── .github/                   # CI e modelos de issue/PR
@@ -207,6 +211,7 @@ bash instalar.sh --dev                          # ambiente com pytest e PyInstal
 .venv/bin/python -m pytest                      # testes
 .venv/bin/python benchmarks/comparar.py         # benchmark dos algoritmos
 .venv/bin/python ferramentas/gerar_estrutura.py # atualiza docs/estrutura.md
+.venv/bin/python ferramentas/conferir_addons.py addons/*.aprendiz  # conflitos de linguagem entre addons
 .venv/bin/python -m aprendiz --modo servidor    # só o servidor: http://127.0.0.1:8765
 ```
 
