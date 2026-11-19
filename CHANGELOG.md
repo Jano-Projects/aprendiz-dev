@@ -6,6 +6,12 @@ seguem o [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ## [Não lançado]
 
+## [2.1.0] - 2026-11-19
+
+Todos os addons de conhecimento da loja passam a ter teia de porquês (C, C++, utilidades e
+idiomas). Os addons de idiomas e o `dialogo-portugues` 2.1.0 exigem este app (relação
+`equivale`).
+
 ### Mudado
 - O operador seta do C (`p->campo`) vira "seta" na normalização, em vez de sumir com a
   pontuação (versão 6 das regras de normalização: a base é reindexada ao abrir).
@@ -388,7 +394,14 @@ Primeira versão pública.
 - Instaladores para Linux e Windows que instalam o Python se faltar, verificador de
   instalação, executável via PyInstaller e CI em Windows, Ubuntu, Fedora e Debian.
 
-[Não lançado]: https://github.com/Jano-Projects/aprendiz-dev/compare/v0.6.0...HEAD
+[Não lançado]: https://github.com/Jano-Projects/aprendiz-dev/compare/v2.1.0...HEAD
+[2.1.0]: https://github.com/Jano-Projects/aprendiz-dev/compare/v2.0.1...v2.1.0
+[2.0.1]: https://github.com/Jano-Projects/aprendiz-dev/compare/v2.0.0...v2.0.1
+[2.0.0]: https://github.com/Jano-Projects/aprendiz-dev/compare/v1.0.0...v2.0.0
+[1.0.0]: https://github.com/Jano-Projects/aprendiz-dev/compare/v0.9.0...v1.0.0
+[0.9.0]: https://github.com/Jano-Projects/aprendiz-dev/compare/v0.8.0...v0.9.0
+[0.8.0]: https://github.com/Jano-Projects/aprendiz-dev/compare/v0.7.0...v0.8.0
+[0.7.0]: https://github.com/Jano-Projects/aprendiz-dev/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/Jano-Projects/aprendiz-dev/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/Jano-Projects/aprendiz-dev/compare/v0.4.1...v0.5.0
 [0.4.1]: https://github.com/Jano-Projects/aprendiz-dev/compare/v0.4.0...v0.4.1

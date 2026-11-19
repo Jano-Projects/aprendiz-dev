@@ -243,6 +243,11 @@ porquê seguido dos porquês do fragmento que ele liga, com as frases da seção
 addons de linguagem (`core/expressao.py`). Sem teia, responde como a Direta. "Não entendi" vai
 um nível mais fundo: os porquês, ou a base de cada conceito.
 
+No **dicionário**, a Trabalhada diz os elos diretos de cada verbete (2.1): a mesma ideia em
+outras variedades (`equivale`: "grana" ↔ "kumbu") e a mesma palavra com outro sentido
+(`diferente-de`: "mina"). São até 5 por relação, só de addons ativos e sem repetir o que já está
+na resposta; com mais de um sentido, cada grupo diz de qual ("No sentido de moça: …").
+
 ## 8. Entender a pergunta antes de buscar (2.0)
 
 - **Números e contas** (`linguagem/numeros.py`): "dois mais dois" e "2+2" viram `2 soma 2`.
@@ -251,7 +256,12 @@ um nível mais fundo: os porquês, ou a base de cada conceito.
 - **A resposta precisa falar do assunto**: o candidato precisa de uma palavra informativa da
   pergunta no que ele declara tratar (pergunta, variações, `A:`) ou, se não tiver, de **todas**
   elas no texto. Erro de digitação só é aceito em palavra que não existe ("copa" não é "cópia").
-  Quem bate no assunto declarado é aceito até 80% do limiar e vem antes.
+  Quem bate no assunto declarado é aceito até 80% do limiar e vem antes. A mesma regra de
+  digitação vale no peso do assunto: "seta" existe, então não conta como "set" mal digitado.
+- **Ordem dos aceitos** (2.1): primeiro quem declarou **exatamente** a pergunta (como pergunta
+  ou variação); depois quem bate mais no assunto declarado; num empate em "o que é X", o
+  fragmento que **define** ("o que é a linguagem c") vem antes do que só usa o assunto ("laço
+  for em c": "for" é palavra vazia em português e some da comparação).
 - **Correção determinística**: entre correções igualmente parecidas, vence a que forma um par
   que existe na base ("grup by" → "group by"), depois a mais frequente.
 

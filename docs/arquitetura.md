@@ -144,6 +144,9 @@ e compara o termo por igualdade de radicais com o índice de verbetes dos addons
 termo e suas grafias (sentido direto) e pelas traduções (sentido inverso). Se nada bater,
 devolve `None` e o pipeline segue normalmente. O índice é refeito quando a base muda.
 
+Na resposta Trabalhada, `Assistente._teia_dos_verbetes` acrescenta os elos da teia de cada
+verbete (`equivale` e `diferente-de`, só o nível 1), com as frases de expressão.
+
 As colunas `variacoes` e `traducoes` da tabela `conhecimentos` guardam essas listas em JSON. As
 variações entram no texto de busca (BM25, TF-IDF) e viram alvos extras no Fuzzy.
 
