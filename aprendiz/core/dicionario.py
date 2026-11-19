@@ -69,6 +69,12 @@ PADROES: list[tuple[str, bool, re.Pattern]] = [   # (sentido, exige região?, re
     ("inverso", False, re.compile(
         rf"^(?:e )?qual (?:e )?(?:a |o )?{_NOME}(?: (?P<ra>[a-z]+))?(?: {_PREP} (?P<r1>.+?))?"
         rf" {_LIGA} (?P<x>.+)$")),
+    # "quais as variações de aldeia (em português)?", "outras formas de dizer aldeia":
+    # a mesma ideia em todas as variedades (inverso sem região), mesmo com "em português".
+    ("variacoes", False, re.compile(
+        r"^(?:quais (?:sao )?(?:as )?|outras |as )?(?:variacoes|variantes|formas|maneiras|jeitos)"
+        r" (?:de (?:se )?(?:dizer|falar) |de |da palavra |do termo )(?P<x>.+?)"
+        r"(?: (?:em|nos|no|pelos|pelo) (?:outros |varios |cada )?(?:paises|lugares|lusofonia|mundo))?$")),
     ("inverso", True, re.compile(r"^traduz(?:a|ir|e|ao de|ao)? (?P<x>.+)$")),
     ("inverso", True, re.compile(r"^como (?:e|fica|seria) (?P<x>.+)$")),
     ("direto", False, re.compile(
@@ -274,6 +280,8 @@ class Dicionario:
         termo = self._limpar_termo(grupos.get("x") or "")
         if not termo or len(termo.split()) > MAX_PALAVRAS_TERMO:
             return None
+        if sentido == "variacoes":
+            return Pedido("inverso", termo, None, None, numero, self._como_escrito(mensagem, None))
         if em_portugues and usa_miolo:
             return Pedido("direto", termo, None, None, numero)
         # Região: a do fim da frase; ou dita no meio ("qual a gíria em Angola

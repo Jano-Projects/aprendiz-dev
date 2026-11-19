@@ -71,6 +71,16 @@ def test_sem_regiao_lista_todos_os_lugares(com_dicionarios):
     assert "**Angola:** machimbombo" in resposta and "**Portugal:** autocarro" in resposta
 
 
+@pytest.mark.parametrize("pergunta", [
+    'quais as variações de "ônibus" em português?',
+    "outras formas de dizer ônibus",
+    "variações de ônibus nos países",
+])
+def test_variacoes_listam_todos_os_lugares(com_dicionarios, pergunta):
+    _, resposta = texto(com_dicionarios, pergunta)
+    assert "**Angola:** machimbombo" in resposta and "**Portugal:** autocarro" in resposta
+
+
 def test_regiao_sem_dicionario_avisa_e_mostra_os_outros(com_dicionarios):
     _, resposta = texto(com_dicionarios, "como se diz dinheiro em inglês?")
     assert resposta.startswith("Não tenho um dicionário de “inglês” instalado.")

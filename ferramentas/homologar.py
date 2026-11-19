@@ -276,6 +276,7 @@ CASOS: list[tuple[str, str, str]] = [
     ("leva idiomas", "o que significa busão", "q:busão"),
     ("leva idiomas", "como se diz dinheiro em portugal", "tipo:conhecimento"),
     ("leva idiomas", "como se diz obrigado em timor", "tipo:conhecimento"),
+    ("leva idiomas", 'quais as variações de "aldeia" em português?', "texto:tabanka"),
     ("leva idiomas", "quando usar crase", "q:crase"),
     ("leva idiomas", "o que mudou com o acordo ortográfico", "q:acordo"),
     ("leva idiomas", "qual a diferença entre mas e mais", "q:mas"),

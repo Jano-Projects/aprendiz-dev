@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "aprendiz"
-version = "2.1.0"
+version = "2.1.1"
 description = "Assistente pessoal local, leve e offline, que aprende com o que o dono ensina."
 readme = "README.md"
 license = { text = "MIT" }

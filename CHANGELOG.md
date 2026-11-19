@@ -6,6 +6,15 @@ seguem o [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ## [Não lançado]
 
+## [2.1.1] - 2026-11-19
+
+### Corrigido
+- **"Quais as variações de aldeia em português?"** respondia sobre o português de Moçambique. O
+  dicionário passa a entender "variações de X", "outras formas de dizer X" e "X nos países"
+  como "como se diz X" em todos os lugares (e "em português" aqui não é a região).
+- Em "como se diz X", a lista de lugares já responde: a teia dos verbetes (equivalências) só
+  entra no sentido direto ("o que é grana").
+
 ### Homologação
 - Grupo **contexto**: 12 perguntas em sequência na mesma conversa ("o que é git" → "e como salvo
   uma versão do código?"), escritas antes de mexer no código.
@@ -403,7 +412,8 @@ Primeira versão pública.
 - Instaladores para Linux e Windows que instalam o Python se faltar, verificador de
   instalação, executável via PyInstaller e CI em Windows, Ubuntu, Fedora e Debian.
 
-[Não lançado]: https://github.com/Jano-Projects/aprendiz-dev/compare/v2.1.0...HEAD
+[Não lançado]: https://github.com/Jano-Projects/aprendiz-dev/compare/v2.1.1...HEAD
+[2.1.1]: https://github.com/Jano-Projects/aprendiz-dev/compare/v2.1.0...v2.1.1
 [2.1.0]: https://github.com/Jano-Projects/aprendiz-dev/compare/v2.0.1...v2.1.0
 [2.0.1]: https://github.com/Jano-Projects/aprendiz-dev/compare/v2.0.0...v2.0.1
 [2.0.0]: https://github.com/Jano-Projects/aprendiz-dev/compare/v1.0.0...v2.0.0

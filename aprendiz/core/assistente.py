@@ -587,7 +587,9 @@ class Assistente:
             etapas.marcar("Dicionário", {**pedido.como_dict(), "encontrou": bool(resposta_dic)})
             if resposta_dic and not self._dono_ensinou_exatamente(consulta):
                 texto, verbetes = resposta_dic
-                texto, ligados = self._teia_dos_verbetes(texto, verbetes, consulta, resposta)
+                # A teia só no sentido direto ("o que é grana"): "como se diz X" já lista os lugares.
+                texto, ligados = (self._teia_dos_verbetes(texto, verbetes, consulta, resposta)
+                                  if pedido.sentido == "direto" else (texto, []))
                 return texto, "conhecimento", [self._fonte(v) for v in [*verbetes, *ligados]]
 
         # 2c. Diálogo (addon de diálogo) -------------------------------------
