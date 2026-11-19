@@ -10,7 +10,8 @@ pergunta ──► normalização ──► BUSCA ──► candidatos ──►
              (radicais)       (bm25,     (com          (descarta   (direta,
                                tfidf,     confiança)    os fracos)  extrativa)
                                fuzzy,
-                               hibrido)
+                               hibrido,
+                               calibrado)
 ```
 
 Cada algoritmo de busca devolve candidatos com dois números:
@@ -20,7 +21,7 @@ Cada algoritmo de busca devolve candidatos com dois números:
   candidato é descartado. Se nenhum sobrar, o assistente diz que não sabe (modo estrito).
 
 Todos os números deste documento foram **calculados pelo próprio código**. Para reproduzir,
-ensine os três itens abaixo num banco vazio e use o painel "Por que respondi isso?".
+ensine os três itens abaixo num banco vazio e use o Monitor.
 
 ## A base de exemplo
 
@@ -185,19 +186,124 @@ para **aceitar** um documento o híbrido exige uma destas condições:
 BM25 e TF-IDF medem quase a mesma coisa (palavras em comum), então a concordância deles,
 sozinha, não basta. Exemplo: "nome de cachorro" contém "nome", e uma regra sobre o trema fala
 de "nomes estrangeiros". Nenhuma condição vale, e o documento fica logo abaixo do limiar: aparece
-em "Por que respondi isso?" (campo `consenso`), mas não vira resposta. Já "o que é trema?" passa
+no Monitor (campo `consenso`), mas não vira resposta. Já "o que é trema?" passa
 pela condição 4.
 
 **Bom para:** o resultado mais robusto. **Limite:** roda os três algoritmos, então é o mais lento.
 
 ---
 
-## 5. Resposta direta (`resposta/direta.py`)
+## 5. Calibrado (`busca/calibrado.py`): pesos aprendidos (2.4)
+
+O Híbrido e o `Assistente` decidem com **regras fixas**: aceitar até 80% do limiar quem bate no
+assunto, até 60% quem bate mais que todos, exigir consenso de dois algoritmos… Cada regra
+corrigiu um caso real, mas os números delas foram escolhidos à mão. O Calibrado troca essas
+regras por **uma conta com pesos aprendidos** a partir de perguntas reais.
+
+**Passo 1: o conjunto de candidatos.** Junta os 10 primeiros de BM25, TF-IDF e Fuzzy.
+
+**Passo 2: os sinais.** Cada candidato vira uma lista de números:
+
+| Sinal | O que mede |
+|---|---|
+| `bm25_conf`, `tfidf_conf`, `fuzzy_conf` | a confiança de cada algoritmo |
+| `bm25_rank`, `tfidf_rank`, `fuzzy_rank` | 1 ÷ posição em cada lista (0 se não apareceu) |
+| `cobertura_idf` | cobertura **ponderada pela raridade**: termos raros (ou que nem existem na base) pesam mais |
+| `assunto`, `palavras_assunto`, `palavra_forte`, `melhor_assunto` | quanto a pergunta bate no assunto declarado (as mesmas medidas das folgas da 2.0) |
+| `cobre_assunto`, `pergunta_exata`, `define` | fala do assunto; é igual a uma variação; é a definição pedida em "o que é X?" |
+| `consenso_hibrido`, `regras_bm25` | se as regras fixas aceitariam o candidato |
+| `termos` | quantos termos a pergunta tem |
+
+De propósito, nenhum sinal diz **de onde** o conhecimento veio (dono ou addon, nota ou
+pergunta, com teia ou sem): o treino só tem perguntas de addons, e o modelo aprenderia a
+desconfiar do que o dono ensinou.
+
+**Passo 3: 1ª etapa, a chance de cada candidato (ordena).** Cada sinal é padronizado
+(`(x − média) ÷ desvio`, com a média e o desvio do treino) e entra numa soma ponderada,
+passada pela **sigmoide**:
+
+```
+z = viés + Σ peso_i · sinal_padronizado_i          p = 1 / (1 + e^(−z))
+```
+
+Isso é uma **regressão logística**: `p` é a chance de o candidato ser a resposta.
+
+**Passo 4: 2ª etapa, a chance de o 1º estar certo (decide).** Uma segunda regressão
+logística olha só dois números, a nota do 1º lugar e a distância para o 2º (em logitos,
+`log(p ÷ (1 − p))`), e dá a chance de o 1º lugar ser a resposta certa. Um 1º lugar com nota
+média, mas muito à frente do 2º, merece mais confiança do que um empate. Essa chance é a
+**confiança**; os outros candidatos ficam na mesma proporção, abaixo dele.
+
+**Passo 5: o limiar sai do custo.** Responder certo vale +1, errado −1, e "ainda não fui
+ensinado" −0,5 (recusar é ruim, mas metade de errar). Com chance `p`, responder vale
+`p − (1 − p) = 2p − 1`, e compensa quando `2p − 1 > −0,5`, isto é, **`p > 0,25`**. Quem quer
+mais cautela sobe o limiar em Configurações: com 0,5, só responde quando acertar é mais
+provável do que errar.
+
+**No exemplo** ("que horas a farmácia abre?"):
+
+| Candidato | z | 1ª etapa (chance) | Sinais que mais pesaram |
+|---|---|---|---|
+| 1. horário da farmácia | 0,406 | **0,600** | `bm25_rank` +1,85, `tfidf_rank` +1,53, `melhor_assunto` +1,17, `assunto` −1,06 |
+| 3. farmácia do bairro | −5,424 | 0,004 | `cobertura_idf` −0,66, `cobre_assunto` −0,43 |
+| 2. senha do wifi | −7,828 | 0,0004 | `cobertura_idf` −1,44 |
+
+Na 2ª etapa, a nota do 1º (logito 0,41) e a distância para o 2º (5,83 logitos) dão
+**0,734** de chance de estar certo: acima de 0,25, responde "8h às 20h".
+
+Repare no peso **negativo** de `assunto`: ele não quer dizer que bater no assunto atrapalha.
+`assunto`, `palavras_assunto`, `melhor_assunto` e `palavra_forte` medem quase a mesma coisa, e a
+regressão divide o efeito entre eles; somados, puxam para cima. É a **colinearidade**, comum
+quando os sinais se parecem.
+
+**De onde vêm os pesos?** De `ferramentas/treinar_calibrado.py`, que roda na máquina de quem
+desenvolve, com scikit-learn:
+
+1. instala os addons da homologação num banco temporário;
+2. de cada fragmento com variações, separa **uma** variação, que vira pergunta e sai do índice
+   (o fragmento não pode ser achado pela própria frase);
+3. remove inteiros 10% dos fragmentos: as perguntas deles não têm resposta, e o certo é recusar;
+4. divide em treino (70%) e teste (30%) **pelo fragmento**, por um hash, sem sorteio;
+5. escolhe a regularização por validação cruzada e treina as duas etapas. A 2ª etapa aprende
+   com notas de validação cruzada (cada pergunta pontuada por um modelo que não a viu);
+6. grava os números em `calibrado_pesos.py` e as perguntas em `benchmarks/conjunto_calibrado.json`.
+
+O app leva **só os números**: a conta é uma soma por candidato, em Python puro.
+
+**Resultado no teste** (240 perguntas que o modelo não viu: 172 com resposta e 68 sem):
+
+| Busca | Acertou | Errou | Recusou | Inventou (sem resposta) |
+|---|---|---|---|---|
+| BM25 | 58,7% | 34,9% | 6,4% | 83,8% |
+| Híbrido | 52,9% | 40,1% | 7,0% | 83,8% |
+| **Calibrado** | **59,9%** | **22,1%** | 18,0% | **57,4%** |
+
+Acerta mais, erra quase metade e inventa menos; recusa mais, que é o preço. Na homologação
+(perguntas escritas à mão), faz 221 de 243, contra 231 do Híbrido e 227 do BM25. As regras
+fixas foram ajustadas caso a caso com essas mesmas perguntas, então a homologação favorece
+quem tem as regras; o conjunto de teste mede a generalização.
+
+**Treinar de novo** quando os addons mudarem bastante:
+
+```
+pip install -r requirements-treino.txt   # scikit-learn: só para treinar
+python ferramentas/treinar_calibrado.py ../aprendiz-addons
+python ferramentas/treinar_calibrado.py ../aprendiz-addons --so-medir   # só mede os pesos atuais
+```
+
+**Bom para:** uso geral quando errar custa caro; o Monitor mostra a
+chance e os sinais que mais pesaram. **Limite:** roda os três algoritmos, como o Híbrido; só
+sabe o que o treino viu; e o filtro do assunto (`_cobre_palavra_forte`) continua valendo, porque
+evita confusões entre domínios que o treino quase não tem ("indicar um livro" ≠ "índice").
+
+---
+
+## 6. Resposta direta (`resposta/direta.py`)
 
 Devolve o conteúdo do melhor candidato aceito, como foi ensinado.
 No exemplo: **"8h às 20h, de segunda a sábado."**
 
-## 6. Resposta extrativa (`resposta/extrativa.py`)
+## 7. Resposta extrativa (`resposta/extrativa.py`)
 
 Para notas longas e arquivos importados. Ela escolhe as **frases** certas em vez de devolver
 o texto inteiro.
@@ -225,7 +331,7 @@ Frases sem nenhum termo da pergunta só entram se não houver outra. Resposta:
 
 ---
 
-## 7. Resposta trabalhada e teia de porquês (2.0)
+## 8. Resposta trabalhada e teia de porquês (2.0)
 
 A **teia** (`core/teia.py`) liga os fragmentos dos addons pelos porquês escritos no
 `perguntas.txt` (linhas `F:`, `A:`, `Q:`, `N:`; veja [addons.md](addons.md)). A partir do
@@ -248,7 +354,7 @@ outras variedades (`equivale`: "grana" ↔ "kumbu") e a mesma palavra com outro 
 (`diferente-de`: "mina"). São até 5 por relação, só de addons ativos e sem repetir o que já está
 na resposta; com mais de um sentido, cada grupo diz de qual ("No sentido de moça: …").
 
-## 8. Entender a pergunta antes de buscar (2.0)
+## 9. Entender a pergunta antes de buscar (2.0)
 
 - **Números e contas** (`linguagem/numeros.py`): "dois mais dois" e "2+2" viram `2 soma 2`.
 - **Padrões de frase** (`core/padroes.py`): estruturas como "quantos * cada *" dizem o conceito
@@ -303,6 +409,7 @@ longas pontuam um pouco menos em alguns algoritmos, mesmo respondendo à mesma p
 | TF-IDF | 100% | 0 | 3/5 |
 | Fuzzy | 83% | 2 | 4/5 |
 | Híbrido | 100% | 0 | 3/5 |
+| Calibrado | 100% | 0 | 4/5 |
 
 Os erros de "invenção" mostram o dilema clássico entre **precisão** (não inventar) e
 **revocação** (não recusar à toa). "Qual a senha do **banco**?" devolve a senha do wifi,
@@ -318,3 +425,5 @@ as recusas.
 3. Troque o `WRatio` do fuzzy por `token_set_ratio` e observe as notas longas.
 4. Mude os pesos 0,7/0,3 da resposta extrativa.
 5. Crie o seu algoritmo seguindo [criar-algoritmo.md](criar-algoritmo.md).
+6. Treine o Calibrado sem `cobertura_idf` (apague o sinal em `calibrado.py`) e compare o
+   resultado no teste. Depois, troque o custo de recusar: com −0,25, qual seria o limiar?

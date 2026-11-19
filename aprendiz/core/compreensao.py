@@ -8,7 +8,7 @@ métodos daqui devolvem "nada a fazer" e o Aprendiz funciona como antes.
 O que ele faz, na ordem em que o pipeline (core/assistente.py) usa:
 
     1. TIPO DA PERGUNTA — "o que é", "como faço", "onde fica"... e o ASSUNTO
-       (o resto da frase). Aparece no painel "Por que respondi isso?" e deixa
+       (o resto da frase). Aparece no Monitor e deixa
        a resposta "ainda não sei" mais precisa ("não sei COMO fazer X").
 
     2. AUTOCONHECIMENTO — perguntas sobre o próprio Aprendiz ("qual a sua
@@ -423,7 +423,7 @@ def resposta_dinamica(funcao: str, assistente) -> str:
             "- responder o que você me ensinou (perguntas, notas e arquivos .txt/.md);",
             "- aprender na conversa: `aprenda que a senha do wifi é casa123`;",
             "- ser corrigido: a resposta certa vira um novo ensinamento;",
-            "- mostrar por que respondi cada coisa (botão **Por que respondi isso?**);",
+            "- mostrar por que respondi cada coisa (o **Monitor**, à direita do chat);",
         ]
         if any(a["manifesto"].get("regiao") for a in ativos):
             partes.append("- traduzir gírias e expressões dos países de língua portuguesa;")

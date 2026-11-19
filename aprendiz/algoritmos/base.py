@@ -41,6 +41,9 @@ class ContextoBusca:
     caminho: Any = None
     # Frases dos addons de linguagem para vestir a resposta (core/expressao.py).
     expressao: Any = None
+    # Sinais do assunto declarado (2.4): função (consulta, conhecimento) → dict,
+    # preenchida pelo Assistente e usada pela busca Calibrada.
+    sinais_assunto: Any = None
 
     def limiar(self, nome: str) -> float:
         """Confiança mínima em vigor para o algoritmo de busca `nome`."""

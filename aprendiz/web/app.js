@@ -7,7 +7,7 @@
  *   3. Seletores de algoritmo
  *   4. Conversas (barra lateral)
  *   5. Mensagens (renderização, envio, efeito de digitação)
- *   6. Painel "Por que respondi isso?"
+ *   6. Envio ao vivo para o Monitor (o painel técnico fica em monitor.js)
  *   7. Diálogos: ensinar, corrigir, base, addons (instalar/exportar),
  *      linguagem, configurações (parâmetros/personalização), reset
  *   8. Inicialização
@@ -240,10 +240,12 @@
     const mensagens = await api(`/api/conversas/${id}/mensagens`);
     const area = $("#mensagens");
     area.innerHTML = "";
+    let ultima = null;
     mensagens.forEach((m) => {
       if (m.papel === "usuario") adicionarUsuario(m.texto);
-      else adicionarAssistente(m, false);
+      else { adicionarAssistente(m, false); ultima = m; }
     });
+    if (ultima) window.Monitor.mostrar(ultima, false);
     rolarParaFim();
     fecharMenuMobile();
   }
@@ -285,7 +287,6 @@
           <div class="recomendacao" hidden></div>
           <div class="fontes"></div>
           <div class="acoes-msg"></div>
-          <div class="explicacao" hidden></div>
         </div>
       </div>`);
     const balao = $(".balao", el);
@@ -339,12 +340,8 @@
         meta.corrigida_por ? "Corrigida" : "Corrigir", () => abrirCorrigir(msg.id, meta.pergunta)));
     }
     if (explicacao) {
-      const painel = $(".explicacao", el);
-      acoes.appendChild(botaoAcao("lampada", "Por que respondi isso?", (b) => {
-        if (!painel.dataset.pronto) { painel.innerHTML = renderExplicacao(explicacao); painel.dataset.pronto = "1"; }
-        painel.hidden = !painel.hidden;
-        b.classList.toggle("ativa", !painel.hidden);
-      }));
+      // 2.4: o raciocínio fica no Monitor, o painel técnico à direita.
+      acoes.appendChild(botaoAcao("monitor", "Ver no monitor", () => window.Monitor.focar(msg)));
       const selo = criar(`<span class="selo">${icone("algoritmo")}<span></span></span>`);
       $("span", selo).textContent = `${nomeAlgoritmo("busca", explicacao.algoritmo_busca)} · ${explicacao.total_ms} ms`;
       acoes.appendChild(selo);
@@ -395,26 +392,28 @@
     if (boasVindas.isConnected) boasVindas.remove();
     adicionarUsuario(texto);
     const digitando = adicionarDigitando();
+    const pedido = {
+      mensagem: texto,
+      conversa_id: estado.conversaId,
+      busca: $("#sel-busca").value,
+      resposta: $("#sel-resposta").value,
+    };
+    window.Monitor.comecar(texto);
 
     try {
-      const r = await api("/api/chat", {
-        metodo: "POST",
-        corpo: {
-          mensagem: texto,
-          conversa_id: estado.conversaId,
-          busca: $("#sel-busca").value,
-          resposta: $("#sel-resposta").value,
-        },
-      });
+      const r = await perguntarAoVivo(pedido);
+      await window.Monitor.terminar();   // na câmera lenta, espera as etapas
       digitando.remove();
       const nova = !estado.conversaId;
       estado.conversaId = r.conversa_id;
       adicionarAssistente(r.mensagem, true);
+      window.Monitor.mostrar(r.mensagem, true);
       if (nova) $("#titulo-conversa").textContent = texto.slice(0, 48);
       carregarConversas();
       atualizarStatus();
     } catch (erro) {
       digitando.remove();
+      window.Monitor.cancelar();
       adicionarAssistente({ texto: erro.message, meta: { tipo: "erro" } }, false);
     } finally {
       estado.enviando = false;
@@ -422,77 +421,47 @@
     }
   }
 
+  // =========================================================== 6. ENVIO AO VIVO
+  /**
+   * Envia pela rota /api/chat/fluxo, que responde em NDJSON: uma linha JSON
+   * por etapa do pipeline, assim que ela termina, e no fim a resposta.
+   * Cada etapa vai para o Monitor. Se o navegador não ler fluxos, usa a
+   * rota comum /api/chat (o Monitor mostra tudo de uma vez no fim).
+   */
+  async function perguntarAoVivo(pedido) {
+    const resposta = await fetch("/api/chat/fluxo", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(pedido),
+    });
+    if (!resposta.ok || !resposta.body || !resposta.body.getReader) {
+      return api("/api/chat", { metodo: "POST", corpo: pedido });
+    }
+    const leitor = resposta.body.getReader();
+    const decodificador = new TextDecoder();
+    let pendente = "", fim = null;
+    const tratar = (linha) => {
+      if (!linha.trim()) return;
+      const evento = JSON.parse(linha);
+      if (evento.evento === "etapa") window.Monitor.etapa(evento);
+      else if (evento.evento === "fim") fim = evento.resposta;
+      else if (evento.evento === "erro") throw new Error(evento.mensagem);
+    };
+    for (;;) {
+      const { value, done } = await leitor.read();
+      if (done) break;
+      pendente += decodificador.decode(value, { stream: true });
+      const linhas = pendente.split("\n");
+      pendente = linhas.pop();          // a última pode estar incompleta
+      linhas.forEach(tratar);
+    }
+    tratar(pendente);
+    if (!fim) throw new Error("A resposta foi interrompida.");
+    return fim;
+  }
+
   function atualizarBotaoEnviar() {
     $("#btn-enviar").disabled = estado.enviando || !$("#campo-mensagem").value.trim();
-  }
-
-  // =========================================================== 6. EXPLICAÇÃO
-  function fichas(lista) {
-    if (!lista || !lista.length) return `<span class="rotulo">—</span>`;
-    return `<span class="fichas">${lista.map((t) => `<span class="ficha">${esc(String(t))}</span>`).join("")}</span>`;
-  }
-
-  function mapaFichas(mapa) {
-    return fichas(Object.entries(mapa || {}).map(([de, para]) => `${de} → ${para}`));
-  }
-
-  function barra(valor, limiar, aceito) {
-    const pct = Math.max(0, Math.min(1, valor)) * 100;
-    const marca = limiar != null ? `<span class="limiar" style="left:${Math.min(100, limiar * 100)}%" title="limiar"></span>` : "";
-    return `<div class="barra ${aceito ? "aceito" : ""}"><i style="width:${pct}%"></i>${marca}</div>`;
-  }
-
-  /** Monta o HTML do painel a partir da lista de etapas do pipeline. */
-  function renderExplicacao(exp) {
-    const partes = exp.etapas.map((etapa, indice) => {
-      const d = etapa.dados || {};
-      let corpo = "";
-
-      if (etapa.nome === "Normalização") {
-        corpo = `
-          <div class="linha-dado"><span class="rotulo">Normalizado:</span><code>${esc(d.normalizado || "")}</code></div>
-          <div class="linha-dado"><span class="rotulo">Abreviações:</span>${mapaFichas(d.expansoes)}</div>
-          <div class="linha-dado"><span class="rotulo">Correções:</span>${mapaFichas(d.correcoes)}</div>
-          <div class="linha-dado"><span class="rotulo">Sinônimos:</span>${mapaFichas(d.sinonimos)}</div>
-          ${d.expressoes && Object.keys(d.expressoes).length ? `<div class="linha-dado"><span class="rotulo">Expressões:</span>${mapaFichas(d.expressoes)}</div>` : ""}
-          ${d.lemas && Object.keys(d.lemas).length ? `<div class="linha-dado"><span class="rotulo">Lemas:</span>${mapaFichas(d.lemas)}</div>` : ""}
-          <div class="linha-dado"><span class="rotulo">Palavras-chave:</span>${fichas(d.conteudo)}</div>
-          <div class="linha-dado"><span class="rotulo">Radicais:</span>${fichas(d.radicais)}</div>`;
-      } else if (etapa.nome === "Interpretação") {
-        const linhas = (d.intencoes || []).map((i) => `
-          <tr><td>${esc(i.intencao)}${i.exata ? " (frase exata)" : ""}</td>
-          <td style="width:45%">${barra(i.probabilidade)}</td>
-          <td class="num">${(i.probabilidade * 100).toFixed(1)}%</td></tr>`).join("");
-        corpo = `<table class="tabela"><tr><th>Intenção</th><th></th><th>Prob.</th></tr>${linhas}</table>
-          <div class="linha-dado"><span class="rotulo">Entidades:</span>${fichas((d.entidades || []).map((e) => `${e.tipo}: ${e.valor}`))}</div>`;
-      } else if (etapa.nome.startsWith("Busca")) {
-        const linhas = (d.candidatos || []).map((c) => `
-          <tr><td>${c.aceito ? icone("check", "ok") : icone("x", "nao")} ${esc(c.titulo)}</td>
-          <td style="width:30%">${barra(c.confianca, d.limiar, c.aceito)}</td>
-          <td class="num">${c.confianca.toFixed(2)}</td>
-          <td class="num" title="Pontuação bruta do algoritmo">${c.pontuacao}</td></tr>`).join("");
-        corpo = `<div class="linha-dado"><span class="rotulo">Limiar de confiança:</span>${d.limiar}
-            <span class="rotulo">(marca laranja na barra)</span></div>` +
-          (linhas
-            ? `<table class="tabela"><tr><th>Candidato</th><th>Confiança</th><th></th><th>Pontos</th></tr>${linhas}</table>`
-            : `<div class="rotulo">Nenhum candidato encontrado.</div>`);
-      } else if (etapa.nome.startsWith("Resposta ·") && d.frases) {
-        const linhas = d.frases.map((f) => `
-          <tr><td>${esc(f.texto)}</td><td class="num">${f.relevancia}</td>
-          <td class="num">${f.centralidade}</td><td class="num"><b>${f.nota}</b></td></tr>`).join("");
-        corpo = `<table class="tabela"><tr><th>Frase</th><th>Relev.</th><th>Central.</th><th>Nota</th></tr>${linhas}</table>`;
-      } else {
-        corpo = Object.entries(d).map(([k, v]) =>
-          `<div class="linha-dado"><span class="rotulo">${esc(k)}:</span>${Array.isArray(v) ? fichas(v)
-            : esc(typeof v === "object" ? JSON.stringify(v) : String(v))}</div>`).join("");
-      }
-
-      return `<div class="etapa"><div class="etapa-titulo"><span><span class="num">${indice + 1}</span>${esc(etapa.nome)}</span>
-        <span class="ms">${etapa.ms} ms</span></div>${corpo}</div>`;
-    });
-
-    return partes.join("") + `<div class="etapa"><div class="etapa-titulo"><span>Tempo total</span>
-      <span class="ms">${exp.total_ms} ms</span></div></div>`;
   }
 
   // =========================================================== 7. DIÁLOGOS
@@ -1456,6 +1425,7 @@
       const s = estado.status;
       $("#status").textContent = `v${s.versao} · ${plural(s.conhecimentos, "conhecimento", "conhecimentos")}`;
       $("#contador-addons").textContent = s.addons ? String(s.addons) : "";
+      window.Monitor.invalidarModelo();   // addons ou configurações podem ter mudado
       // O endereço da loja vem do servidor (config.py), para existir num lugar só.
       $$(".endereco-loja").forEach((el) => { el.textContent = (s.loja_oficial || "").replace(/^https:\/\//, ""); });
     } catch (e) { $("#status").textContent = "servidor indisponível"; }
@@ -1600,6 +1570,7 @@
     setInterval(enviarSinal, 10000);
     aplicarTema(preferencias.ler("tema", "sistema"));
     boasVindas = $("#boas-vindas");
+    window.Monitor.iniciar({ $, $$, esc, icone, api, criar, preferencias, nomeAlgoritmo });
     ligarEventos();
     atualizarBotaoEnviar();
     try {

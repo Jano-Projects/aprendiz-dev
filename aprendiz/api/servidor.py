@@ -11,6 +11,8 @@ A interface (pasta web/) conversa com estas rotas via fetch() em JSON:
     GET    /api/status                    → versão e contagens
     GET    /api/algoritmos                → opções do seletor
     POST   /api/chat                      → envia mensagem, recebe resposta + explicação
+    POST   /api/chat/fluxo                → o mesmo, AO VIVO: uma linha JSON por etapa (2.4)
+    GET    /api/modelo                    → ficha técnica: componentes e parâmetros (2.4)
     POST   /api/corrigir                  → corrige uma resposta (vira ensinamento)
     GET    /api/normas                    → normas da língua dos addons ativos (0.8+)
     POST   /api/revisar                   → revisa um texto pela norma escolhida (0.8+)
@@ -61,7 +63,10 @@ from __future__ import annotations
 
 import base64
 import binascii
+import json
+import queue
 import re
+import threading
 import time
 from urllib.parse import quote
 import webbrowser
@@ -70,14 +75,14 @@ from datetime import datetime
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException
-from fastapi.responses import FileResponse, Response
+from fastapi.responses import FileResponse, Response, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from aprendiz import config
 from aprendiz.addons import ErroAddon
 from aprendiz.algoritmos import listar_algoritmos
-from aprendiz.core import Assistente, exportacao
+from aprendiz.core import Assistente, exportacao, monitor
 from aprendiz.linguagem import normalizar
 from aprendiz.memoria import Banco
 
@@ -278,6 +283,49 @@ def criar_app(caminho_banco: str | Path | None = None) -> FastAPI:
                                         pedido.busca, pedido.resposta)
         except ValueError as erro:
             raise HTTPException(400, str(erro)) from erro
+
+    @app.post("/api/chat/fluxo")
+    def chat_fluxo(pedido: PedidoChat):
+        """
+        O pipeline AO VIVO (2.4), para o Monitor. A resposta é NDJSON: um
+        objeto JSON por linha, enviado assim que fica pronto.
+
+            {"evento": "etapa", "indice": 0, "nome": "Normalização", "ms": 0.8, ...}
+            {"evento": "etapa", "indice": 1, ...}
+            {"evento": "fim", "resposta": {...o mesmo de /api/chat...}}
+            {"evento": "erro", "mensagem": "..."}          (se algo falhar)
+
+        O Assistente roda numa thread e avisa cada etapa por um "ouvinte"
+        (Etapas.ouvinte), que coloca o evento numa fila; o gerador lê a fila e
+        envia. É o padrão produtor-consumidor.
+        """
+        fila: queue.Queue = queue.Queue()
+
+        def produzir() -> None:
+            try:
+                r = assistente.responder(pedido.mensagem, pedido.conversa_id, pedido.busca,
+                                         pedido.resposta,
+                                         ouvinte=lambda e: fila.put({"evento": "etapa", **e}))
+                fila.put({"evento": "fim", "resposta": r})
+            except ValueError as erro:
+                fila.put({"evento": "erro", "mensagem": str(erro)})
+            except Exception as erro:  # noqa: BLE001 — o cliente precisa saber que falhou
+                fila.put({"evento": "erro", "mensagem": f"Erro interno: {erro}"})
+            finally:
+                fila.put(None)
+
+        threading.Thread(target=produzir, daemon=True).start()
+
+        def consumir():
+            while (evento := fila.get()) is not None:
+                yield json.dumps(evento, ensure_ascii=False, default=str) + "\n"
+
+        return StreamingResponse(consumir(), media_type="application/x-ndjson")
+
+    @app.get("/api/modelo")
+    def modelo():
+        """Ficha técnica (2.4): componentes, parâmetros por tipo, treino e ambiente."""
+        return monitor.ficha_do_modelo(assistente)
 
     @app.post("/api/corrigir")
     def corrigir(pedido: PedidoCorrecao):

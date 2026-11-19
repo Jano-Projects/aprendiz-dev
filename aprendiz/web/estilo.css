@@ -585,3 +585,116 @@ button.chip:hover { border-color: var(--primaria); color: var(--primaria); backg
 .de-addons summary { cursor: pointer; color: var(--texto-suave); font-size: 13.5px; }
 .de-addons .lista-base { max-height: 30vh; min-height: 0; margin-top: 8px; }
 .linha-ling .origem { font-size: 11.5px; color: var(--texto-suave); white-space: nowrap; }
+
+/* ============================== 10. MONITOR (2.4) ============================== */
+/*
+ * O painel técnico à direita do chat (monitor.js). Em telas estreitas ele
+ * vira uma gaveta por cima da conversa.
+ */
+.monitor {
+  width: 430px; flex-shrink: 0; display: flex; flex-direction: column; min-height: 0;
+  border-left: 1px solid var(--borda); background: var(--fundo-lateral); font-size: 13px;
+}
+.monitor-topo { display: flex; align-items: center; gap: 8px; padding: 12px 12px 6px; }
+.monitor-topo h2 { margin: 0; font-size: 15px; display: flex; align-items: center; gap: 6px; flex: 1; }
+.segmentado.pequeno button { padding: 4px 10px; font-size: 12px; }
+.monitor-opcoes { padding: 0 14px 6px; }
+.monitor-abas { display: flex; gap: 2px; border-bottom: 1px solid var(--borda); padding: 0 8px; overflow-x: auto; flex-shrink: 0; }
+.aba-mon { border: 0; background: none; padding: 7px 9px; font-size: 13px; white-space: nowrap; border-bottom: 2px solid transparent; color: var(--texto-suave); margin-bottom: -1px; cursor: pointer; }
+.aba-mon:hover { color: var(--texto); }
+.aba-mon.ativa { color: var(--primaria); border-bottom-color: var(--primaria); font-weight: 600; }
+.monitor-corpo { flex: 1; overflow-y: auto; padding: 12px 14px 24px; }
+#btn-monitor.ativo { background: var(--primaria-suave); color: var(--primaria); }
+
+.mon-cabeca { margin-bottom: 10px; }
+.mon-pergunta { font-weight: 600; font-size: 14px; overflow-wrap: anywhere; }
+.mon-meta { color: var(--texto-suave); margin-top: 2px; }
+.mon-meta code, .formula code { font-size: 12px; }
+.mon-dica { color: var(--texto-suave); margin: 6px 0 10px; line-height: 1.45; }
+.mon-sub { font-size: 13px; margin: 16px 0 6px; text-transform: uppercase; letter-spacing: .04em; color: var(--texto-suave); }
+.mon-total { font-size: 28px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.mon-vazio { display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; color: var(--texto-suave); padding: 40px 16px; }
+.mon-vazio .ic { width: 32px; height: 32px; opacity: .5; }
+.mon-vazio b { color: var(--texto); }
+
+.pulso { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--sucesso); margin-right: 4px; animation: pulso 1s infinite; }
+@keyframes pulso { 50% { opacity: .25; } }
+
+/* Linha do tempo (Pipeline) */
+.linha-tempo { display: flex; flex-direction: column; gap: 4px; }
+.etapa-mon { background: var(--fundo); border: 1px solid var(--borda); border-radius: 9px; }
+.etapa-mon.chegou { animation: chegar .35s ease-out; }
+@keyframes chegar { from { opacity: 0; transform: translateY(6px); background: var(--primaria-suave); } }
+.etapa-mon > summary { display: grid; grid-template-columns: 22px 1fr auto; grid-template-areas: "n nome ms" "g g g"; gap: 2px 8px; align-items: center; padding: 7px 10px; cursor: pointer; list-style: none; }
+.etapa-mon > summary::-webkit-details-marker { display: none; }
+.etapa-mon .num { grid-area: n; display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 6px; background: var(--primaria-suave); color: var(--primaria); font-size: 11px; font-weight: 600; }
+.etapa-nome { grid-area: nome; font-weight: 600; overflow-wrap: anywhere; }
+.etapa-mon .ms { grid-area: ms; color: var(--texto-suave); font-variant-numeric: tabular-nums; }
+.gantt { grid-area: g; position: relative; height: 4px; border-radius: 2px; background: var(--fundo-suave); }
+.gantt i { position: absolute; top: 0; bottom: 0; border-radius: 2px; background: var(--primaria); }
+.etapa-simples, .etapa-tecnica { padding: 0 10px 6px 40px; color: var(--texto-suave); line-height: 1.45; }
+.etapa-corpo { padding: 4px 10px 10px 40px; border-top: 1px dashed var(--borda); }
+
+/* Termos do glossário, clicáveis */
+.termo-mon { border: 0; background: var(--primaria-suave); color: var(--primaria); border-radius: 5px; padding: 0 5px; font-size: 11px; cursor: pointer; }
+.termo-mon:hover { text-decoration: underline; }
+
+/* Busca: candidatos e a conta da Calibrada */
+.tabela tr.clicavel { cursor: pointer; }
+.tabela tr.clicavel:hover td { background: var(--fundo-hover); }
+.tabela tr.escolhido td { background: var(--primaria-suave); }
+.formula { font-family: ui-monospace, monospace; font-size: 12px; background: var(--fundo); border: 1px solid var(--borda); border-radius: 8px; padding: 8px 10px; margin: 8px 0; line-height: 1.7; overflow-x: auto; }
+.contribs { display: flex; flex-direction: column; gap: 3px; margin: 6px 0 10px; }
+.contrib { display: grid; grid-template-columns: minmax(0, 1.3fr) 1fr 52px; gap: 6px; align-items: center; }
+.contrib-nome { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.contrib-barra { position: relative; height: 10px; background: var(--fundo-suave); border-radius: 3px; }
+.contrib-barra::before { content: ""; position: absolute; left: 50%; top: -2px; bottom: -2px; width: 1px; background: var(--texto-suave); opacity: .5; }
+.contrib-barra i { position: absolute; top: 0; bottom: 0; border-radius: 3px; }
+.contrib-barra i.pos { background: var(--sucesso); }
+.contrib-barra i.neg { background: var(--perigo); }
+.contrib .num { text-align: right; font-variant-numeric: tabular-nums; }
+
+/* Modelo: parâmetros por tipo */
+.pilha { display: flex; height: 12px; border-radius: 6px; overflow: hidden; background: var(--fundo-suave); margin: 8px 0; }
+.pilha i { height: 100%; min-width: 2px; }
+.legenda { margin: 3px 0; display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap; }
+.legenda .num { font-variant-numeric: tabular-nums; }
+.legenda-desc { flex-basis: 100%; padding-left: 15px; color: var(--texto-suave); font-size: 12px; margin-top: -2px; }
+.ponto { display: inline-block; width: 9px; height: 9px; border-radius: 3px; flex-shrink: 0; }
+.tipo-aprendido { background: #4f46e5; }
+.tipo-estatstica { background: #0891b2; }
+.tipo-prtreinado { background: #d97706; }
+.tipo-hiperparmetro { background: #9ca3af; }
+.componente { border-bottom: 1px solid var(--borda); }
+.componente > summary { display: flex; align-items: center; gap: 8px; padding: 7px 2px; cursor: pointer; list-style: none; }
+.componente > summary::-webkit-details-marker { display: none; }
+.comp-nome { flex: 1; }
+.componente .num { font-variant-numeric: tabular-nums; color: var(--texto-suave); }
+.comp-corpo { padding: 0 2px 10px 17px; display: flex; flex-direction: column; gap: 4px; }
+
+/* Desempenho */
+.numeros { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.numeros div { background: var(--fundo); border: 1px solid var(--borda); border-radius: 9px; padding: 8px; text-align: center; }
+.numeros b { display: block; font-size: 20px; font-variant-numeric: tabular-nums; }
+.numeros span { color: var(--texto-suave); font-size: 11px; }
+
+/* Glossário */
+#mon-filtro { width: 100%; margin-bottom: 10px; }
+.glossario { display: flex; flex-direction: column; gap: 8px; }
+.verbete-mon { background: var(--fundo); border: 1px solid var(--borda); border-radius: 9px; padding: 8px 10px; line-height: 1.45; }
+.verbete-mon.destaque { border-color: var(--primaria); box-shadow: 0 0 0 2px var(--primaria-suave); }
+.verbete-mon .tecnico { margin-top: 4px; font-family: ui-monospace, monospace; font-size: 12px; color: var(--texto-suave); }
+
+/* Dados brutos (modo Avançado) */
+details.bruto { margin-top: 8px; }
+details.bruto summary { cursor: pointer; color: var(--texto-suave); font-size: 12px; }
+details.bruto pre { max-height: 260px; overflow: auto; font-size: 11px; background: var(--fundo); border: 1px solid var(--borda); border-radius: 8px; padding: 8px; }
+
+/* Com o monitor aberto, a área do chat fica mais estreita: os seletores encolhem. */
+body.com-monitor .seletores { min-width: 0; flex-shrink: 1; }
+body.com-monitor .seletor { min-width: 0; flex: 0 1 auto; }
+body.com-monitor .seletor select { min-width: 0; max-width: 200px; text-overflow: ellipsis; }
+@media (max-width: 1100px) {
+  .monitor { position: fixed; inset: 0 0 0 auto; width: min(430px, 100vw); z-index: 7; box-shadow: var(--sombra); }
+}
+@media (prefers-reduced-motion: reduce) { .etapa-mon.chegou, .pulso { animation: none; } }

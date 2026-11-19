@@ -3,6 +3,7 @@
 import base64
 
 import pytest
+from aprendiz.algoritmos import BUSCAS
 from fastapi.testclient import TestClient
 
 from aprendiz.addons import ErroAddon, chave_de_grupo, criar_pacote, ler_pacote
@@ -23,7 +24,7 @@ def addon(id_, recomendado=None, parametros=None, conhecimentos=PARES):
 # ------------------------------------------------------------------ recomendação
 def test_recomendar_testa_todos_os_algoritmos():
     r = recomendar(PARES)
-    assert set(r["acertos"]) == {"bm25", "tfidf", "fuzzy", "hibrido"}
+    assert set(r["acertos"]) == set(BUSCAS)
     assert r["busca"] in r["acertos"] and r["resposta"] == "direta"
     assert r["acerto"] == r["acertos"][r["busca"]] and r["perguntas"] >= len(PARES)
 

@@ -122,7 +122,8 @@ DEFINICOES: dict[str, Definicao] = {d.chave: d for d in [
                 _limiar_padrao(nome), _numero(0.05, 1.0),
                 {"minimo": 0.05, "maximo": 1.0, "passo": 0.05})
       for nome, titulo in [("bm25", "BM25"), ("tfidf", "TF-IDF"),
-                           ("fuzzy", "Fuzzy"), ("hibrido", "Híbrido")]],
+                           ("fuzzy", "Fuzzy"), ("hibrido", "Híbrido"),
+                           ("calibrado", "Calibrado")]],
     Definicao("revisao.norma", "parametros", "Norma da revisão de texto",
               "Norma usada para revisar textos quando a mensagem não diz qual "
               "(precisa de um addon de norma). Automática = a que mais combina com o texto.",

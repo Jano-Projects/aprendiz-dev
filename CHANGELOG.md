@@ -6,6 +6,75 @@ seguem o [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ## [Não lançado]
 
+## [2.4.0] - 2026-11-19
+
+O repositório passa a ser voltado a **desenvolvedores e estudantes de IA**, do iniciante ao
+avançado: uma atualização interna (busca Calibrada, com pesos aprendidos) e uma de interface (o
+Monitor, que mostra o que acontece por dentro de cada resposta).
+
+### Adicionado (interface)
+- **Monitor** (`aprendiz/web/monitor.js`): painel fixo à direita do chat, no lugar do "Por que
+  respondi isso?". Cada mensagem tem o botão **Ver no monitor**.
+  - **Pipeline ao vivo:** cada etapa aparece assim que termina, com tempo, início (gráfico de
+    Gantt) e dados. A **câmera lenta** espaça as etapas para acompanhar o raciocínio.
+  - **Busca:** candidatos, confiança × limiar e, na busca Calibrada, a conta inteira
+    (`z = viés + Σ peso·sinal`, `p = σ(z)`), a contribuição de cada sinal num gráfico e a 2ª
+    etapa, que decide se responde.
+  - **Modelo:** ficha técnica com a **contagem de parâmetros** por componente e por tipo
+    (aprendidos, estatísticas, pré-treinados, hiperparâmetros), o treino da Calibrada e o
+    ambiente. Com os addons da homologação, ≈ 1,77 milhão de parâmetros, menos de mil aprendidos.
+  - **Desempenho:** tempo médio de cada etapa, p90 e memória do processo na sessão.
+  - **Glossário:** 34 termos técnicos, de *token* a *validação cruzada*.
+  - Dois níveis de leitura: **Iniciante** (palavras simples) e **Avançado** (nomes técnicos,
+    fórmulas e o JSON bruto de cada etapa).
+- `POST /api/chat/fluxo`: o pipeline ao vivo em NDJSON (uma linha por etapa e, no fim, a
+  resposta). `Etapas` ganhou um *ouvinte*, e `Assistente.responder()` aceita `ouvinte=`.
+- `GET /api/modelo` e `aprendiz/core/monitor.py`: a ficha técnica e a memória do processo
+  (`meta.explicacao.memoria_mb` em cada resposta).
+- `docs/monitor.md`: as abas, o fluxo ao vivo, o que conta como parâmetro e exercícios.
+- README reescrito para o novo público: para quem é, o Monitor e a trilha de estudo.
+
+### Corrigido
+- Na explicação da busca, **aceito** passa a dizer se o candidato passou de verdade (limiar,
+  folgas e regra do assunto), e não só se a confiança chegou ao limiar.
+
+### Adicionado (busca)
+- **Busca Calibrada** (`aprendiz/algoritmos/busca/calibrado.py`), o primeiro algoritmo com
+  pesos **aprendidos**. Em vez das regras fixas do assunto (folgas de 80% e 60%, palavra
+  forte, consenso), uma regressão logística pesa os sinais de cada candidato: confiança e
+  posição em BM25, TF-IDF e Fuzzy, cobertura ponderada pela raridade, quanto a pergunta bate
+  no assunto declarado, pergunta idêntica a uma variação e as próprias regras fixas, que
+  viram sinais como os outros.
+  - **Duas etapas:** a 1ª dá a chance de cada candidato ser a resposta e ordena; a 2ª olha a
+    nota do 1º lugar e a distância para o 2º e dá a chance de o 1º estar certo. Essa chance é
+    a confiança.
+  - **Limiar 0,25, tirado do custo:** certo vale +1, errado −1 e "não sei" −0,5; responder
+    compensa quando a chance passa de 0,25. Ajustável em Configurações (`limiar.calibrado`).
+  - No painel "Por que respondi isso?", cada candidato mostra a chance e os sinais que mais
+    pesaram.
+  - Nenhuma dependência nova no app: os pesos ficam em `calibrado_pesos.py` (gerado) e a conta
+    é uma soma em Python puro.
+- **Treino** (`ferramentas/treinar_calibrado.py`, com scikit-learn em `requirements-treino.txt`,
+  separado para não pesar na instalação de desenvolvimento):
+  monta perguntas rotuladas a partir das variações dos addons (uma variação de cada fragmento
+  sai do índice e vira pergunta; 10% dos fragmentos são removidos para ensinar a recusar),
+  separa treino e teste pelo fragmento, escolhe a regularização por validação cruzada e mede
+  o resultado no teste. As 772 perguntas ficam em `benchmarks/conjunto_calibrado.json`.
+- `ContextoBusca.sinais_assunto`: as medidas do assunto declarado, entregues pelo `Assistente`
+  a qualquer algoritmo que queira usá-las.
+
+### Resultados
+- **No teste** (240 perguntas que o modelo não viu): o Calibrado acerta 59,9% (BM25 58,7%,
+  Híbrido 52,9%), erra 22,1% (34,9% e 40,1%) e inventa resposta em 57,4% das perguntas sem
+  resposta (83,8% nos dois); em troca, recusa 18,0% (6,4% e 7,0%).
+- **Benchmark de exemplo:** 100% de acerto e não inventa em 4 de 5, o melhor resultado.
+- **Homologação:** 221 de 243 (Híbrido 231, BM25 227). As regras fixas foram ajustadas com
+  essas mesmas perguntas; o teste mede melhor a generalização. O padrão continua sendo o BM25.
+
+### Testes
+- `tests/test_calibrado.py`: sigmoide, cobertura ponderada, soma dos sinais, 2ª etapa, pesos
+  gravados conferem com os sinais medidos, seletor, configurações e limiar do dono.
+
 ## [2.3.1] - 2026-11-19
 
 ### Corrigido
@@ -458,7 +527,9 @@ Primeira versão pública.
 - Instaladores para Linux e Windows que instalam o Python se faltar, verificador de
   instalação, executável via PyInstaller e CI em Windows, Ubuntu, Fedora e Debian.
 
-[Não lançado]: https://github.com/Jano-Projects/aprendiz-dev/compare/v2.3.0...HEAD
+[Não lançado]: https://github.com/Jano-Projects/aprendiz-dev/compare/v2.4.0...HEAD
+[2.4.0]: https://github.com/Jano-Projects/aprendiz-dev/compare/v2.3.1...v2.4.0
+[2.3.1]: https://github.com/Jano-Projects/aprendiz-dev/compare/v2.3.0...v2.3.1
 [2.3.0]: https://github.com/Jano-Projects/aprendiz-dev/compare/v2.2.0...v2.3.0
 [2.2.0]: https://github.com/Jano-Projects/aprendiz-dev/compare/v2.1.1...v2.2.0
 [2.1.1]: https://github.com/Jano-Projects/aprendiz-dev/compare/v2.1.0...v2.1.1
