@@ -4,6 +4,24 @@ Todas as mudanças relevantes do projeto ficam registradas aqui.
 O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/), e as versões
 seguem o [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
+## [2.0.1] - 2026-11-19
+
+### Mudado
+- **Fragmento com teia precisa bater no assunto**: se o conhecimento declara o que trata (teia),
+  citar a palavra no meio do texto não basta ("qual a capital da França?" não é respondida por um
+  tutorial que usa a frase de exemplo).
+- **Conversa social só vira pergunta pelo assunto declarado**: "valeu, ajudou muito" continua
+  conversa, mesmo com "ajudou" num texto da base.
+- **Começo comum mais rígido em palavras curtas**: em palavras de 5 letras, a folga de flexão
+  juntava palavras diferentes ("valeu" e "vale").
+
+### Documentação
+- `docs/arquitetura.md`: o caminho de uma mensagem com as etapas da 2.0 e a seção "Teia,
+  padrões e expressão"; `docs/linguagem.md`: números e contas e o desempate do corretor;
+  `docs/criar-algoritmo.md`: a resposta Trabalhada como exemplo.
+- Os cinco addons "Aprendiz por dentro" (loja) descrevem a 2.0 e têm teia de porquês; a
+  homologação ganhou perguntas sobre o próprio Aprendiz.
+
 ## [2.0.0] - 2026-11-19
 
 A 2.0 muda o Aprendiz de uma busca que devolve o texto guardado para um assistente que
@@ -59,7 +77,7 @@ de verdade, incluindo três baterias de perguntas inéditas.
 ### Limitações conhecidas
 - A busca é por palavras: perguntas com o assunto escondido atrás de um verbo genérico
   ("transformar meu script em um .exe") ou com palavras muito comuns ("numerar as linhas")
-  podem cair noutro fragmento. As 8 perguntas que ainda falham estão na homologação.
+  podem cair noutro fragmento. As perguntas que ainda falham estão na homologação.
 - O contexto da conversa ainda não pesa na escolha do assunto.
 - A busca por vetores na ordenação foi testada e descartada (piorou a homologação).
 

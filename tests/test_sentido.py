@@ -70,3 +70,24 @@ def test_gerundio_casa_com_infinitivo_mas_radical_solto_nao():
     assert _parecida("ordenando", {"ordenar"})
     assert not _parecida("ligacoes", {"lista", "ligada"})      # sentidos diferentes
     assert not _parecida("ponteiro", {"ponto"})
+
+
+def _addon_com_teia(assistente, itens, id_="tutorial"):
+    from aprendiz.addons import criar_pacote
+    assistente.instalar_addon(criar_pacote({"id": id_, "nome": "T", "versao": "1.0.0", "autor": "t"},
+                                           itens, {}))
+
+
+def test_fragmento_com_teia_precisa_bater_no_assunto(assistente):
+    _addon_com_teia(assistente, [{
+        "pergunta": "mini aprendiz passo 6",
+        "conteudo": "Ensine algo como: qual a capital da frança? Paris.",
+        "teia": {"ref": "passo-6", "assuntos": ["mini aprendiz"], "porques": [], "raiz": False}}])
+    r = assistente.responder("qual a capital da frança")
+    assert "Paris" not in r["mensagem"]["texto"]     # só cita a frase de exemplo
+
+
+def test_palavra_curta_nao_casa_pelo_comeco_de_outra():
+    from aprendiz.core.assistente import _parecida
+    assert not _parecida("valeu", {"vale", "mais"}, False)   # palavra que existe: sem digitação
+    assert _parecida("indices", {"indice"})

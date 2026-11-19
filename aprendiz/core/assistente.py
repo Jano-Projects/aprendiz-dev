@@ -138,7 +138,9 @@ class Etapas:
 
 def _parecida(palavra: str, palavras: set[str], digitacao: bool = True) -> bool:
     """`palavra` aparece em `palavras`, com folga para flexão (mesmo começo) ou digitação."""
-    raiz = palavra[:max(4, len(palavra) - 2)] if len(palavra) >= 4 else palavra
+    # Começo comum, com folga para flexão ("índices" → "índice"); em palavra de
+    # 5 letras, a folga de 2 juntava palavras diferentes ("valeu" e "vale").
+    raiz = palavra[:max(5, len(palavra) - 2)] if len(palavra) >= 5 else palavra
     if any(p.startswith(raiz) for p in palavras):
         return True
     # Gerúndio → infinitivo ("dividindo" → "dividir", "ordenando" → "ordenar").
@@ -639,7 +641,9 @@ class Assistente:
         # um pedido de ajuda. Vale para qualquer jeito de pedir, não só para os
         # gatilhos da compreensão.
         if principal["intencao"] in INTENCOES_SOCIAIS and curta and clara \
-                and len(consulta.conteudo) >= 2 and self.buscar(consulta, busca)[1]:
+                and len(consulta.conteudo) >= 2 and any(
+                    self._bate_no_assunto(consulta, c.conhecimento)
+                    for c in self.buscar(consulta, busca)[1]):
             clara = False
             etapas.marcar("Assunto conhecido", {"palavras": ", ".join(consulta.conteudo),
                                                 "intencao ignorada": principal["intencao"]})
@@ -1346,6 +1350,11 @@ class Assistente:
                 return False
         if any(_parecida(t, titulo, self._tolera(t)) for t in informativas):
             return True
+        # Fragmento com teia DECLARA o que trata: se a pergunta não bate nesse
+        # assunto, citar a palavra no meio do texto não basta ("qual a capital
+        # da França?" não é respondida por um tutorial que usa a frase de exemplo).
+        if teia_de(doc):
+            return False
         # Nenhuma palavra da pergunta no assunto declarado: aí o texto precisa
         # ter TODAS elas. "Como fazer bolo de cenoura" não é respondido por um
         # texto sobre algoritmos que usa um bolo como exemplo (sem cenoura).

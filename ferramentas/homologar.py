@@ -34,7 +34,9 @@ from aprendiz.memoria import Banco  # noqa: E402
 
 ADDONS = ["compreensao-portugues", "dialogo-portugues", "vetores-portugues",
           "prog-logica", "prog-vocabulario", "prog-estruturas-dados", "prog-banco-dados",
-          "sql-basico", "sql-avancado", "sql-teoria-pratica", "python-basico", "python-avancado"]
+          "sql-basico", "sql-avancado", "sql-teoria-pratica", "python-basico", "python-avancado",
+          "aprendiz-algoritmos", "aprendiz-arquitetura", "aprendiz-codigo", "aprendiz-do-zero",
+          "aprendiz-preparar-ambiente"]
 
 CASOS: list[tuple[str, str, str]] = [
     # (grupo, pergunta, esperado)
@@ -201,6 +203,17 @@ CASOS: list[tuple[str, str, str]] = [
     ("leva python", "meu python está lento", "q:mais rápido|medir desempenho"),
     ("leva python", "chave e valor em python", "q:dicionário"),
     ("leva python", "o que é self em python", "q:classes"),
+    # Aprendiz por dentro: o Aprendiz explicando a si mesmo (2.0.1).
+    ("aprendiz", "como funciona a resposta trabalhada", "q:trabalhada"),
+    ("aprendiz", "o que é a teia de porquês", "q:teia"),
+    ("aprendiz", "como o aprendiz entende quantos pedidos cada cliente fez", "q:padrões de frase|estrutura da frase"),
+    ("aprendiz", "de onde vêm as frases das respostas", "q:frases|expressão"),
+    ("aprendiz", "como escrever os porquês num addon", "q:porquês de um addon"),
+    ("aprendiz", "como medir se o aprendiz está acertando", "q:medir se o aprendiz|homologação"),
+    ("aprendiz", "qual o caminho de uma mensagem no aprendiz", "q:caminho de uma mensagem"),
+    ("aprendiz", "o que tem na pasta core", "q:pasta core"),
+    ("aprendiz", "como rodar os testes do aprendiz", "q:rodar os testes"),
+    ("aprendiz", "por que dois mais dois e 2+2 dão a mesma resposta", "q:números por extenso|dois mais dois"),
     ("social", "oi, tudo bem?", "tipo:social"),
     ("social", "obrigado!", "tipo:social"),
     ("social", "valeu, ajudou muito", "tipo:social"),

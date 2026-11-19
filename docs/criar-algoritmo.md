@@ -81,6 +81,17 @@ Recebe só os candidatos **aceitos** (acima do limiar), já ordenados. Sempre h�
 Devolva o texto, os ids usados (`fontes`) e, se quiser, `detalhes`, que aparecem no painel
 de explicação.
 
+### Um exemplo maior: a resposta Trabalhada (2.0)
+
+`algoritmos/resposta/trabalhada.py` mostra um montador que usa mais do que os candidatos:
+
+- `ctx.caminho` traz o caminho de porquês que a teia (`core/teia.py`) montou a partir do melhor
+  candidato, ou `None` se ele não tem teia;
+- `ctx.expressao` traz as frases dos addons de linguagem (`expressao.dizer("porque", texto)`).
+
+Com isso ela conta o fato e cada porquê seguido dos porquês do fragmento ligado. Sem teia, cai
+na resposta Direta: um montador novo deve sempre ter um caminho simples para quando faltar dado.
+
 ## Dicas
 
 - O que você colocar em `detalhes` aparece na interface. Use isso para explicar seu algoritmo.

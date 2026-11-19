@@ -31,6 +31,23 @@ senão "C", "C++" e "C#" virariam a mesma palavra: `c++` → `cpp`, `g++` → `g
 `c#` → `csharp`. (Mudar essa regra muda os radicais gravados; por isso
 `VERSAO_NORMALIZACAO` aumenta e a base é reindexada ao abrir o app.)
 
+### Números e contas (2.0)
+
+Ainda nessa etapa, `linguagem/numeros.py` deixa numa forma só o que é a mesma conta escrita de
+jeitos diferentes. Antes de a pontuação sumir, `+`, `*`, `×`, `÷` e os `-`, `/`, `x`, `=` entre
+números viram palavras; depois, número por extenso vira algarismo e a operação entre dois
+números ganha um nome fixo:
+
+| Escrito | Normalizado |
+|---|---|
+| `2+2`, `dois mais dois`, `2 mais dois` | `2 soma 2` |
+| `vinte e cinco` | `25` |
+| `três vezes quatro`, `3x4` | `3 multiplicacao 4` |
+| `oito dividido por quatro` | `8 divisao 4` |
+
+"Um" só vira 1 perto de outro número ou operação (no resto, é artigo), e datas
+(`16/11/2026`, `2026-11-16`) e hexadecimais (`0x10`) ficam como estão.
+
 ## 4. Abreviações
 
 Um dicionário simples (`vc → voce`, `oq → o que`). Pode virar mais de uma palavra.
@@ -42,6 +59,11 @@ juntadas com as suas pelas regras de [Vários addons juntos](#vários-addons-jun
 Para cada palavra com 4 letras ou mais que **não existe na base de conhecimento**, a
 RapidFuzz procura a palavra mais parecida no vocabulário da base. Se a similaridade for
 pelo menos 80 (numa escala de 0 a 100), ela é trocada.
+
+Quando duas correções empatam ("grup" → "grupo" ou "group"), vence a que forma com a palavra
+vizinha um **par que existe na base** ("group by"); depois, a mais frequente; por fim, a ordem
+alfabética. O vocabulário é uma lista ordenada, então a mesma pergunta é sempre corrigida do
+mesmo jeito (2.0).
 
 O detalhe importante é que o corretor só sugere palavras que **o assistente conhece**.
 Ele não tenta "corrigir" para o português em geral, só para o que foi ensinado.

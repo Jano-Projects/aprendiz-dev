@@ -12,6 +12,8 @@ O Aprendiz tem três camadas que conversam por interfaces simples:
 ├────────┼─────────────────────────────────────────────────────┤
 │  Núcleo (core/assistente.py)                                 │
 │        ├── linguagem/   normaliza e interpreta               │
+│        ├── padroes, teia, expressao (2.0): sentido da frase, │
+│        │                porquês e o jeito de dizer           │
 │        ├── algoritmos/  busca e monta a resposta             │
 │        └── memoria/     SQLite: um arquivo, toda a memória   │
 └──────────────────────────────────────────────────────────────┘
@@ -47,18 +49,30 @@ Todos os algoritmos de busca têm o mesmo método `buscar()`, e todos os de resp
 
 1. A interface faz `POST /api/chat` com a mensagem e os algoritmos escolhidos.
 2. `Assistente.responder()` grava a mensagem do usuário e executa o pipeline:
-   1. **Normalização**: `Linguagem.processar()`
+   1. **Normalização**: `Linguagem.processar()`, incluindo números e contas numa forma só
+      (`linguagem/numeros.py`: "dois mais dois" → `2 soma 2`)
    2. **Ensino explícito**: regex para "aprenda que…", "pergunta: … resposta: …", "anote: …"
       — e, com addon de norma, **revisão de texto** ("revise: …", "o certo é X ou Y?")
-   3. **Interpretação**: classificador Naive Bayes + extração de entidades
-   4. **Intenção social**: "oi", "obrigado", "ajuda" recebem resposta pronta
-   5. **Compreensão** (com addon de compreensão): tipo da pergunta, assunto, necessidades e
+   3. **Diálogo** (com addon de diálogo): reações à resposta anterior ("não entendi" vai um nível
+      mais fundo pela teia), continuações ("e o limit?") e atos de fala
+   4. **Interpretação**: classificador Naive Bayes + extração de entidades
+   5. **Intenção social**: "oi", "obrigado", "ajuda" recebem resposta pronta — **a não ser** que
+      a mensagem tenha um assunto que a base conhece ("me fala de banco de dados")
+   6. **Compreensão** (com addon de compreensão): tipo da pergunta, assunto, necessidades e
       perguntas sobre o próprio Aprendiz
-   6. **Busca**: algoritmo escolhido; candidatos abaixo do limiar são descartados
-   7. **Modo estrito**: sem candidato aceito, responde "ainda não fui ensinado". Com addon de
+   7. **Padrões de frase** (2.0, `core/padroes.py`): estruturas como "quantos * cada *" dizem o
+      conceito; as lacunas são exemplos e saem da busca. A pergunta só é trocada se a reescrita
+      achar resposta
+   8. **Busca**: algoritmo escolhido, e depois as regras do assunto (2.0): o candidato precisa
+      falar do assunto da pergunta, quem bate no **assunto declarado** (pergunta, variações e
+      `A:`) ganha folga no limiar e vem antes
+   9. **Modo estrito**: sem candidato aceito, responde "ainda não fui ensinado". Com addon de
       compreensão, antes disso: fora de alcance, busca por sentido (vetores) e recomendação de
       addon (`meta.recomendacao`)
-   8. **Resposta**: algoritmo escolhido monta o texto
+   10. **Teia de porquês** (2.0, `core/teia.py`): a partir do melhor candidato, o caminho de
+       porquês até as raízes, guardado em `ContextoBusca.caminho`
+   11. **Resposta**: algoritmo escolhido monta o texto; a **Trabalhada** usa o caminho da teia e
+       as frases de expressão dos addons de linguagem (`core/expressao.py`)
 3. Cada etapa registra dados e tempo. Isso vira o campo `meta.explicacao`, que a interface
    mostra no painel "Por que respondi isso?".
 4. A resposta é gravada e devolvida.
@@ -80,7 +94,7 @@ quando ela muda (ao abrir o app, instalar, ativar, desativar ou remover um addon
 
 | Tabela | Conteúdo |
 |---|---|
-| `conhecimentos` | o que o dono ensinou (`pergunta`, `nota` ou `trecho`) + `texto_busca` (radicais) |
+| `conhecimentos` | o que o dono ensinou (`pergunta`, `nota` ou `trecho`) + `texto_busca` (radicais) + `teia` (2.0: ref, assuntos, porquês e raiz, em JSON) |
 | `conhecimentos_fts` | índice FTS5 do `texto_busca` |
 | `abreviacoes`, `sinonimos`, `stopwords` | banco de linguagem |
 | `intencoes_exemplos`, `respostas_padrao` | treino do classificador e respostas sociais |
@@ -94,6 +108,21 @@ quando ela muda (ao abrir o app, instalar, ativar, desativar ou remover um addon
 Conhecimentos de addons ficam na própria tabela `conhecimentos`, com a coluna `addon_id`
 preenchida. A busca filtra os addons desativados dentro do SQL (BM25) ou ao montar os índices
 (TF-IDF, fuzzy).
+
+## Teia, padrões e expressão (2.0)
+
+Três peças novas, todas alimentadas por **dados** dos addons, e não por regras no código:
+
+| Peça | Arquivo | De onde vêm os dados | Cache |
+|---|---|---|---|
+| Teia de porquês | `core/teia.py` | linhas `F:`, `A:`, `Q:`, `N:` do `perguntas.txt` → coluna `teia` | `versao_conhecimento` |
+| Padrões de frase | `core/padroes.py` | seção `padroes` do `compreensao.json` | `versao_linguagem` |
+| Expressão | `core/expressao.py` | seção `expressao` do `compreensao.json` | `versao_linguagem` |
+
+A teia liga fragmentos pela `ref` (mesmo addon) ou por `addon:ref` (outro addon); uma ligação
+para addon desativado é cortada, mas o texto do porquê continua valendo. A medida de qualidade
+do conjunto é a homologação (`ferramentas/homologar.py`), que roda perguntas reais contra os
+addons da loja.
 
 ## Configurações (parâmetros e personalização)
 
@@ -151,7 +180,7 @@ com as mesmas regras da importação.
 `Banco._migrar()` atualiza bancos criados por versões anteriores ao abrir o app. Por exemplo,
 ele acrescenta a coluna `addon_id` em bancos da versão 0.1. Os passos são idempotentes, e a
 versão da estrutura fica em `meta.versao_esquema` (7 a partir da 0.7: tabelas
-`addon_recursos` e `addon_lexico`).
+`addon_recursos` e `addon_lexico`; 9 a partir da 2.0: coluna `conhecimentos.teia`).
 
 ## Reset e cópias de segurança
 
