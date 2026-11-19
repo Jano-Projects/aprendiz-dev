@@ -92,6 +92,8 @@ _PARTE_PERGUNTA = re.compile(
 MAX_PARTES_COMPOSTO = 4
 MAX_ITENS_PANORAMA = 6
 PALAVRAS_COMUNS_ASSUNTO = 300  # "quero FAZER um bolo": as N mais comuns saem do assunto
+FOLGA_MELHOR_ASSUNTO = 0.6  # o único que bate MAIS que todos no assunto: até 60% do limiar
+COBERTURA = 0.5        # cada palavra da pergunta coberta pelo assunto declarado soma isto
 FOLGA_ASSUNTO = 0.8   # quem bate no assunto declarado é aceito até 80% do limiar
 MAX_PROFUNDIDADE = 2  # o diálogo pode reprocessar a mensagem (resto, continuação)
 
@@ -1156,10 +1158,21 @@ class Assistente:
         #     cancelados" é só o exemplo, a ação é que é o assunto);
         #   • entre os aceitos, quem bate em mais palavras do assunto vem antes
         #     ("adicionar um pedido NOVO" → inserir, e não ALTER TABLE).
+        #   • o que bate MAIS que todos no assunto ganha folga extra ("menor
+        #     caminho entre duas cidades" → Dijkstra, mesmo com nota baixa).
         bate = {c.id: self._bate_no_assunto(consulta, c.conhecimento) for c in candidatos}
+        maior = max(bate.values(), default=0)
+        unico = sum(1 for v in bate.values() if v == maior) == 1
+        # O limiar que o DONO definiu é respeitado à risca (modo estrito).
+        dono_definiu = config.get(f"limiar.{busca}", {}).get("origem") == "dono"
+
+        def folga(c) -> float:
+            if not bate[c.id] or dono_definiu:
+                return 1.0
+            return FOLGA_MELHOR_ASSUNTO if unico and bate[c.id] == maior else FOLGA_ASSUNTO
+
         aceitos = [c for c in candidatos
-                   if (c.confianca >= limiar or (bate[c.id] and c.confianca >= FOLGA_ASSUNTO * limiar))
-                   and self._cobre_palavra_forte(consulta, c)]
+                   if c.confianca >= folga(c) * limiar and self._cobre_palavra_forte(consulta, c)]
         aceitos.sort(key=lambda c: -bate[c.id])
         # Prioridade do dono: se o melhor resultado veio de um addon, mas há
         # algo ensinado pelo dono quase tão relevante (por padrão, até 10%
@@ -1247,7 +1260,10 @@ class Assistente:
         return set(normalizar(" ".join([doc.get("pergunta") or "", *lista_json(doc, "variacoes"),
                                         *(teia.get("assuntos") or [])])).split())
 
-    def _bate_no_assunto(self, consulta, doc: dict) -> int:
+    def _bate_no_assunto(self, consulta, doc: dict) -> float:
+        return sum(self._bate_por_palavra(consulta, doc).values())
+
+    def _bate_por_palavra(self, consulta, doc: dict) -> dict[str, float]:
         """
         Quanto a pergunta bate no assunto declarado do conhecimento: cada palavra
         informativa vale 2 se está na PERGUNTA dele (ou nas variações) e 1 se
@@ -1261,9 +1277,16 @@ class Assistente:
         raras = self._raridade_nos_titulos()
         informativas = set(self._informativas(consulta))
         # Palavras comuns ("começa", "zero") ainda dizem algo: valem metade.
-        return sum((2 if _parecida(t, propria) else 1 if _parecida(t, titulo) else 0)
-                   * raras.get(t, 1.0) * (1.0 if t in informativas else 0.5)
-                   for t in dict.fromkeys(consulta.conteudo) if len(t) >= 4)
+        por_palavra: dict[str, float] = {}
+        for t in dict.fromkeys(consulta.conteudo):
+            if len(t) < 4:
+                continue
+            peso = 2 if _parecida(t, propria) else 1 if _parecida(t, titulo) else 0
+            if peso:
+                # Cobrir mais palavras da pergunta também conta (COBERTURA).
+                por_palavra[t] = (peso * raras.get(t, 1.0) * (1.0 if t in informativas else 0.5)
+                                  + COBERTURA)
+        return por_palavra
 
     def _raridade_nos_titulos(self) -> dict[str, float]:
         """

@@ -33,7 +33,7 @@ from aprendiz.memoria import Banco  # noqa: E402
 
 ADDONS = ["compreensao-portugues", "dialogo-portugues", "vetores-portugues",
           "prog-logica", "prog-vocabulario", "prog-estruturas-dados", "prog-banco-dados",
-          "sql-basico"]
+          "sql-basico", "sql-avancado", "sql-teoria-pratica"]
 
 CASOS: list[tuple[str, str, str]] = [
     # (grupo, pergunta, esperado)
@@ -168,6 +168,22 @@ CASOS: list[tuple[str, str, str]] = [
     ("leva estruturas", "lista sem elementos repetidos", "q:conjunto"),
     ("leva estruturas", "autocompletar palavras pelo começo", "q:trie"),
     ("leva estruturas", "qual estrutura usar para meu problema", "q:qual estrutura"),
+    # Leva SQL avançado e teoria: escritas ANTES de pôr os porquês e o vocabulário.
+    ("leva sql 2", "consulta dentro de outra consulta", "q:subconsulta"),
+    ("leva sql 2", "pra que serve o with no sql", "q:cte"),
+    ("leva sql 2", "numerar as linhas de um resultado", "q:row_number"),
+    ("leva sql 2", "total acumulado mês a mês", "q:soma acumulada"),
+    ("leva sql 2", "juntar o resultado de duas consultas uma embaixo da outra", "q:union"),
+    ("leva sql 2", "inserir ou atualizar se já existir", "q:upsert"),
+    ("leva sql 2", "rodar algo automaticamente quando inserir uma linha", "q:trigger"),
+    ("leva sql 2", "minha consulta está lenta", "q:otimizar"),
+    ("leva sql 2", "transformar linhas em colunas", "q:pivot"),
+    ("leva sql 2", "diferença entre postgres e mysql", "q:diferenças entre sqlite"),
+    ("leva sql 2", "segunda forma normal", "q:2fn"),
+    ("leva sql 2", "uma transação ler dado que outra ainda não confirmou", "q:isolamento"),
+    ("leva sql 2", "consistência disponibilidade e tolerância a partição", "q:cap"),
+    ("leva sql 2", "como planejar as tabelas de um sistema novo", "q:modelar"),
+    ("leva sql 2", "como o banco escolhe o jeito de executar a consulta", "q:otimizador"),
     ("social", "oi, tudo bem?", "tipo:social"),
     ("social", "obrigado!", "tipo:social"),
     ("social", "valeu, ajudou muito", "tipo:social"),
