@@ -63,7 +63,9 @@ começo do texto nas notas). O algoritmo de busca que mais acerta em primeiro lu
 recomendado; num empate, vale o mais leve (BM25, TF-IDF, Híbrido, Fuzzy). A resposta é a
 **Extrativa** quando a maior parte do conteúdo são textos longos, e a **Direta** nos outros
 casos. O `acerto` é a fração das perguntas do teste que aquele algoritmo acertou
-(`aprendiz/core/recomendacao.py`).
+(`aprendiz/core/recomendacao.py`). A partir da 2.0, a nota também desconta as **perguntas fora
+do assunto** que a busca respondeu mesmo assim (`nota = acerto − 0,5 × falsos`), e um addon com
+teia em pelo menos metade dos itens recomenda a resposta **Trabalhada**.
 
 **Ao instalar**, a tela de confirmação mostra a recomendação e oferece:
 

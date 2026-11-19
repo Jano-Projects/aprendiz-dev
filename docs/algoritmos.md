@@ -225,6 +225,47 @@ Frases sem nenhum termo da pergunta só entram se não houver outra. Resposta:
 
 ---
 
+## 7. Resposta trabalhada e teia de porquês (2.0)
+
+A **teia** (`core/teia.py`) liga os fragmentos dos addons pelos porquês escritos no
+`perguntas.txt` (linhas `F:`, `A:`, `Q:`, `N:`; veja [addons.md](addons.md)). A partir do
+conhecimento achado pela busca, ela desce em **largura** pelos porquês, com quatro freios:
+
+1. **profundidade** máxima de 3 níveis;
+2. **raiz**: um fragmento `N: raiz` é a base; não se desce além dele;
+3. **assunto**: do nível 2 em diante, só se segue para um fragmento cujos assuntos têm palavra
+   em comum com a pergunta ou com o fragmento de partida;
+4. **causa x lado**: `porque`, `regra`, `definicao` e `parte-de` descem; `diferente-de`,
+   `consequencia`, `exemplo-de`, `antes-de` e `depois-de` valem só no nível 1.
+
+A **resposta trabalhada** (`resposta/trabalhada.py`) conta o fato e, em profundidade, cada
+porquê seguido dos porquês do fragmento que ele liga, com as frases da seção `expressao` dos
+addons de linguagem (`core/expressao.py`). Sem teia, responde como a Direta. "Não entendi" vai
+um nível mais fundo: os porquês, ou a base de cada conceito.
+
+## 8. Entender a pergunta antes de buscar (2.0)
+
+- **Números e contas** (`linguagem/numeros.py`): "dois mais dois" e "2+2" viram `2 soma 2`.
+- **Padrões de frase** (`core/padroes.py`): estruturas como "quantos * cada *" dizem o conceito
+  (agrupar, contar); as lacunas são o exemplo e saem da busca. Veja [compreensao.md](compreensao.md).
+- **A resposta precisa falar do assunto**: o candidato precisa de uma palavra informativa da
+  pergunta no que ele declara tratar (pergunta, variações, `A:`) ou, se não tiver, de **todas**
+  elas no texto. Erro de digitação só é aceito em palavra que não existe ("copa" não é "cópia").
+  Quem bate no assunto declarado é aceito até 80% do limiar e vem antes.
+- **Correção determinística**: entre correções igualmente parecidas, vence a que forma um par
+  que existe na base ("grup by" → "group by"), depois a mais frequente.
+
+## Homologação
+
+`ferramentas/homologar.py` instala os addons reais da loja e faz perguntas de gente de verdade:
+variações, digitação, porquês, resumos, fora do assunto, conversa e três baterias de perguntas
+**inéditas**, escritas em momentos diferentes e que não estão em addon nenhum. É a medida de
+generalização; os testes do `tests/` medem cada peça isolada.
+
+```
+python ferramentas/homologar.py ../aprendiz-addons --busca hibrido
+```
+
 ## Prioridade do dono sobre os addons
 
 Depois da busca, se o primeiro candidato veio de um **addon** e existe algo ensinado pelo

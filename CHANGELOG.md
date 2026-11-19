@@ -51,6 +51,14 @@ seguem o [Versionamento Semântico](https://semver.org/lang/pt-BR/).
   estruturas de frase que dizem um conceito ("quantos|quantas * cada|por *" → agrupar, contar).
   As lacunas (`*`) são o EXEMPLO e saem da busca; os conceitos entram. A pergunta só é trocada
   quando a reescrita acha resposta. Aparece em "Por que respondi isso?" (etapa "Padrão de frase").
+- **Correção determinística**: o vocabulário do corretor é uma lista ordenada e, entre correções
+  igualmente parecidas, vence a que forma um par existente na base ("grup by" → "group by"),
+  depois a mais frequente. A mesma pergunta é sempre corrigida do mesmo jeito.
+- **Sem resposta pelo corpo do texto**: sem palavra da pergunta no assunto declarado, o texto
+  precisa ter todas as palavras informativas; digitação só em palavra que não existe; a busca
+  por sentido (vetores) só vale se a troca chegar ao assunto declarado de um conhecimento.
+- **Recomendação mede falsos positivos**: perguntas fora do assunto respondidas mesmo assim
+  descontam da nota (`acerto − 0,5 × falsos`).
 - **Homologação** (`ferramentas/homologar.py`): perguntas de gente de verdade (variações,
   digitação, porquês, resumos, fora do assunto, conversa e um grupo de perguntas INÉDITAS, que
   não estão em addon nenhum, em três levas escritas em momentos diferentes) contra os addons

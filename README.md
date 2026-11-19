@@ -126,6 +126,8 @@ Detalhes, executável e problemas comuns: [docs/empacotamento.md](docs/empacotam
 | 5 | [`algoritmos/busca/tfidf.py`](aprendiz/algoritmos/busca/tfidf.py) | TF-IDF e cosseno, conta a conta |
 | 6 | [`algoritmos/busca/bm25.py`](aprendiz/algoritmos/busca/bm25.py) · [`hibrido.py`](aprendiz/algoritmos/busca/hibrido.py) | BM25 no SQLite e Reciprocal Rank Fusion |
 | 7 | [`algoritmos/resposta/extrativa.py`](aprendiz/algoritmos/resposta/extrativa.py) | TextRank |
+| 7b | [`core/teia.py`](aprendiz/core/teia.py) · [`resposta/trabalhada.py`](aprendiz/algoritmos/resposta/trabalhada.py) | Grafo de porquês: busca em largura com freios de sentido |
+| 7c | [`core/padroes.py`](aprendiz/core/padroes.py) | Sentido pela estrutura da frase (lacunas = exemplos) |
 | 8 | [`memoria/banco.py`](aprendiz/memoria/banco.py) | SQLite, FTS5, transações e migrações |
 | 9 | [`addons.py`](aprendiz/addons.py) · [`configuracoes.py`](aprendiz/configuracoes.py) | Leitura segura de arquivos não confiáveis e lista fechada de ajustes |
 | 10 | [`core/recomendacao.py`](aprendiz/core/recomendacao.py) | Escolher um algoritmo medindo, não chutando |
@@ -164,6 +166,7 @@ explica cada um passo a passo.
 |---|---|---|---|
 | **Direta** | Fiel | O conhecimento mais relevante, como foi ensinado | leve |
 | **Extrativa** | Resumo | As frases mais relevantes de vários conhecimentos (relevância + TextRank) | médio |
+| **Trabalhada** | Explica | O fato e a cadeia de porquês da teia dos addons, dita com as frases de expressão | médio |
 
 Benchmark com os dados de exemplo (`python benchmarks/comparar.py`):
 
@@ -186,7 +189,7 @@ aprendiz/
 │   ├── linguagem/             #   PLN clássico: normalizador, stemmer, léxico, Naive Bayes, entidades
 │   ├── algoritmos/            #   o seletor (padrão Strategy)
 │   │   ├── busca/             #     bm25, tfidf, fuzzy, hibrido
-│   │   └── resposta/          #     direta, extrativa
+│   │   └── resposta/          #     direta, extrativa, trabalhada
 │   ├── memoria/               #   SQLite: conhecimento, linguagem, conversas, addons
 │   ├── addons.py              #   formato .aprendiz: leitura segura e criação
 │   ├── recursos.py            #   arquivos dos addons de compreensão e vetores

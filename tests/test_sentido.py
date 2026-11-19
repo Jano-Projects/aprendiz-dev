@@ -33,3 +33,18 @@ def test_assunto_conhecido_nao_vira_conversa_social(assistente):
     r = assistente.responder("me fala de banco de dados")
     assert r["mensagem"]["meta"]["tipo"] != "social"
     assert "guarda informações" in r["mensagem"]["texto"]
+
+
+def test_palavra_so_no_texto_precisa_de_todas(assistente):
+    assistente.ensinar("Um algoritmo é como a receita de um bolo: passos em ordem.",
+                       pergunta="o que é um algoritmo")
+    r = assistente.responder("como fazer bolo de cenoura")
+    assert "receita de um bolo" not in r["mensagem"]["texto"]   # "bolo" sozinho não basta
+
+
+def test_correcao_prefere_o_par_que_existe_na_base(assistente):
+    assistente.ensinar("O group by agrupa linhas iguais.", pergunta="o que faz o group by")
+    assistente.ensinar("Um grupo de estudo se reúne às terças.", pergunta="quando o grupo se reúne")
+    for _ in range(3):   # sempre igual, seja qual for a ordem interna dos conjuntos
+        r = assistente.responder("pra que serve o grup by")
+        assert r["mensagem"]["texto"] == "O group by agrupa linhas iguais."

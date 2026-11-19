@@ -48,6 +48,7 @@ from aprendiz.core.teia import Teia
 from aprendiz.memoria.banco import lista_json, teia_de
 from aprendiz.linguagem import ClassificadorIntencoes, Linguagem, extrair_entidades
 from aprendiz.linguagem.normalizador import VERSAO_NORMALIZACAO, normalizar
+from aprendiz.linguagem.stemmer import radical
 from aprendiz.memoria import Banco
 
 # ---------------------------------------------------------------------------
@@ -132,11 +133,13 @@ class Etapas:
         return round((time.perf_counter() - self._inicio_total) * 1000, 2)
 
 
-def _parecida(palavra: str, palavras: set[str]) -> bool:
+def _parecida(palavra: str, palavras: set[str], digitacao: bool = True) -> bool:
     """`palavra` aparece em `palavras`, com folga para flexão (mesmo começo) ou digitação."""
     raiz = palavra[:max(4, len(palavra) - 2)] if len(palavra) >= 4 else palavra
     if any(p.startswith(raiz) for p in palavras):
         return True
+    if not digitacao:
+        return False
     perto = [p for p in palavras if abs(len(p) - len(palavra)) <= 2 and len(p) >= 3]
     return process.extractOne(palavra, perto, scorer=fuzz.ratio, score_cutoff=85) is not None
 
@@ -723,6 +726,12 @@ class Assistente:
                 etapas.marcar("Busca por sentido", {
                     "trocas": [f"{t['de']} → {t['para']} ({t['semelhanca']})" for t in trocas],
                     "encontrou": len(aceitos2)})
+                # A troca precisa levar ao ASSUNTO de um conhecimento, não a uma
+                # palavra solta no texto ("ganhou" → "trouxe" achava SQL).
+                novas = [t["para"] for t in trocas]
+                aceitos2 = [c for c in aceitos2
+                            if any(_parecida(n, self._assunto_declarado(c.conhecimento), False)
+                                   for n in novas)]
                 if aceitos2:
                     candidatos, aceitos, consulta = candidatos2, aceitos2, ampliada
                     usadas = {}
@@ -1269,8 +1278,25 @@ class Assistente:
             alvo = [t for t in informativas if t in self._assunto_definicao]
             if alvo and not any(_parecida(t, titulo) for t in alvo):
                 return False
-        palavras = titulo | set(normalizar(doc.get("conteudo") or "").split())
-        return any(_parecida(t, palavras) for t in informativas)
+        if any(_parecida(t, titulo, self._tolera(t)) for t in informativas):
+            return True
+        # Nenhuma palavra da pergunta no assunto declarado: aí o texto precisa
+        # ter TODAS elas. "Como fazer bolo de cenoura" não é respondido por um
+        # texto sobre algoritmos que usa um bolo como exemplo (sem cenoura).
+        palavras = set(normalizar(doc.get("conteudo") or "").split())
+
+        def flexao(t: str) -> bool:
+            # "levo" e "levar": mesmo radical e tamanho parecido. O tamanho evita
+            # que "ponteiro" e "ponto" (radical "pont") passem por flexão.
+            r = radical(t)
+            return any(abs(len(p) - len(t)) <= 2 and radical(p) == r
+                       for p in palavras if p[:2] == t[:2])
+
+        return all(_parecida(t, palavras, self._tolera(t)) or flexao(t) for t in informativas)
+
+    def _tolera(self, palavra: str) -> bool:
+        """Erro de digitação só se a palavra não existe: "copa" não é "cópia" errada."""
+        return not self.linguagem.lexico.conhece(palavra)
 
     def _dono_ensinou_exatamente(self, consulta) -> bool:
         """O dono ensinou uma pergunta com exatamente estas palavras?"""

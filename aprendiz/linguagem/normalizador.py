@@ -134,6 +134,8 @@ class Linguagem:
         self.banco = banco
         self._versao_ling = -1
         self._versao_vocab = -1
+        self._frequencia: dict[str, int] = {}
+        self._pares: set[tuple[str, str]] = set()
         self.abreviacoes: dict[str, str] = {}
         self.sinonimos: dict[str, str] = {}
         self.stopwords: set[str] = set()
@@ -167,11 +169,18 @@ class Linguagem:
         para palavras que o assistente realmente conhece.
         """
         if self._versao_vocab != self.banco.versao_conhecimento:
-            vocab: set[str] = set()
+            frequencia: dict[str, int] = {}
+            pares: set[tuple[str, str]] = set()
             for c in self.banco.conhecimentos_ativos():
                 texto = f"{c.get('pergunta') or ''} {c['conteudo']}"
-                vocab.update(tokenizar(normalizar(texto)))
-            self.vocabulario = {p for p in vocab if not p.isdigit()}
+                palavras = tokenizar(normalizar(texto))
+                for p in palavras:
+                    frequencia[p] = frequencia.get(p, 0) + 1
+                pares.update(zip(palavras, palavras[1:]))
+            # Lista ORDENADA (não um conjunto): o resultado da correção não pode
+            # depender da ordem em que o Python guarda um conjunto na memória.
+            self.vocabulario = sorted(p for p in frequencia if not p.isdigit())
+            self._frequencia, self._pares = frequencia, pares
             self._versao_vocab = self.banco.versao_conhecimento
 
     # ------------------------------------------------------------------ etapas
@@ -189,7 +198,7 @@ class Linguagem:
         if not self.vocabulario:
             return tokens
         saida: list[str] = []
-        for t in tokens:
+        for i, t in enumerate(tokens):
             if (
                 len(t) >= self.TAMANHO_MINIMO_CORRECAO
                 and not t.isdigit()
@@ -200,15 +209,33 @@ class Linguagem:
             ):
                 # rapidfuzz compara a palavra com todo o vocabulário de forma
                 # muito rápida (o núcleo é escrito em C++).
-                achado = process.extractOne(
-                    t, self.vocabulario, scorer=fuzz.ratio,
+                achados = process.extract(
+                    t, self.vocabulario, scorer=fuzz.ratio, limit=8,
                     score_cutoff=self.SIMILARIDADE_MINIMA_CORRECAO,
                 )
-                if achado:
-                    registro[t] = achado[0]
-                    t = achado[0]
+                if achados:
+                    melhor = self._desempatar(achados, saida[-1] if saida else None,
+                                              tokens[i + 1] if i + 1 < len(tokens) else None)
+                    registro[t] = melhor
+                    t = melhor
             saida.append(t)
         return saida
+
+    def _desempatar(self, achados, anterior: str | None, proxima: str | None) -> str:
+        """
+        Entre as correções igualmente parecidas ("grup" → "grupo" ou "group"),
+        vale a que forma com a palavra vizinha um PAR que existe na base
+        ("group by"); depois, a mais frequente na base; por fim, a ordem
+        alfabética. Assim a mesma pergunta é sempre corrigida do mesmo jeito.
+        """
+        nota = achados[0][1]
+        empatados = [a[0] for a in achados if a[1] >= nota - 0.01]
+
+        def chave(palavra: str):
+            par = (anterior, palavra) in self._pares or (palavra, proxima) in self._pares
+            return (not par, -self._frequencia.get(palavra, 0), palavra)
+
+        return min(empatados, key=chave)
 
     def _aplicar_expressoes(self, tokens: list[str], registro: dict[str, str]) -> list[str]:
         """

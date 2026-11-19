@@ -81,13 +81,27 @@ def resposta_recomendada(itens: list[dict]) -> str:
     return "extrativa" if itens and len(longos) / len(itens) >= 0.5 else "direta"
 
 
+# Perguntas que nenhum addon de conhecimento deveria responder (2.0). Uma
+# busca que aceita alguma delas "acerta" por ser frouxa, e isso conta contra.
+FORA_DO_ASSUNTO = [
+    "quem ganhou a copa do mundo de 2002", "como fazer bolo de cenoura",
+    "qual a capital da frança", "previsão do tempo para amanhã",
+    "quanto custa uma passagem de avião", "me conta uma piada",
+]
+PESO_FALSOS = 0.5      # cada resposta indevida pesa metade de um acerto
+
+
 def recomendar(conhecimentos: list[dict[str, Any]],
                linguagem: dict[str, Any] | None = None) -> dict[str, Any] | None:
     """
     Testa os algoritmos com os itens e devolve:
 
         {"busca": "bm25", "resposta": "direta", "acerto": 0.97,
-         "acertos": {"bm25": 0.97, "tfidf": 0.95, ...}, "perguntas": 40}
+         "acertos": {"bm25": 0.97, "tfidf": 0.95, ...},
+         "falsos": {"bm25": 0.0, ...}, "perguntas": 40}
+
+    A escolha é pela nota = acerto − 0,5 × falsos: a fração de perguntas FORA
+    do assunto do addon que a busca respondeu mesmo assim.
 
     ou None se não houver conhecimentos para testar.
     """
@@ -122,6 +136,7 @@ def recomendar(conhecimentos: list[dict[str, Any]],
                     casos += [(pergunta, alvo) for pergunta in perguntas_de_teste(item)]
 
             acertos: dict[str, float] = {}
+            falsos: dict[str, float] = {}
             for nome in BUSCAS:
                 certos = 0
                 for pergunta, alvo in casos:
@@ -129,15 +144,21 @@ def recomendar(conhecimentos: list[dict[str, Any]],
                     _, aceitos, _ = assistente.buscar(consulta, nome, limite=3)
                     certos += bool(aceitos) and aceitos[0].id == alvo
                 acertos[nome] = round(certos / len(casos), 3) if casos else 0.0
+                # 2.0: acertar não basta; não pode responder o que o addon não sabe.
+                erros = sum(bool(assistente.buscar(assistente.linguagem.processar(p), nome,
+                                                   limite=3)[1]) for p in FORA_DO_ASSUNTO)
+                falsos[nome] = round(erros / len(FORA_DO_ASSUNTO), 3)
         finally:
             banco.fechar()
 
     ordem = [n for n in PREFERENCIA if n in acertos] + [n for n in acertos if n not in PREFERENCIA]
-    melhor = max(ordem, key=lambda n: (acertos[n], -ordem.index(n)))
+    nota = {n: round(acertos[n] - PESO_FALSOS * falsos[n], 3) for n in acertos}
+    melhor = max(ordem, key=lambda n: (nota[n], -ordem.index(n)))
     return {
         "busca": melhor,
         "resposta": resposta_recomendada(itens),
         "acerto": acertos[melhor],
         "acertos": acertos,
+        "falsos": falsos,
         "perguntas": len(casos),
     }
