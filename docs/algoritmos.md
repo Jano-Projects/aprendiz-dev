@@ -236,7 +236,7 @@ conhecimento achado pela busca, ela desce em **largura** pelos porquês, com qua
 3. **assunto**: do nível 2 em diante, só se segue para um fragmento cujos assuntos têm palavra
    em comum com a pergunta ou com o fragmento de partida;
 4. **causa x lado**: `porque`, `regra`, `definicao` e `parte-de` descem; `diferente-de`,
-   `consequencia`, `exemplo-de`, `antes-de` e `depois-de` valem só no nível 1.
+   `equivale`, `consequencia`, `exemplo-de`, `antes-de` e `depois-de` valem só no nível 1.
 
 A **resposta trabalhada** (`resposta/trabalhada.py`) conta o fato e, em profundidade, cada
 porquê seguido dos porquês do fragmento que ele liga, com as frases da seção `expressao` dos

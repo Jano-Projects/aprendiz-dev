@@ -92,6 +92,7 @@ _PARTE_PERGUNTA = re.compile(
 MAX_PARTES_COMPOSTO = 4
 MAX_ITENS_PANORAMA = 6
 PALAVRAS_COMUNS_ASSUNTO = 300  # "quero FAZER um bolo": as N mais comuns saem do assunto
+MAX_ELOS_VERBETE = 5     # no dicionário: até 5 equivalências (e 5 falsos amigos) por resposta
 FOLGA_MELHOR_ASSUNTO = 0.6  # o único que bate MAIS que todos no assunto: até 60% do limiar
 COBERTURA = 0.5        # cada palavra da pergunta coberta pelo assunto declarado soma isto
 FOLGA_ASSUNTO = 0.8   # quem bate no assunto declarado é aceito até 80% do limiar
@@ -586,7 +587,8 @@ class Assistente:
             etapas.marcar("Dicionário", {**pedido.como_dict(), "encontrou": bool(resposta_dic)})
             if resposta_dic and not self._dono_ensinou_exatamente(consulta):
                 texto, verbetes = resposta_dic
-                return texto, "conhecimento", [self._fonte(v) for v in verbetes]
+                texto, ligados = self._teia_dos_verbetes(texto, verbetes, consulta, resposta)
+                return texto, "conhecimento", [self._fonte(v) for v in [*verbetes, *ligados]]
 
         # 2c. Diálogo (addon de diálogo) -------------------------------------
         # O QUE a pessoa faz com a frase: cumprimenta e pede algo, desabafa,
@@ -806,8 +808,11 @@ class Assistente:
         verbetes = [c for c in aceitos if c.detalhes.get("verbete") == "palavra exata"]
         if verbetes and aceitos[0] in verbetes:
             etapas.marcar("Resposta · Dicionário", {"verbetes": len(verbetes)})
-            texto = nota_sentido + "\n\n".join(c.conhecimento["conteudo"] for c in verbetes)
-            return texto, "conhecimento", [self._fonte(c.conhecimento) for c in verbetes]
+            docs = [c.conhecimento for c in verbetes]
+            texto, ligados = self._teia_dos_verbetes(
+                "\n\n".join(d["conteudo"] for d in docs), docs, consulta, resposta)
+            return (nota_sentido + texto, "conhecimento",
+                    [self._fonte(d) for d in [*docs, *ligados]])
 
         # Teia de porquês (2.0): o caminho a partir do melhor candidato.
         self.contexto.caminho = self.teia.percorrer(aceitos[0].conhecimento, consulta.radicais)
@@ -823,6 +828,47 @@ class Assistente:
             por_id.update({p.para["id"]: p.para for p in self.contexto.caminho.passos if p.para})
         fontes = [self._fonte(por_id[i]) for i in gerada.fontes if i in por_id]
         return nota_sentido + gerada.texto, "conhecimento", fontes
+
+    def _teia_dos_verbetes(self, texto: str, verbetes: list[dict], consulta,
+                           resposta: str) -> tuple[str, list[dict]]:
+        """
+        Na resposta Trabalhada, o dicionário também segue a teia (2.0): a mesma
+        ideia em outras variedades ("equivale") e a mesma palavra com outro
+        sentido ("diferente-de"). Só os elos diretos (um verbete não tem cadeia
+        de causas, tem vizinhos), e nada que já esteja na resposta ou que venha
+        de um addon desativado.
+        """
+        if resposta != "trabalhada":
+            return texto, []
+        presentes = {v["id"] for v in verbetes}
+        # Uma frase por verbete e relação, com os elos juntos. Com mais de um
+        # sentido ("mina": moça no Brasil, filho em São Tomé), cada frase diz de qual.
+        por_relacao: dict[tuple[int, str], list[str]] = {}
+        ligados = []
+        for i, doc in enumerate(verbetes):
+            caminho = self.teia.percorrer(doc, consulta.radicais)
+            for passo in (caminho.usados if caminho else []):
+                if (passo.nivel != 1 or not passo.texto or passo.cortado == "fora"
+                        or (passo.para is not None and passo.para["id"] in presentes)):
+                    continue
+                elos = por_relacao.setdefault((i, passo.relacao), [])
+                if len(elos) >= MAX_ELOS_VERBETE:
+                    continue
+                elos.append(passo.texto)
+                if passo.para is not None:
+                    presentes.add(passo.para["id"])
+                    ligados.append(passo.para)
+        sentidos = [(lista_json(v, "traducoes") or [""])[0] for v in verbetes]
+        varios = len(set(sentidos)) > 1
+        frases = []
+        for (i, relacao), elos in por_relacao.items():
+            if varios and relacao == "equivale" and sentidos[i]:
+                frases.append(f"No sentido de {sentidos[i]}: " + "; ".join(elos) + ".")
+            else:
+                frases.append(self.contexto.expressao.dizer(relacao, "; ".join(elos)))
+        if not frases:
+            return texto, []
+        return texto + "\n\n" + " ".join(frases), ligados
 
     # ================================================================ JUNTAR (1.0)
     def _so_o_assunto(self, assunto: str, enxugar: bool = False):

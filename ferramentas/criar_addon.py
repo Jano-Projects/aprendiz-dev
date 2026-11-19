@@ -232,6 +232,10 @@ def criar(pasta: Path, saida: Path | None, junto: list[Path] | None = None) -> N
         return json.loads(arquivo.read_text(encoding="utf-8")) if arquivo.exists() else None
 
     linguagem = json_opcional("linguagem.json")
+    if manifesto.get("regiao") and not (pasta / "norma.json").exists():
+        # norma.json e vocabulario.tsv são GERADOS (aprendiz-addons/ferramentas/dados_normas.py)
+        # e não ficam no git: sem eles, o addon de idioma sai sem a norma do país.
+        print(f"[AVISO] {pasta.name}: addon de idioma sem norma.json; gere com dados_normas.py.")
     if conhecimentos and not manifesto.get("recomendado"):
         teste = recomendar(conhecimentos, linguagem, [c.read_bytes() for c in junto or []])
         if teste:

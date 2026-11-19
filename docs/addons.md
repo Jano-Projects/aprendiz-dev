@@ -207,8 +207,19 @@ R: O WHERE filtra as linhas da consulta.
   porquê (`Q: exemplo-de | em C, a passagem por referência é feita com ponteiros`); `N: raiz` marca uma regra ou conceito
   de base, onde as cadeias de porquês terminam.
 - `Q:` `relação | explicação | -> ref`. Relações: `porque`, `consequencia`, `parte-de`,
-  `exemplo-de`, `diferente-de`, `regra`, `definicao`, `antes-de`, `depois-de`. A ligação é
-  opcional; para outro addon, `-> addon:ref`. Até 10 porquês por fragmento.
+  `exemplo-de`, `diferente-de`, `regra`, `definicao`, `antes-de`, `depois-de`, `equivale` (o mesmo sentido em outra variedade da língua). A
+  ligação é opcional; para outro addon, `-> addon:ref`. Até 10 porquês por fragmento.
+- Verbetes (`V:`) também podem ter teia, com `F:` e `Q:` antes do `V:`. Na resposta
+  Trabalhada, o dicionário diz os elos diretos: a mesma ideia em outros lugares (`equivale`) e
+  a mesma palavra com outro sentido (`diferente-de`), até 5 de cada. Ex.:
+
+```
+F: v-grana
+Q: equivale | em Angola se diz «kumbu» | -> girias-angola:v-kumbu
+V: grana
+T: dinheiro
+R: **grana** (Brasil): dinheiro.
+```
 - O app recusa refs repetidos, relações fora da lista e ligações internas para refs que não
   existem.
 

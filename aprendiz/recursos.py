@@ -342,7 +342,7 @@ def _textos(valor: Any, campo: str) -> list[str]:
 # As relações são as da teia (addons.RELACOES); "{x}" é o lugar do conteúdo.
 PARTES_EXPRESSAO = ("abertura_addon", "abertura_dono", "fechamento", "porque", "regra",
                     "definicao", "parte-de", "diferente-de", "consequencia", "exemplo-de",
-                    "antes-de", "depois-de")
+                    "antes-de", "depois-de", "equivale")
 SEM_LACUNA = {"abertura_dono", "fechamento"}
 
 

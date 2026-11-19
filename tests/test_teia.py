@@ -203,3 +203,45 @@ def test_nao_entendi_vai_mais_fundo(com_teia):
     base = com_teia.responder("não entendi", conversa_id=r["conversa_id"], resposta="trabalhada")
     assert base["mensagem"]["texto"].startswith("Vou pela base")             # já tinha porquês
     assert "O GROUP BY agrupa linhas iguais." in base["mensagem"]["texto"]
+
+
+# ------------------------------------------------------------ dicionário
+BRASIL = """\
+F: v-grana
+Q: equivale | em Angola se diz «kumbu» | -> girias-ao:v-kumbu
+V: grana
+T: dinheiro
+R: **grana** (Brasil): dinheiro.
+"""
+ANGOLA = """\
+F: v-kumbu
+Q: equivale | no Brasil se diz «grana» | -> girias-br:v-grana
+V: kumbu
+T: dinheiro
+R: **kumbu** (Angola): dinheiro.
+"""
+
+
+@pytest.fixture
+def dicionarios(assistente, tmp_path):
+    for id_, texto in (("girias-br", BRASIL), ("girias-ao", ANGOLA)):
+        arquivo = tmp_path / f"{id_}.txt"
+        arquivo.write_text(texto, encoding="utf-8")
+        itens = criar_addon().ler_perguntas(arquivo)
+        assistente.instalar_addon(criar_pacote({**MANIFESTO, "id": id_}, itens, {}))
+    return assistente
+
+
+def test_verbete_trabalhado_traz_as_equivalencias(dicionarios):
+    texto = dicionarios.responder("o que é grana", resposta="trabalhada")["mensagem"]["texto"]
+    assert texto.startswith("**grana** (Brasil)") and "em Angola se diz «kumbu»" in texto
+    direta = dicionarios.responder("o que é grana", resposta="direta")["mensagem"]["texto"]
+    assert "kumbu" not in direta                 # a Direta responde só o verbete
+    dicionarios.definir_addon_ativo("girias-ao", False)
+    fora = dicionarios.responder("o que é grana", resposta="trabalhada")["mensagem"]["texto"]
+    assert "kumbu" not in fora                   # addon desativado: o elo não é dito
+
+
+def test_relacao_equivale_e_aceita(itens):
+    itens[0]["teia"]["porques"].append({"relacao": "equivale", "texto": "x", "liga": None})
+    validar_conhecimentos(itens)

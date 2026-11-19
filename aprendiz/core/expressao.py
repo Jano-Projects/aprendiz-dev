@@ -33,6 +33,7 @@ PADRAO: dict[str, list[str]] = {
     "exemplo-de": ["Por exemplo: {x}."],
     "antes-de": ["Antes disso, {x}."],
     "depois-de": ["Depois disso, {x}."],
+    "equivale": ["No mesmo sentido, {x}."],
     "fechamento": [],
 }
 

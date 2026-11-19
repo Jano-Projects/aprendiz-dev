@@ -44,7 +44,7 @@ MAX_PASSOS = 12
 # Ordem em que os porquês de um fragmento são seguidos: primeiro a causa e a
 # regra (o "por quê" de verdade), depois comparações e desdobramentos.
 ORDEM_RELACOES = ("porque", "regra", "definicao", "parte-de", "diferente-de",
-                  "consequencia", "exemplo-de", "antes-de", "depois-de")
+                  "equivale", "consequencia", "exemplo-de", "antes-de", "depois-de")
 CAUSAIS = {"porque", "regra", "definicao", "parte-de"}
 
 

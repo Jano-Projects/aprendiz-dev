@@ -169,7 +169,7 @@ PADRAO_ID = re.compile(r"^[a-z0-9][a-z0-9-]{1,62}$")
 # Teia de porquês (2.0): relações de uma lista fechada; ligação = "ref" do
 # mesmo addon ou "addon:ref" de outro.
 RELACOES = ("porque", "consequencia", "parte-de", "exemplo-de", "diferente-de",
-            "regra", "definicao", "antes-de", "depois-de")
+            "regra", "definicao", "antes-de", "depois-de", "equivale")
 PADRAO_LIGA = re.compile(r"^(?:[a-z0-9][a-z0-9-]{1,62}:)?[a-z0-9][a-z0-9-]{1,62}$")
 MAX_PORQUES = 10                         # os "10 porquês" são o teto
 MAX_ASSUNTOS = 20

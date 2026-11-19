@@ -18,7 +18,18 @@ seguem o [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 - **Definição desempata pelo fragmento que define**: em "o que é c?", vale "o que é a linguagem
   c", e não "laço for em c" ("for" é palavra vazia em português e some da comparação).
 
+- **Relação `equivale` na teia**: liga a mesma ideia em variedades diferentes da língua
+  ("grana", no Brasil; "kumbu", em Angola). Os addons de linguagem podem dar frases para ela.
+- **Dicionário com teia (resposta Trabalhada)**: depois do verbete, vêm as equivalências em
+  outros lugares e os falsos amigos ("mina": moça no Brasil, filho em São Tomé), até 5 de cada,
+  só de addons ativos. Com mais de um sentido, cada grupo diz de qual sentido é.
+
+- `criar_addon.py` avisa quando um addon de idioma (com `regiao`) não tem `norma.json`, que é
+  gerado e fica fora do git.
+
 ### Homologação
+- Leva idiomas: 12 perguntas novas e os oito addons de gírias e expressões na lista; o
+  esperado `texto:` confere o que a resposta diz.
 - Leva utilidades: 15 perguntas novas (terminal Linux, atalhos do Windows e conversões).
 - Leva C++: 15 perguntas novas (escritas antes dos porquês) e os três addons de C++ na lista.
 

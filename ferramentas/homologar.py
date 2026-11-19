@@ -38,7 +38,10 @@ ADDONS = ["compreensao-portugues", "dialogo-portugues", "vetores-portugues",
           "aprendiz-algoritmos", "aprendiz-arquitetura", "aprendiz-codigo", "aprendiz-do-zero",
           "aprendiz-preparar-ambiente", "c-basico", "c-intermediario", "c-avancado",
           "cpp-basico", "cpp-intermediario", "cpp-avancado",
-          "atalhos-terminal-linux", "atalhos-windows", "conversoes-medidas"]
+          "atalhos-terminal-linux", "atalhos-windows", "conversoes-medidas",
+          "girias-brasil", "girias-portugal", "girias-angola", "girias-mocambique",
+          "expressoes-cabo-verde", "expressoes-guine-bissau", "expressoes-sao-tome-e-principe",
+          "expressoes-timor-leste"]
 
 CASOS: list[tuple[str, str, str]] = [
     # (grupo, pergunta, esperado)
@@ -264,6 +267,19 @@ CASOS: list[tuple[str, str, str]] = [
     ("leva utilidades", "uma tv de 55 polegadas tem quantos cm", "q:tela de 50 polegadas"),
     ("leva utilidades", "pneu com 32 libras em bar", "q:psi"),
     ("leva utilidades", "um terreno de 2 hectares tem quantos metros", "q:hectare"),
+    # Leva idiomas: escritas antes da teia. "texto:" confere a resposta trabalhada.
+    ("leva idiomas", "o que significa trampo", "q:trampo"),
+    ("leva idiomas", "o que quer dizer bué em angola", "q:bué"),
+    ("leva idiomas", "o que é grana", "texto:se diz «"),
+    ("leva idiomas", "o que é bacano", "q:bacano"),
+    ("leva idiomas", "uai é o quê", "q:uai"),
+    ("leva idiomas", "o que significa busão", "q:busão"),
+    ("leva idiomas", "como se diz dinheiro em portugal", "tipo:conhecimento"),
+    ("leva idiomas", "como se diz obrigado em timor", "tipo:conhecimento"),
+    ("leva idiomas", "quando usar crase", "q:crase"),
+    ("leva idiomas", "o que mudou com o acordo ortográfico", "q:acordo"),
+    ("leva idiomas", "qual a diferença entre mas e mais", "q:mas"),
+    ("leva idiomas", "por que se escreve com hífen", "q:hífen|acordo"),
     ("social", "oi, tudo bem?", "tipo:social"),
     ("social", "obrigado!", "tipo:social"),
     ("social", "valeu, ajudou muito", "tipo:social"),
@@ -283,6 +299,8 @@ def confere(r: dict, esperado: str) -> bool:
         return msg["texto"].startswith(("Vou explicar o porquê", "Vou pela base"))
     if esperado == "panorama":
         return " encontrei" in msg["texto"][:200]
+    if esperado.startswith("texto:"):
+        return esperado[6:] in msg["texto"]
     if esperado.startswith("tipo:"):
         return tipo == esperado[5:]
     if esperado.startswith("!q:"):
