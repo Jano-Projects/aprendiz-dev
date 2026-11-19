@@ -38,6 +38,15 @@ seguem o [Versionamento Semântico](https://semver.org/lang/pt-BR/).
   alguma palavra forte da pergunta, comparada pela palavra e não só pelo radical. "O que é um
   ponteiro em C?" não é mais respondido com SQL por causa do apelido de tabela "c" ou do radical
   de "ponto". Palavras curtas valem quando são o assunto declarado (pergunta, variações, `A:`).
+- **Palavra informativa**: a regra do assunto ignora as palavras mais comuns da língua (com o
+  addon de vetores: "fazer", "quero") e aceita erro de digitação (85% de semelhança: "lefet" →
+  "left", mas "where" não vira "while"). Em "o que é X?", o X precisa estar no que o
+  conhecimento declara tratar (pergunta, variações, `A:`), não só citado no texto.
+- **"Não entendi" vai mais fundo**: com teia, se a resposta anterior não tinha os porquês, ele
+  explica os porquês; se já tinha, explica a base (cada conceito em que ela se apoiou).
+- **Homologação** (`ferramentas/homologar.py`): perguntas de gente de verdade (variações,
+  digitação, porquês, resumos, fora do assunto, conversa e um grupo de perguntas INÉDITAS, que
+  não estão em addon nenhum) contra os addons reais da loja.
 - **Assunto conhecido não é conversa social**: "me fala de banco de dados" não vira resposta de
   ajuda quando a base conhece o assunto, seja qual for o jeito de pedir.
 

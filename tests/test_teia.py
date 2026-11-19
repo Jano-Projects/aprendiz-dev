@@ -188,3 +188,18 @@ def test_trabalhada_sem_teia_responde_como_a_direta(assistente):
 def test_expressao_invalida_e_recusada(ruim):
     with pytest.raises(recursos.ErroRecurso):
         recursos.validar_compreensao({"expressao": ruim}, normalizar)
+
+
+def test_nao_entendi_vai_mais_fundo(com_teia):
+    from test_dialogo import pacote_dialogo
+    com_teia.instalar_addon(pacote_dialogo())
+    r = com_teia.responder("para que serve o where?", resposta="direta")
+    conversa = r["conversa_id"]
+    fundo = com_teia.responder("não entendi", conversa_id=conversa, resposta="direta")
+    assert fundo["mensagem"]["texto"].startswith("Vou explicar o porquê")   # direta → porquês
+    assert "filtra as linhas antes de agrupar" in fundo["mensagem"]["texto"]
+
+    r = com_teia.responder("para que serve o where?", resposta="trabalhada")
+    base = com_teia.responder("não entendi", conversa_id=r["conversa_id"], resposta="trabalhada")
+    assert base["mensagem"]["texto"].startswith("Vou pela base")             # já tinha porquês
+    assert "O GROUP BY agrupa linhas iguais." in base["mensagem"]["texto"]

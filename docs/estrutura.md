@@ -114,6 +114,7 @@ aprendiz/
 │   ├── conferir_addons.py               # Confere se vários addons convivem bem antes de publicá-los ou ativá-los juntos.
 │   ├── criar_addon.py                   # Cria (ou confere) um addon do Aprendiz — um arquivo .aprendiz.
 │   ├── gerar_estrutura.py               # Gera docs/estrutura.md: a árvore indentada de pastas e arquivos do projeto, com uma linha…
+│   ├── homologar.py                     # Homologação: perguntas de gente de verdade contra os addons REAIS da loja.
 │   ├── instalar-windows.ps1             # Lógica do instalador Windows (baixa o Python se faltar)
 │   └── verificar.py                     # Verificador de instalação do Aprendiz.
 ├── tests/                               # Testes automatizados (pytest)

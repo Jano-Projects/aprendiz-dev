@@ -30,13 +30,18 @@ import re
 import time
 from typing import Any
 
+from rapidfuzz import fuzz, process
+
 from aprendiz import addons as pacotes
 from aprendiz.algoritmos import BUSCAS, RESPOSTAS, ContextoBusca, titulo_curto
+from aprendiz.algoritmos.base import Candidato
+from aprendiz.algoritmos.resposta.trabalhada import resumo
 from aprendiz.configuracoes import Configuracoes
 from aprendiz.core.compreensao import Compreensao, FRASE_TIPO, resposta_dinamica
 from aprendiz.core.dialogo import SO_SEM_ASSUNTO, Dialogo
 from aprendiz.core.dicionario import Dicionario
 from aprendiz.core import revisao
+
 from aprendiz.core.expressao import Expressao
 from aprendiz.core.teia import Teia
 from aprendiz.memoria.banco import lista_json, teia_de
@@ -125,6 +130,15 @@ class Etapas:
         return round((time.perf_counter() - self._inicio_total) * 1000, 2)
 
 
+def _parecida(palavra: str, palavras: set[str]) -> bool:
+    """`palavra` aparece em `palavras`, com folga para flexão (mesmo começo) ou digitação."""
+    raiz = palavra[:max(4, len(palavra) - 2)] if len(palavra) >= 4 else palavra
+    if any(p.startswith(raiz) for p in palavras):
+        return True
+    perto = [p for p in palavras if abs(len(p) - len(palavra)) <= 2 and len(p) >= 3]
+    return process.extractOne(palavra, perto, scorer=fuzz.ratio, score_cutoff=85) is not None
+
+
 def texto_indexado(pergunta: str | None, conteudo: str, variacoes: list[str] | None = None) -> str:
     """O texto que vira índice de busca: pergunta + variações + conteúdo."""
     return " ".join([pergunta or "", *(variacoes or []), conteudo])
@@ -136,6 +150,7 @@ class Assistente:
         self.linguagem = Linguagem(banco)
         self.contexto = ContextoBusca(banco=banco, linguagem=self.linguagem)
         self.teia = Teia(banco, self.linguagem)
+        self._assunto_definicao: set[str] = set()   # palavras do assunto de um "o que é X?"
         self.contexto.expressao = Expressao(banco)
         self.configuracoes = Configuracoes(banco)
         self.dicionario = Dicionario(banco, self.linguagem)
@@ -588,6 +603,9 @@ class Assistente:
         # selecionar tudo no windows") e tem assunto não é cumprimento, mesmo
         # que o classificador ache ("tudo" lembra "tudo bem").
         analise = self.compreensao.analisar(consulta, mensagem) if self.compreensao.ativa else None
+        self._assunto_definicao = (set(normalizar(analise.assunto).split())
+                                   if analise and analise.tipo == "definicao" and analise.assunto
+                                   else set())
         if analise and analise.tipo and analise.tipo != "pedido" and not principal.get("exata"):
             assunto = [t for t in consulta.tokens[analise.inicio_assunto:]
                        if t not in self.linguagem.stopwords]
@@ -914,6 +932,13 @@ class Assistente:
             "ação": acao, "resposta anterior": meta.get("tipo") or "nenhuma"})
         padrao = (self.dialogo.texto(ato, mensagem), "dialogo", [])
 
+        # 2.0: com teia, "não entendi" vai mais FUNDO em vez de repetir o texto.
+        # Se a resposta anterior não explicou os porquês, explica; se já
+        # explicou, desce até a BASE: o que é cada conceito em que ela se apoiou.
+        if acao == "reformular" and meta.get("tipo") == "conhecimento" and meta.get("fontes"):
+            fundo = self._explicar_mais_fundo(meta, mensagem, etapas)
+            if fundo:
+                return fundo
         if acao == "reformular" and meta.get("tipo") == "conhecimento" and meta.get("fontes"):
             # A resposta anterior pode ter sido um resumo (Direta/Extrativa):
             # mostra o texto inteiro de onde ela saiu, se ele trouxer algo a mais.
@@ -1133,34 +1158,80 @@ class Assistente:
                 exatos.append(c)
         return exatos + outros
 
-    @staticmethod
-    def _cobre_palavra_forte(consulta, candidato) -> bool:
-        """
-        A resposta precisa ter alguma palavra FORTE da pergunta. "O que é um
-        ponteiro em C?" não pode ser respondido com um texto de SQL só porque
-        ele tem o apelido de tabela "c" — nem porque o radical de "ponteiro"
-        ("pont") é o mesmo de "ponto". Palavras de até 3 letras (c, js, sql)
-        são fracas quando a pergunta também tem uma mais longa.
+    def _explicar_mais_fundo(self, meta: dict, mensagem: str,
+                             etapas: Etapas) -> tuple[str, str, list] | None:
+        """O próximo nível de explicação da resposta anterior, pela teia. None se não houver."""
+        doc = self.banco.obter_conhecimento(meta["fontes"][0]["id"])
+        if not doc or not teia_de(doc):
+            return None
+        consulta = self.linguagem.processar(meta.get("pergunta") or doc.get("pergunta") or "")
+        self.contexto.caminho = self.teia.percorrer(doc, consulta.radicais)
+        algoritmo = (meta.get("explicacao") or {}).get("algoritmo_resposta")
+        if algoritmo != "trabalhada":
+            gerada = RESPOSTAS["trabalhada"].responder(
+                consulta, [Candidato(doc, 1.0, 1.0)], self.contexto)
+            etapas.marcar("Diálogo · explicar os porquês", {"partida": teia_de(doc)["ref"]})
+            return ("Vou explicar o porquê.\n\n" + gerada.texto, "conhecimento",
+                    [self._fonte(doc)])
+        # Já tinha os porquês: a base de cada conceito que apareceu.
+        base, fontes = [], []
+        for passo in self.contexto.caminho.usados if self.contexto.caminho else []:
+            alvo = passo.para
+            if alvo is None or alvo["id"] in {f["id"] for f in fontes}:
+                continue
+            # O resumo do conceito; se ele começa direto num exemplo de código,
+            # vale o próprio porquê que levou até ele.
+            trecho = resumo(alvo["conteudo"]) or _capitalizar(passo.texto)
+            if trecho:
+                base.append(f"- **{_capitalizar(alvo.get('pergunta') or '')}**: {trecho}")
+                fontes.append(self._fonte(alvo))
+        if not base:
+            return None
+        etapas.marcar("Diálogo · explicar a base", {"conceitos": len(base)})
+        return ("Vou pela base. A explicação se apoia nestes conceitos:\n\n" + "\n".join(base)
+                + "\n\nQuer que eu explique algum deles?"), "conhecimento", fontes
 
-        A comparação é pela PALAVRA, com folga para flexões ("índices" cobre
-        "índice", "agrupar" cobre "agrupa"): o começo da palavra, sem as 2
-        últimas letras (no mínimo 4). Sem nenhum radical em comum (um erro de
-        digitação que o Fuzzy acertou), não se julga aqui.
+    def _cobre_palavra_forte(self, consulta, candidato) -> bool:
+        """
+        A resposta precisa falar do ASSUNTO da pergunta: ter alguma palavra
+        INFORMATIVA dela. Sem isto, "o que é um ponteiro em C?" era respondido
+        com SQL por causa do apelido de tabela "c" (ou do radical "pont", que
+        também é de "ponto"), e "como fazer bolo de cenoura" casava pelo "fazer".
+
+        Palavra informativa: 4 letras ou mais e, com o addon de vetores, fora
+        das palavras mais comuns da língua ("fazer", "coisa", "quero"). Ela está
+        coberta se aparece na resposta com folga para flexão ("índices" →
+        "índice": o começo da palavra) ou para erro de digitação ("lefet" →
+        "left": semelhança de 85% ou mais; "where" e "while" ficam de fora).
+
+        Pergunta de DEFINIÇÃO ("o que é um ponteiro?"): o assunto precisa
+        estar no que o conhecimento declara tratar (pergunta, variações, A:).
+        Um texto sobre passagem por referência que cita ponteiros não é a
+        definição de ponteiro.
+
+        Sem palavra informativa ("o que é c?", "o que e nul"), as palavras
+        curtas valem se forem o ASSUNTO declarado do conhecimento (pergunta,
+        variações, assuntos A:), e não uma letra perdida no meio do texto.
         """
         doc = candidato.conhecimento
-        if not set(consulta.radicais) & set((doc.get("texto_busca") or "").split()):
+        if not consulta.conteudo:
             return True
         teia = teia_de(doc) or {}
         titulo = set(normalizar(" ".join([doc.get("pergunta") or "", *lista_json(doc, "variacoes"),
                                           *(teia.get("assuntos") or [])])).split())
-        fortes = [t for t in consulta.conteudo if len(t) >= 4]
-        if not fortes:
-            # Só palavras curtas ("o que é c?"): valem se forem o ASSUNTO
-            # declarado do conhecimento (pergunta, variações, assuntos), não
-            # uma letra perdida no meio do texto ("clientes c").
-            return bool(set(consulta.conteudo) & titulo) or not consulta.conteudo
+        lexico = self.linguagem.lexico
+        informativas = [t for t in consulta.conteudo if len(t) >= 4 and not (
+            lexico.tem_vetores and lexico.frequente(t, PALAVRAS_COMUNS_ASSUNTO))]
+        if not informativas:
+            curtas = [t for t in consulta.conteudo if len(t) >= 3]
+            return bool(set(consulta.conteudo) & titulo) or any(
+                _parecida(t, titulo) for t in curtas)
+        if self._assunto_definicao:
+            alvo = [t for t in informativas if t in self._assunto_definicao]
+            if alvo and not any(_parecida(t, titulo) for t in alvo):
+                return False
         palavras = titulo | set(normalizar(doc.get("conteudo") or "").split())
-        return any(any(p.startswith(t[:max(4, len(t) - 2)]) for p in palavras) for t in fortes)
+        return any(_parecida(t, palavras) for t in informativas)
 
     def _dono_ensinou_exatamente(self, consulta) -> bool:
         """O dono ensinou uma pergunta com exatamente estas palavras?"""
