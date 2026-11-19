@@ -135,6 +135,7 @@ aprendiz/
 │   ├── test_recomendacao.py             # Testes da 0.5: recomendação de algoritmos, grupos de addons e as opções ao instalar.
 │   ├── test_resolucao.py                # Testes da junção de abreviações e sinônimos de vários addons (1.0).
 │   ├── test_revisao.py                  # Testes das normas da língua e da revisão de texto (0.8).
+│   ├── test_sentido.py                  # A resposta precisa falar do assunto da pergunta (2.0).
 │   └── test_teia.py                     # Teia de porquês (2.0): leitura no perguntas.txt, validação e gravação.
 ├── .editorconfig                        # Padrão de indentação e fim de linha para qualquer editor
 ├── .gitattributes                       # Fins de linha corretos por tipo de arquivo (LF/CRLF)

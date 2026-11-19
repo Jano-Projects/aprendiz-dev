@@ -34,6 +34,12 @@ seguem o [Versionamento Semântico](https://semver.org/lang/pt-BR/).
   valem só no nível 1. O freio de assunto compara os assuntos (`A:`) dos fragmentos, não o texto
   inteiro. Na Trabalhada, o resumo do fragmento ligado só entra quando o porquê não tem texto.
 - Versão do app: 2.0.0 (em desenvolvimento).
+- **A resposta precisa falar do assunto**: um candidato só é aceito (e só é sugerido) se tiver
+  alguma palavra forte da pergunta, comparada pela palavra e não só pelo radical. "O que é um
+  ponteiro em C?" não é mais respondido com SQL por causa do apelido de tabela "c" ou do radical
+  de "ponto". Palavras curtas valem quando são o assunto declarado (pergunta, variações, `A:`).
+- **Assunto conhecido não é conversa social**: "me fala de banco de dados" não vira resposta de
+  ajuda quando a base conhece o assunto, seja qual for o jeito de pedir.
 
 ## [1.0.0] - 2026-11-18
 

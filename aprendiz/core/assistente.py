@@ -598,6 +598,15 @@ class Assistente:
         # Pergunta sobre o próprio Aprendiz não é cumprimento ("como você se chama?").
         if clara and analise is not None and self.compreensao.autoconhecimento(consulta):
             clara = False
+        # Assunto que a base conhece não é conversa social: "me fala de banco
+        # de dados" pede o banco de dados, mesmo que o classificador ache que é
+        # um pedido de ajuda. Vale para qualquer jeito de pedir, não só para os
+        # gatilhos da compreensão.
+        if principal["intencao"] in INTENCOES_SOCIAIS and curta and clara \
+                and len(consulta.conteudo) >= 2 and self.buscar(consulta, busca)[1]:
+            clara = False
+            etapas.marcar("Assunto conhecido", {"palavras": ", ".join(consulta.conteudo),
+                                                "intencao ignorada": principal["intencao"]})
         if principal["intencao"] in INTENCOES_SOCIAIS and curta and clara:
             texto = self.banco.resposta_padrao(principal["intencao"]) or "Certo!"
             etapas.marcar("Resposta social", {"intencao": principal["intencao"]})
@@ -711,7 +720,8 @@ class Assistente:
             # "o que é um animal?" não deve sugerir "me empresta ou empresta-me".
             parecidos = [c for c in candidatos
                          if set(consulta.radicais)
-                         & set((c.conhecimento.get("texto_busca") or "").split())]
+                         & set((c.conhecimento.get("texto_busca") or "").split())
+                         and self._cobre_palavra_forte(consulta, c)]
             if parecidos:
                 sugestoes = "\n".join(f"- {self._titulo(c.conhecimento)}" for c in parecidos[:3])
                 texto += f"\n\nTalvez você esteja procurando algo parecido com:\n{sugestoes}"
@@ -1079,7 +1089,8 @@ class Assistente:
         limiar = self.contexto.limiar(busca)
         candidatos = self._filtrar_verbetes(
             consulta, BUSCAS[busca].buscar(consulta, self.contexto, limite=limite))
-        aceitos = [c for c in candidatos if c.confianca >= limiar]
+        aceitos = [c for c in candidatos if c.confianca >= limiar
+                   and self._cobre_palavra_forte(consulta, c)]
         # Prioridade do dono: se o melhor resultado veio de um addon, mas há
         # algo ensinado pelo dono quase tão relevante (por padrão, até 10%
         # abaixo), vale o do dono. A margem existe porque respostas mais longas
@@ -1121,6 +1132,35 @@ class Assistente:
                 c.detalhes = {**c.detalhes, "verbete": "palavra exata"}
                 exatos.append(c)
         return exatos + outros
+
+    @staticmethod
+    def _cobre_palavra_forte(consulta, candidato) -> bool:
+        """
+        A resposta precisa ter alguma palavra FORTE da pergunta. "O que é um
+        ponteiro em C?" não pode ser respondido com um texto de SQL só porque
+        ele tem o apelido de tabela "c" — nem porque o radical de "ponteiro"
+        ("pont") é o mesmo de "ponto". Palavras de até 3 letras (c, js, sql)
+        são fracas quando a pergunta também tem uma mais longa.
+
+        A comparação é pela PALAVRA, com folga para flexões ("índices" cobre
+        "índice", "agrupar" cobre "agrupa"): o começo da palavra, sem as 2
+        últimas letras (no mínimo 4). Sem nenhum radical em comum (um erro de
+        digitação que o Fuzzy acertou), não se julga aqui.
+        """
+        doc = candidato.conhecimento
+        if not set(consulta.radicais) & set((doc.get("texto_busca") or "").split()):
+            return True
+        teia = teia_de(doc) or {}
+        titulo = set(normalizar(" ".join([doc.get("pergunta") or "", *lista_json(doc, "variacoes"),
+                                          *(teia.get("assuntos") or [])])).split())
+        fortes = [t for t in consulta.conteudo if len(t) >= 4]
+        if not fortes:
+            # Só palavras curtas ("o que é c?"): valem se forem o ASSUNTO
+            # declarado do conhecimento (pergunta, variações, assuntos), não
+            # uma letra perdida no meio do texto ("clientes c").
+            return bool(set(consulta.conteudo) & titulo) or not consulta.conteudo
+        palavras = titulo | set(normalizar(doc.get("conteudo") or "").split())
+        return any(any(p.startswith(t[:max(4, len(t) - 2)]) for p in palavras) for t in fortes)
 
     def _dono_ensinou_exatamente(self, consulta) -> bool:
         """O dono ensinou uma pergunta com exatamente estas palavras?"""
