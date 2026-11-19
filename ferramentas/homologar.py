@@ -36,7 +36,8 @@ ADDONS = ["compreensao-portugues", "dialogo-portugues", "vetores-portugues",
           "prog-logica", "prog-vocabulario", "prog-estruturas-dados", "prog-banco-dados",
           "sql-basico", "sql-avancado", "sql-teoria-pratica", "python-basico", "python-avancado",
           "aprendiz-algoritmos", "aprendiz-arquitetura", "aprendiz-codigo", "aprendiz-do-zero",
-          "aprendiz-preparar-ambiente", "c-basico", "c-intermediario", "c-avancado"]
+          "aprendiz-preparar-ambiente", "c-basico", "c-intermediario", "c-avancado",
+          "cpp-basico", "cpp-intermediario", "cpp-avancado"]
 
 CASOS: list[tuple[str, str, str]] = [
     # (grupo, pergunta, esperado)
@@ -230,6 +231,22 @@ CASOS: list[tuple[str, str, str]] = [
     ("leva c", "escrever além do tamanho do vetor", "q:buffer overflow"),
     ("leva c", "achar onde o programa c trava passo a passo", "q:gdb"),
     ("leva c", "ordenar um vetor em c sem escrever o algoritmo", "q:qsort"),
+    # Leva C++: escritas ANTES de pôr os porquês e o vocabulário.
+    ("leva c++", "o que o c++ tem a mais que o c", "q:diferença entre c e c++"),
+    ("leva c++", "lista que cresce sozinha em c++", "q:vector"),
+    ("leva c++", "função com o mesmo nome e parâmetros diferentes", "q:sobrecarga de função"),
+    ("leva c++", "método que roda quando o objeto é criado", "q:construtor"),
+    ("leva c++", "classe filha que reaproveita a classe mãe em c++", "q:herança"),
+    ("leva c++", "ponteiro que libera a memória sozinho", "q:ponteiro inteligente"),
+    ("leva c++", "unique_ptr e shared_ptr", "q:ponteiro inteligente"),
+    ("leva c++", "função que funciona para qualquer tipo em c++", "q:template"),
+    ("leva c++", "dicionário em c++", "q:map"),
+    ("leva c++", "try catch em c++", "q:exceções"),
+    ("leva c++", "std::move", "q:movimento"),
+    ("leva c++", "evitar que duas threads mexam no mesmo dado em c++", "q:mutex"),
+    ("leva c++", "novidades do c++20", "q:mudou no c++11|c++20"),
+    ("leva c++", "using namespace std", "q:namespace"),
+    ("leva c++", "ordenar um vector", "q:ordenar um vector"),
     ("social", "oi, tudo bem?", "tipo:social"),
     ("social", "obrigado!", "tipo:social"),
     ("social", "valeu, ajudou muito", "tipo:social"),

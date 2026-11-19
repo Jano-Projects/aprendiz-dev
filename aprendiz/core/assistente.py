@@ -1289,7 +1289,9 @@ class Assistente:
                 # Sigla curta ("exe", "cte", "api"): só vale igual, sem folga.
                 peso = 2 if t in propria else 1 if t in titulo else 0
             else:
-                peso = 2 if _parecida(t, propria) else 1 if _parecida(t, titulo) else 0
+                tol = self._tolera(t)  # "seta" existe: não é "set" mal digitado
+                peso = (2 if _parecida(t, propria, tol) else
+                        1 if _parecida(t, titulo, tol) else 0)
             if peso:
                 # Cobrir mais palavras da pergunta também conta (COBERTURA).
                 por_palavra[t] = (peso * raras.get(t, 1.0) * (1.0 if t in informativas else 0.5)

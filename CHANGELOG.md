@@ -9,6 +9,12 @@ seguem o [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 ### Mudado
 - O operador seta do C (`p->campo`) vira "seta" na normalização, em vez de sumir com a
   pontuação (versão 6 das regras de normalização: a base é reindexada ao abrir).
+- **Erro de digitação só para palavra desconhecida também no assunto**: "seta" existe, então
+  não conta como "set" mal digitado ao comparar a pergunta com o assunto de cada fragmento
+  (antes, "usar -> em c" caía no `std::set` do C++).
+
+### Homologação
+- Leva C++: 15 perguntas novas (escritas antes dos porquês) e os três addons de C++ na lista.
 
 ## [2.0.1] - 2026-11-19
 
