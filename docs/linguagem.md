@@ -15,7 +15,7 @@ Vamos seguir a mensagem **"Vc sabe qual o HORÁRIO da farmásia?"** por todas as
 | 7 | Remover stopwords | `horario` `farmacia` |
 | 8 | Radicais | `horari` `farmac` |
 
-O painel "Por que respondi isso?" mostra exatamente essas etapas.
+O Monitor mostra exatamente essas etapas.
 
 ## 1–2. Normalização
 

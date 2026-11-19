@@ -47,7 +47,10 @@ Todos os algoritmos de busca têm o mesmo método `buscar()`, e todos os de resp
 
 ## Caminho de uma mensagem
 
-1. A interface faz `POST /api/chat` com a mensagem e os algoritmos escolhidos.
+1. A interface faz `POST /api/chat/fluxo` (2.4) com a mensagem e os algoritmos escolhidos. A
+   resposta chega em NDJSON: uma linha por etapa, assim que ela termina, e no fim a resposta
+   completa, igual à de `POST /api/chat` (a rota comum, que continua existindo). Veja
+   [monitor.md](monitor.md).
 2. `Assistente.responder()` grava a mensagem do usuário e executa o pipeline:
    1. **Normalização**: `Linguagem.processar()`, incluindo números e contas numa forma só
       (`linguagem/numeros.py`: "dois mais dois" → `2 soma 2`)
@@ -68,6 +71,9 @@ Todos os algoritmos de busca têm o mesmo método `buscar()`, e todos os de resp
       `A:`) ganha folga no limiar e vem antes (2.3.1: a folga exige duas palavras do assunto
       ou uma palavra forte, e palavras que só começam igual, como "indicar" e "índice", não
       contam como flexão quando o addon de vetores diz que são de famílias diferentes)
+      Com a busca **Calibrada** (2.4), as folgas fixas não se aplicam: os mesmos sinais entram
+      na conta dela com o peso que o treino mediu (`aprendido = True`); o filtro do assunto
+      continua valendo
    9. **Modo estrito**: sem candidato aceito, responde "ainda não fui ensinado". Com addon de
       compreensão, antes disso: fora de alcance, busca por sentido (vetores) e recomendação de
       addon (`meta.recomendacao`)
@@ -76,7 +82,7 @@ Todos os algoritmos de busca têm o mesmo método `buscar()`, e todos os de resp
    11. **Resposta**: algoritmo escolhido monta o texto; a **Trabalhada** usa o caminho da teia e
        as frases de expressão dos addons de linguagem (`core/expressao.py`)
 3. Cada etapa registra dados e tempo. Isso vira o campo `meta.explicacao`, que a interface
-   mostra no painel "Por que respondi isso?".
+   mostra no Monitor.
 4. A resposta é gravada e devolvida.
 
 ## Caches e versões
@@ -125,6 +131,39 @@ A teia liga fragmentos pela `ref` (mesmo addon) ou por `addon:ref` (outro addon)
 para addon desativado é cortada, mas o texto do porquê continua valendo. A medida de qualidade
 do conjunto é a homologação (`ferramentas/homologar.py`), que roda perguntas reais contra os
 addons da loja.
+
+## Monitor (2.4)
+
+```
+Assistente.responder(…, ouvinte) ──► Etapas.marcar() ──► ouvinte(etapa) ──► queue.Queue
+                                                                              │
+interface (monitor.js) ◄── ReadableStream ◄── StreamingResponse (NDJSON) ◄────┘
+```
+
+- `Etapas` (em `core/assistente.py`) chama o **ouvinte** a cada etapa marcada; a rota
+  `/api/chat/fluxo` roda o `Assistente` numa thread e envia cada evento da fila assim que ele
+  chega (produtor-consumidor).
+- `core/monitor.py` monta a ficha técnica (`GET /api/modelo`): componentes, parâmetros por tipo,
+  treino da Calibrada e ambiente; também mede a memória do processo, gravada em
+  `meta.explicacao.memoria_mb` de cada resposta.
+- `web/monitor.js` é o painel: Pipeline, Busca, Modelo, Desempenho e Glossário, nos níveis
+  Iniciante e Avançado. Ele só lê dados; nada do que mostra muda a resposta.
+
+## Busca aprendida (2.4)
+
+A busca **Calibrada** (`algoritmos/busca/calibrado.py`) é o único algoritmo com parâmetros
+aprendidos. O treino fica fora do app:
+
+```
+ferramentas/treinar_calibrado.py ──► algoritmos/busca/calibrado_pesos.py ──► calibrado.py
+ (scikit-learn, na máquina de          (números: média, desvio e peso       (soma ponderada e
+  quem desenvolve)                      de cada sinal; 2ª etapa)              sigmoide, Python puro)
+```
+
+Os sinais do assunto declarado são medidos pelo `Assistente` (`_sinais_assunto`), que os
+entrega pela função `ContextoBusca.sinais_assunto`. Assim o algoritmo usa as mesmas medidas das
+regras fixas sem depender do `Assistente`. O `calibrado_pesos.py` é gerado: não se edita à mão.
+As perguntas do treino e do teste ficam em `benchmarks/conjunto_calibrado.json`.
 
 ## Configurações (parâmetros e personalização)
 

@@ -92,6 +92,17 @@ de explicação.
 Com isso ela conta o fato e cada porquê seguido dos porquês do fragmento ligado. Sem teia, cai
 na resposta Direta: um montador novo deve sempre ter um caminho simples para quando faltar dado.
 
+### Um algoritmo que aprende: a busca Calibrada (2.4)
+
+`algoritmos/busca/calibrado.py` mostra como usar machine learning sem pesar no dispositivo:
+
+- o **treino** fica numa ferramenta (`ferramentas/treinar_calibrado.py`), com as bibliotecas
+  de desenvolvimento (scikit-learn), e grava só números num arquivo Python gerado;
+- a **busca** lê esses números e faz uma soma ponderada por candidato, em Python puro;
+- `aprendido = True` avisa o `Assistente` que as folgas fixas do assunto não devem ser
+  aplicadas por cima, porque os mesmos sinais já entram na conta;
+- `ctx.sinais_assunto(consulta, conhecimento)` entrega as medidas do assunto declarado.
+
 ## Dicas
 
 - O que você colocar em `detalhes` aparece na interface. Use isso para explicar seu algoritmo.

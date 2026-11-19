@@ -32,6 +32,8 @@ aprendiz/
 │   │   ├── busca/                       # Algoritmos de busca. A ordem de importação define a ordem no seletor.
 │   │   │   ├── __init__.py              # Algoritmos de busca. A ordem de importação define a ordem no seletor.
 │   │   │   ├── bm25.py                  # Busca BM25 usando o índice FTS5 do próprio SQLite.
+│   │   │   ├── calibrado.py             # Busca calibrada: um reordenador APRENDIDO por regressão logística (2.4).
+│   │   │   ├── calibrado_pesos.py       # Pesos da busca Calibrada. ARQUIVO GERADO por ferramentas/treinar_calibrado.py: não edite…
 │   │   │   ├── fuzzy.py                 # Busca aproximada (fuzzy) com a biblioteca rapidfuzz.
 │   │   │   ├── hibrido.py               # Busca híbrida: combina BM25, TF-IDF e Fuzzy com Reciprocal Rank Fusion (RRF).
 │   │   │   └── tfidf.py                 # Busca TF-IDF + similaridade do cosseno, implementada em Python puro.
@@ -53,6 +55,7 @@ aprendiz/
 │   │   ├── dicionario.py                # Dicionário: consultas aos VERBETES dos addons, nos dois sentidos.
 │   │   ├── exportacao.py                # Exportação: transforma o que o DONO ensinou num addon (.aprendiz) para compartilhar.
 │   │   ├── expressao.py                 # Expressão (2.0): COMO dizer cada parte de uma resposta, com frases que vêm dos addons de…
+│   │   ├── monitor.py                   # Monitor (2.4): a ficha técnica do "modelo" do Aprendiz e a memória do processo.
 │   │   ├── padroes.py                   # Padrões de frase (2.0): o SENTIDO que vem da estrutura da frase, não das palavras soltas.…
 │   │   ├── recomendacao.py              # Recomendação de algoritmos para um addon: qual BUSCA e qual RESPOSTA usar.
 │   │   ├── revisao.py                   # Revisão de texto pela NORMA de um país (Aprendiz 0.8+).
@@ -71,11 +74,12 @@ aprendiz/
 │   │   ├── banco.py                     # Camada de acesso ao banco SQLite.
 │   │   └── sementes.py                  # Dados iniciais ("sementes") do banco de linguagem.
 │   ├── web/                             # Interface de chat: HTML, CSS e JS puros, 100% offline
-│   │   ├── app.js                       # Lógica da interface: chat, explicação, addons, configurações
+│   │   ├── app.js                       # Lógica da interface: chat, envio ao vivo, addons, configurações
 │   │   ├── estilo.css                   # Visual: temas claro/escuro, layout, responsivo
 │   │   ├── icone.svg                    # Ícone do aplicativo
 │   │   ├── index.html                   # Estrutura da página, ícones SVG e diálogos
-│   │   └── markdown.js                  # Mini renderizador de Markdown com proteção contra XSS
+│   │   ├── markdown.js                  # Mini renderizador de Markdown com proteção contra XSS
+│   │   └── monitor.js                   # Monitor (2.4): pipeline ao vivo, busca, parâmetros do modelo, desempenho e glossário
 │   ├── __init__.py                      # Aprendiz — um assistente pessoal local, leve e offline.
 │   ├── __main__.py                      # Permite executar com `python -m aprendiz`.
 │   ├── addons.py                        # Addons: pacotes prontos, distribuídos em arquivos .aprendiz.
@@ -87,6 +91,7 @@ aprendiz/
 │   └── recursos.py                      # Recursos de compreensão: os arquivos que os addons "compreensao" e "vetores" trazem…
 ├── benchmarks/                          # Comparação dos algoritmos de busca
 │   ├── comparar.py                      # Benchmark: compara os algoritmos de busca num mesmo conjunto de perguntas.
+│   ├── conjunto_calibrado.json          # Perguntas rotuladas (treino e teste) da busca Calibrada, geradas das variações dos addons
 │   └── dados_exemplo.json               # Base e perguntas usadas no benchmark
 ├── docs/                                # Documentação de estudo
 │   ├── imagens/                         # Imagens usadas no README
@@ -99,6 +104,7 @@ aprendiz/
 │   ├── empacotamento.md                 # Instaladores, executável e problemas comuns
 │   ├── estrutura.md                     # Este mapa (gerado por ferramentas/gerar_estrutura.py)
 │   ├── linguagem.md                     # O pipeline de PLN, etapa por etapa
+│   ├── monitor.md                       # O Monitor: abas, níveis, fluxo ao vivo (NDJSON) e o que conta como parâmetro
 │   └── revisao.md                       # Addons de norma e revisão de texto: vocabulário, grafias, regras de gramática
 ├── exemplos/                            # Exemplos prontos para usar e estudar
 │   └── addons/                          # Addons de exemplo (oficiais): fontes e arquivos .aprendiz gerados
@@ -118,6 +124,7 @@ aprendiz/
 │   ├── gerar_estrutura.py               # Gera docs/estrutura.md: a árvore indentada de pastas e arquivos do projeto, com uma linha…
 │   ├── homologar.py                     # Homologação: perguntas de gente de verdade contra os addons REAIS da loja.
 │   ├── instalar-windows.ps1             # Lógica do instalador Windows (baixa o Python se faltar)
+│   ├── treinar_calibrado.py             # Treina a busca Calibrada (aprendiz/algoritmos/busca/calibrado.py).
 │   └── verificar.py                     # Verificador de instalação do Aprendiz.
 ├── tests/                               # Testes automatizados (pytest)
 │   ├── conftest.py                      # Fixtures compartilhadas: cada teste ganha um banco novo, num arquivo temporário.
@@ -125,6 +132,7 @@ aprendiz/
 │   ├── test_algoritmos.py               # Testes dos algoritmos de busca e de resposta, e do pipeline completo.
 │   ├── test_api.py                      # Testes da API HTTP (o mesmo caminho que a interface usa).
 │   ├── test_atualizacao.py              # Atualização sob pedido (2.2): só com o gatilho, com SHA-256 conferido. Sem rede: baixar…
+│   ├── test_calibrado.py                # Testes da busca Calibrada (2.4): contas, pesos gravados e comportamento no pipeline.
 │   ├── test_compreensao.py              # Testes da compreensão (0.7): addons "compreensao" e "vetores".
 │   ├── test_confusao.py                 # Testes da 2.3.1: confusão entre domínios.
 │   ├── test_dialogo.py                  # Testes do diálogo (0.9): a seção "dialogo" dos addons de compreensão e a herança de grupo…
@@ -136,6 +144,7 @@ aprendiz/
 │   ├── test_juntar.py                   # Testes de "juntar e reinterpretar" (1.0): panorama ("o que você sabe sobre X?"), pedido…
 │   ├── test_linguagem.py                # Testes do processamento de linguagem: radicais, normalização, intenções, entidades.
 │   ├── test_loja_oficial.py             # Testes do link da loja oficial: endereço fixo, aberto pelo servidor no navegador do…
+│   ├── test_monitor.py                  # Testes do Monitor (2.4): etapas ao vivo, rota de fluxo e ficha do modelo.
 │   ├── test_numeros.py                  # Números e contas escritos de jeitos diferentes viram uma forma só (fase 1 da 2.0).
 │   ├── test_padroes.py                  # Padrões de frase (2.0): a estrutura da frase diz o conceito; as lacunas são exemplos.
 │   ├── test_recomendacao.py             # Testes da 0.5: recomendação de algoritmos, grupos de addons e as opções ao instalar.
@@ -161,6 +170,7 @@ aprendiz/
 ├── README.md                            # Apresentação, instalação e mapa do projeto
 ├── requirements-dev.txt                 # Dependências de desenvolvimento (pytest, httpx, PyInstaller)
 ├── requirements-janela.txt              # Dependência opcional da janela nativa (pywebview)
+├── requirements-treino.txt              # Dependência só para treinar a busca Calibrada (scikit-learn)
 ├── requirements.txt                     # Dependências essenciais (FastAPI, Uvicorn, RapidFuzz)
 └── SECURITY.md                          # Política de segurança e como reportar falhas
 ```

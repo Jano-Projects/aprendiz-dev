@@ -25,7 +25,7 @@ quando nada serve). Para ACEITAR um documento exigimos CONSENSO:
 concordância deles, sozinha, não basta.)
 
 Sem consenso, a confiança fica logo abaixo do limiar: o documento continua
-na lista (aparece em "Por que respondi isso?"), mas não vira resposta.
+na lista (aparece no Monitor), mas não vira resposta.
 Exemplo: "você tem nome?" contém "nome", que aparece numa regra sobre o
 trema ("nomes estrangeiros"). Só o BM25 concorda, e "nome" não é o assunto
 da regra: recusado.

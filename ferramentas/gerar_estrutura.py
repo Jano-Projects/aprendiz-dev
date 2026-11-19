@@ -59,6 +59,7 @@ DESCRICOES: dict[str, str] = {
     "requirements.txt": "Dependências essenciais (FastAPI, Uvicorn, RapidFuzz)",
     "requirements-dev.txt": "Dependências de desenvolvimento (pytest, httpx, PyInstaller)",
     "requirements-janela.txt": "Dependência opcional da janela nativa (pywebview)",
+    "requirements-treino.txt": "Dependência só para treinar a busca Calibrada (scikit-learn)",
     "instalar.sh": "Instalador Linux/macOS: instala o Python se faltar, cria o .venv",
     "executar.sh": "Abre o Aprendiz no Linux/macOS (instala na primeira vez)",
     "empacotar.sh": "Gera o executável Linux com o PyInstaller",
@@ -73,11 +74,13 @@ DESCRICOES: dict[str, str] = {
     # ---- interface
     "aprendiz/web/index.html": "Estrutura da página, ícones SVG e diálogos",
     "aprendiz/web/estilo.css": "Visual: temas claro/escuro, layout, responsivo",
-    "aprendiz/web/app.js": "Lógica da interface: chat, explicação, addons, configurações",
+    "aprendiz/web/app.js": "Lógica da interface: chat, envio ao vivo, addons, configurações",
+    "aprendiz/web/monitor.js": "Monitor (2.4): pipeline ao vivo, busca, parâmetros do modelo, desempenho e glossário",
     "aprendiz/web/markdown.js": "Mini renderizador de Markdown com proteção contra XSS",
     "aprendiz/web/icone.svg": "Ícone do aplicativo",
     # ---- docs
     "docs/algoritmos.md": "Como funciona cada algoritmo, com exemplo calculado",
+    "docs/monitor.md": "O Monitor: abas, níveis, fluxo ao vivo (NDJSON) e o que conta como parâmetro",
     "docs/addons.md": "Formato .aprendiz, como criar addons e segurança",
     "docs/arquitetura.md": "Camadas, decisões de projeto e tabelas do banco",
     "docs/compreensao.md": "Addons de compreensão e vetores: lemas, tipos de pergunta, recomendação",
@@ -88,6 +91,7 @@ DESCRICOES: dict[str, str] = {
     "docs/linguagem.md": "O pipeline de PLN, etapa por etapa",
     # ---- exemplos e ferramentas
     "benchmarks/dados_exemplo.json": "Base e perguntas usadas no benchmark",
+    "benchmarks/conjunto_calibrado.json": "Perguntas rotuladas (treino e teste) da busca Calibrada, geradas das variações dos addons",
     "exemplos/addons/conversoes-medidas.aprendiz": "Addon pronto para importar",
     "exemplos/addons/modo-exigente.aprendiz": "Addon pronto para importar (limiares mais altos)",
     "exemplos/addons/modo-exigente/manifesto.json": "Identidade do addon (origem oficial)",

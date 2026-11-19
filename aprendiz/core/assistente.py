@@ -21,7 +21,7 @@ As etapas 4b e 6 só fazem algo com um addon de compreensão ativo (0.7+);
 veja core/compreensao.py.
 
 Cada etapa registra o que fez e quanto tempo levou. Esse registro vira a
-"explicação" exibida no painel "Por que respondi isso?" da interface.
+"explicação" exibida no Monitor da interface.
 """
 
 from __future__ import annotations
@@ -29,7 +29,7 @@ from __future__ import annotations
 import math
 import re
 import time
-from typing import Any
+from typing import Any, Callable
 
 from rapidfuzz import fuzz, process
 
@@ -41,7 +41,7 @@ from aprendiz.configuracoes import Configuracoes
 from aprendiz.core.compreensao import Compreensao, FRASE_TIPO, resposta_dinamica
 from aprendiz.core.dialogo import SO_SEM_ASSUNTO, Dialogo
 from aprendiz.core.dicionario import Dicionario
-from aprendiz.core import revisao
+from aprendiz.core import monitor, revisao
 
 from aprendiz.core.expressao import Expressao
 from aprendiz.core.padroes import Padroes
@@ -119,19 +119,30 @@ def _capitalizar(texto: str) -> str:
 
 
 class Etapas:
-    """Pequeno cronômetro que registra cada etapa do pipeline."""
+    """
+    Pequeno cronômetro que registra cada etapa do pipeline.
 
-    def __init__(self) -> None:
+    `ouvinte` (2.4) é chamado a cada etapa marcada, no momento em que ela
+    termina: é assim que o Monitor da interface mostra o pipeline AO VIVO
+    (rota /api/chat/fluxo). Sem ouvinte, nada muda.
+    """
+
+    def __init__(self, ouvinte: Callable[[dict[str, Any]], None] | None = None) -> None:
         self.lista: list[dict[str, Any]] = []
         self.meta: dict[str, Any] = {}  # dados extras da resposta (ex.: recomendação)
         self._inicio_total = time.perf_counter()
         self._inicio = self._inicio_total
+        self.ouvinte = ouvinte
 
     def marcar(self, nome: str, dados: dict[str, Any]) -> None:
         agora = time.perf_counter()
-        self.lista.append({"nome": nome, "ms": round((agora - self._inicio) * 1000, 2),
-                           "dados": dados})
+        etapa = {"nome": nome, "ms": round((agora - self._inicio) * 1000, 2),
+                 "inicio_ms": round((self._inicio - self._inicio_total) * 1000, 2),
+                 "dados": dados}
+        self.lista.append(etapa)
         self._inicio = agora
+        if self.ouvinte is not None:
+            self.ouvinte({**etapa, "indice": len(self.lista) - 1})
 
     @property
     def total_ms(self) -> float:
@@ -194,6 +205,7 @@ class Assistente:
         self._raras_versao = -1
         self._df, self._df_total, self._df_versao = {}, 0, -1   # palavras do assunto de um "o que é X?"
         self.contexto.expressao = Expressao(banco)
+        self.contexto.sinais_assunto = self._sinais_assunto
         self.configuracoes = Configuracoes(banco)
         self.dicionario = Dicionario(banco, self.linguagem)
         self.compreensao = Compreensao(banco, self.linguagem)
@@ -530,7 +542,8 @@ class Assistente:
 
     # ================================================================ CONVERSA
     def responder(self, mensagem: str, conversa_id: str | None = None,
-                  busca: str | None = None, resposta: str | None = None) -> dict[str, Any]:
+                  busca: str | None = None, resposta: str | None = None,
+                  ouvinte: Callable[[dict[str, Any]], None] | None = None) -> dict[str, Any]:
         mensagem = mensagem.strip()
         if not mensagem:
             raise ValueError("Mensagem vazia.")
@@ -549,7 +562,7 @@ class Assistente:
         contexto = self._contexto(conversa_id)
         msg_usuario = self.banco.adicionar_mensagem(conversa_id, "usuario", mensagem)
 
-        etapas = Etapas()
+        etapas = Etapas(ouvinte)
         texto_resposta, tipo, fontes = self._pipeline(mensagem, busca, resposta, etapas,
                                                       contexto)
 
@@ -563,6 +576,8 @@ class Assistente:
                 "algoritmo_busca": busca,
                 "algoritmo_resposta": resposta,
                 "total_ms": etapas.total_ms,
+                # 2.4: memória do processo ao terminar (Monitor → Desempenho).
+                "memoria_mb": monitor.memoria_mb(),
             },
         }
         msg_assistente = self.banco.adicionar_mensagem(conversa_id, "assistente",
@@ -755,12 +770,15 @@ class Assistente:
         # 5. Busca -------------------------------------------------------------
         algoritmo_busca = BUSCAS[busca]
         candidatos, aceitos, limiar = self.buscar(consulta, busca)
+        ids_aceitos = {c.id for c in aceitos}
         etapas.marcar(f"Busca · {algoritmo_busca.titulo}", {
             "limiar": limiar,
             "candidatos": [
+                # "aceito" = passou de verdade (limiar, folgas e regra do
+                # assunto), e não só "confiança ≥ limiar" (2.4, para o Monitor).
                 {"id": c.id, "titulo": self._titulo(c.conhecimento),
                  "confianca": c.confianca, "pontuacao": c.pontuacao,
-                 "aceito": c.confianca >= limiar, "detalhes": c.detalhes}
+                 "aceito": c.id in ids_aceitos, "detalhes": c.detalhes}
                 for c in candidatos
             ],
         })
@@ -1323,8 +1341,12 @@ class Assistente:
         # O limiar que o DONO definiu é respeitado à risca (modo estrito).
         dono_definiu = config.get(f"limiar.{busca}", {}).get("origem") == "dono"
 
+        # Busca aprendida (2.4, Calibrado): os sinais do assunto já entram na
+        # conta dela com o peso que o treino mediu; as folgas fixas não valem.
+        aprendido = getattr(BUSCAS[busca], "aprendido", False)
+
         def folga(c) -> float:
-            if not bate[c.id] or dono_definiu or not forte(c):
+            if aprendido or not bate[c.id] or dono_definiu or not forte(c):
                 return 1.0
             return FOLGA_MELHOR_ASSUNTO if unico and bate[c.id] == maior else FOLGA_ASSUNTO
 
@@ -1338,7 +1360,8 @@ class Assistente:
         def define(c) -> bool:
             return bool(self._assunto_definicao) and normalizar(
                 c.conhecimento.get("pergunta") or "").startswith(("o que e ", "o que sao "))
-        aceitos.sort(key=lambda c: (not exata[c.id], -bate[c.id], not define(c)))
+        if not aprendido:
+            aceitos.sort(key=lambda c: (not exata[c.id], -bate[c.id], not define(c)))
         # Prioridade do dono: se o melhor resultado veio de um addon, mas há
         # algo ensinado pelo dono quase tão relevante (por padrão, até 10%
         # abaixo), vale o do dono. A margem existe porque respostas mais longas
@@ -1413,6 +1436,24 @@ class Assistente:
         etapas.marcar("Diálogo · explicar a base", {"conceitos": len(base)})
         return ("Vou pela base. A explicação se apoia nestes conceitos:\n\n" + "\n".join(base)
                 + "\n\nQuer que eu explique algum deles?"), "conhecimento", fontes
+
+    def _sinais_assunto(self, consulta, doc: dict) -> dict[str, float]:
+        """
+        Os sinais do assunto declarado para a busca Calibrada (2.4): as mesmas
+        medidas que as regras fixas usam, como números para o modelo pesar.
+        """
+        por_palavra = self._bate_por_palavra(consulta, doc)
+        candidato = Candidato(doc, 0.0, 0.0)
+        define = bool(self._assunto_definicao) and normalizar(
+            doc.get("pergunta") or "").startswith(("o que e ", "o que sao "))
+        return {
+            "assunto": math.log1p(sum(por_palavra.values())),
+            "palavras_assunto": min(len(por_palavra), 4) / 4,
+            "palavra_forte": float(max(por_palavra.values(), default=0) >= PALAVRA_FORTE),
+            "cobre_assunto": float(self._cobre_palavra_forte(consulta, candidato)),
+            "pergunta_exata": float(self._mesmas_palavras(consulta, candidato)),
+            "define": float(define),
+        }
 
     def _informativas(self, consulta) -> list[str]:
         """Palavras que dizem o assunto: 4 letras ou mais e, com vetores, fora das mais comuns."""

@@ -4,7 +4,7 @@ Extração de entidades com expressões regulares (regex).
 "Entidades" são pedaços da mensagem com significado estruturado:
 datas, horários, valores, telefones, e-mails, números.
 
-As entidades aparecem no painel "Por que respondi isso?", para quem estuda
+As entidades aparecem no Monitor, para quem estuda
 o projeto ver o que foi reconhecido em cada mensagem. A exportação de addons
 também as usa para apontar possíveis dados pessoais (e-mail, telefone).
 

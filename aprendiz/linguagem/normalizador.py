@@ -24,7 +24,7 @@ e a correção de digitação deixa em paz as palavras que existem no
 português, mesmo que não estejam na base ("carro" não vira "caro").
 
 O resultado é um `TextoProcessado`, que guarda TODAS as etapas. Isso é
-proposital: o painel "Por que respondi isso?" mostra cada uma delas.
+proposital: o Monitor mostra cada uma delas.
 
 A classe `Linguagem` carrega as tabelas do banco (abreviações, sinônimos,
 stopwords) e as mantém em memória, recarregando só quando algo muda.

@@ -1,0 +1,4 @@
+# Só para treinar a busca Calibrada (ferramentas/treinar_calibrado.py).
+# O app e os testes não precisam disto; fica separado para não pesar na instalação.
+-r requirements-dev.txt
+scikit-learn>=1.4

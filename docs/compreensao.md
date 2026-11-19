@@ -48,7 +48,7 @@ mensagem
   └─ 7. Resposta
 ```
 
-Cada etapa aparece no painel **Por que respondi isso?**: lemas e expressões na Normalização,
+Cada etapa aparece no **Monitor**: lemas e expressões na Normalização,
 e as etapas Compreensão, Busca por sentido, Fora de alcance e Recomendação de addon.
 
 ## As peças
@@ -101,7 +101,7 @@ pessoa quer quando existe na base, mesmo que ela não pergunte do jeito "certo":
 | **Só o assunto** | "quero fazer um bolo" | Se a mensagem inteira não achou nada, busca de novo só o assunto, sem as palavras mais comuns da língua ("fazer"), com o addon de vetores ("bolo"). |
 
 Tudo passa pela mesma busca e pelo mesmo consenso do Híbrido: juntar nunca aceita algo que a
-busca normal recusaria. O painel "Por que respondi isso?" mostra as etapas **Panorama**,
+busca normal recusaria. O Monitor mostra as etapas **Panorama**,
 **Pedido composto** e **Busca · só o assunto**. O tipo `panorama` exige o Aprendiz 1.0
 (addon Compreensão do português 1.4.0+).
 
