@@ -280,6 +280,19 @@ CASOS: list[tuple[str, str, str]] = [
     ("leva idiomas", "o que mudou com o acordo ortográfico", "q:acordo"),
     ("leva idiomas", "qual a diferença entre mas e mais", "q:mas"),
     ("leva idiomas", "por que se escreve com hífen", "q:hífen|acordo"),
+    # Contexto (2.2): a 2ª pergunta segue a 1ª na mesma conversa (SEGUIR). Escritas antes do código.
+    ("contexto", "o que é normalização de banco de dados", "q:normalização"),
+    ("contexto", "e a segunda forma normal?", "q:2fn"),
+    ("contexto", "o que é git", "q:git"),
+    ("contexto", "e como salvo uma versão do código?", "q:commit"),
+    ("contexto", "como criar uma lista em python", "q:lista"),
+    ("contexto", "e pegar só os 3 primeiros caracteres de um texto?", "q:fatiar"),
+    ("contexto", "o que é ponteiro em c", "q:ponteiro"),
+    ("contexto", "e como acesso o campo de uma struct por ele?", "q:seta"),
+    ("contexto", "como usar group by", "q:group by"),
+    ("contexto", "e numerar as linhas do resultado?", "q:row_number"),
+    ("contexto", "o que é commit e rollback", "q:transação|commit"),
+    ("contexto", "como tirar print no windows", "q:print"),
     ("social", "oi, tudo bem?", "tipo:social"),
     ("social", "obrigado!", "tipo:social"),
     ("social", "valeu, ajudou muito", "tipo:social"),
@@ -287,7 +300,10 @@ CASOS: list[tuple[str, str, str]] = [
     ("conversa", "e o limit?", "q:limitar", ),
     ("conversa", "não entendi", "fundo"),
 ]
-SEGUIR = {"e o limit?", "não entendi"}
+SEGUIR = {"e o limit?", "não entendi", "e a segunda forma normal?",
+          "e como salvo uma versão do código?", "e pegar só os 3 primeiros caracteres de um texto?",
+          "e como acesso o campo de uma struct por ele?", "e numerar as linhas do resultado?",
+          "como tirar print no windows"}
 
 
 def confere(r: dict, esperado: str) -> bool:

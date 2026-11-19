@@ -6,6 +6,15 @@ seguem o [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ## [Não lançado]
 
+### Homologação
+- Grupo **contexto**: 12 perguntas em sequência na mesma conversa ("o que é git" → "e como salvo
+  uma versão do código?"), escritas antes de mexer no código.
+- Testados e descartados (não mudaram nenhum acerto): peso extra para o addon da resposta
+  anterior, busca mais funda só nesse addon e juntar a pergunta anterior quando há pronome
+  ("por ele"). As falhas que sobram são de palavra, não de contexto: flexão ("salvo" x
+  "salvar"), assunto em outro addon (`ROW_NUMBER` no SQL avançado depois do GROUP BY do básico)
+  e padrão de frase que leva para outro assunto ("3 primeiros" → LIMIT).
+
 ## [2.1.0] - 2026-11-19
 
 Todos os addons de conhecimento da loja passam a ter teia de porquês (C, C++, utilidades e
