@@ -13,7 +13,13 @@ seguem o [Versionamento Semântico](https://semver.org/lang/pt-BR/).
   não conta como "set" mal digitado ao comparar a pergunta com o assunto de cada fragmento
   (antes, "usar -> em c" caía no `std::set` do C++).
 
+- **Quem declarou exatamente a pergunta vem primeiro**: se a pergunta é a de um fragmento (ou
+  uma variação dele), ele passa à frente dos que só batem no assunto.
+- **Definição desempata pelo fragmento que define**: em "o que é c?", vale "o que é a linguagem
+  c", e não "laço for em c" ("for" é palavra vazia em português e some da comparação).
+
 ### Homologação
+- Leva utilidades: 15 perguntas novas (terminal Linux, atalhos do Windows e conversões).
 - Leva C++: 15 perguntas novas (escritas antes dos porquês) e os três addons de C++ na lista.
 
 ## [2.0.1] - 2026-11-19

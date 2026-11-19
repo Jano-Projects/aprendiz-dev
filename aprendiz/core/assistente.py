@@ -1177,7 +1177,15 @@ class Assistente:
 
         aceitos = [c for c in candidatos
                    if c.confianca >= folga(c) * limiar and self._cobre_palavra_forte(consulta, c)]
-        aceitos.sort(key=lambda c: -bate[c.id])
+        # Quem declarou exatamente esta pergunta (pergunta ou variação) vem antes
+        # de tudo: "o que é c?" é a variação do fragmento sobre a linguagem C.
+        exata = {c.id: self._mesmas_palavras(consulta, c) for c in aceitos}
+        # Empate numa definição ("o que é c?"): vale o fragmento que define
+        # ("o que é a linguagem c"), e não o que só usa o assunto (laço for em c).
+        def define(c) -> bool:
+            return bool(self._assunto_definicao) and normalizar(
+                c.conhecimento.get("pergunta") or "").startswith(("o que e ", "o que sao "))
+        aceitos.sort(key=lambda c: (not exata[c.id], -bate[c.id], not define(c)))
         # Prioridade do dono: se o melhor resultado veio de um addon, mas há
         # algo ensinado pelo dono quase tão relevante (por padrão, até 10%
         # abaixo), vale o do dono. A margem existe porque respostas mais longas

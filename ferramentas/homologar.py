@@ -37,7 +37,8 @@ ADDONS = ["compreensao-portugues", "dialogo-portugues", "vetores-portugues",
           "sql-basico", "sql-avancado", "sql-teoria-pratica", "python-basico", "python-avancado",
           "aprendiz-algoritmos", "aprendiz-arquitetura", "aprendiz-codigo", "aprendiz-do-zero",
           "aprendiz-preparar-ambiente", "c-basico", "c-intermediario", "c-avancado",
-          "cpp-basico", "cpp-intermediario", "cpp-avancado"]
+          "cpp-basico", "cpp-intermediario", "cpp-avancado",
+          "atalhos-terminal-linux", "atalhos-windows", "conversoes-medidas"]
 
 CASOS: list[tuple[str, str, str]] = [
     # (grupo, pergunta, esperado)
@@ -247,6 +248,22 @@ CASOS: list[tuple[str, str, str]] = [
     ("leva c++", "novidades do c++20", "q:mudou no c++11|c++20"),
     ("leva c++", "using namespace std", "q:namespace"),
     ("leva c++", "ordenar um vector", "q:ordenar um vector"),
+    # Leva utilidades: escritas antes dos porquês, com o jeito de quem pede ajuda.
+    ("leva utilidades", "apaguei um texto sem querer, como volto", "q:desfazer"),
+    ("leva utilidades", "meu notebook travou e nenhum programa responde", "q:gerenciador de tarefas"),
+    ("leva utilidades", "deixar duas janelas uma do lado da outra", "q:metade da tela"),
+    ("leva utilidades", "o print que eu tirei foi parar onde", "q:print da tela inteira"),
+    ("leva utilidades", "trocar o nome de uma pasta no linux", "q:mover ou renomear"),
+    ("leva utilidades", "o script diz permission denied", "q:permissão de execução"),
+    ("leva utilidades", "como fecho o nano salvando", "q:editar um arquivo de texto"),
+    ("leva utilidades", "o disco do servidor encheu, como descubro", "q:espaço livre"),
+    ("leva utilidades", "ver as últimas linhas de um log", "q:começo ou o fim"),
+    ("leva utilidades", "120 km/h em milhas", "q:milhas por hora"),
+    ("leva utilidades", "forno a 180 graus em fahrenheit", "q:celsius para fahrenheit"),
+    ("leva utilidades", "quanto pesa uma xícara de farinha de trigo", "q:farinha"),
+    ("leva utilidades", "uma tv de 55 polegadas tem quantos cm", "q:tela de 50 polegadas"),
+    ("leva utilidades", "pneu com 32 libras em bar", "q:psi"),
+    ("leva utilidades", "um terreno de 2 hectares tem quantos metros", "q:hectare"),
     ("social", "oi, tudo bem?", "tipo:social"),
     ("social", "obrigado!", "tipo:social"),
     ("social", "valeu, ajudou muito", "tipo:social"),
