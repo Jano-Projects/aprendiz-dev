@@ -99,6 +99,17 @@ ARQUIVOS_ESPECIAIS = {"manifesto.json", "conhecimentos.json", "linguagem.json",
                       "norma.json", "vocabulario.tsv"}
 
 
+def ler_porque(texto: str, arquivo: str, numero: int) -> dict:
+    """ "porque | o verbo concorda com o sujeito | -> concordancia" → dict do porquê."""
+    partes = [p.strip() for p in texto.split("|")]
+    liga = None
+    if partes and partes[-1].startswith("->"):
+        liga = partes.pop()[2:].strip() or None
+    if not partes or not partes[0]:
+        raise SystemExit(f"{arquivo}, linha {numero}: Q: precisa começar pela relação.")
+    return {"relacao": partes[0], "texto": " | ".join(partes[1:]), "liga": liga}
+
+
 def ler_perguntas(caminho: Path) -> list[dict]:
     """
     Lê blocos P:/V:/T:/R: separados por linha em branco.
@@ -109,6 +120,13 @@ def ler_perguntas(caminho: Path) -> list[dict]:
         L:          variedade do verbete (id declarado em regiao.variedades)
         R:          a resposta (pode continuar nas linhas seguintes)
 
+    Teia de porquês (2.0), opcional, no mesmo bloco e ANTES do R::
+        F:          ref do fragmento (id curto: "join-interno")
+        A:          assuntos, separados por vírgula
+        Q:          um porquê: "relação | explicação | -> ref ligado"
+                    (a ligação é opcional; outro addon: "-> addon:ref")
+        N: raiz     o fragmento é uma raiz (regra ou conceito de base)
+
     Dentro da resposta, um bloco de código entre linhas ``` é copiado como
     está: a indentação, as linhas em branco e as linhas com # (como
     #include ou um comentário do Python) são mantidas.
@@ -118,11 +136,14 @@ def ler_perguntas(caminho: Path) -> list[dict]:
     traducoes: list[str] = []
     resposta: list[str] = []
     variedade = ""
+    teia: dict = {}
     tipo = "pergunta"
     em_codigo = False   # dentro de um bloco ``` da resposta?
 
     def fechar():
-        nonlocal formas, traducoes, resposta, variedade
+        nonlocal formas, traducoes, resposta, variedade, teia
+        if teia and not teia.get("ref"):
+            raise SystemExit(f"{caminho.name}: bloco com A:/Q:/N: sem F: perto de {formas[:1]!r}")
         if formas and resposta:
             item = {"pergunta": formas[0], "conteudo": "\n".join(resposta).strip(), "tipo": tipo}
             if formas[1:]:
@@ -131,11 +152,14 @@ def ler_perguntas(caminho: Path) -> list[dict]:
                 item["traducoes"] = traducoes
             if variedade:
                 item["variedade"] = variedade
+            if teia:
+                item["teia"] = {"ref": teia["ref"], "assuntos": teia.get("assuntos", []),
+                                "porques": teia.get("porques", []), "raiz": teia.get("raiz", False)}
             pares.append(item)
         elif formas or resposta or traducoes:
             raise SystemExit(f"{caminho.name}: bloco incompleto perto de "
                              f"{(formas or resposta or traducoes)[0]!r}")
-        formas, traducoes, resposta, variedade = [], [], [], ""
+        formas, traducoes, resposta, variedade, teia = [], [], [], "", {}
 
     for numero, linha in enumerate(caminho.read_text(encoding="utf-8").splitlines(), 1):
         if em_codigo:
@@ -144,6 +168,8 @@ def ler_perguntas(caminho: Path) -> list[dict]:
             em_codigo = linha.count("```") % 2 == 0
             continue
         prefixo = linha[:2].upper()
+        if prefixo in ("F:", "A:", "Q:", "N:") and resposta:
+            prefixo = ""   # a teia vem ANTES do R:; depois dele, é texto da resposta
         if linha.lstrip().startswith("#"):
             continue
         if not linha.strip():
@@ -158,6 +184,15 @@ def ler_perguntas(caminho: Path) -> list[dict]:
             traducoes += [t.strip() for t in linha[2:].split(",") if t.strip()]
         elif prefixo == "L:":
             variedade = linha[2:].strip()
+        elif prefixo == "F:":
+            teia["ref"] = linha[2:].strip()
+        elif prefixo == "A:":
+            teia.setdefault("assuntos", []).extend(
+                a.strip() for a in linha[2:].split(",") if a.strip())
+        elif prefixo == "N:":
+            teia["raiz"] = linha[2:].strip().lower() == "raiz"
+        elif prefixo == "Q:":
+            teia.setdefault("porques", []).append(ler_porque(linha[2:], caminho.name, numero))
         elif prefixo == "R:":
             resposta = [linha[2:].strip()]
             em_codigo = resposta[0].count("```") % 2 == 1
@@ -166,7 +201,7 @@ def ler_perguntas(caminho: Path) -> list[dict]:
             em_codigo = linha.count("```") % 2 == 1
         else:
             raise SystemExit(f"{caminho.name}, linha {numero}: esperava 'P:', 'V:', 'T:', "
-                             "'L:' ou 'R:'.")
+                             "'L:', 'F:', 'A:', 'Q:', 'N:' ou 'R:'.")
     if em_codigo:
         raise SystemExit(f"{caminho.name}: bloco de código (```) aberto e não fechado.")
     fechar()

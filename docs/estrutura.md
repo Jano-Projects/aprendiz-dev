@@ -38,7 +38,8 @@ aprendiz/
 │   │   ├── resposta/                    # Algoritmos de resposta. A ordem de importação define a ordem no seletor.
 │   │   │   ├── __init__.py              # Algoritmos de resposta. A ordem de importação define a ordem no seletor.
 │   │   │   ├── direta.py                # Resposta direta: devolve o conteúdo do melhor conhecimento encontrado.
-│   │   │   └── extrativa.py             # Resposta extrativa: monta a resposta com as FRASES mais relevantes de vários…
+│   │   │   ├── extrativa.py             # Resposta extrativa: monta a resposta com as FRASES mais relevantes de vários…
+│   │   │   └── trabalhada.py            # Resposta trabalhada (2.0): o fato encontrado + a cadeia de porquês da teia, dita com as…
 │   │   ├── __init__.py                  # Seletor de algoritmos.
 │   │   └── base.py                      # Contratos (interfaces) dos algoritmos e o registro do "seletor".
 │   ├── api/                             # Servidor HTTP local que expõe o assistente para a interface.
@@ -51,14 +52,17 @@ aprendiz/
 │   │   ├── dialogo.py                   # Diálogo: o motor que usa a seção "dialogo" dos addons de compreensão (0.9+).
 │   │   ├── dicionario.py                # Dicionário: consultas aos VERBETES dos addons, nos dois sentidos.
 │   │   ├── exportacao.py                # Exportação: transforma o que o DONO ensinou num addon (.aprendiz) para compartilhar.
+│   │   ├── expressao.py                 # Expressão (2.0): COMO dizer cada parte de uma resposta, com frases que vêm dos addons de…
 │   │   ├── recomendacao.py              # Recomendação de algoritmos para um addon: qual BUSCA e qual RESPOSTA usar.
-│   │   └── revisao.py                   # Revisão de texto pela NORMA de um país (Aprendiz 0.8+).
+│   │   ├── revisao.py                   # Revisão de texto pela NORMA de um país (Aprendiz 0.8+).
+│   │   └── teia.py                      # Teia de porquês (2.0): a partir do conhecimento que a busca achou, desce pelos porquês…
 │   ├── linguagem/                       # Processamento de linguagem natural (PLN) clássico, sem redes neurais.
 │   │   ├── __init__.py                  # Processamento de linguagem natural (PLN) clássico, sem redes neurais.
 │   │   ├── entidades.py                 # Extração de entidades com expressões regulares (regex).
 │   │   ├── intencoes.py                 # Classificador de intenções — Naive Bayes Multinomial, escrito do zero.
 │   │   ├── lexico.py                    # Léxico: lemas e vetores de palavras trazidos pelos addons de compreensão.
 │   │   ├── normalizador.py              # Normalizador: transforma a mensagem crua em algo que o computador compara bem.
+│   │   ├── numeros.py                   # Números e contas escritos de jeitos diferentes viram uma forma só.
 │   │   ├── resolucao.py                 # Junta as abreviações e os sinônimos de VÁRIOS addons sem que um estrague o outro.
 │   │   └── stemmer.py                   # Radicalizador (stemmer) para português — versão simplificada do RSLP.
 │   ├── memoria/                         # Memória do assistente: tudo fica num único arquivo SQLite.
@@ -127,9 +131,11 @@ aprendiz/
 │   ├── test_juntar.py                   # Testes de "juntar e reinterpretar" (1.0): panorama ("o que você sabe sobre X?"), pedido…
 │   ├── test_linguagem.py                # Testes do processamento de linguagem: radicais, normalização, intenções, entidades.
 │   ├── test_loja_oficial.py             # Testes do link da loja oficial: endereço fixo, aberto pelo servidor no navegador do…
+│   ├── test_numeros.py                  # Números e contas escritos de jeitos diferentes viram uma forma só (fase 1 da 2.0).
 │   ├── test_recomendacao.py             # Testes da 0.5: recomendação de algoritmos, grupos de addons e as opções ao instalar.
 │   ├── test_resolucao.py                # Testes da junção de abreviações e sinônimos de vários addons (1.0).
-│   └── test_revisao.py                  # Testes das normas da língua e da revisão de texto (0.8).
+│   ├── test_revisao.py                  # Testes das normas da língua e da revisão de texto (0.8).
+│   └── test_teia.py                     # Teia de porquês (2.0): leitura no perguntas.txt, validação e gravação.
 ├── .editorconfig                        # Padrão de indentação e fim de linha para qualquer editor
 ├── .gitattributes                       # Fins de linha corretos por tipo de arquivo (LF/CRLF)
 ├── .gitignore                           # O que nunca vai para o Git (ambiente, bancos, builds)

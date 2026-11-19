@@ -230,14 +230,14 @@ def validar_compreensao(bruto: Any, normalizar) -> dict[str, Any]:
     if not isinstance(bruto, dict):
         raise ErroRecurso(f"{ARQUIVO_COMPREENSAO} precisa ser um objeto JSON.")
     conhecidas = {"expressoes", "tipos_pergunta", "autoconhecimento", "fora_de_alcance",
-                  "necessidades", "catalogo", "dialogo"}
+                  "necessidades", "catalogo", "dialogo", "expressao"}
     sobrando = set(bruto) - conhecidas
     if sobrando:
         raise ErroRecurso(f"{ARQUIVO_COMPREENSAO} tem seções desconhecidas: "
                           f"{', '.join(sorted(sobrando))}.")
     # "dialogo" só entra na saída se vier no arquivo: assim um addon sem ele
     # continua sendo aceito pelas versões anteriores à 0.9.
-    saida: dict[str, Any] = {k: [] for k in conhecidas - {"dialogo"}}
+    saida: dict[str, Any] = {k: [] for k in conhecidas - {"dialogo", "expressao"}}
     saida["expressoes"] = {}
 
     expressoes = bruto.get("expressoes") or {}
@@ -320,6 +320,8 @@ def validar_compreensao(bruto: Any, normalizar) -> dict[str, Any]:
 
     if bruto.get("dialogo"):
         saida["dialogo"] = validar_dialogo(bruto["dialogo"], normalizar)
+    if bruto.get("expressao"):
+        saida["expressao"] = validar_expressao(bruto["expressao"])
 
     for lista in ("tipos_pergunta", "autoconhecimento", "fora_de_alcance", "necessidades"):
         if len(saida[lista]) > MAX_ITENS:
@@ -332,6 +334,42 @@ def validar_compreensao(bruto: Any, normalizar) -> dict[str, Any]:
 def _textos(valor: Any, campo: str) -> list[str]:
     return [_texto(t, MAX_TEXTO, f"{campo}[{i}]")
             for i, t in enumerate(_lista(valor, MAX_RESPOSTAS, campo), start=1)]
+
+
+# Partes da resposta Trabalhada (2.0) que um addon pode "vestir" com frases.
+# As relações são as da teia (addons.RELACOES); "{x}" é o lugar do conteúdo.
+PARTES_EXPRESSAO = ("abertura_addon", "abertura_dono", "fechamento", "porque", "regra",
+                    "definicao", "parte-de", "diferente-de", "consequencia", "exemplo-de",
+                    "antes-de", "depois-de")
+SEM_LACUNA = {"abertura_dono", "fechamento"}
+
+
+def validar_expressao(bruto: Any) -> dict[str, list[str]]:
+    """
+    A seção "expressao" do compreensao.json (2.0): jeitos humanos de dizer
+    cada parte da resposta. Ex.: {"porque": ["isso porque {x}", "o motivo é que {x}"]}.
+    Só texto com a lacuna {x}; nada vira código.
+    """
+    if not isinstance(bruto, dict):
+        raise ErroRecurso("'expressao' precisa ser um objeto JSON.")
+    sobrando = set(bruto) - set(PARTES_EXPRESSAO)
+    if sobrando:
+        raise ErroRecurso(f"'expressao' tem partes desconhecidas: {', '.join(sorted(sobrando))}.")
+    saida: dict[str, list[str]] = {}
+    for parte, frases in bruto.items():
+        lista = _textos(frases, f"expressao.{parte}")
+        for frase in lista:
+            lacunas = frase.count("{x}")
+            if lacunas > 1 or (parte not in SEM_LACUNA and lacunas != 1) or (
+                    "{" in frase.replace("{x}", "")):
+                raise ErroRecurso(f"'expressao.{parte}': cada frase precisa de "
+                                  f"{'no máximo' if parte in SEM_LACUNA else 'exatamente'} "
+                                  f"uma lacuna {{x}}: {frase!r}.")
+        if lista:
+            saida[parte] = lista
+    if not saida:
+        raise ErroRecurso("'expressao' está vazia.")
+    return saida
 
 
 def validar_dialogo(bruto: Any, normalizar) -> dict[str, Any]:

@@ -174,6 +174,28 @@ De onde vem o valor em vigor de cada chave (da maior para a menor prioridade):
 Em Configurações, cada item mostra de onde vem o valor, e o botão **Padrão** apaga a escolha do
 dono (o valor volta a ser o do addon ou o padrão).
 
+## Teia de porquês (2.0)
+
+Cada bloco do `perguntas.txt` pode dizer **por que** a resposta é assim e a que outros
+fragmentos ela se liga. As linhas vêm **antes do `R:`**:
+
+```
+F: where
+A: where, filtro, linhas
+Q: porque | filtra as linhas antes de agrupar | -> group-by
+Q: diferente-de | o HAVING filtra depois de agrupar | -> having
+P: para que serve o where
+R: O WHERE filtra as linhas da consulta.
+```
+
+- `F:` ref do fragmento, único no addon; `A:` assuntos; `N: raiz` marca uma regra ou conceito
+  de base, onde as cadeias de porquês terminam.
+- `Q:` `relação | explicação | -> ref`. Relações: `porque`, `consequencia`, `parte-de`,
+  `exemplo-de`, `diferente-de`, `regra`, `definicao`, `antes-de`, `depois-de`. A ligação é
+  opcional; para outro addon, `-> addon:ref`. Até 10 porquês por fragmento.
+- O app recusa refs repetidos, relações fora da lista e ligações internas para refs que não
+  existem.
+
 ## Criar um addon
 
 Crie uma pasta com os arquivos abaixo. Veja os exemplos em `exemplos/addons/`:

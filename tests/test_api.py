@@ -21,7 +21,7 @@ def test_interface_e_status(cliente):
 def test_algoritmos(cliente):
     dados = cliente.get("/api/algoritmos").json()
     assert dados["busca"][0]["nome"] == "bm25"
-    assert {a["nome"] for a in dados["resposta"]} == {"direta", "extrativa"}
+    assert {a["nome"] for a in dados["resposta"]} == {"direta", "extrativa", "trabalhada"}
 
 
 def test_fluxo_completo(cliente):

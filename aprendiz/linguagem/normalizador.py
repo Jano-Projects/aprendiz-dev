@@ -38,6 +38,7 @@ from dataclasses import dataclass, field
 
 from rapidfuzz import fuzz, process
 
+from aprendiz.linguagem import numeros
 from aprendiz.linguagem.lexico import Lexico
 from aprendiz.linguagem.stemmer import radical
 
@@ -55,7 +56,7 @@ _SUSTENIDO = re.compile(r"\b([cf])#")
 
 # Versão das regras de normalização. Se ela mudar, os textos de busca já
 # gravados ficam desatualizados: o Assistente reindexa a base ao abrir.
-VERSAO_NORMALIZACAO = 4
+VERSAO_NORMALIZACAO = 5
 
 
 def remover_acentos(texto: str) -> str:
@@ -71,12 +72,14 @@ def remover_acentos(texto: str) -> str:
 
 
 def normalizar(texto: str) -> str:
-    """Minúsculas, sem acento, só letras/números separados por um espaço."""
+    """Minúsculas, sem acento, números em algarismos, só letras/números separados por um espaço."""
     texto = remover_acentos(texto.lower())
     texto = _PREFIXO_HIFEN.sub(r"\1", texto)
     texto = _MAIS_MAIS.sub(r"\1pp", texto)
     texto = _SUSTENIDO.sub(r"\1sharp", texto)
-    return _NAO_ALFANUMERICO.sub(" ", texto).strip()
+    texto = numeros.simbolos(texto)                      # "2+2" → "2 mais 2"
+    tokens = _NAO_ALFANUMERICO.sub(" ", texto).split()
+    return " ".join(numeros.palavras(tokens))            # "dois mais 2" → "2 soma 2"
 
 
 def tokenizar(texto: str) -> list[str]:

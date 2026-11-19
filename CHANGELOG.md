@@ -6,6 +6,35 @@ seguem o [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ## [Não lançado]
 
+### Adicionado
+- **Números e contas numa forma só** (`aprendiz/linguagem/numeros.py`): "2+2", "dois mais dois"
+  e "2 mais dois" viram `2 soma 2`; números por extenso viram algarismos. Datas, hexadecimal e
+  "um" como artigo ficam como estão.
+- **Teia de porquês nos addons** (início do formato da 2.0): no `perguntas.txt`, linhas `F:`
+  (ref), `A:` (assuntos), `Q:` (porquê: `relação | explicação | -> ref`) e `N: raiz`, antes do
+  `R:`. O app valida relações e ligações e grava a teia na coluna `conhecimentos.teia`
+  (esquema 9). Os assuntos entram no texto de busca.
+- **Percurso da teia** (`aprendiz/core/teia.py`): a partir do conhecimento achado, segue os
+  porquês ligados em largura, até 3 níveis, parando nas raízes, sem repetir fragmento e cortando
+  o elo que já não tem palavra em comum com a pergunta. Atravessa addons (`addon:ref`) e ignora
+  os desativados. O caminho aparece em "Por que respondi isso?" (etapa "Teia de porquês").
+- **Resposta Trabalhada** (`aprendiz/algoritmos/resposta/trabalhada.py`): o fato achado e a
+  cadeia de porquês, contada em profundidade (cada porquê seguido dos porquês do fragmento que
+  ele liga). Sem teia, responde como a Direta.
+- **Expressão** (`aprendiz/core/expressao.py`): seção `expressao` no `compreensao.json` dos
+  addons de linguagem, com frases para abertura, fechamento e cada relação (`{x}` = conteúdo).
+  Os addons ativos somam frases e uma é sorteada a cada resposta; sem nenhum, vale um conjunto
+  mínimo embutido. A mesma frase não se repete duas vezes seguidas.
+- A recomendação de um addon com teia em pelo menos metade dos itens passa a ser a resposta
+  **Trabalhada**.
+
+### Mudado
+- Percurso da teia: só as relações de causa (`porque`, `regra`, `definicao`, `parte-de`) descem
+  até a raiz; as laterais (`diferente-de`, `consequencia`, `exemplo-de`, `antes-de`, `depois-de`)
+  valem só no nível 1. O freio de assunto compara os assuntos (`A:`) dos fragmentos, não o texto
+  inteiro. Na Trabalhada, o resumo do fragmento ligado só entra quando o porquê não tem texto.
+- Versão do app: 2.0.0 (em desenvolvimento).
+
 ## [1.0.0] - 2026-11-18
 
 Primeira versão estável. A compreensão e o diálogo do português passam a conviver com vários

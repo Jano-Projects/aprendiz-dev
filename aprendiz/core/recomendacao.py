@@ -76,6 +76,8 @@ def _amostra(itens: list[dict]) -> list[dict]:
 def resposta_recomendada(itens: list[dict]) -> str:
     longos = [k for k in itens if k.get("tipo") in ("nota", "trecho")
               and len(k.get("conteudo", "")) > TEXTO_LONGO]
+    if itens and sum(1 for k in itens if k.get("teia")) / len(itens) >= 0.5:
+        return "trabalhada"   # 2.0: addon com teia de porquês
     return "extrativa" if itens and len(longos) / len(itens) >= 0.5 else "direta"
 
 

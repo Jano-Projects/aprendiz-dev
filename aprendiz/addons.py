@@ -166,6 +166,13 @@ MAX_VARIACOES = 30                       # variações / traduções por conheci
 MAX_VARIEDADES = 40                      # variedades regionais num dicionário
 
 PADRAO_ID = re.compile(r"^[a-z0-9][a-z0-9-]{1,62}$")
+# Teia de porquês (2.0): relações de uma lista fechada; ligação = "ref" do
+# mesmo addon ou "addon:ref" de outro.
+RELACOES = ("porque", "consequencia", "parte-de", "exemplo-de", "diferente-de",
+            "regra", "definicao", "antes-de", "depois-de")
+PADRAO_LIGA = re.compile(r"^(?:[a-z0-9][a-z0-9-]{1,62}:)?[a-z0-9][a-z0-9-]{1,62}$")
+MAX_PORQUES = 10                         # os "10 porquês" são o teto
+MAX_ASSUNTOS = 20
 PADRAO_NOME_ALGORITMO = re.compile(r"^[a-z0-9_-]{1,30}$")
 PADRAO_VERSAO = re.compile(r"^\d+(\.\d+){0,3}$")
 _CONTROLE = re.compile(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]")
@@ -493,8 +500,57 @@ def validar_conhecimentos(bruto: Any) -> list[dict[str, Any]]:
             novo["traducoes"] = traducoes
         if variedade:
             novo["variedade"] = variedade
+        if item.get("teia") is not None:
+            novo["teia"] = validar_teia(item["teia"], i)
         saida.append(novo)
+    _conferir_ligacoes(saida)
     return saida
+
+
+def validar_teia(bruto: Any, i: int) -> dict[str, Any]:
+    """
+    A parte "teia" de um conhecimento (2.0): o que o liga aos outros.
+
+        {"ref": "join", "assuntos": ["join", "tabelas"], "raiz": false,
+         "porques": [{"relacao": "porque", "texto": "...", "liga": "chave-estrangeira"}]}
+    """
+    if not isinstance(bruto, dict):
+        raise ErroAddon(f"A 'teia' do conhecimento nº {i} precisa ser um objeto JSON.")
+    ref = bruto.get("ref")
+    if not isinstance(ref, str) or not PADRAO_ID.match(ref):
+        raise ErroAddon(f"A teia do conhecimento nº {i} precisa de um 'ref' "
+                        "(letras minúsculas, números e hífen).")
+    assuntos = _lista_de_textos(bruto.get("assuntos"), MAX_ASSUNTOS, 80, f"assuntos (nº {i})")
+    porques = bruto.get("porques") or []
+    if not isinstance(porques, list) or len(porques) > MAX_PORQUES:
+        raise ErroAddon(f"'porques' do conhecimento nº {i} precisa ser uma lista de até "
+                        f"{MAX_PORQUES} itens.")
+    limpos = []
+    for porque in porques:
+        if not isinstance(porque, dict) or porque.get("relacao") not in RELACOES:
+            raise ErroAddon(f"Porquê inválido no conhecimento nº {i}: a relação precisa ser "
+                            f"uma destas: {', '.join(RELACOES)}.")
+        texto = _limpar(porque.get("texto", ""), MAX_PERGUNTA, f"porquê (nº {i})")
+        liga = porque.get("liga")
+        if liga is not None and (not isinstance(liga, str) or not PADRAO_LIGA.match(liga)):
+            raise ErroAddon(f"Ligação inválida no conhecimento nº {i}: {liga!r}.")
+        if not texto and not liga:
+            raise ErroAddon(f"Um porquê do conhecimento nº {i} não tem texto nem ligação.")
+        limpos.append({"relacao": porque["relacao"], "texto": texto, "liga": liga})
+    return {"ref": ref, "assuntos": assuntos, "porques": limpos, "raiz": bool(bruto.get("raiz"))}
+
+
+def _conferir_ligacoes(conhecimentos: list[dict[str, Any]]) -> None:
+    """Refs únicos e ligações internas (sem "addon:") apontando para refs que existem."""
+    refs = [k["teia"]["ref"] for k in conhecimentos if "teia" in k]
+    repetidos = {r for r in refs if refs.count(r) > 1}
+    if repetidos:
+        raise ErroAddon(f"Refs repetidos na teia: {', '.join(sorted(repetidos))}.")
+    quebradas = sorted({p["liga"] for k in conhecimentos if "teia" in k
+                        for p in k["teia"]["porques"]
+                        if p["liga"] and ":" not in p["liga"] and p["liga"] not in refs})
+    if quebradas:
+        raise ErroAddon(f"Ligações para refs que não existem no addon: {', '.join(quebradas)}.")
 
 
 def _lista_de_textos(bruto: Any, maximo_itens: int, maximo_texto: int, campo: str) -> list[str]:

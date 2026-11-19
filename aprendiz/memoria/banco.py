@@ -63,7 +63,9 @@ CREATE TABLE IF NOT EXISTS conhecimentos (
     traducoes     TEXT,
     -- Só em verbetes (0.8+): a variedade regional ou a língua do termo
     -- ("nordeste", "kriol"), declarada no manifesto do addon.
-    variedade     TEXT
+    variedade     TEXT,
+    -- Teia de porquês (2.0), em JSON: {ref, assuntos, porques, raiz}.
+    teia          TEXT
 );
 
 -- Índice de busca textual (FTS5). Guarda só o id e o texto de busca.
@@ -191,6 +193,15 @@ def lista_json(doc: dict[str, Any], campo: str) -> list[str]:
     return [str(v) for v in dados] if isinstance(dados, list) else []
 
 
+def teia_de(doc: dict[str, Any]) -> dict[str, Any] | None:
+    """Lê a coluna teia (JSON) de um conhecimento; None se não houver."""
+    try:
+        dados = json.loads(doc.get("teia") or "null")
+    except (TypeError, ValueError):
+        return None
+    return dados if isinstance(dados, dict) else None
+
+
 def novo_id() -> str:
     """IDs aleatórios (UUID4): dois bancos diferentes nunca geram o mesmo id,
     então registros de bases distintas podem ser juntados sem colisão."""
@@ -262,7 +273,10 @@ class Banco:
         # 0.7 → 0.8: variedade dos verbetes. As normas ficam em addon_recursos.
         if "variedade" not in colunas:
             c.execute("ALTER TABLE conhecimentos ADD COLUMN variedade TEXT")
-        c.execute("INSERT OR REPLACE INTO meta VALUES ('versao_esquema', '8')")
+        # 1.0 → 2.0: a teia de porquês dos conhecimentos de addons.
+        if "teia" not in colunas:
+            c.execute("ALTER TABLE conhecimentos ADD COLUMN teia TEXT")
+        c.execute("INSERT OR REPLACE INTO meta VALUES ('versao_esquema', '9')")
         c.commit()
 
     def _ampliar_check(self, tabela: str, marca: str, colunas: list[str]) -> None:
@@ -682,12 +696,13 @@ class Banco:
                 linhas = [(novo_id(), k["tipo"], k.get("pergunta"), k["conteudo"], origem,
                            k["texto_busca"], momento, momento, manifesto["id"],
                            lista(k.get("variacoes")), lista(k.get("traducoes")),
-                           k.get("variedade"))
+                           k.get("variedade"),
+                           json.dumps(k["teia"], ensure_ascii=False) if k.get("teia") else None)
                           for k in conhecimentos]
                 c.executemany(
                     "INSERT INTO conhecimentos (id, tipo, pergunta, conteudo, origem, "
                     "texto_busca, criado_em, atualizado_em, addon_id, variacoes, traducoes, "
-                    "variedade) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", linhas)
+                    "variedade, teia) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", linhas)
                 c.executemany("INSERT INTO conhecimentos_fts (id, texto) VALUES (?, ?)",
                               [(l[0], l[5]) for l in linhas])
                 c.executemany(

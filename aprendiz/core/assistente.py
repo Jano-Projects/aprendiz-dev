@@ -37,7 +37,9 @@ from aprendiz.core.compreensao import Compreensao, FRASE_TIPO, resposta_dinamica
 from aprendiz.core.dialogo import SO_SEM_ASSUNTO, Dialogo
 from aprendiz.core.dicionario import Dicionario
 from aprendiz.core import revisao
-from aprendiz.memoria.banco import lista_json
+from aprendiz.core.expressao import Expressao
+from aprendiz.core.teia import Teia
+from aprendiz.memoria.banco import lista_json, teia_de
 from aprendiz.linguagem import ClassificadorIntencoes, Linguagem, extrair_entidades
 from aprendiz.linguagem.normalizador import VERSAO_NORMALIZACAO, normalizar
 from aprendiz.memoria import Banco
@@ -133,6 +135,8 @@ class Assistente:
         self.banco = banco
         self.linguagem = Linguagem(banco)
         self.contexto = ContextoBusca(banco=banco, linguagem=self.linguagem)
+        self.teia = Teia(banco, self.linguagem)
+        self.contexto.expressao = Expressao(banco)
         self.configuracoes = Configuracoes(banco)
         self.dicionario = Dicionario(banco, self.linguagem)
         self.compreensao = Compreensao(banco, self.linguagem)
@@ -194,7 +198,8 @@ class Assistente:
         docs = self.banco.todos_conhecimentos()
         self.banco.atualizar_textos_busca([
             (doc["id"], self.linguagem.processar(
-                texto_indexado(doc["pergunta"], doc["conteudo"], lista_json(doc, "variacoes")),
+                texto_indexado(doc["pergunta"], doc["conteudo"],
+                               lista_json(doc, "variacoes") + ((teia_de(doc) or {}).get("assuntos") or [])),
                 corrigir=False).texto_busca)
             for doc in docs
         ])
@@ -272,7 +277,8 @@ class Assistente:
 
         conhecimentos = [
             {**k, "texto_busca": self.linguagem.processar(
-                texto_indexado(k["pergunta"], k["conteudo"], k.get("variacoes")),
+                texto_indexado(k["pergunta"], k["conteudo"],
+                               (k.get("variacoes") or []) + (k.get("teia") or {}).get("assuntos", [])),
                 corrigir=False).texto_busca}
             for k in pacote.conhecimentos
         ]
@@ -735,11 +741,18 @@ class Assistente:
             texto = nota_sentido + "\n\n".join(c.conhecimento["conteudo"] for c in verbetes)
             return texto, "conhecimento", [self._fonte(c.conhecimento) for c in verbetes]
 
+        # Teia de porquês (2.0): o caminho a partir do melhor candidato.
+        self.contexto.caminho = self.teia.percorrer(aceitos[0].conhecimento, consulta.radicais)
+        if self.contexto.caminho is not None:
+            etapas.marcar("Teia de porquês", self.contexto.caminho.explicacao())
+
         algoritmo_resposta = RESPOSTAS[resposta]
         gerada = algoritmo_resposta.responder(consulta, aceitos, self.contexto)
         etapas.marcar(f"Resposta · {algoritmo_resposta.titulo}", gerada.detalhes)
 
         por_id = {c.id: c.conhecimento for c in aceitos}
+        if self.contexto.caminho is not None:   # fragmentos ligados pela teia também são fontes
+            por_id.update({p.para["id"]: p.para for p in self.contexto.caminho.passos if p.para})
         fontes = [self._fonte(por_id[i]) for i in gerada.fontes if i in por_id]
         return nota_sentido + gerada.texto, "conhecimento", fontes
 

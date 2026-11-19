@@ -36,6 +36,11 @@ class ContextoBusca:
     # cada pergunta a partir das Configurações; o que faltar usa o padrão
     # declarado na classe do algoritmo.
     limiares: dict[str, float] = field(default_factory=dict)
+    # Caminho de porquês do melhor candidato (core/teia.py), quando ele tem
+    # teia. O Assistente preenche a cada pergunta; None = sem teia.
+    caminho: Any = None
+    # Frases dos addons de linguagem para vestir a resposta (core/expressao.py).
+    expressao: Any = None
 
     def limiar(self, nome: str) -> float:
         """Confiança mínima em vigor para o algoritmo de busca `nome`."""
