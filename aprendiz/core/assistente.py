@@ -89,6 +89,7 @@ _PARTE_PERGUNTA = re.compile(
 MAX_PARTES_COMPOSTO = 4
 MAX_ITENS_PANORAMA = 6
 PALAVRAS_COMUNS_ASSUNTO = 300  # "quero FAZER um bolo": as N mais comuns saem do assunto
+FOLGA_ASSUNTO = 0.8   # quem bate no assunto declarado é aceito até 80% do limiar
 MAX_PROFUNDIDADE = 2  # o diálogo pode reprocessar a mensagem (resto, continuação)
 
 MSG_SEM_NORMA = (
@@ -150,7 +151,8 @@ class Assistente:
         self.linguagem = Linguagem(banco)
         self.contexto = ContextoBusca(banco=banco, linguagem=self.linguagem)
         self.teia = Teia(banco, self.linguagem)
-        self._assunto_definicao: set[str] = set()   # palavras do assunto de um "o que é X?"
+        self._assunto_definicao: set[str] = set()
+        self._df, self._df_total, self._df_versao = {}, 0, -1   # palavras do assunto de um "o que é X?"
         self.contexto.expressao = Expressao(banco)
         self.configuracoes = Configuracoes(banco)
         self.dicionario = Dicionario(banco, self.linguagem)
@@ -1114,8 +1116,19 @@ class Assistente:
         limiar = self.contexto.limiar(busca)
         candidatos = self._filtrar_verbetes(
             consulta, BUSCAS[busca].buscar(consulta, self.contexto, limite=limite))
-        aceitos = [c for c in candidatos if c.confianca >= limiar
+        # Assunto declarado (2.0): quantas palavras informativas da pergunta
+        # estão no que o conhecimento DECLARA tratar (pergunta, variações, A:).
+        # É evidência mais forte do que a palavra solta no texto, então:
+        #   • aceita um pouco abaixo do limiar quem bate no assunto
+        #     ("jogar fora os pedidos cancelados" → apagar: "pedidos
+        #     cancelados" é só o exemplo, a ação é que é o assunto);
+        #   • entre os aceitos, quem bate em mais palavras do assunto vem antes
+        #     ("adicionar um pedido NOVO" → inserir, e não ALTER TABLE).
+        bate = {c.id: self._bate_no_assunto(consulta, c.conhecimento) for c in candidatos}
+        aceitos = [c for c in candidatos
+                   if (c.confianca >= limiar or (bate[c.id] and c.confianca >= FOLGA_ASSUNTO * limiar))
                    and self._cobre_palavra_forte(consulta, c)]
+        aceitos.sort(key=lambda c: -bate[c.id])
         # Prioridade do dono: se o melhor resultado veio de um addon, mas há
         # algo ensinado pelo dono quase tão relevante (por padrão, até 10%
         # abaixo), vale o do dono. A margem existe porque respostas mais longas
@@ -1191,6 +1204,22 @@ class Assistente:
         return ("Vou pela base. A explicação se apoia nestes conceitos:\n\n" + "\n".join(base)
                 + "\n\nQuer que eu explique algum deles?"), "conhecimento", fontes
 
+    def _informativas(self, consulta) -> list[str]:
+        """Palavras que dizem o assunto: 4 letras ou mais e, com vetores, fora das mais comuns."""
+        lexico = self.linguagem.lexico
+        return [t for t in consulta.conteudo if len(t) >= 4 and not (
+            lexico.tem_vetores and lexico.frequente(t, PALAVRAS_COMUNS_ASSUNTO))]
+
+    def _assunto_declarado(self, doc: dict) -> set[str]:
+        teia = teia_de(doc) or {}
+        return set(normalizar(" ".join([doc.get("pergunta") or "", *lista_json(doc, "variacoes"),
+                                        *(teia.get("assuntos") or [])])).split())
+
+    def _bate_no_assunto(self, consulta, doc: dict) -> int:
+        """Quantas palavras informativas da pergunta estão no assunto declarado do conhecimento."""
+        titulo = self._assunto_declarado(doc)
+        return sum(1 for t in self._informativas(consulta) if _parecida(t, titulo))
+
     def _cobre_palavra_forte(self, consulta, candidato) -> bool:
         """
         A resposta precisa falar do ASSUNTO da pergunta: ter alguma palavra
@@ -1216,12 +1245,8 @@ class Assistente:
         doc = candidato.conhecimento
         if not consulta.conteudo:
             return True
-        teia = teia_de(doc) or {}
-        titulo = set(normalizar(" ".join([doc.get("pergunta") or "", *lista_json(doc, "variacoes"),
-                                          *(teia.get("assuntos") or [])])).split())
-        lexico = self.linguagem.lexico
-        informativas = [t for t in consulta.conteudo if len(t) >= 4 and not (
-            lexico.tem_vetores and lexico.frequente(t, PALAVRAS_COMUNS_ASSUNTO))]
+        titulo = self._assunto_declarado(doc)
+        informativas = self._informativas(consulta)
         if not informativas:
             curtas = [t for t in consulta.conteudo if len(t) >= 3]
             return bool(set(consulta.conteudo) & titulo) or any(

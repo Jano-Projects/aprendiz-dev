@@ -81,6 +81,16 @@ CASOS: list[tuple[str, str, str]] = [
     ("inédita", "campo vazio no banco de dados", "q:null"),
     ("inédita", "criar uma tabela nova", "q:criar uma tabela"),
     ("inédita", "colocar um cliente novo na tabela", "q:inserir"),
+    # Inéditas 2: escritas ANTES de mexer no vocabulário dos addons, e não
+    # consultadas enquanto ele era escrito. É a medida honesta de generalização.
+    ("inédita 2", "como deletar um produto que não vende mais", "q:apagar"),
+    ("inédita 2", "preciso modificar o email de um cliente", "q:atualizar"),
+    ("inédita 2", "adicionar um pedido novo", "q:inserir"),
+    ("inédita 2", "mostrar os produtos em ordem de preço", "q:ordenar"),
+    ("inédita 2", "registros sem valor numa coluna", "q:null"),
+    ("inédita 2", "somar o total vendido por mês", "q:group by"),
+    ("inédita 2", "só os 3 produtos mais caros", "q:limitar"),
+    ("inédita 2", "tirar um cliente do cadastro", "q:apagar"),
     ("social", "oi, tudo bem?", "tipo:social"),
     ("social", "obrigado!", "tipo:social"),
     ("social", "valeu, ajudou muito", "tipo:social"),

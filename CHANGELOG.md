@@ -44,6 +44,9 @@ seguem o [Versionamento Semântico](https://semver.org/lang/pt-BR/).
   conhecimento declara tratar (pergunta, variações, `A:`), não só citado no texto.
 - **"Não entendi" vai mais fundo**: com teia, se a resposta anterior não tinha os porquês, ele
   explica os porquês; se já tinha, explica a base (cada conceito em que ela se apoiou).
+- **Assunto declarado pesa mais**: a palavra da pergunta que está no que o conhecimento declara
+  tratar (pergunta, variações, `A:`) é evidência mais forte do que a solta no texto. Quem bate no
+  assunto é aceito até 80% do limiar e, entre os aceitos, vem antes quem bate em mais palavras.
 - **Homologação** (`ferramentas/homologar.py`): perguntas de gente de verdade (variações,
   digitação, porquês, resumos, fora do assunto, conversa e um grupo de perguntas INÉDITAS, que
   não estão em addon nenhum) contra os addons reais da loja.
