@@ -11,6 +11,7 @@ sequência) e confere se a resposta veio do lugar certo.
 
 Cada caso diz o que se espera:
     "q:<trecho>"     a 1ª fonte é o conhecimento cuja pergunta contém <trecho>
+                     ("q:a|b": qualquer um dos dois, quando as duas respostas servem)
     "tipo:<tipo>"    o tipo da resposta (desconhecido, social, dialogo…)
     "panorama"       uma lista "Sobre X, encontrei isto:"
     "!q:<trecho>"    a resposta NÃO pode vir de <trecho>
@@ -33,7 +34,7 @@ from aprendiz.memoria import Banco  # noqa: E402
 
 ADDONS = ["compreensao-portugues", "dialogo-portugues", "vetores-portugues",
           "prog-logica", "prog-vocabulario", "prog-estruturas-dados", "prog-banco-dados",
-          "sql-basico", "sql-avancado", "sql-teoria-pratica"]
+          "sql-basico", "sql-avancado", "sql-teoria-pratica", "python-basico", "python-avancado"]
 
 CASOS: list[tuple[str, str, str]] = [
     # (grupo, pergunta, esperado)
@@ -184,6 +185,22 @@ CASOS: list[tuple[str, str, str]] = [
     ("leva sql 2", "consistência disponibilidade e tolerância a partição", "q:cap"),
     ("leva sql 2", "como planejar as tabelas de um sistema novo", "q:modelar"),
     ("leva sql 2", "como o banco escolhe o jeito de executar a consulta", "q:otimizador"),
+    # Leva Python: escritas ANTES de pôr os porquês e o vocabulário.
+    ("leva python", "como pedir um número pro usuário em python", "q:ler dados do teclado"),
+    ("leva python", "como colocar uma variável dentro de um texto em python", "q:f-string"),
+    ("leva python", "pegar só os 3 primeiros caracteres de uma string", "q:fatiar"),
+    ("leva python", "como evitar que o programa feche quando dá erro", "q:tratar erros"),
+    ("leva python", "pip install", "q:instalar bibliotecas"),
+    ("leva python", "função sem nome numa linha só", "q:lambda"),
+    ("leva python", "criar uma lista nova a partir de outra numa linha", "q:list comprehension"),
+    ("leva python", "isolar as bibliotecas de cada projeto", "q:ambiente virtual"),
+    ("leva python", "função que modifica outra função com arroba", "q:decorador"),
+    ("leva python", "abrir arquivo e fechar sozinho com with", "q:gerenciador de contexto"),
+    ("leva python", "rodar várias coisas ao mesmo tempo em python", "q:threads"),
+    ("leva python", "transformar meu script em um .exe", "q:executável"),
+    ("leva python", "meu python está lento", "q:mais rápido|medir desempenho"),
+    ("leva python", "chave e valor em python", "q:dicionário"),
+    ("leva python", "o que é self em python", "q:classes"),
     ("social", "oi, tudo bem?", "tipo:social"),
     ("social", "obrigado!", "tipo:social"),
     ("social", "valeu, ajudou muito", "tipo:social"),
@@ -207,7 +224,7 @@ def confere(r: dict, esperado: str) -> bool:
         return tipo == esperado[5:]
     if esperado.startswith("!q:"):
         return not fontes or esperado[3:] not in titulo
-    return esperado[2:] in titulo
+    return any(alvo in titulo for alvo in esperado[2:].split("|"))
 
 
 def main() -> None:

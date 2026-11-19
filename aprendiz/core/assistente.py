@@ -1279,9 +1279,13 @@ class Assistente:
         # Palavras comuns ("começa", "zero") ainda dizem algo: valem metade.
         por_palavra: dict[str, float] = {}
         for t in dict.fromkeys(consulta.conteudo):
-            if len(t) < 4:
+            if len(t) < 3 or t.isdigit():
                 continue
-            peso = 2 if _parecida(t, propria) else 1 if _parecida(t, titulo) else 0
+            if len(t) == 3:
+                # Sigla curta ("exe", "cte", "api"): só vale igual, sem folga.
+                peso = 2 if t in propria else 1 if t in titulo else 0
+            else:
+                peso = 2 if _parecida(t, propria) else 1 if _parecida(t, titulo) else 0
             if peso:
                 # Cobrir mais palavras da pergunta também conta (COBERTURA).
                 por_palavra[t] = (peso * raras.get(t, 1.0) * (1.0 if t in informativas else 0.5)
