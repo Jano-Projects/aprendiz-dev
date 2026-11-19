@@ -43,6 +43,7 @@ from aprendiz.core.dicionario import Dicionario
 from aprendiz.core import revisao
 
 from aprendiz.core.expressao import Expressao
+from aprendiz.core.padroes import Padroes
 from aprendiz.core.teia import Teia
 from aprendiz.memoria.banco import lista_json, teia_de
 from aprendiz.linguagem import ClassificadorIntencoes, Linguagem, extrair_entidades
@@ -151,6 +152,7 @@ class Assistente:
         self.linguagem = Linguagem(banco)
         self.contexto = ContextoBusca(banco=banco, linguagem=self.linguagem)
         self.teia = Teia(banco, self.linguagem)
+        self.padroes = Padroes(banco)
         self._assunto_definicao: set[str] = set()
         self._df, self._df_total, self._df_versao = {}, 0, -1   # palavras do assunto de um "o que é X?"
         self.contexto.expressao = Expressao(banco)
@@ -658,6 +660,18 @@ class Assistente:
             if texto:
                 etapas.marcar("Diálogo · sem assunto", {"palavras": ", ".join(consulta.tokens)})
                 return texto, "dialogo", []
+
+        # 4d. Padrões de frase (2.0) -------------------------------------------
+        # "quantos pedidos cada cliente fez" → agrupar e contar; "pedidos" e
+        # "cliente" são o exemplo, não o assunto (core/padroes.py). Só troca a
+        # pergunta se a reescrita achar resposta.
+        frase = self.padroes.ler(consulta.normalizado)
+        if frase is not None:
+            reescrita = self.linguagem.processar(frase.texto)
+            _, achou, _ = self.buscar(reescrita, busca)
+            etapas.marcar("Padrão de frase", {**frase.como_dict(), "encontrou": len(achou)})
+            if achou:
+                consulta = reescrita
 
         # 5. Busca -------------------------------------------------------------
         algoritmo_busca = BUSCAS[busca]

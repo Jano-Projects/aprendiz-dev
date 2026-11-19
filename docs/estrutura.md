@@ -53,6 +53,7 @@ aprendiz/
 │   │   ├── dicionario.py                # Dicionário: consultas aos VERBETES dos addons, nos dois sentidos.
 │   │   ├── exportacao.py                # Exportação: transforma o que o DONO ensinou num addon (.aprendiz) para compartilhar.
 │   │   ├── expressao.py                 # Expressão (2.0): COMO dizer cada parte de uma resposta, com frases que vêm dos addons de…
+│   │   ├── padroes.py                   # Padrões de frase (2.0): o SENTIDO que vem da estrutura da frase, não das palavras soltas.…
 │   │   ├── recomendacao.py              # Recomendação de algoritmos para um addon: qual BUSCA e qual RESPOSTA usar.
 │   │   ├── revisao.py                   # Revisão de texto pela NORMA de um país (Aprendiz 0.8+).
 │   │   └── teia.py                      # Teia de porquês (2.0): a partir do conhecimento que a busca achou, desce pelos porquês…
@@ -133,6 +134,7 @@ aprendiz/
 │   ├── test_linguagem.py                # Testes do processamento de linguagem: radicais, normalização, intenções, entidades.
 │   ├── test_loja_oficial.py             # Testes do link da loja oficial: endereço fixo, aberto pelo servidor no navegador do…
 │   ├── test_numeros.py                  # Números e contas escritos de jeitos diferentes viram uma forma só (fase 1 da 2.0).
+│   ├── test_padroes.py                  # Padrões de frase (2.0): a estrutura da frase diz o conceito; as lacunas são exemplos.
 │   ├── test_recomendacao.py             # Testes da 0.5: recomendação de algoritmos, grupos de addons e as opções ao instalar.
 │   ├── test_resolucao.py                # Testes da junção de abreviações e sinônimos de vários addons (1.0).
 │   ├── test_revisao.py                  # Testes das normas da língua e da revisão de texto (0.8).

@@ -230,14 +230,14 @@ def validar_compreensao(bruto: Any, normalizar) -> dict[str, Any]:
     if not isinstance(bruto, dict):
         raise ErroRecurso(f"{ARQUIVO_COMPREENSAO} precisa ser um objeto JSON.")
     conhecidas = {"expressoes", "tipos_pergunta", "autoconhecimento", "fora_de_alcance",
-                  "necessidades", "catalogo", "dialogo", "expressao"}
+                  "necessidades", "catalogo", "dialogo", "expressao", "padroes"}
     sobrando = set(bruto) - conhecidas
     if sobrando:
         raise ErroRecurso(f"{ARQUIVO_COMPREENSAO} tem seções desconhecidas: "
                           f"{', '.join(sorted(sobrando))}.")
     # "dialogo" só entra na saída se vier no arquivo: assim um addon sem ele
     # continua sendo aceito pelas versões anteriores à 0.9.
-    saida: dict[str, Any] = {k: [] for k in conhecidas - {"dialogo", "expressao"}}
+    saida: dict[str, Any] = {k: [] for k in conhecidas - {"dialogo", "expressao", "padroes"}}
     saida["expressoes"] = {}
 
     expressoes = bruto.get("expressoes") or {}
@@ -322,6 +322,8 @@ def validar_compreensao(bruto: Any, normalizar) -> dict[str, Any]:
         saida["dialogo"] = validar_dialogo(bruto["dialogo"], normalizar)
     if bruto.get("expressao"):
         saida["expressao"] = validar_expressao(bruto["expressao"])
+    if bruto.get("padroes"):
+        saida["padroes"] = validar_padroes(bruto["padroes"], normalizar)
 
     for lista in ("tipos_pergunta", "autoconhecimento", "fora_de_alcance", "necessidades"):
         if len(saida[lista]) > MAX_ITENS:
@@ -369,6 +371,40 @@ def validar_expressao(bruto: Any) -> dict[str, list[str]]:
             saida[parte] = lista
     if not saida:
         raise ErroRecurso("'expressao' está vazia.")
+    return saida
+
+
+def validar_padroes(bruto: Any, normalizar) -> list[dict[str, Any]]:
+    """
+    A seção "padroes" do compreensao.json (2.0): estruturas de frase que dizem
+    um conceito. {"padrao": "quantos|quantas * cada *", "conceitos": ["agrupar", "contar"]}.
+    Peças: palavra, alternativas "a|b", lacuna "*" (o exemplo) e "<n>" (um número).
+    """
+    from aprendiz.core.padroes import compilar   # import local: evita ciclo
+    itens = _lista(bruto, MAX_ITENS, "padroes")
+    saida = []
+    for i, item in enumerate(itens, start=1):
+        campo = f"padroes[{i}]"
+        if not isinstance(item, dict) or set(item) - {"padrao", "conceitos"}:
+            raise ErroRecurso(f"'{campo}' precisa ser um objeto com 'padrao' e 'conceitos'.")
+        bruto_padrao = _texto(item.get("padrao"), 160, f"{campo}.padrao")
+        pecas = []
+        for peca in bruto_padrao.split():
+            if peca in ("*", "<n>"):
+                pecas.append(peca)
+                continue
+            alternativas = [normalizar(a) for a in peca.split("|")]
+            if not all(a and " " not in a for a in alternativas):
+                raise ErroRecurso(f"'{campo}.padrao': peça inválida {peca!r}.")
+            pecas.append("|".join(alternativas))
+        if all(p in ("*", "<n>") for p in pecas):
+            raise ErroRecurso(f"'{campo}.padrao' precisa de ao menos uma palavra.")
+        padrao = " ".join(pecas)
+        compilar(padrao)
+        conceitos = [normalizar(c) for c in _textos(item.get("conceitos"), f"{campo}.conceitos")]
+        if not conceitos or not all(conceitos):
+            raise ErroRecurso(f"'{campo}.conceitos' precisa de ao menos um conceito, sem itens vazios.")
+        saida.append({"padrao": padrao, "conceitos": conceitos})
     return saida
 
 

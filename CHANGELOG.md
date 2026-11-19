@@ -47,9 +47,14 @@ seguem o [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 - **Assunto declarado pesa mais**: a palavra da pergunta que está no que o conhecimento declara
   tratar (pergunta, variações, `A:`) é evidência mais forte do que a solta no texto. Quem bate no
   assunto é aceito até 80% do limiar e, entre os aceitos, vem antes quem bate em mais palavras.
+- **Padrões de frase** (`aprendiz/core/padroes.py`): seção `padroes` no `compreensao.json`, com
+  estruturas de frase que dizem um conceito ("quantos|quantas * cada|por *" → agrupar, contar).
+  As lacunas (`*`) são o EXEMPLO e saem da busca; os conceitos entram. A pergunta só é trocada
+  quando a reescrita acha resposta. Aparece em "Por que respondi isso?" (etapa "Padrão de frase").
 - **Homologação** (`ferramentas/homologar.py`): perguntas de gente de verdade (variações,
   digitação, porquês, resumos, fora do assunto, conversa e um grupo de perguntas INÉDITAS, que
-  não estão em addon nenhum) contra os addons reais da loja.
+  não estão em addon nenhum, em três levas escritas em momentos diferentes) contra os addons
+  reais da loja.
 - **Assunto conhecido não é conversa social**: "me fala de banco de dados" não vira resposta de
   ajuda quando a base conhece o assunto, seja qual for o jeito de pedir.
 

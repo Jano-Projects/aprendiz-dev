@@ -255,3 +255,25 @@ No repositório da loja (`aprendiz-addons`):
   a mesma licença.
 - **Vetores**: derivados do pacote `pt_core_news_md` do [spaCy](https://spacy.io/models/pt)
   (Explosion), redistribuídos sob CC BY-SA 4.0.
+
+
+## Padrões de frase (2.0)
+
+Algumas ideias estão na **estrutura** da frase, e não nas palavras. "Quantos pedidos cada
+cliente fez?" é um pedido de contar por grupo; "pedidos" e "cliente" são só o exemplo. A seção
+`padroes` do `compreensao.json` guarda essas estruturas:
+
+```json
+"padroes": [
+  {"padrao": "quantos|quantas * cada|por *", "conceitos": ["agrupar", "contar", "por grupo"]},
+  {"padrao": "os|as <n> * mais *", "conceitos": ["limitar", "primeiros", "ordenar"]}
+]
+```
+
+Peças: a palavra, alternativas `a|b`, a lacuna `*` (de 1 a 3 palavras: o exemplo) e `<n>` (um
+número). O padrão é escrito já normalizado (sem acento). Quando ele casa, as palavras das lacunas
+saem da busca e os conceitos entram: "quantos pedidos cada cliente fez" é buscado como "quantos
+cada fez agrupar contar por grupo". Se a reescrita não acha nada, vale a pergunta original.
+
+Os conceitos precisam ser palavras que os addons de conteúdo usam nos assuntos (`A:`): é assim
+que a estrutura da frase chega ao fragmento certo.
