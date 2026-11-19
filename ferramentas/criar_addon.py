@@ -208,7 +208,7 @@ def ler_perguntas(caminho: Path) -> list[dict]:
     return pares
 
 
-def criar(pasta: Path, saida: Path | None) -> None:
+def criar(pasta: Path, saida: Path | None, junto: list[Path] | None = None) -> None:
     manifesto_arq = pasta / "manifesto.json"
     if not manifesto_arq.exists():
         raise SystemExit(f"Falta {manifesto_arq}")
@@ -233,7 +233,7 @@ def criar(pasta: Path, saida: Path | None) -> None:
 
     linguagem = json_opcional("linguagem.json")
     if conhecimentos and not manifesto.get("recomendado"):
-        teste = recomendar(conhecimentos, linguagem)
+        teste = recomendar(conhecimentos, linguagem, [c.read_bytes() for c in junto or []])
         if teste:
             manifesto["recomendado"] = {k: teste[k] for k in ("busca", "resposta", "acerto")}
             acertos = "  ".join(f"{nome} {valor:.0%}" for nome, valor in teste["acertos"].items())
@@ -316,11 +316,14 @@ def main() -> None:
     parser.add_argument("caminho", type=Path, help="pasta-fonte (criar) ou arquivo .aprendiz (--conferir)")
     parser.add_argument("-o", "--saida", type=Path, help="arquivo .aprendiz a gerar")
     parser.add_argument("--conferir", action="store_true", help="só valida um .aprendiz pronto")
+    parser.add_argument("--junto", type=Path, action="append", metavar="ARQ.aprendiz",
+                        help="addon instalado antes no teste de recomendação (repita para "
+                             "vários); use os essenciais de linguagem para medir como no uso real")
     args = parser.parse_args()
     if args.conferir:
         conferir(args.caminho)
     else:
-        criar(args.caminho, args.saida)
+        criar(args.caminho, args.saida, args.junto)
 
 
 if __name__ == "__main__":

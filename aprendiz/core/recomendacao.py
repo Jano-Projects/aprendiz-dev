@@ -89,16 +89,21 @@ FORA_DO_ASSUNTO = [
     "quanto custa uma passagem de avião", "me conta uma piada",
 ]
 PESO_FALSOS = 0.5      # cada resposta indevida pesa metade de um acerto
+MARGEM_HIBRIDO = 0.05  # o Híbrido só perde se outro tiver 5 pontos a mais de nota
 
 
 def recomendar(conhecimentos: list[dict[str, Any]],
-               linguagem: dict[str, Any] | None = None) -> dict[str, Any] | None:
+               linguagem: dict[str, Any] | None = None,
+               junto: list[bytes] | None = None) -> dict[str, Any] | None:
     """
     Testa os algoritmos com os itens e devolve:
 
         {"busca": "bm25", "resposta": "direta", "acerto": 0.97,
          "acertos": {"bm25": 0.97, "tfidf": 0.95, ...},
          "falsos": {"bm25": 0.0, ...}, "perguntas": 40}
+
+    `junto`: pacotes .aprendiz instalados antes no ambiente de teste (os
+    essenciais de linguagem), para medir como no uso real.
 
     A escolha é pela nota = acerto − 0,5 × falsos: a fração de perguntas FORA
     do assunto do addon que a busca respondeu mesmo assim.
@@ -122,6 +127,11 @@ def recomendar(conhecimentos: list[dict[str, Any]],
         banco = Banco(Path(pasta) / "teste.db")
         try:
             assistente = Assistente(banco)
+            # 2.0: mede nas mesmas condições do uso real, com os addons que
+            # quase sempre estão juntos (compreensão, diálogo, vetores). Num
+            # banco vazio, a busca mais frouxa parece a melhor.
+            for pacote in junto or []:
+                assistente.instalar_addon(pacote)
             assistente.instalar_addon(criar_pacote(
                 {"id": "teste-recomendacao", "nome": "Teste", "versao": "1.0.0"},
                 itens, linguagem or {}))
@@ -154,6 +164,13 @@ def recomendar(conhecimentos: list[dict[str, Any]],
     ordem = [n for n in PREFERENCIA if n in acertos] + [n for n in acertos if n not in PREFERENCIA]
     nota = {n: round(acertos[n] - PESO_FALSOS * falsos[n], 3) for n in acertos}
     melhor = max(ordem, key=lambda n: (nota[n], -ordem.index(n)))
+    # O teste usa as PRÓPRIAS perguntas do addon (e erros de digitação delas):
+    # mede bem quem acha o que foi escrito, mal quem entende o que não foi. Na
+    # homologação, com perguntas ditas de outro jeito, o Híbrido (o consenso
+    # dos outros) ganhou em todas as levas; então ele só perde se outro for
+    # CLARAMENTE melhor aqui.
+    if "hibrido" in nota and nota[melhor] - nota["hibrido"] < MARGEM_HIBRIDO:
+        melhor = "hibrido"
     return {
         "busca": melhor,
         "resposta": resposta_recomendada(itens),

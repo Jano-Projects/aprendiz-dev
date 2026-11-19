@@ -28,10 +28,11 @@ def test_recomendar_testa_todos_os_algoritmos():
     assert r["acerto"] == r["acertos"][r["busca"]] and r["perguntas"] >= len(PARES)
 
 
-def test_empate_fica_com_o_mais_leve():
+def test_empate_fica_com_o_hibrido():
+    # 2.0: o Híbrido (o consenso) só perde se outro for claramente melhor.
     r = recomendar([{"tipo": "verbete", "pergunta": "bué", "conteudo": "muito"}],
                    {"stopwords": ["significa"]})
-    assert r["acertos"]["bm25"] == 1.0 and r["busca"] == "bm25"
+    assert r["acertos"]["bm25"] == 1.0 and r["busca"] == "hibrido"
 
 
 def test_textos_longos_pedem_a_extrativa():

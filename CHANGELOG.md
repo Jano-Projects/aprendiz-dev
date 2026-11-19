@@ -58,7 +58,12 @@ seguem o [Versionamento Semântico](https://semver.org/lang/pt-BR/).
   precisa ter todas as palavras informativas; digitação só em palavra que não existe; a busca
   por sentido (vetores) só vale se a troca chegar ao assunto declarado de um conhecimento.
 - **Recomendação mede falsos positivos**: perguntas fora do assunto respondidas mesmo assim
-  descontam da nota (`acerto − 0,5 × falsos`).
+  descontam da nota (`acerto − 0,5 × falsos`). O Híbrido só perde se outro tiver 5 pontos a mais
+  (na homologação, com perguntas ditas de outro jeito, ele ganhou em todas as levas), e o
+  `criar_addon.py --junto` mede com os addons essenciais de linguagem instalados.
+- **Padrão mais específico vence**: se um padrão de frase tem palavra fixa onde outro tem lacuna
+  ("colocar * no ar" x "colocar o * no *"), vale o mais específico; artigos e preposições não
+  decidem.
 - **Quem é o assunto vence quem só cita**: no peso do assunto declarado, a palavra na pergunta
   do fragmento (ou nas variações) vale 2 e nos assuntos relacionados (`A:`) vale 1, multiplicado
   pela raridade da palavra entre as perguntas da base ("estrangeira" distingue; "dados" não).

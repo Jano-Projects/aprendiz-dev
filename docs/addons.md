@@ -64,7 +64,18 @@ recomendado; num empate, vale o mais leve (BM25, TF-IDF, Híbrido, Fuzzy). A res
 **Extrativa** quando a maior parte do conteúdo são textos longos, e a **Direta** nos outros
 casos. O `acerto` é a fração das perguntas do teste que aquele algoritmo acertou
 (`aprendiz/core/recomendacao.py`). A partir da 2.0, a nota também desconta as **perguntas fora
-do assunto** que a busca respondeu mesmo assim (`nota = acerto − 0,5 × falsos`), e um addon com
+do assunto** que a busca respondeu mesmo assim (`nota = acerto − 0,5 × falsos`); o **Híbrido** só perde se outro tiver 5 pontos a mais de nota,
+porque o teste usa as próprias perguntas do addon e, na homologação com perguntas ditas de outro
+jeito, foi ele que ganhou. Use `--junto` com os addons essenciais de linguagem para medir como no
+uso real:
+
+```
+python ferramentas/criar_addon.py fontes/sql-basico -o addons/sql-basico.aprendiz \
+    --junto addons/compreensao-portugues.aprendiz --junto addons/dialogo-portugues.aprendiz \
+    --junto addons/vetores-portugues.aprendiz
+```
+
+Um addon com
 teia em pelo menos metade dos itens recomenda a resposta **Trabalhada**.
 
 **Ao instalar**, a tela de confirmação mostra a recomendação e oferece:

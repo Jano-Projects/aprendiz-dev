@@ -65,3 +65,15 @@ def test_padrao_invalido_e_recusado(ruim):
 
 def test_sem_addon_nao_ha_padroes(banco):
     assert Padroes(banco).ler("quantos pedidos cada cliente fez") is None
+
+
+def test_padrao_mais_especifico_vence(assistente):
+    compreensao = recursos.validar_compreensao({"padroes": [
+        {"padrao": "colocar um|uma|o|a * no|na *", "conceitos": ["inserir"]},
+        {"padrao": "colocar * no ar", "conceitos": ["publicar"]},
+    ]}, normalizar)
+    assistente.instalar_addon(pacotes.criar_pacote(
+        {"id": "padroes-x", "nome": "P", "versao": "1.0.0", "autor": "t"}, compreensao=compreensao))
+    leitura = assistente.padroes.ler("colocar o sistema no ar")
+    assert leitura.conceitos == ["publicar"]          # "ar" é fixo num e lacuna no outro
+    assert assistente.padroes.ler("colocar o cliente na tabela").conceitos == ["inserir"]

@@ -22,7 +22,8 @@ algarismos):
     *              uma lacuna de 1 a 3 palavras (o exemplo)
     <n>            um número
 
-Um padrão casa em qualquer ponto da frase. Se vários casam, todos valem.
+Um padrão casa em qualquer ponto da frase. Se vários casam, todos valem,
+menos o que tem lacuna onde outro tem palavra fixa: o mais específico vence.
 """
 
 from __future__ import annotations
@@ -33,6 +34,11 @@ from dataclasses import dataclass, field
 from typing import Any
 
 MAX_LACUNA = 3
+# Artigos e preposições: palavra fixa de padrão, mas fraca demais para decidir
+# qual padrão é o mais específico.
+LIGACOES = {"o", "a", "os", "as", "um", "uma", "uns", "umas", "de", "do", "da", "dos", "das",
+            "no", "na", "nos", "nas", "em", "e", "ou", "ao", "aos", "pro", "pra", "para", "por",
+            "com", "que"}
 
 
 def compilar(padrao: str) -> re.Pattern:
@@ -43,7 +49,7 @@ def compilar(padrao: str) -> re.Pattern:
         elif peca == "<n>":
             partes.append(r"\d+")
         else:
-            partes.append("(?:" + "|".join(re.escape(a) for a in peca.split("|")) + ")")
+            partes.append(f"(?P<p{i}>" + "|".join(re.escape(a) for a in peca.split("|")) + ")")
     return re.compile(r"(?:^|(?<=\s))" + r"\s".join(partes) + r"(?=\s|$)")
 
 
@@ -80,19 +86,36 @@ class Padroes:
     def ler(self, normalizado: str) -> Leitura | None:
         """Os padrões que casam com a frase (já normalizada); None se nenhum."""
         self._atualizar()
-        leitura = Leitura()
-        tirar: set[int] = set()        # posições (em palavras) das lacunas
+        achados = []      # (padrão, conceitos, posições fixas {pos: palavra}, posições de lacuna)
         for texto_padrao, regex, conceitos in self._lista:
             achado = regex.search(normalizado)
             if not achado:
                 continue
-            leitura.padroes.append(texto_padrao)
-            leitura.conceitos += [c for c in conceitos if c not in leitura.conceitos]
+            fixas, lacunas = {}, set()
             for nome, valor in achado.groupdict().items():
                 if valor is None:
                     continue
                 inicio = len(normalizado[:achado.start(nome)].split())
-                tirar.update(range(inicio, inicio + len(valor.split())))
+                if nome.startswith("l"):
+                    lacunas.update(range(inicio, inicio + len(valor.split())))
+                else:
+                    fixas[inicio] = valor
+            achados.append((texto_padrao, conceitos, fixas, lacunas))
+
+        # Mais específico vence: se um padrão tem palavra FIXA onde outro tem
+        # LACUNA, o outro sai. "colocar o sistema no ar": em "colocar * no ar"
+        # o "ar" é fixo; em "colocar o * no *" é lacuna, então vale publicar,
+        # não inserir. Artigos e preposições ("o", "no") não decidem nada.
+        def perde(b) -> bool:
+            return any(pos in b[3] and palavra not in LIGACOES
+                       for a in achados if a is not b for pos, palavra in a[2].items())
+
+        leitura = Leitura()
+        tirar: set[int] = set()
+        for texto_padrao, conceitos, _, lacunas in [a for a in achados if not perde(a)]:
+            leitura.padroes.append(texto_padrao)
+            leitura.conceitos += [c for c in conceitos if c not in leitura.conceitos]
+            tirar.update(lacunas)
         if not leitura.padroes:
             return None
         palavras = normalizado.split()

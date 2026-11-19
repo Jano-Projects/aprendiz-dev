@@ -32,7 +32,7 @@ from aprendiz.core import Assistente  # noqa: E402
 from aprendiz.memoria import Banco  # noqa: E402
 
 ADDONS = ["compreensao-portugues", "dialogo-portugues", "vetores-portugues",
-          "prog-logica", "prog-banco-dados", "sql-basico"]
+          "prog-logica", "prog-vocabulario", "prog-banco-dados", "sql-basico"]
 
 CASOS: list[tuple[str, str, str]] = [
     # (grupo, pergunta, esperado)
@@ -134,6 +134,23 @@ CASOS: list[tuple[str, str, str]] = [
     ("leva lógica", "um laço dentro de outro laço", "q:aninhado"),
     ("leva lógica", "valor que não muda durante o programa", "q:constante"),
     ("leva lógica", "por onde começar a programar", "q:aprender a programar"),
+    # Leva prog-vocabulario: escritas ANTES de pôr os porquês e o vocabulário.
+    ("leva vocab", "pra que serve o git", "q:git"),
+    ("leva vocab", "salvar uma versão do código no git", "q:commit"),
+    ("leva vocab", "trabalhar numa cópia separada do projeto sem mexer no principal", "q:branch"),
+    ("leva vocab", "mandar meu código pro github", "q:push"),
+    ("leva vocab", "arquivo para o git ignorar", "q:gitignore"),
+    ("leva vocab", "diferença entre biblioteca e framework", "q:framework"),
+    ("leva vocab", "o que é uma api rest", "q:api"),
+    ("leva vocab", "formato de dados com chaves e valores usado na web", "q:json"),
+    ("leva vocab", "parte do site que o usuário vê", "q:front end"),
+    ("leva vocab", "escrever o teste antes do código", "q:tdd"),
+    ("leva vocab", "melhorar o código sem mudar o que ele faz", "q:refatoração"),
+    ("leva vocab", "não repetir código", "q:dry"),
+    ("leva vocab", "colocar o sistema no ar", "q:deploy"),
+    ("leva vocab", "o que significa versão 2.1.3", "q:versionamento"),
+    ("leva vocab", "aquela mensagem de erro com a lista de funções", "q:stack trace"),
+    ("leva vocab", "programa para escrever código", "q:ide"),
     ("social", "oi, tudo bem?", "tipo:social"),
     ("social", "obrigado!", "tipo:social"),
     ("social", "valeu, ajudou muito", "tipo:social"),
