@@ -1253,8 +1253,11 @@ class Assistente:
                                            *lista_json(doc, "variacoes")])).split())
         titulo = self._assunto_declarado(doc)
         raras = self._raridade_nos_titulos()
+        informativas = set(self._informativas(consulta))
+        # Palavras comuns ("começa", "zero") ainda dizem algo: valem metade.
         return sum((2 if _parecida(t, propria) else 1 if _parecida(t, titulo) else 0)
-                   * raras.get(t, 1.0) for t in self._informativas(consulta))
+                   * raras.get(t, 1.0) * (1.0 if t in informativas else 0.5)
+                   for t in dict.fromkeys(consulta.conteudo) if len(t) >= 4)
 
     def _raridade_nos_titulos(self) -> dict[str, float]:
         """

@@ -190,7 +190,10 @@ P: para que serve o where
 R: O WHERE filtra as linhas da consulta.
 ```
 
-- `F:` ref do fragmento, único no addon; `A:` assuntos; `N: raiz` marca uma regra ou conceito
+- `F:` ref do fragmento, único no addon; `A:` assuntos: **os nomes do próprio conceito**, do jeito
+  que as pessoas o chamam (sinônimos, siglas, termos do dia a dia). Um tema vizinho não é assunto:
+  "ponteiro" não vai nos assuntos de "passagem por referência"; a relação entre os dois vira um
+  porquê (`Q: exemplo-de | em C, a passagem por referência é feita com ponteiros`); `N: raiz` marca uma regra ou conceito
   de base, onde as cadeias de porquês terminam.
 - `Q:` `relação | explicação | -> ref`. Relações: `porque`, `consequencia`, `parte-de`,
   `exemplo-de`, `diferente-de`, `regra`, `definicao`, `antes-de`, `depois-de`. A ligação é
