@@ -48,3 +48,17 @@ def test_correcao_prefere_o_par_que_existe_na_base(assistente):
     for _ in range(3):   # sempre igual, seja qual for a ordem interna dos conjuntos
         r = assistente.responder("pra que serve o grup by")
         assert r["mensagem"]["texto"] == "O group by agrupa linhas iguais."
+
+
+def test_quem_e_o_assunto_vence_quem_so_cita(assistente):
+    from aprendiz.addons import criar_pacote
+    itens = [
+        {"pergunta": "o que é join", "conteudo": "O JOIN junta tabelas pela chave estrangeira.",
+         "teia": {"ref": "join", "assuntos": ["join", "chave estrangeira"], "porques": [], "raiz": False}},
+        {"pergunta": "o que é chave estrangeira", "conteudo": "Uma coluna que aponta para outra tabela.",
+         "teia": {"ref": "fk", "assuntos": ["fk"], "porques": [], "raiz": False}},
+    ]
+    assistente.instalar_addon(criar_pacote({"id": "bd-teste", "nome": "BD", "versao": "1.0.0",
+                                            "autor": "t"}, itens, {}))
+    r = assistente.responder("por que usar chave estrangeira?")
+    assert r["mensagem"]["texto"] == "Uma coluna que aponta para outra tabela."

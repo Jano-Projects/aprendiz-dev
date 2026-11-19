@@ -59,6 +59,9 @@ seguem o [Versionamento Semântico](https://semver.org/lang/pt-BR/).
   por sentido (vetores) só vale se a troca chegar ao assunto declarado de um conhecimento.
 - **Recomendação mede falsos positivos**: perguntas fora do assunto respondidas mesmo assim
   descontam da nota (`acerto − 0,5 × falsos`).
+- **Quem é o assunto vence quem só cita**: no peso do assunto declarado, a palavra na pergunta
+  do fragmento (ou nas variações) vale 2 e nos assuntos relacionados (`A:`) vale 1, multiplicado
+  pela raridade da palavra entre as perguntas da base ("estrangeira" distingue; "dados" não).
 - **Homologação** (`ferramentas/homologar.py`): perguntas de gente de verdade (variações,
   digitação, porquês, resumos, fora do assunto, conversa e um grupo de perguntas INÉDITAS, que
   não estão em addon nenhum, em três levas escritas em momentos diferentes) contra os addons

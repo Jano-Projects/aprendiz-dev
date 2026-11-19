@@ -26,6 +26,7 @@ Cada etapa registra o que fez e quanto tempo levou. Esse registro vira a
 
 from __future__ import annotations
 
+import math
 import re
 import time
 from typing import Any
@@ -157,6 +158,8 @@ class Assistente:
         self.teia = Teia(banco, self.linguagem)
         self.padroes = Padroes(banco)
         self._assunto_definicao: set[str] = set()
+        self._raras: dict[str, float] = {}
+        self._raras_versao = -1
         self._df, self._df_total, self._df_versao = {}, 0, -1   # palavras do assunto de um "o que é X?"
         self.contexto.expressao = Expressao(banco)
         self.configuracoes = Configuracoes(banco)
@@ -1239,9 +1242,36 @@ class Assistente:
                                         *(teia.get("assuntos") or [])])).split())
 
     def _bate_no_assunto(self, consulta, doc: dict) -> int:
-        """Quantas palavras informativas da pergunta estão no assunto declarado do conhecimento."""
+        """
+        Quanto a pergunta bate no assunto declarado do conhecimento: cada palavra
+        informativa vale 2 se está na PERGUNTA dele (ou nas variações) e 1 se
+        está só nos assuntos relacionados (A:). "Por que usar chave
+        estrangeira?" é sobre o fragmento cuja pergunta é chave estrangeira, e
+        não sobre o JOIN, que só a cita entre os assuntos.
+        """
+        propria = set(normalizar(" ".join([doc.get("pergunta") or "",
+                                           *lista_json(doc, "variacoes")])).split())
         titulo = self._assunto_declarado(doc)
-        return sum(1 for t in self._informativas(consulta) if _parecida(t, titulo))
+        raras = self._raridade_nos_titulos()
+        return sum((2 if _parecida(t, propria) else 1 if _parecida(t, titulo) else 0)
+                   * raras.get(t, 1.0) for t in self._informativas(consulta))
+
+    def _raridade_nos_titulos(self) -> dict[str, float]:
+        """
+        Peso de cada palavra pela raridade entre as PERGUNTAS da base: "banco" e
+        "dados" estão na pergunta de dezenas de fragmentos e quase não
+        distinguem um do outro; "estrangeira" está em poucos. Peso = 1 / (1 +
+        log2 do número de perguntas que têm a palavra). Refeito quando a base muda.
+        """
+        if self._raras_versao != self.banco.versao_conhecimento:
+            contagem: dict[str, int] = {}
+            for doc in self.banco.conhecimentos_ativos():
+                texto = " ".join([doc.get("pergunta") or "", *lista_json(doc, "variacoes")])
+                for p in set(normalizar(texto).split()):
+                    contagem[p] = contagem.get(p, 0) + 1
+            self._raras = {p: 1 / (1 + math.log2(n)) for p, n in contagem.items()}
+            self._raras_versao = self.banco.versao_conhecimento
+        return self._raras
 
     def _cobre_palavra_forte(self, consulta, candidato) -> bool:
         """
