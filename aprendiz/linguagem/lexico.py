@@ -86,6 +86,20 @@ class Lexico:
         return lema is not None or vetor is not None
 
     # ------------------------------------------------------------------ vetores
+    def sem_relacao(self, a: str, b: str) -> bool:
+        """
+        Duas palavras com o mesmo começo são de famílias DIFERENTES? Com o addon
+        de vetores, o sentido decide: "indicar" e "índice" (cosseno 0,02) ou
+        "numerar" e "número" (0,03) só se parecem na escrita, enquanto
+        "índices"/"índice" (0,73) e "ordenar"/"ordenação" (0,45) são a mesma
+        ideia. Sem vetor para alguma das duas, não dá para afirmar: False.
+        """
+        self._atualizar()
+        if a == b or not self.tem_vetores:
+            return False
+        va, vb = self.vetor(a), self.vetor(b)
+        return va is not None and vb is not None and cosseno(va, vb) < LIMIAR_MESMA_FAMILIA
+
     def frequente(self, palavra: str, limite: int) -> bool:
         """
         Está entre as `limite` palavras mais comuns? Os vetores vêm ordenados
@@ -140,6 +154,12 @@ class Lexico:
         bruto = array("b", dados[inicio:inicio + d])
         norma = math.sqrt(sum(x * x for x in bruto)) or 1.0
         return [x / norma for x in bruto], apelido
+
+
+# Abaixo disto, duas palavras de começo igual não são flexão uma da outra.
+# Medido nos vetores do addon: as falsas ficam perto de 0 (indicar/índice
+# 0,02; numerar/número 0,03) e as verdadeiras acima de 0,3 (salvar/salvo 0,35).
+LIMIAR_MESMA_FAMILIA = 0.15
 
 
 def cosseno(a: list[float], b: list[float]) -> float:

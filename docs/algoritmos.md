@@ -258,6 +258,15 @@ na resposta; com mais de um sentido, cada grupo diz de qual ("No sentido de moç
   elas no texto. Erro de digitação só é aceito em palavra que não existe ("copa" não é "cópia").
   Quem bate no assunto declarado é aceito até 80% do limiar e vem antes. A mesma regra de
   digitação vale no peso do assunto: "seta" existe, então não conta como "set" mal digitado.
+- **A folga abaixo do limiar exige evidência** (2.3.1): o candidato precisa bater em **duas**
+  palavras do assunto ("menor" + "caminho" → Dijkstra) ou numa palavra **forte**, rara entre
+  os títulos da base e presente na pergunta dele ("disco" → espaço livre no disco). Uma só
+  palavra de contexto ("português", que está em vários títulos) não basta
+  (`PALAVRA_FORTE` em `core/assistente.py`).
+- **Flexão de verdade** (2.3.1): a folga de flexão aceita palavras de mesmo começo ("índices"
+  → "índice"). Com o addon de vetores, o começo igual só conta se as duas palavras forem da
+  mesma família de sentido (cosseno ≥ 0,15): "indicar" e "índice" (0,02) ou "numerar" e
+  "número" (0,03) só se parecem na escrita. Veja `Lexico.sem_relacao()`.
 - **Ordem dos aceitos** (2.1): primeiro quem declarou **exatamente** a pergunta (como pergunta
   ou variação); depois quem bate mais no assunto declarado; num empate em "o que é X", o
   fragmento que **define** ("o que é a linguagem c") vem antes do que só usa o assunto ("laço

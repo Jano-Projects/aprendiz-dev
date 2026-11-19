@@ -65,7 +65,9 @@ Todos os algoritmos de busca têm o mesmo método `buscar()`, e todos os de resp
       achar resposta
    8. **Busca**: algoritmo escolhido, e depois as regras do assunto (2.0): o candidato precisa
       falar do assunto da pergunta, quem bate no **assunto declarado** (pergunta, variações e
-      `A:`) ganha folga no limiar e vem antes
+      `A:`) ganha folga no limiar e vem antes (2.3.1: a folga exige duas palavras do assunto
+      ou uma palavra forte, e palavras que só começam igual, como "indicar" e "índice", não
+      contam como flexão quando o addon de vetores diz que são de famílias diferentes)
    9. **Modo estrito**: sem candidato aceito, responde "ainda não fui ensinado". Com addon de
       compreensão, antes disso: fora de alcance, busca por sentido (vetores) e recomendação de
       addon (`meta.recomendacao`)

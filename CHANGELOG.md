@@ -6,6 +6,30 @@ seguem o [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ## [Não lançado]
 
+## [2.3.1] - 2026-11-19
+
+### Corrigido
+- **Confusão entre domínios.** "É possível listar ou indicar traduções ou variações da palavra
+  aldeia em português?" era respondida com um índice de SQL. Três causas, três correções:
+  - **Falsa flexão:** "indicar" casava com "índice" pelo começo igual. Com o addon de
+    vetores, palavras de mesmo começo só contam como flexão se forem da mesma família de
+    sentido (`Lexico.sem_relacao()`, cosseno ≥ 0,15). O mesmo valia para "numerar"/"número".
+  - **Folga com pouca evidência:** quem batia numa única palavra de contexto ("português")
+    era aceito abaixo do limiar. A folga agora exige duas palavras do assunto ou uma
+    palavra forte (`PALAVRA_FORTE`).
+  - **Pedido de dicionário não reconhecido:** o dicionário agora entende pedidos educados
+    ("é possível listar…", "você pode me mostrar…"), listas ("traduções ou variações") e
+    "sinônimos", "traduções" e "equivalentes" de uma palavra. A pergunta da aldeia responde
+    *tabanka* (Guiné-Bissau) e *suku* (tétum).
+- **Pedido sobre a palavra sem verbete** ("sinônimos de vilarejo"): responde que não encontrou
+  a palavra nos dicionários, em vez de mostrar um texto qualquer que cita "sinônimos". O que o
+  dono ensinou com exatamente essa pergunta continua valendo.
+
+### Testes
+- `tests/test_confusao.py` e o grupo **confusão** na homologação. Na homologação com os addons
+  da loja, todos os algoritmos melhoraram e nenhum caso piorou: Híbrido 226 → 231 de 243,
+  BM25 222 → 227, TF-IDF 206 → 211, Fuzzy 159 → 162.
+
 ## [2.3.0] - 2026-11-19
 
 ### Adicionado

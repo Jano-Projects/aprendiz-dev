@@ -54,6 +54,20 @@ _SUJEITO = r"(?:se|eu|a gente|voce|voces|o pessoal|as pessoas|o povo|vcs)"
 _VERBO = (r"(?:diz|dizem|digo|dizer|fala|falam|falo|falar|chama|chamam|chamo|chamar|"
           r"escreve|escrevem|escrevo|traduz|traduzem|traduzo)")
 _NOME = r"(?:giria|girias|palavra|termo|expressao|traducao|nome|jeito de (?:falar|dizer))"
+# "variações", "traduções ou variações", "sinônimos e variantes"...
+_VARIACAO = (r"(?:variacoes|variantes|traducoes|sinonimos|equivalentes|formas|maneiras|jeitos"
+             r"|outros nomes|outras palavras)")
+_VARIACOES = rf"{_VARIACAO}(?: (?:ou|e) (?:as |os |outras |outros )?{_VARIACAO})*"
+# Pedido educado ANTES do pedido (2.3.1): "é possível listar ou indicar…",
+# "você pode me dizer…", "me mostra…". Sai da frase antes dos padrões.
+_LISTAR = r"(?:me )?(?:listar|liste|lista|indicar|indique|indica|mostrar|mostre|mostra|dizer|diga|diz|" \
+          r"falar|fale|fala|citar|cite|cita|dar|de|da|passar|passe|passa|informar|informe|enumerar)"
+_EDUCADO = re.compile(
+    r"^(?:(?:e possivel|tem como|da (?:pra|para)|(?:voce )?(?:pode|poderia|consegue|conseguiria)"
+    r"|gostaria de|quero|queria|preciso|por favor)(?: (?:me )?(?:por favor))? )?"
+    rf"{_LISTAR}(?: (?:ou|e) {_LISTAR})* (?=(?:quais |as |os |algumas |alguns |outras |outros )?{_VARIACAO})")
+_SOBRE_A_PALAVRA = re.compile(r"\b(?:traducoes|sinonimos|equivalentes|outras palavras|outros nomes)\b"
+                              r"|\b(?:da palavra|do termo|de (?:se )?(?:dizer|falar))\b")
 _LIGA = r"(?:de|do|da|para|pra|pro|que (?:significa|quer dizer)|que se usa para|usad[oa] para)"
 
 # Os padrões olham só o "miolo" da frase: a região ("em Angola", "no kriol")
@@ -72,8 +86,8 @@ PADROES: list[tuple[str, bool, re.Pattern]] = [   # (sentido, exige região?, re
     # "quais as variações de aldeia (em português)?", "outras formas de dizer aldeia":
     # a mesma ideia em todas as variedades (inverso sem região), mesmo com "em português".
     ("variacoes", False, re.compile(
-        r"^(?:quais (?:sao )?(?:as )?|outras |as )?(?:variacoes|variantes|formas|maneiras|jeitos)"
-        r" (?:de (?:se )?(?:dizer|falar) |de |da palavra |do termo )(?P<x>.+?)"
+        rf"^(?:quais (?:sao )?(?:as |os )?|outras |outros |as |os |algumas |alguns )?{_VARIACOES}"
+        r" (?:de (?:se )?(?:dizer|falar) |de |da palavra |do termo |para (?:a palavra |o termo )?)(?P<x>.+?)"
         r"(?: (?:em|nos|no|pelos|pelo) (?:outros |varios |cada )?(?:paises|lugares|lusofonia|mundo))?$")),
     ("inverso", True, re.compile(r"^traduz(?:a|ir|e|ao de|ao)? (?P<x>.+)$")),
     ("inverso", True, re.compile(r"^como (?:e|fica|seria) (?P<x>.+)$")),
@@ -109,6 +123,7 @@ class Pedido:
     regioes: set[str] | None     # ids de addons dessa região; None = região não informada
     padrao: int = 0
     regiao_escrita: str | None = None  # R como está na mensagem, com acentos
+    lexico: bool = False         # pedido claramente sobre a PALAVRA ("sinônimos de X")
 
     def como_dict(self) -> dict[str, Any]:
         return {"sentido": self.sentido, "termo": self.termo, "regiao": self.regiao_texto,
@@ -243,7 +258,7 @@ class Dicionario:
         indice = self.indice()
         if not indice.termos and not indice.traducoes:
             return None
-        texto = _SUFIXO_COMO.sub("", normalizar(mensagem))
+        texto = _EDUCADO.sub("", _SUFIXO_COMO.sub("", normalizar(mensagem)))
         miolo, regiao_texto, regioes, em_portugues = self.separar_regiao(texto)
 
         # Com região reconhecida (ou "em português"), testa só o miolo. Com um
@@ -281,7 +296,10 @@ class Dicionario:
         if not termo or len(termo.split()) > MAX_PALAVRAS_TERMO:
             return None
         if sentido == "variacoes":
-            return Pedido("inverso", termo, None, None, numero, self._como_escrito(mensagem, None))
+            # "sinônimos de X", "variações da palavra X": é sobre a palavra, e
+            # não sobre o assunto ("as formas de ordenar uma lista" é Python).
+            return Pedido("inverso", termo, None, None, numero, self._como_escrito(mensagem, None),
+                          lexico=bool(_SOBRE_A_PALAVRA.search(alvo)))
         if em_portugues and usa_miolo:
             return Pedido("direto", termo, None, None, numero)
         # Região: a do fim da frase; ou dita no meio ("qual a gíria em Angola

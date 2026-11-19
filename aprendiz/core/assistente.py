@@ -94,6 +94,7 @@ MAX_ITENS_PANORAMA = 6
 PALAVRAS_COMUNS_ASSUNTO = 300  # "quero FAZER um bolo": as N mais comuns saem do assunto
 MAX_ELOS_VERBETE = 5     # no dicionário: até 5 equivalências (e 5 falsos amigos) por resposta
 FOLGA_MELHOR_ASSUNTO = 0.6  # o único que bate MAIS que todos no assunto: até 60% do limiar
+PALAVRA_FORTE = 1.5    # folga só se alguma palavra vale isto no assunto (rara e no título)
 COBERTURA = 0.5        # cada palavra da pergunta coberta pelo assunto declarado soma isto
 FOLGA_ASSUNTO = 0.8   # quem bate no assunto declarado é aceito até 80% do limiar
 MAX_PROFUNDIDADE = 2  # o diálogo pode reprocessar a mensagem (resto, continuação)
@@ -137,12 +138,15 @@ class Etapas:
         return round((time.perf_counter() - self._inicio_total) * 1000, 2)
 
 
-def _parecida(palavra: str, palavras: set[str], digitacao: bool = True) -> bool:
+def _parecida(palavra: str, palavras: set[str], digitacao: bool = True, lexico=None) -> bool:
     """`palavra` aparece em `palavras`, com folga para flexão (mesmo começo) ou digitação."""
     # Começo comum, com folga para flexão ("índices" → "índice"); em palavra de
     # 5 letras, a folga de 2 juntava palavras diferentes ("valeu" e "vale").
+    # Com o léxico (2.3.1), o começo comum precisa ser da mesma FAMÍLIA:
+    # "indicar" não é flexão de "índice", só começa igual.
     raiz = palavra[:max(5, len(palavra) - 2)] if len(palavra) >= 5 else palavra
-    if any(p.startswith(raiz) for p in palavras):
+    if any(p.startswith(raiz) and not (lexico is not None and lexico.sem_relacao(palavra, p))
+           for p in palavras):
         return True
     # Gerúndio → infinitivo ("dividindo" → "dividir", "ordenando" → "ordenar").
     # Só essa flexão exata: juntar por radical misturaria "ligações" e "ligada".
@@ -637,6 +641,13 @@ class Assistente:
                 texto, ligados = (self._teia_dos_verbetes(texto, verbetes, consulta, resposta)
                                   if pedido.sentido == "direto" else (texto, []))
                 return texto, "conhecimento", [self._fonte(v) for v in [*verbetes, *ligados]]
+            # Pedido claramente sobre a palavra ("sinônimos de vilarejo") que
+            # nenhum dicionário tem: a busca comum acharia só textos que citam
+            # "sinônimos" (2.3.1). Melhor dizer que não sabe.
+            if not resposta_dic and pedido.lexico and not self._dono_ensinou_exatamente(consulta):
+                return (f"Não encontrei *{pedido.termo}* nos dicionários instalados. "
+                        "Os addons de gírias e expressões trazem as palavras de cada país; "
+                        "se algum estiver desativado, ative-o e pergunte de novo."), "desconhecido", []
 
         # 2c. Diálogo (addon de diálogo) -------------------------------------
         # O QUE a pessoa faz com a frase: cumprimenta e pede algo, desabafa,
@@ -795,7 +806,7 @@ class Assistente:
                 # palavra solta no texto ("ganhou" → "trouxe" achava SQL).
                 novas = [t["para"] for t in trocas]
                 aceitos2 = [c for c in aceitos2
-                            if any(_parecida(n, self._assunto_declarado(c.conhecimento), False)
+                            if any(self._parecida(n, self._assunto_declarado(c.conhecimento), False)
                                    for n in novas)]
                 if aceitos2:
                     candidatos, aceitos, consulta = candidatos2, aceitos2, ampliada
@@ -1295,14 +1306,25 @@ class Assistente:
         #     ("adicionar um pedido NOVO" → inserir, e não ALTER TABLE).
         #   • o que bate MAIS que todos no assunto ganha folga extra ("menor
         #     caminho entre duas cidades" → Dijkstra, mesmo com nota baixa).
-        bate = {c.id: self._bate_no_assunto(consulta, c.conhecimento) for c in candidatos}
+        por_palavra = {c.id: self._bate_por_palavra(consulta, c.conhecimento) for c in candidatos}
+        bate = {cid: sum(v.values()) for cid, v in por_palavra.items()}
         maior = max(bate.values(), default=0)
         unico = sum(1 for v in bate.values() if v == maior) == 1
+        # Folga exige evidência (2.3.1): DUAS palavras no assunto ("menor" +
+        # "caminho" → Dijkstra) ou UMA forte, rara entre os títulos e na
+        # pergunta do conhecimento ("disco" → espaço livre no disco). Uma só
+        # palavra de contexto não basta: em "listar as variações da palavra
+        # aldeia em português", casar só "português" (que está em vários
+        # títulos) não torna "devo programar em português ou inglês" resposta.
+        def forte(c) -> bool:
+            valores = por_palavra[c.id].values()
+            return len(valores) >= 2 or max(valores, default=0) >= PALAVRA_FORTE
+
         # O limiar que o DONO definiu é respeitado à risca (modo estrito).
         dono_definiu = config.get(f"limiar.{busca}", {}).get("origem") == "dono"
 
         def folga(c) -> float:
-            if not bate[c.id] or dono_definiu:
+            if not bate[c.id] or dono_definiu or not forte(c):
                 return 1.0
             return FOLGA_MELHOR_ASSUNTO if unico and bate[c.id] == maior else FOLGA_ASSUNTO
 
@@ -1429,8 +1451,8 @@ class Assistente:
                 peso = 2 if t in propria else 1 if t in titulo else 0
             else:
                 tol = self._tolera(t)  # "seta" existe: não é "set" mal digitado
-                peso = (2 if _parecida(t, propria, tol) else
-                        1 if _parecida(t, titulo, tol) else 0)
+                peso = (2 if self._parecida(t, propria, tol) else
+                        1 if self._parecida(t, titulo, tol) else 0)
             if peso:
                 # Cobrir mais palavras da pergunta também conta (COBERTURA).
                 por_palavra[t] = (peso * raras.get(t, 1.0) * (1.0 if t in informativas else 0.5)
@@ -1484,12 +1506,12 @@ class Assistente:
         if not informativas:
             curtas = [t for t in consulta.conteudo if len(t) >= 3]
             return bool(set(consulta.conteudo) & titulo) or any(
-                _parecida(t, titulo) for t in curtas)
+                self._parecida(t, titulo) for t in curtas)
         if self._assunto_definicao:
             alvo = [t for t in informativas if t in self._assunto_definicao]
-            if alvo and not any(_parecida(t, titulo) for t in alvo):
+            if alvo and not any(self._parecida(t, titulo) for t in alvo):
                 return False
-        if any(_parecida(t, titulo, self._tolera(t)) for t in informativas):
+        if any(self._parecida(t, titulo, self._tolera(t)) for t in informativas):
             return True
         # Fragmento com teia DECLARA o que trata: se a pergunta não bate nesse
         # assunto, citar a palavra no meio do texto não basta ("qual a capital
@@ -1505,10 +1527,16 @@ class Assistente:
             # "levo" e "levar": mesmo radical e tamanho parecido. O tamanho evita
             # que "ponteiro" e "ponto" (radical "pont") passem por flexão.
             r = radical(t)
+            lexico = self.linguagem.lexico
             return any(abs(len(p) - len(t)) <= 2 and radical(p) == r
+                       and not lexico.sem_relacao(t, p)
                        for p in palavras if p[:2] == t[:2])
 
-        return all(_parecida(t, palavras, self._tolera(t)) or flexao(t) for t in informativas)
+        return all(self._parecida(t, palavras, self._tolera(t)) or flexao(t) for t in informativas)
+
+    def _parecida(self, palavra: str, palavras: set[str], digitacao: bool = True) -> bool:
+        """_parecida() com o léxico ativo: barra falsas flexões ("indicar" ≠ "índice")."""
+        return _parecida(palavra, palavras, digitacao, self.linguagem.lexico)
 
     def _tolera(self, palavra: str) -> bool:
         """Erro de digitação só se a palavra não existe: "copa" não é "cópia" errada."""

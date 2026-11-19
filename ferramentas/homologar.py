@@ -75,6 +75,15 @@ CASOS: list[tuple[str, str, str]] = [
     ("fora", "o que é um ponteiro em C?", "q:ponteiro em c"),        # com os addons de C, tem resposta
     ("fora", "como fazer bolo de cenoura", "tipo:desconhecido"),
     ("fora", "quem ganhou a copa de 2002", "tipo:desconhecido"),
+    # Confusão entre domínios (2.3.1): palavra que só COMEÇA igual
+    # ("indicar"/"índice") ou palavra de contexto ("em português") não
+    # podem puxar resposta de outro addon.
+    ("confusão", "é possível listar ou indicar traduções ou variações da palavra aldeia em português?",
+     "q:tabanka|suku"),
+    ("confusão", "sinônimos de aldeia", "q:tabanka|suku"),
+    ("confusão", "sinônimos de vilarejo", "tipo:desconhecido"),
+    ("confusão", "pode me indicar um bom livro de culinária?", "!q:índice"),
+    ("confusão", "quais as formas de dizer ônibus", "q:machimbombo|autocarro|busão"),
     ("fora", "o que é c?", "q:linguagem c"),
     ("fora", "qual a capital da frança", "tipo:desconhecido"),
     ("fora", "como declarar uma variável em python", "!q:sql"),

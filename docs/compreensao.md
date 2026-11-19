@@ -173,6 +173,11 @@ Cuidados para não inventar:
 - a nova busca precisa passar do **mesmo limiar** de confiança;
 - palavras que só "emprestam" o vetor de outra (formas raras, os **apelidos**) valem menos.
 
+Os vetores também evitam **falsas flexões** (2.3.1). A busca aceita palavras de mesmo começo
+como flexão uma da outra ("índices" → "índice"), mas "indicar" e "índice" também começam
+igual. Quando as duas palavras têm vetor e o cosseno fica abaixo de 0,15, elas são de
+famílias diferentes e não contam como a mesma palavra (`Lexico.sem_relacao()`).
+
 Os vetores ficam num bloco de bytes por addon (`addon_recursos`, ~1,4 MB), lido uma vez; a
 tabela de palavras fica no SQLite.
 
