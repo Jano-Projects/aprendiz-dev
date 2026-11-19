@@ -908,3 +908,45 @@ def dividir_em_trechos(texto: str, tamanho_maximo: int = 800) -> list[str]:
     if atual:
         trechos.append(atual)
     return trechos
+
+
+# ================================================================ PACOTE DE ADDONS (2.2)
+# Vários .aprendiz num arquivo só, montado pela loja oficial ("Baixar selecionados"):
+#   pacote.json   {"formato": 1, "addons": [{"arquivo": "x.aprendiz", "sha256": "..."}]}
+#   x.aprendiz …  os addons, já na ordem de instalação (dependências antes)
+EXTENSAO_PACOTE = ".aprendiz-pacote"
+MAX_ADDONS_PACOTE = 200
+MAX_PACOTE = 500 * 1024 * 1024
+
+
+def ler_pacote_de_addons(dados: bytes) -> list[tuple[str, bytes]]:
+    """Os addons de um pacote, na ordem, cada um conferido pelo SHA-256 do pacote.json."""
+    if len(dados) > MAX_PACOTE:
+        raise ErroAddon("O pacote é grande demais (limite de 500 MB).")
+    try:
+        zip_ = zipfile.ZipFile(io.BytesIO(dados))
+    except zipfile.BadZipFile:
+        raise ErroAddon("Este arquivo não é um pacote de addons (.aprendiz-pacote).") from None
+    with zip_:
+        try:
+            indice = json.loads(zip_.read("pacote.json"))
+        except (KeyError, ValueError):
+            raise ErroAddon("O pacote não tem um pacote.json válido.") from None
+        itens = indice.get("addons") if isinstance(indice, dict) else None
+        if not isinstance(itens, list) or not itens or len(itens) > MAX_ADDONS_PACOTE:
+            raise ErroAddon(f"O pacote precisa listar de 1 a {MAX_ADDONS_PACOTE} addons.")
+        if sum(i.file_size for i in zip_.infolist()) > MAX_PACOTE:
+            raise ErroAddon("O conteúdo do pacote é grande demais.")
+        saida = []
+        for item in itens:
+            nome = str((item or {}).get("arquivo") or "")
+            if not nome.endswith(".aprendiz") or "/" in nome or "\\" in nome:
+                raise ErroAddon(f"Item inválido no pacote: {nome!r}.")
+            try:
+                bruto = zip_.read(nome)
+            except KeyError:
+                raise ErroAddon(f"O pacote lista {nome}, mas o arquivo não está nele.") from None
+            if hashlib.sha256(bruto).hexdigest() != item.get("sha256"):
+                raise ErroAddon(f"{nome} não confere com o SHA-256 do pacote.")
+            saida.append((nome, bruto))
+        return saida

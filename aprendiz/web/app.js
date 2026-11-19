@@ -839,6 +839,41 @@
    * Mostra o que o addon traz e espera a decisão do dono.
    * Resolve true se ele clicar em Instalar.
    */
+  /** Pacote da loja (2.2): uma confirmação só, com a lista; depois instala todos, na ordem. */
+  async function instalarPacote(corpo) {
+    const info = await api("/api/addons/pacote/inspecionar", { metodo: "POST", corpo });
+    $("#instalar-titulo").textContent = `Instalar pacote com ${plural(info.addons.length, "addon", "addons")}`;
+    const resumo = $("#instalar-resumo");
+    resumo.innerHTML = "";
+    $("#instalar-opcoes").innerHTML = "";
+    const bloco = criar(`<div class="bloco-resumo"><h4>${icone("addon")} Addons do pacote, na ordem de instalação</h4></div>`);
+    info.addons.forEach((a) => {
+      const linha = criar(`<div class="linha-resumo">${icone("addon")}<span></span><small></small></div>`);
+      $("span", linha).textContent = `${a.nome} v${a.versao}`;
+      $("small", linha).textContent = !a.versao_anterior ? "novo"
+        : a.versao_anterior === a.versao ? "já instalado (reinstala)" : `atualiza a v${a.versao_anterior}`;
+      bloco.appendChild(linha);
+    });
+    resumo.appendChild(bloco);
+    if (info.addons.some((a) => a.origem !== "oficial")) {
+      resumo.appendChild(criar(`<div class="aviso-backup alerta">${icone("pessoas")}<span>O pacote tem addons de terceiros.
+        Só instale se confiar em quem o enviou. Addons contêm apenas dados: nada é executado.</span></div>`));
+    }
+    const dlg = $("#dlg-instalar");
+    const ok = await new Promise((resolver) => {
+      dlg.returnValue = "";
+      dlg.addEventListener("close", () => resolver(dlg.returnValue === "instalar"), { once: true });
+      dlg.showModal();
+    });
+    if (!ok) return;
+    avisar(`Instalando ${plural(info.addons.length, "addon", "addons")}…`, "importar");
+    const r = await api("/api/addons/pacote", { metodo: "POST", corpo });
+    const falhas = r.resultado.filter((x) => !x.ok);
+    avisar(`${plural(r.resultado.length - falhas.length, "addon instalado", "addons instalados")}`
+      + (falhas.length ? `; ${falhas.length} com problema: ${falhas.map((x) => `${x.arquivo} (${x.erro})`).join("; ")}` : "."),
+      falhas.length ? "alerta" : "addon");
+  }
+
   function confirmarInstalacao(info) {
     const m = info.manifesto;
     const t = info.totais;
@@ -950,6 +985,10 @@
     for (const arquivo of ev.target.files) {
       try {
         const corpo = { nome_arquivo: arquivo.name, conteudo_base64: await lerComoBase64(arquivo) };
+        if (arquivo.name.toLowerCase().endsWith(".aprendiz-pacote")) {
+          await instalarPacote(corpo);
+          continue;
+        }
         const info = await api("/api/addons/inspecionar", { metodo: "POST", corpo });
         if (!(await confirmarInstalacao(info))) continue;
         avisar(`Instalando ${arquivo.name}…`, "importar");

@@ -223,6 +223,18 @@ R: **grana** (Brasil): dinheiro.
 - O app recusa refs repetidos, relações fora da lista e ligações internas para refs que não
   existem.
 
+## Pacote de addons (2.3)
+
+Um `.aprendiz-pacote` é um ZIP com vários `.aprendiz` e um `pacote.json`:
+
+```json
+{"formato": 1, "addons": [{"arquivo": "sql-basico.aprendiz", "sha256": "…"}]}
+```
+
+A ordem da lista é a ordem de instalação (a loja põe as dependências antes). O app confere o
+SHA-256 de cada arquivo antes de instalar qualquer um, e cada addon passa pela mesma validação
+de sempre (`addons.ler_pacote_de_addons`, `Assistente.instalar_pacote`).
+
 ## Criar um addon
 
 Crie uma pasta com os arquivos abaixo. Veja os exemplos em `exemplos/addons/`:

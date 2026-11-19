@@ -319,6 +319,29 @@ class Assistente:
         return {**resumo, "dependencias": dependencias,
                 "versao_anterior": anterior["versao"] if anterior else None}
 
+    def inspecionar_pacote(self, dados: bytes) -> dict[str, Any]:
+        """Um pacote de addons (2.2), SEM instalar: o que vem e o que já está instalado."""
+        instalados = {a["id"]: a["versao"] for a in self.banco.listar_addons()}
+        addons = []
+        for nome, bruto in pacotes.ler_pacote_de_addons(dados):
+            m = pacotes.ler_pacote(bruto).manifesto
+            addons.append({"arquivo": nome, "id": m["id"], "nome": m["nome"], "versao": m["versao"],
+                           "origem": m.get("origem"), "versao_anterior": instalados.get(m["id"])})
+        return {"addons": addons}
+
+    def instalar_pacote(self, dados: bytes) -> list[dict[str, Any]]:
+        """Instala os addons de um pacote, na ordem; um que falhe não impede os outros."""
+        resultado = []
+        for nome, bruto in pacotes.ler_pacote_de_addons(dados):
+            try:
+                r = self.instalar_addon(bruto)
+                resultado.append({"arquivo": nome, "ok": True, "nome": r["addon"]["nome"],
+                                  "versao": r["addon"]["versao"],
+                                  "versao_anterior": r.get("versao_anterior")})
+            except pacotes.ErroAddon as erro:
+                resultado.append({"arquivo": nome, "ok": False, "erro": str(erro)})
+        return resultado
+
     def instalar_addon(self, dados: bytes) -> dict[str, Any]:
         """
         Lê, valida e instala um arquivo .aprendiz. Se um addon com o mesmo id

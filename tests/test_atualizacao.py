@@ -65,3 +65,35 @@ def test_sha256_diferente_nao_instala(com_addon):
     com_addon.atualizador = Atualizador(com_addon, loja("1.1.0", sha="0" * 64))
     texto = com_addon.responder("atualize")["mensagem"]["texto"]
     assert "SHA-256" in texto and versao(com_addon) == "1.0.0"
+
+
+# ------------------------------------------------------------ pacote de addons (loja)
+def pacote(*addons, estragar=False):
+    import io
+    import zipfile
+    buf = io.BytesIO()
+    with zipfile.ZipFile(buf, "w") as z:
+        itens = []
+        for i, (id_, versao) in enumerate(addons):
+            dados = criar_pacote({**MANIFESTO, "id": id_, "nome": id_, "versao": versao}, ITENS, {})
+            nome = f"{id_}.aprendiz"
+            z.writestr(nome, dados)
+            sha = hashlib.sha256(dados).hexdigest()
+            itens.append({"arquivo": nome, "sha256": "0" * 64 if estragar and i == 1 else sha})
+        z.writestr("pacote.json", json.dumps({"formato": 1, "addons": itens}))
+    return buf.getvalue()
+
+
+def test_pacote_instala_todos_na_ordem(assistente):
+    dados = pacote(("pac-um", "1.0.0"), ("pac-dois", "1.0.0"))
+    info = assistente.inspecionar_pacote(dados)
+    assert [a["id"] for a in info["addons"]] == ["pac-um", "pac-dois"]
+    assert all(r["ok"] for r in assistente.instalar_pacote(dados))
+    assert {"pac-um", "pac-dois"} <= {a["id"] for a in assistente.banco.listar_addons()}
+
+
+def test_pacote_com_sha256_errado_e_recusado_inteiro(assistente):
+    from aprendiz.addons import ErroAddon
+    with pytest.raises(ErroAddon, match="SHA-256"):
+        assistente.instalar_pacote(pacote(("pac-um", "1.0.0"), ("pac-dois", "1.0.0"), estragar=True))
+    assert not {"pac-um", "pac-dois"} & {a["id"] for a in assistente.banco.listar_addons()}

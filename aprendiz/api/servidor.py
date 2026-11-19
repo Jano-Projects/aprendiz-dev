@@ -16,6 +16,8 @@ A interface (pasta web/) conversa com estas rotas via fetch() em JSON:
     POST   /api/revisar                   → revisa um texto pela norma escolhida (0.8+)
     POST   /api/sinal                     → "sinal de vida" da interface (ver desktop.py)
     POST   /api/resetar                   → volta ao estado inicial (com backup antes)
+    POST   /api/addons/pacote/inspecionar → o que vem num .aprendiz-pacote (sem instalar)
+    POST   /api/addons/pacote             → instala todos os addons do pacote, na ordem
     POST   /api/loja-oficial              → abre a loja oficial de addons no navegador
                                             (opcional: {"addon": id} já filtra a loja)
 
@@ -367,12 +369,27 @@ def criar_app(caminho_banco: str | Path | None = None) -> FastAPI:
         return banco.listar_addons()
 
     def _bytes_do_addon(pedido: PedidoAddon) -> bytes:
-        if not pedido.nome_arquivo.lower().endswith(".aprendiz"):
-            raise HTTPException(400, "Escolha um arquivo de addon (.aprendiz).")
+        if not pedido.nome_arquivo.lower().endswith((".aprendiz", ".aprendiz-pacote")):
+            raise HTTPException(400, "Escolha um arquivo de addon (.aprendiz ou .aprendiz-pacote).")
         try:
             return base64.b64decode(pedido.conteudo_base64, validate=True)
         except (binascii.Error, ValueError):
             raise HTTPException(400, "Arquivo corrompido no envio.") from None
+
+    @app.post("/api/addons/pacote/inspecionar")
+    def inspecionar_pacote(pedido: PedidoAddon):
+        """Pacote de addons da loja (2.2): o que vem nele, SEM instalar."""
+        try:
+            return assistente.inspecionar_pacote(_bytes_do_addon(pedido))
+        except ErroAddon as erro:
+            raise HTTPException(400, str(erro)) from erro
+
+    @app.post("/api/addons/pacote")
+    def instalar_pacote(pedido: PedidoAddon):
+        try:
+            return {"resultado": assistente.instalar_pacote(_bytes_do_addon(pedido))}
+        except ErroAddon as erro:
+            raise HTTPException(400, str(erro)) from erro
 
     @app.post("/api/addons/inspecionar")
     def inspecionar_addon(pedido: PedidoAddon):
