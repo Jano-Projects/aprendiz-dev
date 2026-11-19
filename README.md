@@ -58,18 +58,21 @@ comentada em português. Por isso ele roda até em máquinas bem modestas.
 | 💬 **Chat moderno** | Histórico de conversas, tema claro/escuro, Markdown, ícones, responsivo |
 | 🎓 **Aprende pelo chat** | `aprenda que a senha do wifi é casa123` · `pergunta: … resposta: …` · `anote: …` |
 | 🔁 **Aprende com correções** | Errou? *Corrigir* transforma a resposta certa em ensinamento |
+| 🕸️ **Teia de porquês** | Addons dizem *por que* cada resposta é assim e a que outros conceitos ela se liga, inclusive em outros addons; a resposta **Trabalhada** explica a cadeia até a base ([docs](docs/algoritmos.md#7-resposta-trabalhada-e-teia-de-porquês-20)) |
+| 🧩 **Entende a frase** | Padrões de frase ("quantos pedidos cada cliente fez" = agrupar e contar), números por extenso ("dois mais dois") e a regra de que a resposta precisa falar do assunto da pergunta ([docs](docs/compreensao.md#padrões-de-frase-20)) |
 | 🧩 **Addons** | Pacotes `.aprendiz` (memória, linguagem, parâmetros, personalização, compreensão, vetores, norma) com confirmação antes de instalar ([docs](docs/addons.md)) |
 | ✍️ **Revisão de texto** | Com um addon de norma: ortografia, gramática e palavras de outras variantes pelo português de cada país (Brasil, Portugal, Angola, Moçambique, Cabo Verde, Guiné-Bissau, São Tomé e Príncipe, Timor-Leste): `revise: …`, `o certo é X ou Y?` e a tela **Revisar texto** ([docs](docs/revisao.md)) |
 | 🧠 **Compreensão** | Com o addon de compreensão: tipo de pergunta, expressões, formas irregulares, perguntas sobre o próprio app, limites de um assistente offline e indicação do addon certo quando não sabe algo ([docs](docs/compreensao.md)) |
 | 🧭 **Busca por sentido** | Com o addon de vetores: se a palavra não está na base, tenta as de sentido parecido |
 | 📖 **Dicionários** | Respondem nos dois sentidos, "o que significa kota?" e "como se diz dinheiro em Angola?", sem atrapalhar o resto da conversa |
 | 🗣️ **Vários jeitos de perguntar** | Addons trazem variações de cada pergunta, que levam à mesma resposta |
-| 🧪 **Algoritmo recomendado** | Cada addon traz a busca e a resposta que funcionam melhor com ele, medidas num teste com o próprio conteúdo |
+| 🧪 **Algoritmo recomendado** | Cada addon traz a busca e a resposta que funcionam melhor com ele, medidas num teste com o próprio conteúdo e com perguntas fora do assunto |
+| ✅ **Homologação** | `ferramentas/homologar.py` faz perguntas de gente de verdade contra os addons reais da loja, incluindo perguntas inéditas ([docs](docs/algoritmos.md#homologação)) |
 | 🗂️ **Grupos de addons** | Addons com a mesma recomendação são ativados juntos, no mesmo padrão de busca; os de apoio (compreensão, diálogo, vetores, personalização) entram no grupo dos addons que complementam |
 | 💬 **Diálogo** | Com o addon de diálogo: cumprimento + pedido na mesma frase, desabafo, pedido de opinião, perguntas reflexivas e reações à resposta anterior ("não entendi", "não era isso", "sim", "e em Portugal?") ([docs](docs/compreensao.md#diálogo)) |
 | 📦 **Exporta o que você ensinou** | Gera um addon para compartilhar, escolhendo item a item; dados pessoais vêm desmarcados |
 | 🎨 **Configurações** | Limiares, algoritmos padrão, nome, cor e boas-vindas do assistente |
-| 🔍 **Seletor de algoritmos** | 4 de busca e 2 de resposta, cada um com explicação no botão **?** |
+| 🔍 **Seletor de algoritmos** | 4 de busca e 3 de resposta, cada um com explicação no botão **?** |
 | 💡 **"Por que respondi isso?"** | Normalização, intenções, candidatos, confiança e tempos de cada etapa |
 | 🛡️ **Modo estrito** | Se não sabe, diz que não sabe. Nada é inventado |
 | 🗣️ **Banco de linguagem** | Abreviações, sinônimos e intenções editáveis pela interface |

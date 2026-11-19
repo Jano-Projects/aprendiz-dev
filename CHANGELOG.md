@@ -4,84 +4,64 @@ Todas as mudanças relevantes do projeto ficam registradas aqui.
 O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/), e as versões
 seguem o [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
-## [Não lançado]
+## [2.0.0] - 2026-11-19
+
+A 2.0 muda o Aprendiz de uma busca que devolve o texto guardado para um assistente que
+entende o pedido e explica os porquês. Os addons ganham uma **teia de porquês**: cada fragmento
+diz por que é assim e a que outros fragmentos se liga, inclusive em outros addons. Na
+homologação com os addons reais da loja, a busca Híbrido acerta 150 de 158 perguntas de gente
+de verdade, incluindo três baterias de perguntas inéditas.
 
 ### Adicionado
-- **Números e contas numa forma só** (`aprendiz/linguagem/numeros.py`): "2+2", "dois mais dois"
-  e "2 mais dois" viram `2 soma 2`; números por extenso viram algarismos. Datas, hexadecimal e
-  "um" como artigo ficam como estão.
-- **Teia de porquês nos addons** (início do formato da 2.0): no `perguntas.txt`, linhas `F:`
-  (ref), `A:` (assuntos), `Q:` (porquê: `relação | explicação | -> ref`) e `N: raiz`, antes do
-  `R:`. O app valida relações e ligações e grava a teia na coluna `conhecimentos.teia`
-  (esquema 9). Os assuntos entram no texto de busca.
-- **Percurso da teia** (`aprendiz/core/teia.py`): a partir do conhecimento achado, segue os
-  porquês ligados em largura, até 3 níveis, parando nas raízes, sem repetir fragmento e cortando
-  o elo que já não tem palavra em comum com a pergunta. Atravessa addons (`addon:ref`) e ignora
-  os desativados. O caminho aparece em "Por que respondi isso?" (etapa "Teia de porquês").
-- **Resposta Trabalhada** (`aprendiz/algoritmos/resposta/trabalhada.py`): o fato achado e a
-  cadeia de porquês, contada em profundidade (cada porquê seguido dos porquês do fragmento que
-  ele liga). Sem teia, responde como a Direta.
-- **Expressão** (`aprendiz/core/expressao.py`): seção `expressao` no `compreensao.json` dos
-  addons de linguagem, com frases para abertura, fechamento e cada relação (`{x}` = conteúdo).
-  Os addons ativos somam frases e uma é sorteada a cada resposta; sem nenhum, vale um conjunto
-  mínimo embutido. A mesma frase não se repete duas vezes seguidas.
-- A recomendação de um addon com teia em pelo menos metade dos itens passa a ser a resposta
-  **Trabalhada**.
+- **Resposta Trabalhada** (`algoritmos/resposta/trabalhada.py`): o fato achado e a cadeia de
+  porquês, contada em profundidade, com frases dos addons de linguagem. Sem teia, responde como
+  a Direta. "Não entendi" vai um nível mais fundo: os porquês ou a base de cada conceito.
+- **Teia de porquês** (`core/teia.py`): percurso em largura a partir do conhecimento achado, até
+  3 níveis, parando nas raízes, sem repetir fragmento e cortando o elo que sai do assunto. Só as
+  relações de causa descem; as laterais valem no nível 1. Atravessa addons (`addon:ref`) e
+  ignora os desativados. Aparece em "Por que respondi isso?".
+- **Expressão** (`core/expressao.py`): seção `expressao` no `compreensao.json` dos addons de
+  linguagem, com frases para abertura, fechamento e cada relação. Os addons somam frases, uma é
+  sorteada a cada resposta, sem repetir a anterior.
+- **Padrões de frase** (`core/padroes.py`): seção `padroes` no `compreensao.json`, com
+  estruturas que dizem um conceito ("quantos * cada *" → agrupar). As lacunas são o exemplo e
+  saem da busca; vence o padrão mais específico. Só troca a pergunta se a reescrita achar
+  resposta.
+- **Números e contas numa forma só** (`linguagem/numeros.py`): "2+2", "dois mais dois" e
+  "2 mais dois" viram `2 soma 2`.
+- **Homologação** (`ferramentas/homologar.py`): perguntas reais contra os addons da loja, com
+  baterias de perguntas inéditas escritas antes de cada mudança.
+- `criar_addon.py --junto`: mede a recomendação com os addons essenciais de linguagem instalados.
 
 ### Mudado
-- Percurso da teia: só as relações de causa (`porque`, `regra`, `definicao`, `parte-de`) descem
-  até a raiz; as laterais (`diferente-de`, `consequencia`, `exemplo-de`, `antes-de`, `depois-de`)
-  valem só no nível 1. O freio de assunto compara os assuntos (`A:`) dos fragmentos, não o texto
-  inteiro. Na Trabalhada, o resumo do fragmento ligado só entra quando o porquê não tem texto.
-- Versão do app: 2.0.0 (em desenvolvimento).
-- **A resposta precisa falar do assunto**: um candidato só é aceito (e só é sugerido) se tiver
-  alguma palavra forte da pergunta, comparada pela palavra e não só pelo radical. "O que é um
-  ponteiro em C?" não é mais respondido com SQL por causa do apelido de tabela "c" ou do radical
-  de "ponto". Palavras curtas valem quando são o assunto declarado (pergunta, variações, `A:`).
-- **Palavra informativa**: a regra do assunto ignora as palavras mais comuns da língua (com o
-  addon de vetores: "fazer", "quero") e aceita erro de digitação (85% de semelhança: "lefet" →
-  "left", mas "where" não vira "while"). Em "o que é X?", o X precisa estar no que o
-  conhecimento declara tratar (pergunta, variações, `A:`), não só citado no texto.
-- **"Não entendi" vai mais fundo**: com teia, se a resposta anterior não tinha os porquês, ele
-  explica os porquês; se já tinha, explica a base (cada conceito em que ela se apoiou).
-- **Assunto declarado pesa mais**: a palavra da pergunta que está no que o conhecimento declara
-  tratar (pergunta, variações, `A:`) é evidência mais forte do que a solta no texto. Quem bate no
-  assunto é aceito até 80% do limiar e, entre os aceitos, vem antes quem bate em mais palavras.
-- **Padrões de frase** (`aprendiz/core/padroes.py`): seção `padroes` no `compreensao.json`, com
-  estruturas de frase que dizem um conceito ("quantos|quantas * cada|por *" → agrupar, contar).
-  As lacunas (`*`) são o EXEMPLO e saem da busca; os conceitos entram. A pergunta só é trocada
-  quando a reescrita acha resposta. Aparece em "Por que respondi isso?" (etapa "Padrão de frase").
-- **Correção determinística**: o vocabulário do corretor é uma lista ordenada e, entre correções
-  igualmente parecidas, vence a que forma um par existente na base ("grup by" → "group by"),
-  depois a mais frequente. A mesma pergunta é sempre corrigida do mesmo jeito.
-- **Sem resposta pelo corpo do texto**: sem palavra da pergunta no assunto declarado, o texto
-  precisa ter todas as palavras informativas; digitação só em palavra que não existe; a busca
-  por sentido (vetores) só vale se a troca chegar ao assunto declarado de um conhecimento.
-- **Recomendação mede falsos positivos**: perguntas fora do assunto respondidas mesmo assim
-  descontam da nota (`acerto − 0,5 × falsos`). O Híbrido só perde se outro tiver 5 pontos a mais
-  (na homologação, com perguntas ditas de outro jeito, ele ganhou em todas as levas), e o
-  `criar_addon.py --junto` mede com os addons essenciais de linguagem instalados.
-- **Cobertura e o melhor no assunto**: no peso do assunto declarado, cada palavra da pergunta
-  coberta soma 0,5; o ÚNICO candidato que bate mais que todos no assunto é aceito até 60% do
-  limiar ("menor caminho entre duas cidades" → Dijkstra). As folgas não valem quando o DONO
-  definiu o limiar (modo estrito respeitado à risca).
-- **Siglas no assunto**: palavras de 3 letras ("exe", "cte", "api") contam no peso do assunto
-  declarado quando batem exatamente.
-- **Gerúndio casa com o infinitivo** na comparação de assuntos ("dividindo" → "dividir"). Só essa
-  flexão exata: juntar por radical misturava sentidos ("ligações" e "lista ligada").
-- **Padrão mais específico vence**: se um padrão de frase tem palavra fixa onde outro tem lacuna
-  ("colocar * no ar" x "colocar o * no *"), vale o mais específico; artigos e preposições não
-  decidem.
-- **Quem é o assunto vence quem só cita**: no peso do assunto declarado, a palavra na pergunta
-  do fragmento (ou nas variações) vale 2 e nos assuntos relacionados (`A:`) vale 1, multiplicado
-  pela raridade da palavra entre as perguntas da base ("estrangeira" distingue; "dados" não).
-  Palavras comuns da língua ("começa", "zero") entram com metade do peso, em vez de nenhum.
-- **Homologação** (`ferramentas/homologar.py`): perguntas de gente de verdade (variações,
-  digitação, porquês, resumos, fora do assunto, conversa e um grupo de perguntas INÉDITAS, que
-  não estão em addon nenhum, em três levas escritas em momentos diferentes) contra os addons
-  reais da loja.
-- **Assunto conhecido não é conversa social**: "me fala de banco de dados" não vira resposta de
-  ajuda quando a base conhece o assunto, seja qual for o jeito de pedir.
+- **A resposta precisa falar do assunto**: o candidato precisa de uma palavra informativa da
+  pergunta no que ele declara tratar (pergunta, variações, `A:`) ou, se não tiver, de todas elas
+  no texto. Erro de digitação só em palavra que não existe ("copa" não é "cópia"). Em "o que é
+  X?", o X precisa estar no assunto declarado.
+- **Assunto declarado pesa na escolha**: palavra na pergunta do fragmento vale 2, nos assuntos
+  vale 1, multiplicado pela raridade entre os títulos; palavras comuns valem metade, siglas de 3
+  letras contam quando batem exatamente e o gerúndio casa com o infinitivo. Quem bate no assunto
+  é aceito até 80% do limiar (o melhor de todos, até 60%), exceto quando o dono definiu o limiar.
+- **Assunto conhecido não é conversa social**: "me fala de banco de dados" vira pergunta.
+- **Correção determinística**: a mesma pergunta é sempre corrigida do mesmo jeito; entre
+  correções iguais, vence a que forma um par existente na base ("grup by" → "group by").
+- **Recomendação de algoritmo**: desconta perguntas fora do assunto respondidas mesmo assim, e o
+  Híbrido só perde se outro for 5 pontos melhor.
+- Esquema do banco 9 (coluna `conhecimentos.teia`); bancos antigos são migrados ao abrir.
+
+### Formato de addon
+- `perguntas.txt` aceita, antes do `R:`, as linhas `F:` (ref), `A:` (assuntos: os nomes do
+  próprio conceito), `Q:` (porquê: `relação | explicação | -> ref`) e `N: raiz`.
+- `compreensao.json` aceita as seções `expressao` e `padroes`.
+- Addons convertidos pedem o Aprendiz 2.0 (`app.versao_minima`); os do formato anterior seguem
+  funcionando na 2.0.
+
+### Limitações conhecidas
+- A busca é por palavras: perguntas com o assunto escondido atrás de um verbo genérico
+  ("transformar meu script em um .exe") ou com palavras muito comuns ("numerar as linhas")
+  podem cair noutro fragmento. As 8 perguntas que ainda falham estão na homologação.
+- O contexto da conversa ainda não pesa na escolha do assunto.
+- A busca por vetores na ordenação foi testada e descartada (piorou a homologação).
 
 ## [1.0.0] - 2026-11-18
 
