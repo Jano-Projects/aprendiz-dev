@@ -10,14 +10,15 @@ máquinas bem modestas.
 Mapa dos pacotes:
 
     aprendiz/
-    ├── config.py        → caminhos e configurações
-    ├── memoria/         → banco SQLite (conhecimento, linguagem, conversas)
-    ├── linguagem/       → normalizador, radicalizador, intenções, entidades
+    ├── core/            → o pipeline que junta tudo (classe Assistente), a teia e o Monitor
+    ├── linguagem/       → PLN clássico: normalizador, radicalizador, intenções, entidades
     ├── algoritmos/      → plugins de busca e de resposta (o "seletor")
-    ├── core/            → o pipeline que junta tudo (classe Assistente)
+    ├── capacidades/     → compreensão, diálogo, dicionário e revisão (ligadas por addons)
+    ├── addons/          → o arquivo .aprendiz, recursos, normas, exportação e recomendação
+    ├── memoria/         → banco SQLite (conhecimento, linguagem, conversas)
     ├── api/             → servidor HTTP local (FastAPI)
-    ├── web/             → interface de chat (HTML/CSS/JS puros)
-    └── desktop.py       → abre o app como janela de desktop
+    ├── web/             → interface de chat e Monitor (HTML/CSS/JS puros)
+    └── aplicativo/      → caminhos, configurações, atualização e a janela de desktop
 """
 
-__version__ = "2.4.0"
+__version__ = "2.5.0"

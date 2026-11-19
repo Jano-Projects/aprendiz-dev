@@ -2,8 +2,8 @@
 
 import pytest
 
-from aprendiz import addons as pacotes
-from aprendiz import recursos
+from aprendiz.addons import pacote as pacotes
+from aprendiz.addons import recursos
 from aprendiz.core.padroes import Padroes
 from aprendiz.linguagem.normalizador import normalizar
 

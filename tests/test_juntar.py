@@ -3,8 +3,8 @@ Testes de "juntar e reinterpretar" (1.0): panorama ("o que você sabe sobre X?")
 pedido composto ("A e B?") e busca só pelo assunto ("quero fazer um bolo").
 """
 
-from aprendiz import addons as pacotes
-from aprendiz import recursos
+from aprendiz.addons import pacote as pacotes
+from aprendiz.addons import recursos
 from aprendiz.linguagem import normalizar
 
 COMPREENSAO = {

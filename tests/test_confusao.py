@@ -12,8 +12,8 @@ empilhadas:
 
 import struct
 
-from aprendiz import addons as pacotes
-from aprendiz import recursos
+from aprendiz.addons import pacote as pacotes
+from aprendiz.addons import recursos
 from aprendiz.core.assistente import _parecida
 
 from test_dicionario import com_dicionarios, texto  # noqa: F401 (fixture)

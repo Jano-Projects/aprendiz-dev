@@ -10,8 +10,9 @@ import struct
 import pytest
 from fastapi.testclient import TestClient
 
-from aprendiz import addons as pacotes
-from aprendiz import config, recursos
+from aprendiz.addons import pacote as pacotes
+from aprendiz.aplicativo import config
+from aprendiz.addons import recursos
 from aprendiz.api import criar_app, servidor
 from aprendiz.linguagem import normalizar
 

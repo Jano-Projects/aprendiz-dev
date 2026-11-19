@@ -5,7 +5,7 @@ setlocal
 cd /d "%~dp0"
 if not exist .venv\Scripts\python.exe (
   echo Primeira execucao: instalando o Aprendiz...
-  powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0ferramentas\instalar-windows.ps1"
+  powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0distribuicao\instalar-windows.ps1"
   if errorlevel 1 (
     if not defined CI pause
     exit /b 1

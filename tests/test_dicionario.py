@@ -8,7 +8,7 @@ from pathlib import Path
 
 import pytest
 
-from aprendiz.addons import ErroAddon, criar_pacote, ler_pacote
+from aprendiz.addons.pacote import ErroAddon, criar_pacote, ler_pacote
 
 STOP = {"stopwords": ["significa", "significado", "quer", "dizer", "giria", "palavra"]}
 

@@ -18,7 +18,7 @@ Fluxo de uma mensagem (método `responder`):
        └─ 7. Resposta ............ algoritmo de resposta escolhido no seletor
 
 As etapas 4b e 6 só fazem algo com um addon de compreensão ativo (0.7+);
-veja core/compreensao.py.
+veja capacidades/compreensao.py.
 
 Cada etapa registra o que fez e quanto tempo levou. Esse registro vira a
 "explicação" exibida no Monitor da interface.
@@ -33,15 +33,16 @@ from typing import Any, Callable
 
 from rapidfuzz import fuzz, process
 
-from aprendiz import addons as pacotes
+from aprendiz.addons import pacote as pacotes
 from aprendiz.algoritmos import BUSCAS, RESPOSTAS, ContextoBusca, titulo_curto
 from aprendiz.algoritmos.base import Candidato
 from aprendiz.algoritmos.resposta.trabalhada import resumo
-from aprendiz.configuracoes import Configuracoes
-from aprendiz.core.compreensao import Compreensao, FRASE_TIPO, resposta_dinamica
-from aprendiz.core.dialogo import SO_SEM_ASSUNTO, Dialogo
-from aprendiz.core.dicionario import Dicionario
-from aprendiz.core import monitor, revisao
+from aprendiz.aplicativo.configuracoes import Configuracoes
+from aprendiz.capacidades.compreensao import Compreensao, FRASE_TIPO, resposta_dinamica
+from aprendiz.capacidades.dialogo import SO_SEM_ASSUNTO, Dialogo
+from aprendiz.capacidades.dicionario import Dicionario
+from aprendiz.core import monitor
+from aprendiz.capacidades import revisao
 
 from aprendiz.core.expressao import Expressao
 from aprendiz.core.padroes import Padroes
@@ -200,7 +201,7 @@ class Assistente:
         self.teia = Teia(banco, self.linguagem)
         self.padroes = Padroes(banco)
         self._assunto_definicao: set[str] = set()
-        self.atualizador = None   # aprendiz.atualizacao.Atualizador (os testes trocam a rede)
+        self.atualizador = None   # aprendiz.aplicativo.atualizacao.Atualizador (os testes trocam a rede)
         self._raras: dict[str, float] = {}
         self._raras_versao = -1
         self._df, self._df_total, self._df_versao = {}, 0, -1   # palavras do assunto de um "o que é X?"
@@ -908,7 +909,7 @@ class Assistente:
 
     def _atualizar_pelo_chat(self, aplicar: bool) -> str:
         """Verifica (e, se pedido, aplica) as atualizações do app e dos addons oficiais."""
-        from aprendiz.atualizacao import Atualizador, ErroAtualizacao
+        from aprendiz.aplicativo.atualizacao import Atualizador, ErroAtualizacao
         atualizador = Atualizador(self) if self.atualizador is None else self.atualizador
         try:
             achado = atualizador.verificar()
@@ -1305,7 +1306,7 @@ class Assistente:
         recomendação de algoritmo dos addons usa este mesmo caminho).
         Devolve (candidatos, aceitos, limiar), com os aceitos já ordenados.
         """
-        # Parâmetros em vigor (dono > addon ativo > padrão; ver configuracoes.py)
+        # Parâmetros em vigor (dono > addon ativo > padrão; ver aplicativo/configuracoes.py)
         config = self.configuracoes.efetivas()
         self.contexto.limiares = {nome: config[f"limiar.{nome}"]["valor"]
                                   for nome in BUSCAS if f"limiar.{nome}" in config}

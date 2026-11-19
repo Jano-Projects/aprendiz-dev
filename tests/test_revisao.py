@@ -8,11 +8,11 @@ normas pequenas, com os mesmos formatos, para testar cada peça do motor.
 import pytest
 from fastapi.testclient import TestClient
 
-from aprendiz import addons as pacotes
-from aprendiz import normas
+from aprendiz.addons import pacote as pacotes
+from aprendiz.addons import normas
 from aprendiz.api import criar_app
-from aprendiz.core import revisao
-from aprendiz.normas import Vocabulario
+from aprendiz.capacidades import revisao
+from aprendiz.addons.normas import Vocabulario
 
 COMUM = """a o os as um uma de do da que não e é eu tu ele ela nós você me te se lhe
 dois três anos meses dias faz fazia fez fazem faziam fizeram há havia houve muitas pessoas

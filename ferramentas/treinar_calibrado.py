@@ -1,7 +1,7 @@
 """
 Treina a busca Calibrada (aprendiz/algoritmos/busca/calibrado.py).
 
-    pip install -r requirements-treino.txt       # scikit-learn (só para treinar)
+    pip install -r requirements/treino.txt       # scikit-learn (só para treinar)
     python ferramentas/treinar_calibrado.py ../aprendiz-addons
     python ferramentas/treinar_calibrado.py ../aprendiz-addons --so-medir
 
@@ -20,7 +20,7 @@ O que ele faz:
    (scikit-learn), escolhendo a regularização por validação cruzada.
 6. Mede no TESTE o Calibrado contra BM25 e Híbrido e grava
    aprendiz/algoritmos/busca/calibrado_pesos.py e o conjunto em
-   benchmarks/conjunto_calibrado.json.
+   ferramentas/dados/conjunto_calibrado.json.
 
 Tudo é determinístico: a separação usa um hash do fragmento, não sorteio.
 A homologação (ferramentas/homologar.py) não entra no treino; ela é a
@@ -53,7 +53,7 @@ from aprendiz.memoria.banco import lista_json  # noqa: E402
 from homologar import ADDONS  # noqa: E402
 
 PESOS = RAIZ / "aprendiz" / "algoritmos" / "busca" / "calibrado_pesos.py"
-CONJUNTO = RAIZ / "benchmarks" / "conjunto_calibrado.json"
+CONJUNTO = RAIZ / "ferramentas" / "dados" / "conjunto_calibrado.json"
 FRACAO_TESTE = 3    # em 10
 FRACAO_FORA = 1     # em 10: fragmentos removidos (perguntas sem resposta)
 REGULARIZACOES = [0.03, 0.1, 0.3, 1.0, 3.0]

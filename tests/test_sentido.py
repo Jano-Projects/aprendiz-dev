@@ -51,7 +51,7 @@ def test_correcao_prefere_o_par_que_existe_na_base(assistente):
 
 
 def test_quem_e_o_assunto_vence_quem_so_cita(assistente):
-    from aprendiz.addons import criar_pacote
+    from aprendiz.addons.pacote import criar_pacote
     itens = [
         {"pergunta": "o que é join", "conteudo": "O JOIN junta tabelas pela chave estrangeira.",
          "teia": {"ref": "join", "assuntos": ["join", "chave estrangeira"], "porques": [], "raiz": False}},
@@ -73,7 +73,7 @@ def test_gerundio_casa_com_infinitivo_mas_radical_solto_nao():
 
 
 def _addon_com_teia(assistente, itens, id_="tutorial"):
-    from aprendiz.addons import criar_pacote
+    from aprendiz.addons.pacote import criar_pacote
     assistente.instalar_addon(criar_pacote({"id": id_, "nome": "T", "versao": "1.0.0", "autor": "t"},
                                            itens, {}))
 

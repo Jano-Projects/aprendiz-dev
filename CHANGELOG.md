@@ -6,6 +6,51 @@ seguem o [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ## [Não lançado]
 
+## [2.5.0] - 2026-11-19
+
+Reorganização do repositório: cada pasta responde a uma pergunta, a raiz ficou só com o que
+quem chega precisa ver, e a documentação ganhou um índice. **Nenhum comportamento mudou**: as
+respostas, o banco e os addons são os mesmos.
+
+### Mudado
+- **Raiz:** de 24 para 16 itens. Ficam os instaladores e executores (`instalar.*`,
+  `executar.*`), `README`, `CHANGELOG`, `LICENSE`, `pyproject.toml`, `requirements.txt` e as pastas.
+  - `empacotar.sh`, `empacotar.bat`, `iniciar.py` e `ferramentas/instalar-windows.ps1` →
+    `distribuicao/` (os scripts de empacotamento voltam sozinhos para a raiz do projeto).
+  - `requirements-dev.txt`, `-janela.txt` e `-treino.txt` → `requirements/dev.txt`,
+    `janela.txt` e `treino.txt`.
+  - `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md` e `SECURITY.md` → `.github/`, onde o GitHub
+    continua a mostrá-los.
+  - `benchmarks/comparar.py` → `ferramentas/comparar.py`; os dados vão para `ferramentas/dados/`.
+- **Pacote `aprendiz/`:** nenhum módulo solto na raiz do pacote.
+  - `aplicativo/`: `config.py`, `configuracoes.py`, `atualizacao.py` e `desktop.py`.
+  - `addons/`: `pacote.py` (o antigo `addons.py`), `recursos.py`, `normas.py` e, saindo de
+    `core/`, `exportacao.py` e `recomendacao.py`.
+  - `capacidades/`: saindo de `core/`, `compreensao.py`, `dialogo.py`, `dicionario.py` e
+    `revisao.py`.
+  - `core/` fica só com o pipeline: `assistente.py`, `teia.py`, `padroes.py`, `expressao.py`
+    e `monitor.py`.
+- **Documentação:** `docs/README.md` (índice, com por onde começar em cada nível) e três pastas:
+  `docs/estudo/` (algoritmos, linguagem, compreensão, revisão, Monitor), `docs/guias/` (addons,
+  criar algoritmo, empacotamento) e `docs/referencia/` (arquitetura e estrutura). A arquitetura
+  ganhou uma tabela com a pergunta que cada pasta responde.
+
+### Para quem tem código que importa o Aprendiz
+| Antes | Agora |
+|---|---|
+| `from aprendiz import addons` | `from aprendiz.addons import pacote` |
+| `from aprendiz import recursos, normas` | `from aprendiz.addons import recursos, normas` |
+| `from aprendiz import config, configuracoes` | `from aprendiz.aplicativo import config, configuracoes` |
+| `aprendiz.atualizacao`, `aprendiz.desktop` | `aprendiz.aplicativo.atualizacao`, `aprendiz.aplicativo.desktop` |
+| `aprendiz.core.exportacao`, `aprendiz.core.recomendacao` | `aprendiz.addons.exportacao`, `aprendiz.addons.recomendacao` |
+| `aprendiz.core.compreensao`, `dialogo`, `dicionario`, `revisao` | `aprendiz.capacidades.…` |
+| `bash empacotar.sh` | `bash distribuicao/empacotar.sh` |
+| `pip install -r requirements-dev.txt` | `pip install -r requirements/dev.txt` |
+| `python benchmarks/comparar.py` | `python ferramentas/comparar.py` |
+
+`python -m aprendiz`, `instalar.*` e `executar.*` continuam iguais. Quem instalou pelo código
+recebe a mudança com "verifique e atualize", como sempre.
+
 ## [2.4.0] - 2026-11-19
 
 O repositório passa a ser voltado a **desenvolvedores e estudantes de IA**, do iniciante ao
@@ -527,7 +572,8 @@ Primeira versão pública.
 - Instaladores para Linux e Windows que instalam o Python se faltar, verificador de
   instalação, executável via PyInstaller e CI em Windows, Ubuntu, Fedora e Debian.
 
-[Não lançado]: https://github.com/Jano-Projects/aprendiz-dev/compare/v2.4.0...HEAD
+[Não lançado]: https://github.com/Jano-Projects/aprendiz-dev/compare/v2.5.0...HEAD
+[2.5.0]: https://github.com/Jano-Projects/aprendiz-dev/compare/v2.4.0...v2.5.0
 [2.4.0]: https://github.com/Jano-Projects/aprendiz-dev/compare/v2.3.1...v2.4.0
 [2.3.1]: https://github.com/Jano-Projects/aprendiz-dev/compare/v2.3.0...v2.3.1
 [2.3.0]: https://github.com/Jano-Projects/aprendiz-dev/compare/v2.2.0...v2.3.0

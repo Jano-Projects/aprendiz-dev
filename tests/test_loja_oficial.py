@@ -2,7 +2,7 @@
 
 from fastapi.testclient import TestClient
 
-from aprendiz import config
+from aprendiz.aplicativo import config
 from aprendiz.api import criar_app
 from aprendiz.api import servidor
 

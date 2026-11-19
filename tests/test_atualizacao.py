@@ -5,9 +5,9 @@ import json
 
 import pytest
 
-from aprendiz import config
-from aprendiz.addons import criar_pacote
-from aprendiz.atualizacao import Atualizador
+from aprendiz.aplicativo import config
+from aprendiz.addons.pacote import criar_pacote
+from aprendiz.aplicativo.atualizacao import Atualizador
 from aprendiz.core.assistente import _pedido_atualizacao
 
 MANIFESTO = {"id": "teste-loja", "nome": "Teste da loja", "autor": "Teste"}
@@ -93,7 +93,7 @@ def test_pacote_instala_todos_na_ordem(assistente):
 
 
 def test_pacote_com_sha256_errado_e_recusado_inteiro(assistente):
-    from aprendiz.addons import ErroAddon
+    from aprendiz.addons.pacote import ErroAddon
     with pytest.raises(ErroAddon, match="SHA-256"):
         assistente.instalar_pacote(pacote(("pac-um", "1.0.0"), ("pac-dois", "1.0.0"), estragar=True))
     assert not {"pac-um", "pac-dois"} & {a["id"] for a in assistente.banco.listar_addons()}
