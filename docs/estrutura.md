@@ -79,6 +79,7 @@ aprendiz/
 │   ├── __init__.py                      # Aprendiz — um assistente pessoal local, leve e offline.
 │   ├── __main__.py                      # Permite executar com `python -m aprendiz`.
 │   ├── addons.py                        # Addons: pacotes prontos, distribuídos em arquivos .aprendiz.
+│   ├── atualizacao.py                   # Atualização sob pedido (2.2): o app e os addons da loja oficial.
 │   ├── config.py                        # Configurações globais do Aprendiz.
 │   ├── configuracoes.py                 # Configurações ajustáveis: parâmetros dos algoritmos e personalização da interface.
 │   ├── desktop.py                       # Inicializador do app de desktop.
@@ -123,6 +124,7 @@ aprendiz/
 │   ├── test_addons.py                   # Testes dos addons: formato, segurança, instalação, ativação e migração.
 │   ├── test_algoritmos.py               # Testes dos algoritmos de busca e de resposta, e do pipeline completo.
 │   ├── test_api.py                      # Testes da API HTTP (o mesmo caminho que a interface usa).
+│   ├── test_atualizacao.py              # Atualização sob pedido (2.2): só com o gatilho, com SHA-256 conferido. Sem rede: baixar…
 │   ├── test_compreensao.py              # Testes da compreensão (0.7): addons "compreensao" e "vetores".
 │   ├── test_dialogo.py                  # Testes do diálogo (0.9): a seção "dialogo" dos addons de compreensão e a herança de grupo…
 │   ├── test_dicionario.py               # Testes da 0.6: dicionário nos dois sentidos (traduções e regiões), variações de pergunta…

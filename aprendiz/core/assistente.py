@@ -161,6 +161,22 @@ def texto_indexado(pergunta: str | None, conteudo: str, variacoes: list[str] | N
     return " ".join([pergunta or "", *(variacoes or []), conteudo])
 
 
+_ATUALIZAR = re.compile(r"^(?:por favor )?(?:(?:verifi\w*|procur\w*|busc\w*)(?: (?:se ha|se tem|se existem?))?"
+                        r" (?:(?:as|por) )?(?:atualizacoes|atualizacao|versao nova|novas versoes)"
+                        r"(?P<e> e (?:atualiz\w*|aplic\w*|instal\w*)(?: (?:tudo|todas?|elas?|os addons|o app))?)?"
+                        r"|(?P<ve>(?:verifi\w*|procur\w*) e atualiz\w*(?: (?:tudo|se|o aprendiz|os addons))?)"
+                        r"|(?P<so>atualiz(?:e|ar|a)(?: (?:se|tudo|o aprendiz|os addons|seus addons|o app|voce)"
+                        r"(?: e (?:os|seus) addons)?)?))(?: por favor)?$")
+
+
+def _pedido_atualizacao(mensagem: str) -> str | None:
+    """'verificar', 'aplicar' ou None. Só frases curtas e diretas viram o gatilho."""
+    m = _ATUALIZAR.match(normalizar(mensagem))
+    if not m:
+        return None
+    return "aplicar" if m["e"] or m["so"] or m["ve"] else "verificar"
+
+
 class Assistente:
     def __init__(self, banco: Banco) -> None:
         self.banco = banco
@@ -169,6 +185,7 @@ class Assistente:
         self.teia = Teia(banco, self.linguagem)
         self.padroes = Padroes(banco)
         self._assunto_definicao: set[str] = set()
+        self.atualizador = None   # aprendiz.atualizacao.Atualizador (os testes trocam a rede)
         self._raras: dict[str, float] = {}
         self._raras_versao = -1
         self._df, self._df_total, self._df_versao = {}, 0, -1   # palavras do assunto de um "o que é X?"
@@ -557,6 +574,12 @@ class Assistente:
         etapas.marcar("Normalização", consulta.como_dict())
 
         # 2. Ensino explícito -------------------------------------------------
+        # 1b. Atualização sob pedido (2.2): "verifique e atualize" ----------------
+        pedido_atualizacao = _pedido_atualizacao(mensagem)
+        if pedido_atualizacao:
+            etapas.marcar("Atualização", {"pedido": pedido_atualizacao})
+            return self._atualizar_pelo_chat(pedido_atualizacao == "aplicar"), "atualizacao", []
+
         ensino = self._ensino_explicito(mensagem)
         if ensino:
             c = ensino["conhecimento"]
@@ -830,6 +853,43 @@ class Assistente:
             por_id.update({p.para["id"]: p.para for p in self.contexto.caminho.passos if p.para})
         fontes = [self._fonte(por_id[i]) for i in gerada.fontes if i in por_id]
         return nota_sentido + gerada.texto, "conhecimento", fontes
+
+    def _atualizar_pelo_chat(self, aplicar: bool) -> str:
+        """Verifica (e, se pedido, aplica) as atualizações do app e dos addons oficiais."""
+        from aprendiz.atualizacao import Atualizador, ErroAtualizacao
+        atualizador = Atualizador(self) if self.atualizador is None else self.atualizador
+        try:
+            achado = atualizador.verificar()
+        except ErroAtualizacao as erro:
+            return f"{erro} Confira a internet e tente de novo."
+        app, addons = achado["app"], achado["addons"]
+        linhas = []
+        if not aplicar:
+            if addons:
+                linhas.append("Addons com versão nova na loja oficial:")
+                linhas += [f"- **{a['nome']}**: {a['de']} → {a['para']}" for a in addons]
+            else:
+                linhas.append("Seus addons estão em dia com a loja oficial.")
+            linhas.append(f"\nAprendiz: você está na **{app['atual']}**"
+                          + (f"; a última é a **{app['ultima']}**." if app["nova"] else ", a mais recente."))
+            if addons or app["nova"]:
+                linhas.append("\nDiga **atualize** para eu aplicar.")
+            return "\n".join(linhas)
+        if addons:
+            linhas.append("Addons:")
+            for r in atualizador.atualizar_addons():
+                linhas.append(f"- **{r['nome']}** {r['de']} → {r['para']}: "
+                              + ("atualizado." if r["ok"] else f"não atualizei ({r['erro']})."))
+        else:
+            linhas.append("Seus addons já estavam em dia.")
+        if app["nova"]:
+            r = atualizador.atualizar_app()
+            linhas.append(f"\nAprendiz {app['atual']} → {app['ultima']}: {r['mensagem']}")
+            if not r["ok"] and r.get("pagina"):
+                linhas.append(f"Página da versão nova: {r['pagina']}")
+        else:
+            linhas.append(f"\nO Aprendiz já está na versão mais recente ({app['atual']}).")
+        return "\n".join(linhas)
 
     def _teia_dos_verbetes(self, texto: str, verbetes: list[dict], consulta,
                            resposta: str) -> tuple[str, list[dict]]:

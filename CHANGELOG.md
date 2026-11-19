@@ -6,6 +6,18 @@ seguem o [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ## [Não lançado]
 
+## [2.2.0] - 2026-11-19
+
+### Adicionado
+- **Atualização sob pedido** (`aprendiz/atualizacao.py`): um gatilho, nunca automático.
+  - No chat: "verifique atualizações" mostra o que há de novo; "verifique e atualize" (ou
+    "atualize") aplica. Na janela de addons, o botão **Verificar e atualizar** faz o mesmo.
+  - Addons: lê o `catalogo.json` da loja oficial, baixa os instalados com versão maior, confere
+    o SHA-256 e instala pelo caminho de sempre (versão mínima do app, dependências). Um addon
+    com problema não impede os outros.
+  - App: instalado pelo código (pasta com `.git`), faz `git pull --ff-only`, reinstala as
+    dependências e pede para reiniciar; executável, aponta a página da última release.
+
 ## [2.1.1] - 2026-11-19
 
 ### Corrigido
@@ -412,7 +424,8 @@ Primeira versão pública.
 - Instaladores para Linux e Windows que instalam o Python se faltar, verificador de
   instalação, executável via PyInstaller e CI em Windows, Ubuntu, Fedora e Debian.
 
-[Não lançado]: https://github.com/Jano-Projects/aprendiz-dev/compare/v2.1.1...HEAD
+[Não lançado]: https://github.com/Jano-Projects/aprendiz-dev/compare/v2.2.0...HEAD
+[2.2.0]: https://github.com/Jano-Projects/aprendiz-dev/compare/v2.1.1...v2.2.0
 [2.1.1]: https://github.com/Jano-Projects/aprendiz-dev/compare/v2.1.0...v2.1.1
 [2.1.0]: https://github.com/Jano-Projects/aprendiz-dev/compare/v2.0.1...v2.1.0
 [2.0.1]: https://github.com/Jano-Projects/aprendiz-dev/compare/v2.0.0...v2.0.1

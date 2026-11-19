@@ -5,7 +5,11 @@
 - **Só escuta em `127.0.0.1`**: nenhum outro computador da rede acessa o app.
 - **Nada sai para a internet** durante o uso. O botão **Loja oficial** só abre no navegador do
   sistema o endereço fixo da loja (`aprendiz/config.py`), e só quando você clica. A internet só é usada pelos instaladores, para
-  baixar o Python e as dependências.
+  baixar o Python e as dependências, e pela **atualização sob pedido** (2.2): só quando você
+  pede ("verifique e atualize" no chat, ou o botão na janela de addons), o app lê o catálogo da
+  loja oficial e a última release do GitHub, baixa os addons com versão nova e confere cada um
+  pelo SHA-256 do catálogo antes de instalar. Nenhum endereço vem de fora do código, e nada é
+  enviado: só se baixa.
 - **Os dados ficam num arquivo SQLite** na pasta do usuário (veja o README). Proteja essa
   pasta como você protegeria qualquer documento pessoal.
 - **Addons são tratados como dados não confiáveis**: são só dados (JSON, listas de palavras e

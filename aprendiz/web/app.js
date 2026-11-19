@@ -1152,6 +1152,12 @@
   }
   document.addEventListener("click", (ev) => {
     if (ev.target.closest("[data-abrir-loja]")) { ev.preventDefault(); abrirLoja(); }
+    // Atualização sob pedido (2.2): o pedido vai pelo chat, e a resposta fica na conversa.
+    if (ev.target.closest("[data-atualizar]")) {
+      ev.preventDefault();
+      ev.target.closest("dialog")?.close();
+      enviar("verifique e atualize");
+    }
   });
 
   // ---- Banco de linguagem

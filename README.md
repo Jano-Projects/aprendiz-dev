@@ -83,7 +83,9 @@ comentada em português. Por isso ele roda até em máquinas bem modestas.
 
 **Não é preciso instalar nada antes.** O instalador confere o Python e, se faltar, instala
 sozinho, avisando antes que vai precisar de permissão de administrador. A internet é usada só
-durante a instalação.
+durante a instalação e quando você pede para atualizar ("verifique e atualize", no chat): aí o
+Aprendiz baixa as versões novas dos addons da loja oficial e, se foi instalado pelo código,
+atualiza a si mesmo.
 
 | Sistema | Instalar | Abrir |
 |---|---|---|
