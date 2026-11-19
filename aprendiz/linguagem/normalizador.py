@@ -53,10 +53,12 @@ _PREFIXO_HIFEN = re.compile(r"\b([a-z]{1,2})-(?=[a-z])")
 # "notepad++" → "notepadpp", "c#" → "csharp", "f#" → "fsharp".
 _MAIS_MAIS = re.compile(r"\b([a-z]+)\+\+")
 _SUSTENIDO = re.compile(r"\b([cf])#")
+# O operador seta do C ("p->campo") também tem nome próprio, senão some com a pontuação.
+_SETA = re.compile(r"->")
 
 # Versão das regras de normalização. Se ela mudar, os textos de busca já
 # gravados ficam desatualizados: o Assistente reindexa a base ao abrir.
-VERSAO_NORMALIZACAO = 5
+VERSAO_NORMALIZACAO = 6
 
 
 def remover_acentos(texto: str) -> str:
@@ -77,6 +79,7 @@ def normalizar(texto: str) -> str:
     texto = _PREFIXO_HIFEN.sub(r"\1", texto)
     texto = _MAIS_MAIS.sub(r"\1pp", texto)
     texto = _SUSTENIDO.sub(r"\1sharp", texto)
+    texto = _SETA.sub(" seta ", texto)
     texto = numeros.simbolos(texto)                      # "2+2" → "2 mais 2"
     tokens = _NAO_ALFANUMERICO.sub(" ", texto).split()
     return " ".join(numeros.palavras(tokens))            # "dois mais 2" → "2 soma 2"

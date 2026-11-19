@@ -36,7 +36,7 @@ ADDONS = ["compreensao-portugues", "dialogo-portugues", "vetores-portugues",
           "prog-logica", "prog-vocabulario", "prog-estruturas-dados", "prog-banco-dados",
           "sql-basico", "sql-avancado", "sql-teoria-pratica", "python-basico", "python-avancado",
           "aprendiz-algoritmos", "aprendiz-arquitetura", "aprendiz-codigo", "aprendiz-do-zero",
-          "aprendiz-preparar-ambiente"]
+          "aprendiz-preparar-ambiente", "c-basico", "c-intermediario", "c-avancado"]
 
 CASOS: list[tuple[str, str, str]] = [
     # (grupo, pergunta, esperado)
@@ -55,7 +55,7 @@ CASOS: list[tuple[str, str, str]] = [
     ("variação", "como ordenar do maior pro menor", "q:ordenar"),
     ("variação", "como contar quantas linhas tem", "q:agregação"),
     ("digitação", "diferensa entre wehre e havng", "q:having"),
-    ("digitação", "o que e nul", "q:null"),
+    ("digitação", "o que e nul", "q:null|nulo"),   # NULL do SQL ou ponteiro nulo do C
     ("digitação", "como fazer um lefet join", "q:left join"),
     ("digitação", "grup by serve pra que", "q:group by"),
     ("porquê", "por que usar join?", "q:join"),
@@ -67,10 +67,10 @@ CASOS: list[tuple[str, str, str]] = [
     ("resumo", "me fala de banco de dados", "panorama"),
     ("resumo", "tudo sobre join", "panorama"),
     ("resumo", "me dá um resumo de sql", "panorama"),
-    ("fora", "o que é um ponteiro em C?", "tipo:desconhecido"),
+    ("fora", "o que é um ponteiro em C?", "q:ponteiro em c"),        # com os addons de C, tem resposta
     ("fora", "como fazer bolo de cenoura", "tipo:desconhecido"),
     ("fora", "quem ganhou a copa de 2002", "tipo:desconhecido"),
-    ("fora", "o que é c?", "tipo:desconhecido"),
+    ("fora", "o que é c?", "q:linguagem c"),
     ("fora", "qual a capital da frança", "tipo:desconhecido"),
     ("fora", "como declarar uma variável em python", "!q:sql"),
     # Inéditas: jeitos de perguntar que NÃO estão em nenhum addon. Medem se o
@@ -128,7 +128,7 @@ CASOS: list[tuple[str, str, str]] = [
     ("leva lógica", "meu programa nunca para de repetir", "q:laço infinito"),
     ("leva lógica", "uma função que chama ela mesma", "q:recursão"),
     ("leva lógica", "por que o vetor começa do zero", "q:índice começa"),
-    ("leva lógica", "o que é if e else", "q:condicional"),
+    ("leva lógica", "o que é if e else", "q:condicional|if"),   # lógica ou o if do C
     ("leva lógica", "por que 0.1 + 0.2 dá 0.30000000000000004", "q:0.1"),
     ("leva lógica", "o que é true e false", "q:booleana"),
     ("leva lógica", "como encontrar o erro no meu código", "q:depurar"),
@@ -214,6 +214,22 @@ CASOS: list[tuple[str, str, str]] = [
     ("aprendiz", "o que tem na pasta core", "q:pasta core"),
     ("aprendiz", "como rodar os testes do aprendiz", "q:rodar os testes"),
     ("aprendiz", "por que dois mais dois e 2+2 dão a mesma resposta", "q:números por extenso|dois mais dois"),
+    # Leva C: escritas ANTES de pôr os porquês e o vocabulário.
+    ("leva c", "como mostrar um número na tela em c", "q:printf"),
+    ("leva c", "como pegar o que o usuário digitou em c", "q:ler dados do teclado"),
+    ("leva c", "por que 7/2 dá 3 em c", "q:5 dividido por 2"),
+    ("leva c", "meu programa em c deu falha de segmentação", "q:segmentation fault"),
+    ("leva c", "variável que guarda o endereço de outra", "q:ponteiro em c"),
+    ("leva c", "reservar memória enquanto o programa roda", "q:alocação dinâmica"),
+    ("leva c", "esqueci de dar free", "q:vazamento"),
+    ("leva c", "juntar vários campos num tipo só em c", "q:struct"),
+    ("leva c", "usar -> em c", "q:seta"),
+    ("leva c", "compilar vários arquivos de uma vez com make", "q:makefile"),
+    ("leva c", "parâmetros da linha de comando no main", "q:argc"),
+    ("leva c", "passar uma função como parâmetro em c", "q:ponteiro de função"),
+    ("leva c", "escrever além do tamanho do vetor", "q:buffer overflow"),
+    ("leva c", "achar onde o programa c trava passo a passo", "q:gdb"),
+    ("leva c", "ordenar um vetor em c sem escrever o algoritmo", "q:qsort"),
     ("social", "oi, tudo bem?", "tipo:social"),
     ("social", "obrigado!", "tipo:social"),
     ("social", "valeu, ajudou muito", "tipo:social"),

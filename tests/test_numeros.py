@@ -34,6 +34,7 @@ def test_numeros_e_operacoes(texto, esperado):
     ("2026-11-16", "2026 11 16"),                     # data não vira subtração
     ("0x10", "0x10"),                                 # hexadecimal
     ("c++ e c#", "cpp e csharp"),
+    ("p->nome", "p seta nome"),
     ("where id = 1", "where id 1"),                   # "=" fora de conta some
 ])
 def test_nao_muda_o_que_nao_e_conta(texto, esperado):

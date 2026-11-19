@@ -4,6 +4,12 @@ Todas as mudanças relevantes do projeto ficam registradas aqui.
 O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/), e as versões
 seguem o [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
+## [Não lançado]
+
+### Mudado
+- O operador seta do C (`p->campo`) vira "seta" na normalização, em vez de sumir com a
+  pontuação (versão 6 das regras de normalização: a base é reindexada ao abrir).
+
 ## [2.0.1] - 2026-11-19
 
 ### Mudado
