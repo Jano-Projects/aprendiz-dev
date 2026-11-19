@@ -62,3 +62,11 @@ def test_quem_e_o_assunto_vence_quem_so_cita(assistente):
                                             "autor": "t"}, itens, {}))
     r = assistente.responder("por que usar chave estrangeira?")
     assert r["mensagem"]["texto"] == "Uma coluna que aponta para outra tabela."
+
+
+def test_gerundio_casa_com_infinitivo_mas_radical_solto_nao():
+    from aprendiz.core.assistente import _parecida
+    assert _parecida("dividindo", {"dividir", "metade"})
+    assert _parecida("ordenando", {"ordenar"})
+    assert not _parecida("ligacoes", {"lista", "ligada"})      # sentidos diferentes
+    assert not _parecida("ponteiro", {"ponto"})

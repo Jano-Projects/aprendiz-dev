@@ -139,6 +139,12 @@ def _parecida(palavra: str, palavras: set[str], digitacao: bool = True) -> bool:
     raiz = palavra[:max(4, len(palavra) - 2)] if len(palavra) >= 4 else palavra
     if any(p.startswith(raiz) for p in palavras):
         return True
+    # Gerúndio → infinitivo ("dividindo" → "dividir", "ordenando" → "ordenar").
+    # Só essa flexão exata: juntar por radical misturaria "ligações" e "ligada".
+    for fim, troca in (("ando", "ar"), ("endo", "er"), ("indo", "ir")):
+        if palavra.endswith(fim) and len(palavra) > len(fim) + 2:
+            if palavra[: -len(fim)] + troca in palavras:
+                return True
     if not digitacao:
         return False
     perto = [p for p in palavras if abs(len(p) - len(palavra)) <= 2 and len(p) >= 3]

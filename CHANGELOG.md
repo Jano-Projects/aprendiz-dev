@@ -61,6 +61,8 @@ seguem o [Versionamento Semântico](https://semver.org/lang/pt-BR/).
   descontam da nota (`acerto − 0,5 × falsos`). O Híbrido só perde se outro tiver 5 pontos a mais
   (na homologação, com perguntas ditas de outro jeito, ele ganhou em todas as levas), e o
   `criar_addon.py --junto` mede com os addons essenciais de linguagem instalados.
+- **Gerúndio casa com o infinitivo** na comparação de assuntos ("dividindo" → "dividir"). Só essa
+  flexão exata: juntar por radical misturava sentidos ("ligações" e "lista ligada").
 - **Padrão mais específico vence**: se um padrão de frase tem palavra fixa onde outro tem lacuna
   ("colocar * no ar" x "colocar o * no *"), vale o mais específico; artigos e preposições não
   decidem.

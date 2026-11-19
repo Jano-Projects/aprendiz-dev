@@ -32,7 +32,8 @@ from aprendiz.core import Assistente  # noqa: E402
 from aprendiz.memoria import Banco  # noqa: E402
 
 ADDONS = ["compreensao-portugues", "dialogo-portugues", "vetores-portugues",
-          "prog-logica", "prog-vocabulario", "prog-banco-dados", "sql-basico"]
+          "prog-logica", "prog-vocabulario", "prog-estruturas-dados", "prog-banco-dados",
+          "sql-basico"]
 
 CASOS: list[tuple[str, str, str]] = [
     # (grupo, pergunta, esperado)
@@ -74,7 +75,7 @@ CASOS: list[tuple[str, str, str]] = [
     ("inédita", "quero ver só as 5 primeiras linhas", "q:limitar"),
     ("inédita", "trocar o preço de um produto no banco", "q:atualizar"),
     ("inédita", "jogar fora os pedidos cancelados", "q:apagar"),
-    ("inédita", "listar do mais caro pro mais barato", "q:ordenar"),
+    ("inédita", "listar do mais caro pro mais barato", "q:orden"),   # ORDER BY ou algoritmos de ordenação
     ("inédita", "unir a tabela de clientes com a de pedidos", "q:join"),
     ("inédita", "quantos pedidos cada cliente fez", "q:group by"),
     ("inédita", "filtrar só os clientes de são paulo", "q:filtrar"),
@@ -151,6 +152,22 @@ CASOS: list[tuple[str, str, str]] = [
     ("leva vocab", "o que significa versão 2.1.3", "q:versionamento"),
     ("leva vocab", "aquela mensagem de erro com a lista de funções", "q:stack trace"),
     ("leva vocab", "programa para escrever código", "q:ide"),
+    # Leva prog-estruturas-dados: escritas ANTES de pôr os porquês e o vocabulário.
+    ("leva estruturas", "o que é big o", "q:complexidade"),
+    ("leva estruturas", "por que meu código fica lento com muitos dados", "q:complexidade"),
+    ("leva estruturas", "último a entrar é o primeiro a sair", "q:pilha"),
+    ("leva estruturas", "primeiro a chegar é o primeiro a ser atendido", "q:fila"),
+    ("leva estruturas", "como funciona um dicionário por dentro", "q:hash"),
+    ("leva estruturas", "procurar num vetor ordenado dividindo ao meio", "q:busca binária"),
+    ("leva estruturas", "qual o jeito mais rápido de ordenar", "q:ordenação"),
+    ("leva estruturas", "menor caminho entre duas cidades", "q:dijkstra"),
+    ("leva estruturas", "rede de amigos com ligações entre pessoas", "q:grafo"),
+    ("leva estruturas", "quantas letras mudar para uma palavra virar outra", "q:levenshtein"),
+    ("leva estruturas", "guardar resultados já calculados para não repetir", "q:programação dinâmica"),
+    ("leva estruturas", "conferir se abre e fecha parênteses certo", "q:parênteses"),
+    ("leva estruturas", "lista sem elementos repetidos", "q:conjunto"),
+    ("leva estruturas", "autocompletar palavras pelo começo", "q:trie"),
+    ("leva estruturas", "qual estrutura usar para meu problema", "q:qual estrutura"),
     ("social", "oi, tudo bem?", "tipo:social"),
     ("social", "obrigado!", "tipo:social"),
     ("social", "valeu, ajudou muito", "tipo:social"),
