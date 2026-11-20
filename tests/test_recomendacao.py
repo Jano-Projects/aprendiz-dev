@@ -6,10 +6,10 @@ import pytest
 from aprendiz.algoritmos import BUSCAS
 from fastapi.testclient import TestClient
 
-from aprendiz.addons import ErroAddon, chave_de_grupo, criar_pacote, ler_pacote
+from aprendiz.addons.pacote import ErroAddon, chave_de_grupo, criar_pacote, ler_pacote
 from aprendiz.api import criar_app
-from aprendiz.core import exportacao
-from aprendiz.core.recomendacao import perguntas_de_teste, recomendar, resposta_recomendada
+from aprendiz.addons import exportacao
+from aprendiz.addons.recomendacao import perguntas_de_teste, recomendar, resposta_recomendada
 
 PARES = [{"pergunta": f"horário da loja {n}", "conteudo": f"Abre às {n}h."} for n in range(6, 12)]
 

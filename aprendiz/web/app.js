@@ -1426,7 +1426,7 @@
       $("#status").textContent = `v${s.versao} · ${plural(s.conhecimentos, "conhecimento", "conhecimentos")}`;
       $("#contador-addons").textContent = s.addons ? String(s.addons) : "";
       window.Monitor.invalidarModelo();   // addons ou configurações podem ter mudado
-      // O endereço da loja vem do servidor (config.py), para existir num lugar só.
+      // O endereço da loja vem do servidor (aplicativo/config.py), para existir num lugar só.
       $$(".endereco-loja").forEach((el) => { el.textContent = (s.loja_oficial || "").replace(/^https:\/\//, ""); });
     } catch (e) { $("#status").textContent = "servidor indisponível"; }
   }
@@ -1436,7 +1436,7 @@
   /**
    * "Sinal de vida": avisa o servidor que a interface continua aberta.
    * Quando a janela/aba é fechada, os sinais param e o app de desktop
-   * encerra sozinho (veja aprendiz/desktop.py).
+   * encerra sozinho (veja aprendiz/aplicativo/desktop.py).
    */
   function enviarSinal() {
     fetch("/api/sinal", { method: "POST" }).catch(() => { /* servidor fora do ar */ });

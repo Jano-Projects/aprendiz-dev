@@ -6,7 +6,7 @@
 
 - [ ] Os testes passam (`.venv/bin/python -m pytest`)
 - [ ] Arquivos novos têm comentário/docstring explicando o que fazem
-- [ ] `docs/estrutura.md` atualizado (`python ferramentas/gerar_estrutura.py`), se criei, movi ou apaguei arquivos
+- [ ] `docs/referencia/estrutura.md` atualizado (`python ferramentas/gerar_estrutura.py`), se criei, movi ou apaguei arquivos
 - [ ] `CHANGELOG.md` atualizado, na seção [Não lançado]
 - [ ] Mexi em busca ou linguagem: resultado do benchmark antes e depois abaixo
 

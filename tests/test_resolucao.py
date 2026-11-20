@@ -4,7 +4,7 @@ import base64
 
 from fastapi.testclient import TestClient
 
-from aprendiz import addons as pacotes
+from aprendiz.addons import pacote as pacotes
 from aprendiz.api import criar_app
 from aprendiz.linguagem.resolucao import resolver
 

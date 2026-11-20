@@ -7,7 +7,7 @@ import zipfile
 import pytest
 
 from aprendiz import __version__
-from aprendiz.addons import ErroAddon, comparar_versoes, criar_pacote, ler_pacote
+from aprendiz.addons.pacote import ErroAddon, comparar_versoes, criar_pacote, ler_pacote
 
 BASE = {"id": "pacote-teste", "nome": "Pacote", "versao": "1.0.0"}
 CONHECIMENTOS = [{"pergunta": "quantos ml tem uma xícara", "conteudo": "Cerca de 240 ml."}]

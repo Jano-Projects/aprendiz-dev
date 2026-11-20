@@ -107,7 +107,7 @@ CREATE TABLE IF NOT EXISTS addons (
 
 -- Configurações (parâmetros e personalização). addon_id vazio = definida pelo
 -- dono; preenchido = trazida por um addon (vale só com ele ativo).
--- Precedência: dono > addon ativo mais recente > padrão (ver configuracoes.py).
+-- Precedência: dono > addon ativo mais recente > padrão (ver aplicativo/configuracoes.py).
 CREATE TABLE IF NOT EXISTS configuracoes (
     chave    TEXT NOT NULL,
     valor    TEXT NOT NULL,        -- JSON
@@ -128,11 +128,11 @@ CREATE TABLE IF NOT EXISTS addon_linguagem (
 );
 
 -- Recursos de compreensão (Aprendiz 0.7+), trazidos pelos addons
--- "compreensao" e "vetores" (formato em aprendiz/recursos.py):
+-- "compreensao" e "vetores" (formato em aprendiz/addons/recursos.py):
 --   compreensao.json → JSON já validado e normalizado
 --   vetores.info     → {"dimensoes": D, "quantidade": V} em JSON
 --   vetores.dados    → os vetores (int8 × V × D)
--- e normas da língua (Aprendiz 0.8+, formato em aprendiz/normas.py):
+-- e normas da língua (Aprendiz 0.8+, formato em aprendiz/addons/normas.py):
 --   norma.json       → JSON já validado (grafias, equivalências, regras)
 --   vocabulario      → as formas da norma, ordenadas, uma por linha
 CREATE TABLE IF NOT EXISTS addon_recursos (

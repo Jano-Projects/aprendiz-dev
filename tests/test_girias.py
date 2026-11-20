@@ -7,7 +7,7 @@ import sqlite3
 
 import pytest
 
-from aprendiz.addons import ErroAddon, criar_pacote, ler_pacote
+from aprendiz.addons.pacote import ErroAddon, criar_pacote, ler_pacote
 from aprendiz.core import Assistente
 from aprendiz.memoria import Banco
 from aprendiz.memoria.banco import ESQUEMA

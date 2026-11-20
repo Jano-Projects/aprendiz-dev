@@ -9,8 +9,8 @@ import zipfile
 import pytest
 from fastapi.testclient import TestClient
 
-from aprendiz import addons
-from aprendiz.addons import ErroAddon, criar_pacote, ler_pacote
+from aprendiz.addons import pacote as addons
+from aprendiz.addons.pacote import ErroAddon, criar_pacote, ler_pacote
 from aprendiz.api import criar_app
 from aprendiz.core import Assistente
 from aprendiz.memoria import Banco

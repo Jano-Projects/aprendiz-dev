@@ -102,10 +102,10 @@ jobs:
       - name: Empacotar (Windows)
         if: runner.os == 'Windows'
         shell: cmd
-        run: instalar.bat && empacotar.bat
+        run: instalar.bat && distribuicao\empacotar.bat
       - name: Empacotar (Linux)
         if: runner.os == 'Linux'
-        run: bash instalar.sh && bash empacotar.sh
+        run: bash instalar.sh && bash distribuicao/empacotar.sh
       - name: Verificar executável (Windows)
         if: runner.os == 'Windows'
         run: python ferramentas/verificar.py --executavel dist/Aprendiz/Aprendiz.exe

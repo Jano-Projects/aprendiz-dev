@@ -24,7 +24,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from aprendiz import addons  # noqa: E402
+from aprendiz.addons import pacote as addons  # noqa: E402
 from aprendiz.linguagem.resolucao import resolver  # noqa: E402
 
 

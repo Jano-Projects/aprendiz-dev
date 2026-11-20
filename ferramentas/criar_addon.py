@@ -13,13 +13,13 @@ CRIAR a partir de uma pasta-fonte:
       verbetes.txt        dicionário: blocos V:/R: (veja abaixo)
       conhecimentos.json  lista [{"pergunta": "...", "conteudo": "..."}] (para quem gera por programa)
       linguagem.json      {"sinonimos": {...}, "abreviacoes": {...}}
-      parametros.json     {"limiar.bm25": 0.6, ...}         (chaves de aprendiz/configuracoes.py)
+      parametros.json     {"limiar.bm25": 0.6, ...}         (chaves de aprendiz/aplicativo/configuracoes.py)
       personalizacao.json {"personalizacao.cor": "#0f766e", ...}
-      compreensao.json    interpretação de texto (Aprendiz 0.7+; veja aprendiz/recursos.py)
+      compreensao.json    interpretação de texto (Aprendiz 0.7+; veja aprendiz/addons/recursos.py)
       lemas.tsv           formas → lemas, junto com compreensao.json
       vetores.bin         vetores de palavras (Aprendiz 0.7+)
       norma.json          norma da língua: grafias, equivalências e regras de gramática
-                          (Aprendiz 0.8+; veja aprendiz/normas.py)
+                          (Aprendiz 0.8+; veja aprendiz/addons/normas.py)
       vocabulario.tsv     todas as formas da norma, uma por linha, junto com norma.json
       *.md / *.txt        textos livres, divididos automaticamente em trechos
 
@@ -85,12 +85,12 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from aprendiz.core.recomendacao import recomendar  # noqa: E402
+from aprendiz.addons.recomendacao import recomendar  # noqa: E402
 
-from aprendiz.addons import (  # noqa: E402
+from aprendiz.addons.pacote import (  # noqa: E402
     EXTENSAO, ORIGENS, ErroAddon, criar_pacote, dividir_em_trechos, ler_pacote,
 )
-from aprendiz import normas, recursos  # noqa: E402
+from aprendiz.addons import normas, recursos  # noqa: E402
 from aprendiz.linguagem import normalizar  # noqa: E402
 
 ARQUIVOS_ESPECIAIS = {"manifesto.json", "conhecimentos.json", "linguagem.json",

@@ -165,10 +165,10 @@ for opcao in "$@"; do
   case "$opcao" in
     --janela-nativa)
       info "Instalando suporte a janela nativa (pywebview)"
-      "$VPY" -m pip install -r requirements-janela.txt --quiet --disable-pip-version-check ;;
+      "$VPY" -m pip install -r requirements/janela.txt --quiet --disable-pip-version-check ;;
     --dev)
       info "Instalando ferramentas de desenvolvimento"
-      "$VPY" -m pip install -r requirements-dev.txt --quiet --disable-pip-version-check ;;
+      "$VPY" -m pip install -r requirements/dev.txt --quiet --disable-pip-version-check ;;
     *)
       aviso "Opção desconhecida ignorada: $opcao" ;;
   esac
@@ -187,7 +187,7 @@ if [ "$(id -u)" -eq 0 ]; then
   fi
 fi
 
-chmod +x executar.sh empacotar.sh 2>/dev/null || true
+chmod +x executar.sh distribuicao/empacotar.sh 2>/dev/null || true
 echo
 echo "${VERDE}✔ Instalação concluída!${FIM}"
 echo "  Para abrir o Aprendiz:  bash executar.sh"

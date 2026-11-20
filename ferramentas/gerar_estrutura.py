@@ -1,5 +1,5 @@
 """
-Gera docs/estrutura.md: a árvore indentada de pastas e arquivos do projeto,
+Gera docs/referencia/estrutura.md: a árvore indentada de pastas e arquivos do projeto,
 com uma linha de explicação para cada um.
 
 De onde vem cada explicação:
@@ -13,7 +13,7 @@ arquivo novo, escreva o docstring (ou acrescente uma linha em DESCRICOES) e rode
     python ferramentas/gerar_estrutura.py
 
 O teste tests/test_documentacao.py falha se algum arquivo ficar sem
-explicação ou se o docs/estrutura.md estiver desatualizado.
+explicação ou se o docs/referencia/estrutura.md estiver desatualizado.
 """
 
 from __future__ import annotations
@@ -23,7 +23,7 @@ import sys
 from pathlib import Path
 
 RAIZ = Path(__file__).resolve().parent.parent
-DESTINO = RAIZ / "docs" / "estrutura.md"
+DESTINO = RAIZ / "docs" / "referencia" / "estrutura.md"
 
 IGNORAR = {".git", ".venv", "__pycache__", ".pytest_cache", "build", "dist", "node_modules"}
 IGNORAR_SUFIXOS = {".pyc", ".db", ".db-wal", ".db-shm", ".spec"}
@@ -34,38 +34,45 @@ DESCRICOES: dict[str, str] = {
     ".github": "Configurações do GitHub",
     ".github/workflows": "Integração contínua (GitHub Actions)",
     ".github/ISSUE_TEMPLATE": "Modelos para abrir issues",
-    "aprendiz/web": "Interface de chat: HTML, CSS e JS puros, 100% offline",
-    "benchmarks": "Comparação dos algoritmos de busca",
-    "docs": "Documentação de estudo",
+    "aprendiz/web": "Interface de chat e Monitor: HTML, CSS e JS puros, 100% offline",
+    "distribuicao": "Instalador do Windows, empacotamento e ponto de entrada do executável",
+    "distribuicao/instalar-windows.ps1": "A lógica do instalador do Windows (chamado por instalar.bat e executar.bat)",
+    "distribuicao/empacotar.sh": "Gera o executável Linux com o PyInstaller",
+    "distribuicao/empacotar.bat": "Gera o executável Windows com o PyInstaller",
+    "docs": "Documentação: estudo, guias e referência (índice em docs/README.md)",
+    "docs/README.md": "Índice da documentação: por onde começar e o que tem em cada pasta",
+    "docs/estudo": "Como a IA do Aprendiz funciona: algoritmos, linguagem, compreensão, revisão, Monitor",
+    "docs/guias": "Como fazer: criar addons, criar algoritmos, instalar e empacotar",
+    "docs/referencia": "Mapa do projeto: arquitetura e estrutura de arquivos",
+    "requirements": "Dependências opcionais (desenvolvimento, janela nativa, treino)",
     "docs/imagens": "Imagens usadas no README",
     "docs/imagens/tela-principal.png": "Captura da tela principal (README)",
     "exemplos": "Exemplos prontos para usar e estudar",
     "exemplos/addons": "Addons de exemplo (oficiais): fontes e arquivos .aprendiz gerados",
     "exemplos/addons/conversoes-medidas": "Fonte de um addon de memória e linguagem",
     "exemplos/addons/modo-exigente": "Fonte de um addon só de parâmetros",
-    "ferramentas": "Utilitários para usuários e desenvolvedores",
+    "ferramentas": "Ferramentas de desenvolvimento: verificar, criar e conferir addons, homologar, treinar, comparar",
+    "ferramentas/dados": "Dados das ferramentas: base do benchmark e perguntas rotuladas da Calibrada",
     "tests": "Testes automatizados (pytest)",
     # ---- raiz
     ".editorconfig": "Padrão de indentação e fim de linha para qualquer editor",
     ".gitattributes": "Fins de linha corretos por tipo de arquivo (LF/CRLF)",
     ".gitignore": "O que nunca vai para o Git (ambiente, bancos, builds)",
     "CHANGELOG.md": "Histórico de versões",
-    "CODE_OF_CONDUCT.md": "Código de conduta da comunidade",
-    "CONTRIBUTING.md": "Como contribuir: ambiente, padrões e fluxo de PR",
+    ".github/CODE_OF_CONDUCT.md": "Código de conduta da comunidade",
+    ".github/CONTRIBUTING.md": "Como contribuir: ambiente, padrões e fluxo de PR",
     "LICENSE": "Licença MIT",
     "README.md": "Apresentação, instalação e mapa do projeto",
-    "SECURITY.md": "Política de segurança e como reportar falhas",
+    ".github/SECURITY.md": "Política de segurança e como reportar falhas",
     "pyproject.toml": "Metadados do pacote Python e configuração do pytest",
     "requirements.txt": "Dependências essenciais (FastAPI, Uvicorn, RapidFuzz)",
-    "requirements-dev.txt": "Dependências de desenvolvimento (pytest, httpx, PyInstaller)",
-    "requirements-janela.txt": "Dependência opcional da janela nativa (pywebview)",
-    "requirements-treino.txt": "Dependência só para treinar a busca Calibrada (scikit-learn)",
+    "requirements/dev.txt": "Dependências de desenvolvimento (pytest, httpx, PyInstaller)",
+    "requirements/janela.txt": "Dependência opcional da janela nativa (pywebview)",
+    "requirements/treino.txt": "Dependência só para treinar a busca Calibrada (scikit-learn)",
     "instalar.sh": "Instalador Linux/macOS: instala o Python se faltar, cria o .venv",
     "executar.sh": "Abre o Aprendiz no Linux/macOS (instala na primeira vez)",
-    "empacotar.sh": "Gera o executável Linux com o PyInstaller",
-    "instalar.bat": "Instalador Windows (chama ferramentas/instalar-windows.ps1)",
+    "instalar.bat": "Instalador Windows (chama distribuicao/instalar-windows.ps1)",
     "executar.bat": "Abre o Aprendiz no Windows (instala na primeira vez)",
-    "empacotar.bat": "Gera o executável Windows com o PyInstaller",
     # ---- .github
     ".github/workflows/testes.yml": "Testa a instalação em Windows, Ubuntu, Fedora e Debian",
     ".github/ISSUE_TEMPLATE/bug.md": "Modelo para relatar um erro",
@@ -79,19 +86,19 @@ DESCRICOES: dict[str, str] = {
     "aprendiz/web/markdown.js": "Mini renderizador de Markdown com proteção contra XSS",
     "aprendiz/web/icone.svg": "Ícone do aplicativo",
     # ---- docs
-    "docs/algoritmos.md": "Como funciona cada algoritmo, com exemplo calculado",
-    "docs/monitor.md": "O Monitor: abas, níveis, fluxo ao vivo (NDJSON) e o que conta como parâmetro",
-    "docs/addons.md": "Formato .aprendiz, como criar addons e segurança",
-    "docs/arquitetura.md": "Camadas, decisões de projeto e tabelas do banco",
-    "docs/compreensao.md": "Addons de compreensão e vetores: lemas, tipos de pergunta, recomendação",
-    "docs/revisao.md": "Addons de norma e revisão de texto: vocabulário, grafias, regras de gramática",
-    "docs/criar-algoritmo.md": "Passo a passo para adicionar um algoritmo ao seletor",
-    "docs/empacotamento.md": "Instaladores, executável e problemas comuns",
-    "docs/estrutura.md": "Este mapa (gerado por ferramentas/gerar_estrutura.py)",
-    "docs/linguagem.md": "O pipeline de PLN, etapa por etapa",
+    "docs/estudo/algoritmos.md": "Como funciona cada algoritmo, com exemplo calculado",
+    "docs/estudo/monitor.md": "O Monitor: abas, níveis, fluxo ao vivo (NDJSON) e o que conta como parâmetro",
+    "docs/guias/addons.md": "Formato .aprendiz, como criar addons e segurança",
+    "docs/referencia/arquitetura.md": "Camadas, decisões de projeto e tabelas do banco",
+    "docs/estudo/compreensao.md": "Addons de compreensão e vetores: lemas, tipos de pergunta, recomendação",
+    "docs/estudo/revisao.md": "Addons de norma e revisão de texto: vocabulário, grafias, regras de gramática",
+    "docs/guias/criar-algoritmo.md": "Passo a passo para adicionar um algoritmo ao seletor",
+    "docs/guias/empacotamento.md": "Instaladores, executável e problemas comuns",
+    "docs/referencia/estrutura.md": "Este mapa (gerado por ferramentas/gerar_estrutura.py)",
+    "docs/estudo/linguagem.md": "O pipeline de PLN, etapa por etapa",
     # ---- exemplos e ferramentas
-    "benchmarks/dados_exemplo.json": "Base e perguntas usadas no benchmark",
-    "benchmarks/conjunto_calibrado.json": "Perguntas rotuladas (treino e teste) da busca Calibrada, geradas das variações dos addons",
+    "ferramentas/dados/dados_exemplo.json": "Base e perguntas usadas no benchmark",
+    "ferramentas/dados/conjunto_calibrado.json": "Perguntas rotuladas (treino e teste) da busca Calibrada, geradas das variações dos addons",
     "exemplos/addons/conversoes-medidas.aprendiz": "Addon pronto para importar",
     "exemplos/addons/modo-exigente.aprendiz": "Addon pronto para importar (limiares mais altos)",
     "exemplos/addons/modo-exigente/manifesto.json": "Identidade do addon (origem oficial)",
@@ -100,7 +107,7 @@ DESCRICOES: dict[str, str] = {
     "exemplos/addons/conversoes-medidas/perguntas.txt": "Pares P:/R: (o jeito mais fácil de escrever)",
     "exemplos/addons/conversoes-medidas/linguagem.json": "Sinônimos e abreviações do addon",
     "exemplos/addons/conversoes-medidas/forno.md": "Texto livre, dividido em trechos",
-    "ferramentas/instalar-windows.ps1": "Lógica do instalador Windows (baixa o Python se faltar)",
+    "distribuicao/instalar-windows.ps1": "Lógica do instalador Windows (baixa o Python se faltar)",
 }
 
 
@@ -182,9 +189,10 @@ Mapa de todas as pastas e arquivos, com o papel de cada um.
 3. `aprendiz/linguagem/stemmer.py` e `intencoes.py`: radicais e Naive Bayes
 4. `aprendiz/algoritmos/busca/tfidf.py`: o algoritmo mais didático
 5. `aprendiz/algoritmos/busca/bm25.py` e `hibrido.py`: busca de verdade
-6. `aprendiz/algoritmos/resposta/extrativa.py`: TextRank
-7. `aprendiz/memoria/banco.py`: SQLite, FTS5, migrações
-8. `aprendiz/api/servidor.py` e `aprendiz/web/app.js`: como a interface conversa com o núcleo
+6. `aprendiz/algoritmos/busca/calibrado.py`: aprendizado de máquina (regressão logística)
+7. `aprendiz/algoritmos/resposta/extrativa.py`: TextRank
+8. `aprendiz/memoria/banco.py`: SQLite, FTS5, migrações
+9. `aprendiz/api/servidor.py`, `aprendiz/web/app.js` e `monitor.js`: como a interface conversa com o núcleo
 
 ## Árvore
 

@@ -5,7 +5,7 @@ O seletor de algoritmos usa o padrão de projeto STRATEGY: várias classes
 com a mesma interface, intercambiáveis em tempo de execução. A interface
 escolhe pelo NOME e o pipeline não precisa saber qual está usando.
 
-Para criar um algoritmo novo (veja docs/criar-algoritmo.md):
+Para criar um algoritmo novo (veja docs/guias/criar-algoritmo.md):
 
     1. Crie um arquivo em algoritmos/busca/ (ou resposta/).
     2. Escreva uma classe que herde de AlgoritmoBusca (ou AlgoritmoResposta).

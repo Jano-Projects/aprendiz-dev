@@ -16,7 +16,7 @@ A interface (pasta web/) conversa com estas rotas via fetch() em JSON:
     POST   /api/corrigir                  → corrige uma resposta (vira ensinamento)
     GET    /api/normas                    → normas da língua dos addons ativos (0.8+)
     POST   /api/revisar                   → revisa um texto pela norma escolhida (0.8+)
-    POST   /api/sinal                     → "sinal de vida" da interface (ver desktop.py)
+    POST   /api/sinal                     → "sinal de vida" da interface (ver aplicativo/desktop.py)
     POST   /api/resetar                   → volta ao estado inicial (com backup antes)
     POST   /api/addons/pacote/inspecionar → o que vem num .aprendiz-pacote (sem instalar)
     POST   /api/addons/pacote             → instala todos os addons do pacote, na ordem
@@ -79,10 +79,11 @@ from fastapi.responses import FileResponse, Response, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
-from aprendiz import config
-from aprendiz.addons import ErroAddon
+from aprendiz.aplicativo import config
+from aprendiz.addons.pacote import ErroAddon
 from aprendiz.algoritmos import listar_algoritmos
-from aprendiz.core import Assistente, exportacao, monitor
+from aprendiz.core import Assistente, monitor
+from aprendiz.addons import exportacao
 from aprendiz.linguagem import normalizar
 from aprendiz.memoria import Banco
 

@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from aprendiz.addons import ErroAddon, criar_pacote, validar_conhecimentos
+from aprendiz.addons.pacote import ErroAddon, criar_pacote, validar_conhecimentos
 from aprendiz.memoria.banco import teia_de
 
 MANIFESTO = {"id": "sql-teia", "nome": "SQL teia", "versao": "1.0.0", "autor": "Teste"}
@@ -141,7 +141,7 @@ def test_pergunta_registra_o_caminho_na_explicacao(com_teia):
 # --------------------------------------------------------------- resposta trabalhada
 import random  # noqa: E402
 
-from aprendiz import recursos  # noqa: E402
+from aprendiz.addons import recursos  # noqa: E402
 from aprendiz.linguagem.normalizador import normalizar  # noqa: E402
 
 EXPRESSAO = {"abertura_addon": ["Olha, no {x} eu tenho isto:"],

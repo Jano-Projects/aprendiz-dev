@@ -3,9 +3,9 @@
 import pytest
 from fastapi.testclient import TestClient
 
-from aprendiz.addons import ErroAddon, criar_pacote, ler_pacote
+from aprendiz.addons.pacote import ErroAddon, criar_pacote, ler_pacote
 from aprendiz.api import criar_app
-from aprendiz.core import exportacao
+from aprendiz.addons import exportacao
 
 DEP = {"id": "conversoes", "nome": "Conversões", "versao": "1.2.0"}
 
