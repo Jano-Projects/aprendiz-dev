@@ -538,6 +538,13 @@ class Assistente:
             c = self.ensinar(m["r"], pergunta=m["p"], origem="chat")
             return {"conhecimento": c, "formato": "pergunta/resposta"}
 
+        # 2.6: outros jeitos de começar um ensino, vindos do addon de
+        # compreensão ("a partir de agora…", "anota aí…"). Viram a forma
+        # padrão ("anote que…") e seguem pelas mesmas regras abaixo.
+        resto = self.compreensao.resto_ensino(mensagem) if self.compreensao.ativa else None
+        if resto:
+            mensagem = f"anote que {resto}"
+
         m = PADRAO_FATO.match(mensagem)
         if m:
             sujeito = m["p"].strip()

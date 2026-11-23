@@ -120,7 +120,8 @@ aprendiz/
 │   │   └── tela-principal.png           # Captura da tela principal (README)
 │   ├── referencia/                      # Mapa do projeto: arquitetura e estrutura de arquivos
 │   │   ├── arquitetura.md               # Camadas, decisões de projeto e tabelas do banco
-│   │   └── estrutura.md                 # Este mapa (gerado por ferramentas/gerar_estrutura.py)
+│   │   ├── estrutura.md                 # Este mapa (gerado por ferramentas/gerar_estrutura.py)
+│   │   └── versionamento.md             # Regra de versões do app e dos addons, branches e pré-versões
 │   └── README.md                        # Índice da documentação: por onde começar e o que tem em cada pasta
 ├── exemplos/                            # Exemplos prontos para usar e estudar
 │   └── addons/                          # Addons de exemplo (oficiais): fontes e arquivos .aprendiz gerados
@@ -162,6 +163,7 @@ aprendiz/
 │   ├── test_dialogo.py                  # Testes do diálogo (0.9): a seção "dialogo" dos addons de compreensão e a herança de grupo…
 │   ├── test_dicionario.py               # Testes da 0.6: dicionário nos dois sentidos (traduções e regiões), variações de pergunta…
 │   ├── test_documentacao.py             # Garante que o projeto continue documentado: todo arquivo tem explicação.
+│   ├── test_ensino_26.py                # Jeitos de ensinar vindos do addon de compreensão (2.6): a seção "ensino".
 │   ├── test_exportacao.py               # Testes da exportação: prévia com avisos de privacidade, escolha de itens e ida e volta.
 │   ├── test_formato2.py                 # Testes do formato 2: origem, classificação, versão do app, dependências e configurações.
 │   ├── test_girias.py                   # Testes da 0.4.1: verbetes (dicionário), stopwords e intenções vindas de addons de…

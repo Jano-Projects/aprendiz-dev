@@ -309,6 +309,14 @@ CASOS: list[tuple[str, str, str]] = [
     ("conversa", "o que é null?", "q:null"),
     ("conversa", "e o limit?", "q:limitar", ),
     ("conversa", "não entendi", "fundo"),
+    # 2.6: jeitos de ensinar do addon de compreensão. Ficam no FIM porque o que
+    # o dono ensina passa na frente dos addons nas perguntas seguintes.
+    ("ensino", "a partir de agora a senha do wifi é casa456", "tipo:ensino"),
+    ("ensino", "qual a senha do wifi?", "texto:casa456"),
+    ("ensino", "Anota aí: levar o carro na revisão em março", "tipo:ensino"),
+    ("ensino", "vc sabe qdo é a revisão do carro", "texto:março"),
+    ("ensino", "fica sabendo que o aniversário da Ana é em 12 de maio", "tipo:ensino"),
+    ("ensino", "qnd é o niver da Ana?", "texto:12 de maio"),
 ]
 SEGUIR = {"e o limit?", "não entendi", "e a segunda forma normal?",
           "e como salvo uma versão do código?", "e pegar só os 3 primeiros caracteres de um texto?",

@@ -6,6 +6,16 @@ seguem o [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ## [Não lançado]
 
+Versão em preparação: **2.6.0** (branch `aprendiz-2.6`).
+
+### Adicionado
+- **Jeitos de ensinar vindos do addon**: a seção `ensino` do `compreensao.json` traz outros
+  começos de ensino ("a partir de agora…", "fica sabendo que…", "anota aí:…"), que viram fato
+  ou nota pelas regras de sempre. Pergunta (`?`) nunca é ensino. Ver
+  [Compreensão](docs/estudo/compreensao.md#jeitos-de-ensinar-26).
+- Casos de ensino na homologação (`ferramentas/homologar.py`, grupo "ensino").
+- Documento [Versionamento](docs/referencia/versionamento.md): o que faz cada número subir.
+
 ## [2.5.1] - 2026-11-22
 
 Uma suíte de testes nova, mais dura, procurou erros que ninguém tinha pensado em escrever, e
