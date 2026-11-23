@@ -155,6 +155,7 @@ class PedidoExportacao(BaseModel):
     sinonimos: list[str] = []
     parametros: list[str] = []
     personalizacao: list[str] = []
+    ajuste: list[str] = []
     dependencias: list[str] = []
     recomendado: dict[str, str] | None = None
 

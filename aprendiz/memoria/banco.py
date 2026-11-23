@@ -792,6 +792,10 @@ class Banco:
                 lexico.setdefault(palavra, [None, None])[1] = indice if original else -(indice + 1)
         c.executemany("INSERT INTO addon_lexico VALUES (?, ?, ?, ?)",
                       ((p, addon_id, l, v) for p, (l, v) in lexico.items()))
+        if recursos.get("ajuste"):
+            c.execute("INSERT INTO addon_recursos VALUES (?, ?, ?)",
+                      (addon_id, "ajuste.json",
+                       json.dumps(recursos["ajuste"], ensure_ascii=False).encode("utf-8")))
         if recursos.get("norma"):
             c.execute("INSERT INTO addon_recursos VALUES (?, ?, ?)",
                       (addon_id, "norma.json",

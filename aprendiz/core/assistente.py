@@ -411,7 +411,8 @@ class Assistente:
             pacote.configuracoes,
             {"compreensao": pacote.compreensao, "lemas": pacote.lemas,
              "vetores": pacote.vetores, "norma": pacote.norma,
-             "vocabulario": pacote.vocabulario})
+             "vocabulario": pacote.vocabulario, "ajuste": pacote.ajuste})
+        self._carregar_ajuste()
 
         # Sinônimos/abreviações novos (ou removidos na atualização) mudam os
         # radicais de TODA a base, não só os do addon. Lemas e expressões de
@@ -528,6 +529,7 @@ class Assistente:
             raise ValueError("Addon não encontrado.")
         self.banco.definir_addon_ativo(addon_id, ativo)
         self._garantir_indice(forcar=bool(addon["total_linguagem"]))
+        self._carregar_ajuste()
         return self.banco.obter_addon(addon_id)
 
     def remover_addon(self, addon_id: str) -> bool:
@@ -536,6 +538,7 @@ class Assistente:
             return False
         self.banco.remover_addon(addon_id)
         self._garantir_indice(forcar=bool(addon["total_linguagem"]))
+        self._carregar_ajuste()
         return True
 
     def _ensino_explicito(self, mensagem: str) -> dict[str, Any] | None:
@@ -1723,7 +1726,7 @@ class Assistente:
         return c
 
     # ================================================================ AJUSTE PESSOAL (2.6)
-    CHAVE_AJUSTE = "calibrado.pessoal"
+    CHAVE_AJUSTE = ajuste_pessoal.CHAVE_META
     TREINAR_A_CADA = 5            # avaliações novas entre um treino e outro
 
     def avaliar(self, mensagem_id: str, util: bool) -> dict[str, Any]:
@@ -1759,13 +1762,17 @@ class Assistente:
         if not forcar and novas < self.TREINAR_A_CADA:
             return atual.get("pessoal")
         calibrado = BUSCAS["calibrado"]
+        # A âncora é o ajuste de um addon ativo, se houver (2.6b): quem
+        # instalou o ajuste de outra máquina continua a partir dele.
+        de_addon = self._ajuste_de_addon()
         modelo = ajuste_pessoal.ajustar(
             self.banco.listar_avaliacoes(ajuste_pessoal.MAX_AVALIACOES),
             lambda pergunta: calibrado.sinais(self.linguagem.processar(pergunta), self.contexto),
-            calibrado_pesos.MODELO, agora_iso())
+            de_addon or calibrado_pesos.MODELO, agora_iso())
         self.banco.definir_meta("calibrado.pessoal.ultima", str(contagem["ultima"]))
         if modelo is None:
             return None
+        modelo["pessoal"]["ancora"] = (de_addon or {}).get("pessoal", {}).get("addon") or "oficial"
         self.banco.definir_meta(self.CHAVE_AJUSTE, json.dumps(modelo, ensure_ascii=False))
         self.contexto.modelo_calibrado = modelo
         return modelo["pessoal"]
@@ -1774,12 +1781,24 @@ class Assistente:
         return self.banco.contar_avaliacoes(desde=ultima)["total"]
 
     def _carregar_ajuste(self) -> None:
-        """Lê o ajuste pessoal gravado; descarta se não serve mais ao modelo oficial."""
-        bruto = self.banco.obter_meta(self.CHAVE_AJUSTE)
-        modelo = json.loads(bruto) if bruto else None
-        if modelo and not ajuste_pessoal.compativel(modelo, calibrado_pesos.MODELO):
-            modelo = None   # treino oficial novo, com outros sinais: recomeça
-        self.contexto.modelo_calibrado = modelo
+        """
+        Escolhe o modelo da Calibrada em uso. Vale o primeiro que existir:
+        o ajuste do DONO, o de um addon ativo (o mais novo) ou o oficial.
+        Um ajuste que não serve mais ao modelo oficial é descartado.
+        """
+        # Treino oficial novo, com outros sinais: o ajuste antigo é ignorado.
+        modelo = ajuste_pessoal.do_banco(self.banco, calibrado_pesos.MODELO)
+        self.contexto.modelo_calibrado = modelo or self._ajuste_de_addon()
+
+    def _ajuste_de_addon(self) -> dict[str, Any] | None:
+        """O ajuste (ajuste.json) do addon ativo mais novo, já como modelo completo."""
+        for addon_id, dados in reversed(self.banco.recursos_ativos("ajuste.json")):
+            ajuste = json.loads(dados)
+            modelo = {**calibrado_pesos.MODELO, "pesos": ajuste["pesos"], "vies": ajuste["vies"],
+                      "pessoal": {**(ajuste.get("resumo") or {}), "addon": addon_id}}
+            if ajuste_pessoal.compativel(modelo, calibrado_pesos.MODELO):
+                return modelo
+        return None
 
     def voltar_ao_oficial(self, apagar_avaliacoes: bool = False) -> dict[str, Any]:
         """Desliga o ajuste pessoal (a Calibrada volta aos pesos oficiais)."""
@@ -1788,15 +1807,18 @@ class Assistente:
                                 str(self.banco.contar_avaliacoes()["ultima"]))
         if apagar_avaliacoes:
             self.banco.apagar_avaliacoes()
-        self.contexto.modelo_calibrado = None
+        self._carregar_ajuste()   # sobra o de um addon ativo, se houver
         return self.estado_ajuste()
 
     def estado_ajuste(self) -> dict[str, Any]:
         """Resumo para a tela: avaliações, se o ajuste está ativo e o que mudou."""
         contagem = self.banco.contar_avaliacoes()
         modelo = self.contexto.modelo_calibrado
+        resumo = (modelo or {}).get("pessoal") or {}
         return {
             "avaliacoes": {k: contagem[k] for k in ("total", "certos", "errados")},
+            # De quem é o ajuste em uso: "dono", o id de um addon ou None (oficial).
+            "origem": (resumo.get("addon") or "dono") if modelo else None,
             "minimo": ajuste_pessoal.MIN_AVALIACOES,
             "treinar_a_cada": self.TREINAR_A_CADA,
             "ativo": bool(modelo),

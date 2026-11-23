@@ -174,3 +174,81 @@ def test_api(tmp_path):
         assert c.post("/api/ajuste/treinar").status_code == 200
         assert c.delete("/api/ajuste?avaliacoes=true").json()["avaliacoes"]["total"] == 0
         assert c.post("/api/avaliar", json={"mensagem_id": "nada", "util": True}).status_code == 400
+
+
+# --------------------------------------------------------------- 2b: addon com o ajuste
+from aprendiz.addons import exportacao, pacote as pacotes  # noqa: E402
+
+
+def _arquivo(**trocas):
+    return {"sinais": list(OFICIAL["sinais"]), "pesos": [0.1] * len(OFICIAL["sinais"]),
+            "vies": -4.0, "resumo": {"avaliacoes": 12, "data": "2026-11-23"}, **trocas}
+
+
+def test_validar_ajuste():
+    assert pacotes.validar_ajuste(None) == {}
+    v = pacotes.validar_ajuste(_arquivo(resumo={"avaliacoes": 3, "lixo": "x"}))
+    assert v["vies"] == -4.0 and v["resumo"] == {"avaliacoes": 3}
+
+
+@pytest.mark.parametrize("trocas", [
+    {"sinais": ["outro"]},                         # outra versão da Calibrada
+    {"pesos": [0.1]},                              # tamanho errado
+    {"pesos": [1e9] * len(OFICIAL["sinais"])},     # grande demais
+    {"vies": "x"},
+    {"pesos": [True] * len(OFICIAL["sinais"])},
+])
+def test_ajuste_invalido_e_recusado(trocas):
+    with pytest.raises(pacotes.ErroAddon):
+        pacotes.validar_ajuste(_arquivo(**trocas))
+
+
+def _exportar_ajuste(assistente):
+    _treinar_com_avaliacoes(assistente)
+    previa = exportacao.previa(assistente.banco, recomendar=False)
+    assert previa["ajuste"] and previa["ajuste"][0]["avaliacoes"] > 0
+    return exportacao.exportar(assistente.banco, {"manifesto": {"nome": "Meu ajuste"},
+                                                   "ajuste": ["calibrado"]})
+
+
+def test_exportar_ajuste(assistente_ensinado):
+    nome, dados = _exportar_ajuste(assistente_ensinado)
+    p = pacotes.ler_pacote(dados)
+    assert nome == "meu-ajuste.aprendiz"
+    assert p.ajuste["pesos"] == assistente_ensinado.contexto.modelo_calibrado["pesos"]
+    assert "parametros" in p.manifesto["classificacao"]
+    assert p.manifesto["recomendado"]["busca"] == "calibrado"
+    assert not p.conhecimentos           # nenhuma pergunta ou resposta vai junto
+
+
+def test_sem_ajuste_nada_para_exportar(assistente_ensinado):
+    assert exportacao.previa(assistente_ensinado.banco, recomendar=False)["ajuste"] == []
+    with pytest.raises(pacotes.ErroAddon):
+        exportacao.exportar(assistente_ensinado.banco, {"manifesto": {"nome": "x"},
+                                                        "ajuste": ["calibrado"]})
+
+
+def test_instalar_ajuste_em_outra_maquina(assistente_ensinado, tmp_path):
+    from aprendiz.memoria import Banco
+    _, dados = _exportar_ajuste(assistente_ensinado)
+    outra = Assistente(Banco(tmp_path / "outra.db"))
+    outra.ensinar("A senha do wifi é casa123.", pergunta="senha do wifi")
+    outra.instalar_addon(dados)
+    assert outra.contexto.modelo_calibrado["pesos"] == assistente_ensinado.contexto.modelo_calibrado["pesos"]
+    assert outra.estado_ajuste()["origem"] == "meu-ajuste"
+    # Desativar o addon volta ao oficial; reativar, ao ajuste.
+    outra.definir_addon_ativo("meu-ajuste", False)
+    assert outra.contexto.modelo_calibrado is None
+    outra.definir_addon_ativo("meu-ajuste", True)
+    assert outra.estado_ajuste()["origem"] == "meu-ajuste"
+    # Treinar ali: o ajuste do dono vence e parte do addon (âncora).
+    msg = outra.responder("qual a senha do wifi", busca="calibrado")["mensagem"]
+    for _ in range(ajuste_pessoal.MIN_AVALIACOES):
+        outra.banco.registrar_avaliacao(f"senha {_}", msg["meta"]["fontes"][0]["id"], True, "teste")
+    outra.banco.registrar_avaliacao("qual a senha do wifi", msg["meta"]["fontes"][0]["id"], True, "util")
+    resumo = outra.ajustar_pessoal(forcar=True)
+    assert resumo["ancora"] == "meu-ajuste" and outra.estado_ajuste()["origem"] == "dono"
+    # Voltar ao oficial desliga só o do dono: sobra o do addon.
+    assert outra.voltar_ao_oficial()["origem"] == "meu-ajuste"
+    outra.remover_addon("meu-ajuste")
+    assert outra.contexto.modelo_calibrado is None

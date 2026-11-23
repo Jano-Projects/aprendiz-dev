@@ -339,6 +339,19 @@ modelo foi usado (`"modelo": "pessoal"` ou `"oficial"`).
 O ajuste só vale quando a **Calibrada** é o algoritmo de busca. As avaliações são guardadas
 com qualquer algoritmo.
 
+**Levar o ajuste para outra máquina.** Em **Exportar**, o grupo "Ajuste pessoal da busca" põe
+os pesos num `ajuste.json` dentro do addon. Vão só números, o peso de cada sinal e o viés;
+nenhuma pergunta ou resposta. Média, desvio e a decisão de responder vêm sempre do modelo
+oficial de quem instala, e um ajuste feito para uma Calibrada com outros sinais é recusado na
+instalação. Quem vale, nesta ordem:
+
+1. o ajuste do **dono**, treinado na própria máquina;
+2. o de um **addon ativo** (o instalado por último);
+3. o **oficial**.
+
+Quem treina com um addon de ajuste ativo parte dele, e não do oficial: a âncora da
+regularização passa a ser os pesos do addon. Desativar ou remover o addon volta ao oficial.
+
 ## 6. Resposta direta (`resposta/direta.py`)
 
 Devolve o conteúdo do melhor candidato aceito, como foi ensinado.

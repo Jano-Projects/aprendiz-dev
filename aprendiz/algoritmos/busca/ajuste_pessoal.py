@@ -39,6 +39,7 @@ as avaliações e uma função que calcula os sinais de uma pergunta.
 
 from __future__ import annotations
 
+import json
 import math
 from typing import Callable
 
@@ -165,6 +166,25 @@ def ajustar(avaliacoes: list[dict], sinais_de: Callable[[str], list[tuple[dict, 
             "perguntas_com_acerto": len(grupos),
         },
     }
+
+
+CHAVE_META = "calibrado.pessoal"   # onde o banco guarda o ajuste do dono (tabela meta)
+
+
+def do_banco(banco, oficial: dict) -> dict | None:
+    """O ajuste do DONO gravado no banco, se ainda serve ao modelo oficial."""
+    bruto = banco.obter_meta(CHAVE_META)
+    modelo = json.loads(bruto) if bruto else None
+    return modelo if modelo and compativel(modelo, oficial) else None
+
+
+def para_arquivo(modelo: dict) -> dict:
+    """O ajuste no formato do ajuste.json de um addon (addons/pacote.py)."""
+    resumo = modelo.get("pessoal") or {}
+    return {"sinais": modelo["sinais"], "pesos": modelo["pesos"], "vies": modelo["vies"],
+            "resumo": {"avaliacoes": resumo.get("avaliacoes", 0),
+                       "exemplos": resumo.get("exemplos", 0),
+                       "data": (resumo.get("data") or "")[:10]}}
 
 
 def compativel(pessoal: dict, oficial: dict) -> bool:

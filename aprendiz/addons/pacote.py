@@ -16,6 +16,8 @@ Um arquivo .aprendiz é um ZIP comum com arquivos JSON:
     conhecimentos.json   classificação "memoria"        → perguntas e notas
     linguagem.json       classificação "linguagem"      → sinônimos e abreviações
     parametros.json      classificação "parametros"     → limiares, algoritmos padrão…
+    ajuste.json          classificação "parametros"     → pesos do ajuste pessoal da busca
+                                                          Calibrada (2.6; ver validar_ajuste)
     personalizacao.json  classificação "personalizacao" → nome, cor, boas-vindas
     compreensao.json     classificação "compreensao"    → interpretação de texto (0.7+)
       + lemas.tsv          (opcional) formas das palavras e seus lemas
@@ -147,6 +149,7 @@ from typing import Any
 from aprendiz import __version__
 from aprendiz.aplicativo import configuracoes as cfg
 from aprendiz.addons import normas, recursos
+from aprendiz.algoritmos.busca import calibrado_pesos
 from aprendiz.linguagem import normalizar
 from aprendiz.memoria.sementes import INTENCOES
 
@@ -221,6 +224,7 @@ class Pacote:
     vetores: recursos.Vetores | None = None
     norma: dict[str, Any] = field(default_factory=dict)
     vocabulario: bytes | None = None      # bloco ordenado (ver normas.validar_vocabulario)
+    ajuste: dict[str, Any] = field(default_factory=dict)   # ajuste.json (2.6)
     hash: str = ""
 
     @property
@@ -699,11 +703,57 @@ def validar_configuracoes(tipo: str, bruto: Any) -> dict[str, Any]:
         raise ErroAddon(f"{tipo}.json inválido: {erro}.") from None
 
 
+ARQUIVO_AJUSTE = "ajuste.json"
+MAX_PESO = 100.0
+
+
+def validar_ajuste(bruto: Any) -> dict[str, Any]:
+    """
+    ajuste.json (2.6): os pesos do ajuste pessoal da busca Calibrada, para
+    levar o que o Aprendiz aprendeu de uma máquina para outra.
+
+        {"sinais": ["assunto", ...], "pesos": [0.42, ...], "vies": -5.1,
+         "resumo": {"avaliacoes": 40, "data": "2026-11-23"}}     ← resumo opcional
+
+    Só os PESOS e o viés viajam. Média, desvio e a etapa que decide se responde
+    vêm sempre do modelo oficial do app que instala. Os sinais precisam ser os
+    mesmos do modelo oficial, na mesma ordem: um ajuste feito para outra versão
+    da Calibrada não teria a que se referir.
+    """
+    if bruto is None:
+        return {}
+    if not isinstance(bruto, dict):
+        raise ErroAddon(f"{ARQUIVO_AJUSTE} precisa ser um objeto JSON.")
+    sinais, pesos, vies = bruto.get("sinais"), bruto.get("pesos"), bruto.get("vies")
+    if sinais != calibrado_pesos.MODELO["sinais"]:
+        raise ErroAddon("Este ajuste da busca foi feito para outra versão da busca Calibrada "
+                        "(os sinais não são os mesmos deste Aprendiz).")
+
+    def numero(x: Any) -> bool:
+        return isinstance(x, (int, float)) and not isinstance(x, bool) and abs(x) <= MAX_PESO
+
+    if not isinstance(pesos, list) or len(pesos) != len(sinais) or not all(map(numero, pesos)) \
+            or not numero(vies):
+        raise ErroAddon(f"{ARQUIVO_AJUSTE}: 'pesos' precisa ter um número por sinal e 'vies' "
+                        f"um número (até {MAX_PESO:g} em módulo).")
+    saida: dict[str, Any] = {"sinais": list(sinais), "pesos": [float(p) for p in pesos],
+                             "vies": float(vies)}
+    resumo = bruto.get("resumo") or {}
+    if isinstance(resumo, dict):
+        limpo = {k: resumo[k] for k in ("avaliacoes", "exemplos") if isinstance(resumo.get(k), int)}
+        if isinstance(resumo.get("data"), str):
+            limpo["data"] = resumo["data"][:40]
+        if limpo:
+            saida["resumo"] = limpo
+    return saida
+
+
 def classificacao_de(pacote: Pacote) -> list[str]:
     """Os tipos que os ARQUIVOS do pacote realmente trazem."""
     return [tipo for tipo, tem in (
         ("memoria", pacote.conhecimentos), ("linguagem", pacote.linguagem),
-        ("parametros", pacote.parametros), ("personalizacao", pacote.personalizacao),
+        ("parametros", pacote.parametros or pacote.ajuste),
+        ("personalizacao", pacote.personalizacao),
         ("compreensao", pacote.compreensao), ("vetores", pacote.vetores),
         ("norma", pacote.norma),
     ) if tem]
@@ -736,6 +786,7 @@ def ler_pacote(dados: bytes) -> Pacote:
         )
         if not v1:
             _ler_recursos(zip_, pacote)
+            pacote.ajuste = validar_ajuste(_ler_json(zip_, ARQUIVO_AJUSTE, False))
 
     presentes = classificacao_de(pacote)
     if not presentes:
@@ -804,7 +855,8 @@ def criar_pacote(manifesto: dict[str, Any], conhecimentos: list[dict[str, Any]] 
                  lemas: list[tuple[str, str]] | None = None,
                  vetores: recursos.Vetores | None = None,
                  norma: dict[str, Any] | None = None,
-                 vocabulario: bytes | None = None) -> bytes:
+                 vocabulario: bytes | None = None,
+                 ajuste: dict[str, Any] | None = None) -> bytes:
     """
     Gera os bytes de um arquivo .aprendiz (formato 2). Preenche o que der
     para deduzir (classificação, versão do app) e valida tudo com as mesmas
@@ -815,7 +867,8 @@ def criar_pacote(manifesto: dict[str, Any], conhecimentos: list[dict[str, Any]] 
     parametros = parametros or {}
     personalizacao = personalizacao or {}
     provisorio = Pacote({}, conhecimentos, linguagem, parametros, personalizacao,
-                        compreensao or {}, lemas or [], vetores, norma or {})
+                        compreensao or {}, lemas or [], vetores, norma or {},
+                        ajuste=ajuste or {})
     manifesto = {
         "formato": FORMATO,
         "origem": "terceiros",
@@ -848,6 +901,8 @@ def criar_pacote(manifesto: dict[str, Any], conhecimentos: list[dict[str, Any]] 
             zip_.writestr(recursos.ARQUIVO_VETORES, vetores.como_bytes())
         if norma:
             gravar(normas.ARQUIVO_NORMA, norma)
+        if ajuste:
+            gravar(ARQUIVO_AJUSTE, ajuste)
         if vocabulario:
             # O bloco ordenado já é um vocabulario.tsv válido (uma forma por linha).
             zip_.writestr(normas.ARQUIVO_VOCABULARIO, vocabulario.strip(b"\n") + b"\n")
@@ -868,6 +923,7 @@ def resumo(pacote: Pacote) -> dict[str, Any]:
             "conhecimentos": len(pacote.conhecimentos),
             "linguagem": sum(len(v) for v in pacote.linguagem.values()),
             "parametros": len(pacote.parametros),
+            "ajuste": (pacote.ajuste.get("resumo") or {}).get("avaliacoes", 0) if pacote.ajuste else None,
             "personalizacao": len(pacote.personalizacao),
             "compreensao": sum(len(v) for v in pacote.compreensao.values()),
             "lemas": len(pacote.lemas),

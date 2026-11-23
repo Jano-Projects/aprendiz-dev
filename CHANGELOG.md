@@ -21,6 +21,9 @@ Versão em preparação: **2.6.0** (branch `aprendiz-2.6`).
   Python puro, com os pesos puxados de volta para os oficiais (regularização L2 em direção ao
   modelo oficial). Nova seção em Configurações, rotas `/api/avaliar` e `/api/ajuste`. Ver
   [Algoritmos](docs/estudo/algoritmos.md#ajuste-pessoal-a-calibrada-aprende-com-você-26).
+- **Ajuste no addon** (`ajuste.json`, classificação `parametros`): exportar leva os pesos do
+  ajuste pessoal para outra máquina, só números. Vale o do dono, depois o de um addon ativo,
+  depois o oficial; quem treina por cima de um addon parte dos pesos dele.
 - Casos de ensino na homologação (`ferramentas/homologar.py`, grupo "ensino").
 - Documento [Versionamento](docs/referencia/versionamento.md): o que faz cada número subir.
 

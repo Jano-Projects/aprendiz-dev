@@ -877,6 +877,7 @@
           t.conhecimentos && plural(t.conhecimentos, "conhecimento", "conhecimentos"),
           t.linguagem && plural(t.linguagem, "termo de linguagem", "termos de linguagem"),
           t.parametros && plural(t.parametros, "parâmetro", "parâmetros"),
+          t.ajuste !== null && t.ajuste !== undefined && `ajuste da busca Calibrada${t.ajuste ? ` (${t.ajuste} avaliações)` : ""}`,
           t.personalizacao && plural(t.personalizacao, "personalização", "personalizações"),
           t.compreensao && plural(t.compreensao, "regra de compreensão", "regras de compreensão"),
           t.lemas && `${t.lemas.toLocaleString("pt-BR")} palavras no léxico`,
@@ -1055,6 +1056,11 @@
       grupo: "parametros", valor: c.chave, marcado: c.marcado, titulo: `${c.titulo}: ${c.valor}` })));
     grupo("Personalização", "editar", dados.personalizacao.map((c) => ({
       grupo: "personalizacao", valor: c.chave, marcado: c.marcado, titulo: `${c.titulo}: ${c.valor}` })));
+    grupo("Ajuste pessoal da busca", "algoritmo", (dados.ajuste || []).map((a) => ({
+      grupo: "ajuste", valor: a.id, marcado: a.marcado,
+      titulo: `Pesos da Calibrada aprendidos com ${a.avaliacoes} avaliações`,
+      detalhe: a.data ? `treinados em ${a.data}` : "",
+    })), "Só números (o peso de cada sinal). Nenhuma pergunta ou resposta vai junto.");
     grupo("Dependências (addons instalados)", "link", dados.dependencias.map((d) => ({
       grupo: "dependencias", valor: d.id, marcado: d.marcado,
       titulo: `${d.nome} v${d.versao}`,
@@ -1126,7 +1132,7 @@
         autor: $("#exp-autor").value.trim() || null, licenca: $("#exp-licenca").value.trim() || null,
         descricao: $("#exp-descricao").value.trim() || null,
       },
-      conhecimentos: [], abreviacoes: [], sinonimos: [], parametros: [], personalizacao: [], dependencias: [],
+      conhecimentos: [], abreviacoes: [], sinonimos: [], parametros: [], personalizacao: [], ajuste: [], dependencias: [],
       recomendado: { busca: $("#exp-busca").value, resposta: $("#exp-resposta").value },
     };
     $$("#exp-itens input[data-grupo]:checked").forEach((c) => corpo[c.dataset.grupo].push(c.dataset.valor));
@@ -1389,13 +1395,13 @@
       const pct = (x) => `${Math.round((x || 0) * 100)}%`;
       $("#dados-ajuste").innerHTML = `
         <dt>Avaliações</dt><dd>${a.avaliacoes.total} (${a.avaliacoes.certos} certas, ${a.avaliacoes.errados} erradas)</dd>
-        <dt>Situação</dt><dd>${a.ativo ? "em uso" : (a.avaliacoes.total < a.minimo
+        <dt>Situação</dt><dd>${a.ativo ? (a.origem === "dono" ? "em uso (o seu)" : `em uso (do addon ${esc(a.origem)})`) : (a.avaliacoes.total < a.minimo
           ? `faltam ${a.minimo - a.avaliacoes.total} avaliações para o primeiro treino` : "pesos oficiais")}</dd>
         ${r ? `<dt>Último treino</dt><dd>${esc(new Date(r.data).toLocaleString())} · ${r.exemplos} exemplos</dd>
         <dt>Nas suas avaliações</dt><dd>certo em 1º lugar: ${pct(r.acerto_antes)} com os pesos oficiais → ${pct(r.acerto_depois)} com o ajuste</dd>
         <dt>Distância do oficial</dt><dd>${esc(String(r.distancia_do_oficial))}</dd>` : ""}
         <dt>Busca em uso</dt><dd>${esc(a.busca_em_uso)}${a.busca_em_uso === "calibrado" ? "" : " (o ajuste só vale na Calibrada)"}</dd>`;
-      $("#btn-ajuste-oficial").disabled = !a.ativo;
+      $("#btn-ajuste-oficial").disabled = a.origem !== "dono";
     };
     if (dados) { preencher(dados); return Promise.resolve(); }
     return api("/api/ajuste").then(preencher).catch(() => {});
