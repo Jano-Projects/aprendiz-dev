@@ -111,6 +111,7 @@ def test_parametros_do_addon_valem_ate_o_dono_decidir(assistente):
 def test_limiar_configurado_muda_o_modo_estrito(assistente_ensinado):
     a = assistente_ensinado
     pergunta = "que horas abre a farmácia no sábado de manhã"
+    a.configuracoes.definir("busca.padrao", "bm25")   # o limiar testado é o da BM25
     assert a.responder(pergunta)["mensagem"]["meta"]["tipo"] == "conhecimento"
     a.configuracoes.definir("limiar.bm25", 1.0)
     assert a.responder(pergunta)["mensagem"]["meta"]["tipo"] == "desconhecido"

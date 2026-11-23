@@ -40,6 +40,12 @@ compreensao.json  (classificação "compreensao")
           → addons da loja oficial, para recomendar quando o Aprendiz não
             sabe responder. Gerado a partir do catálogo da loja.
 
+      "ensino": ["a partir de agora", "fica sabendo que", "anota ai"],   (2.6+)
+          → outros jeitos de COMEÇAR um ensino pelo chat, além dos verbos
+            fixos do app (aprenda, anote, lembre…): "a partir de agora a
+            senha do wifi é x" vira um fato; "anota aí: revisão em março",
+            uma nota. Uma mensagem que termina em "?" nunca é ensino.
+
       "dialogo": {                                                  (0.9+)
           "aberturas": {"bom dia": "Bom dia!", "ola": "Olá!"},
               → cumprimentos que podem ABRIR uma frase ("Olá, consegue me
@@ -230,14 +236,15 @@ def validar_compreensao(bruto: Any, normalizar) -> dict[str, Any]:
     if not isinstance(bruto, dict):
         raise ErroRecurso(f"{ARQUIVO_COMPREENSAO} precisa ser um objeto JSON.")
     conhecidas = {"expressoes", "tipos_pergunta", "autoconhecimento", "fora_de_alcance",
-                  "necessidades", "catalogo", "dialogo", "expressao", "padroes"}
+                  "necessidades", "catalogo", "dialogo", "expressao", "padroes", "ensino"}
     sobrando = set(bruto) - conhecidas
     if sobrando:
         raise ErroRecurso(f"{ARQUIVO_COMPREENSAO} tem seções desconhecidas: "
                           f"{', '.join(sorted(sobrando))}.")
     # "dialogo" só entra na saída se vier no arquivo: assim um addon sem ele
     # continua sendo aceito pelas versões anteriores à 0.9.
-    saida: dict[str, Any] = {k: [] for k in conhecidas - {"dialogo", "expressao", "padroes"}}
+    saida: dict[str, Any] = {k: [] for k in conhecidas - {"dialogo", "expressao", "padroes",
+                                                          "ensino"}}
     saida["expressoes"] = {}
 
     expressoes = bruto.get("expressoes") or {}
@@ -324,6 +331,8 @@ def validar_compreensao(bruto: Any, normalizar) -> dict[str, Any]:
         saida["expressao"] = validar_expressao(bruto["expressao"])
     if bruto.get("padroes"):
         saida["padroes"] = validar_padroes(bruto["padroes"], normalizar)
+    if bruto.get("ensino"):
+        saida["ensino"] = _frases(bruto["ensino"], "ensino", normalizar)
 
     for lista in ("tipos_pergunta", "autoconhecimento", "fora_de_alcance", "necessidades"):
         if len(saida[lista]) > MAX_ITENS:

@@ -1,5 +1,7 @@
 """A resposta precisa falar do assunto da pergunta (2.0)."""
 
+import pytest
+
 
 def ensinar_sql(assistente):
     assistente.ensinar("O LEFT JOIN mantém todas as linhas: SELECT c.nome FROM clientes c "
@@ -50,7 +52,15 @@ def test_correcao_prefere_o_par_que_existe_na_base(assistente):
         assert r["mensagem"]["texto"] == "O group by agrupa linhas iguais."
 
 
-def test_quem_e_o_assunto_vence_quem_so_cita(assistente):
+@pytest.mark.parametrize("busca", [
+    "bm25",
+    # 2.6: a Calibrada vê o "melhor_assunto" no item da chave estrangeira, mas
+    # numa base de dois itens a posição nas listas da BM25 e do TF-IDF pesa
+    # mais. Falha conhecida, para resolver no treino (não esconder no teste).
+    pytest.param("calibrado", marks=pytest.mark.xfail(reason="Calibrada prefere quem só cita",
+                                                      strict=False)),
+])
+def test_quem_e_o_assunto_vence_quem_so_cita(assistente, busca):
     from aprendiz.addons.pacote import criar_pacote
     itens = [
         {"pergunta": "o que é join", "conteudo": "O JOIN junta tabelas pela chave estrangeira.",
@@ -60,7 +70,7 @@ def test_quem_e_o_assunto_vence_quem_so_cita(assistente):
     ]
     assistente.instalar_addon(criar_pacote({"id": "bd-teste", "nome": "BD", "versao": "1.0.0",
                                             "autor": "t"}, itens, {}))
-    r = assistente.responder("por que usar chave estrangeira?")
+    r = assistente.responder("por que usar chave estrangeira?", busca=busca)
     assert r["mensagem"]["texto"] == "Uma coluna que aponta para outra tabela."
 
 

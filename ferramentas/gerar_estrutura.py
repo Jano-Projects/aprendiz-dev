@@ -96,6 +96,7 @@ DESCRICOES: dict[str, str] = {
     "docs/guias/criar-algoritmo.md": "Passo a passo para adicionar um algoritmo ao seletor",
     "docs/guias/empacotamento.md": "Instaladores, executável e problemas comuns",
     "docs/referencia/estrutura.md": "Este mapa (gerado por ferramentas/gerar_estrutura.py)",
+    "docs/referencia/versionamento.md": "Regra de versões do app e dos addons, branches e pré-versões",
     "docs/estudo/linguagem.md": "O pipeline de PLN, etapa por etapa",
     # ---- exemplos e ferramentas
     "ferramentas/dados/dados_exemplo.json": "Base e perguntas usadas no benchmark",

@@ -9,6 +9,8 @@ Fluxo (duas etapas, para o dono ver e escolher antes de gerar o arquivo):
                              (as sementes de fábrica ficam de fora: todo
                              Aprendiz já tem)
                            • parâmetros e personalização que o dono definiu
+                           • o ajuste pessoal da busca Calibrada (2.6), que
+                             vira o ajuste.json do addon
                            • addons instalados (viram DEPENDÊNCIAS)
                          Itens com cara de dado pessoal (senha, e-mail,
                          telefone, CPF, números longos…) vêm DESMARCADOS e
@@ -43,6 +45,7 @@ from typing import Any
 from aprendiz.addons import pacote as pacotes
 from aprendiz.aplicativo import configuracoes as cfg
 from aprendiz.algoritmos import BUSCAS, RESPOSTAS, titulo_curto
+from aprendiz.algoritmos.busca import ajuste_pessoal, calibrado_pesos
 from aprendiz.addons.recomendacao import recomendar
 from aprendiz.linguagem import extrair_entidades, normalizar
 from aprendiz.memoria import sementes
@@ -112,6 +115,9 @@ def previa(banco, recomendar: bool = True) -> dict[str, Any]:
     } for a in banco.listar_addons()]
 
     linguagem = _linguagem_do_dono(banco)
+    pessoal = ajuste_pessoal.do_banco(banco, calibrado_pesos.MODELO)
+    ajuste = [{"id": "calibrado", "marcado": True, **ajuste_pessoal.para_arquivo(pessoal)["resumo"]}] \
+        if pessoal else []
     return {
         "conhecimentos": conhecimentos,
         "linguagem": linguagem,
@@ -121,6 +127,7 @@ def previa(banco, recomendar: bool = True) -> dict[str, Any]:
         ) if recomendar else None,
         "parametros": bloco("parametros"),
         "personalizacao": bloco("personalizacao"),
+        "ajuste": ajuste,
         "dependencias": dependencias,
         "app": {"versao": pacotes.__version__},
     }
@@ -146,6 +153,7 @@ def exportar(banco, escolha: dict[str, Any]) -> tuple[str, bytes]:
         {"manifesto": {"id", "nome", "versao", "autor", "descricao", "licenca"},
          "conhecimentos": [ids], "abreviacoes": [termos], "sinonimos": [termos],
          "parametros": [chaves], "personalizacao": [chaves], "dependencias": [ids],
+         "ajuste": ["calibrado"],                                          ← opcional (2.6)
          "recomendado": {"busca": "bm25", "resposta": "direta"}}   ← opcional
 
     Sem "recomendado", vale o resultado do teste com os itens exportados. Com
@@ -178,7 +186,11 @@ def exportar(banco, escolha: dict[str, Any]) -> tuple[str, bytes]:
     dependencias = [{"id": d["id"], "versao": d["versao"], "nome": d["nome"]}
                     for d in marcados(dados["dependencias"], "id", escolha.get("dependencias"))]
 
-    if not (conhecimentos or linguagem or parametros or personalizacao):
+    pessoal = ajuste_pessoal.do_banco(banco, calibrado_pesos.MODELO)
+    ajuste = ajuste_pessoal.para_arquivo(pessoal) if pessoal and "calibrado" in (
+        escolha.get("ajuste") or []) else None
+
+    if not (conhecimentos or linguagem or parametros or personalizacao or ajuste):
         raise pacotes.ErroAddon("Marque pelo menos um item para exportar.")
 
     informado = escolha.get("manifesto") or {}
@@ -191,6 +203,9 @@ def exportar(banco, escolha: dict[str, Any]) -> tuple[str, bytes]:
         raise pacotes.ErroAddon("O id do seu addon não pode ser igual ao de uma dependência.")
     # Recomendação: o teste roda sobre exatamente o que vai no arquivo.
     escolhido = escolha.get("recomendado") or {}
+    if ajuste and not conhecimentos:
+        # Só o ajuste: ele só vale na Calibrada, então é ela a recomendação.
+        escolhido = {"busca": "calibrado", "resposta": escolhido.get("resposta") or "direta"}
     for campo, registro in (("busca", BUSCAS), ("resposta", RESPOSTAS)):
         if escolhido.get(campo) and escolhido[campo] not in registro:
             raise pacotes.ErroAddon(f"Algoritmo desconhecido em 'recomendado.{campo}': "
@@ -211,5 +226,5 @@ def exportar(banco, escolha: dict[str, Any]) -> tuple[str, bytes]:
     )
 
     conteudo = pacotes.criar_pacote(manifesto, conhecimentos, linguagem,
-                                    parametros, personalizacao)
+                                    parametros, personalizacao, ajuste=ajuste)
     return f"{manifesto['id']}{pacotes.EXTENSAO}", conteudo

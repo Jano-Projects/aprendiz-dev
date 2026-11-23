@@ -141,6 +141,31 @@ O que a pessoa precisa quando fala de um jeito indireto: "estou com fome" → re
 "meu computador travou" → atalhos, gerenciador de tarefas. As palavras deduzidas aparecem no
 painel e ajudam a recomendar um addon.
 
+### Jeitos de ensinar (2.6)
+
+O app já reconhece alguns verbos de ensino ("aprenda que…", "anote:…", "lembre que…"). A
+seção `ensino` do `compreensao.json` acrescenta outros jeitos de **começar** um ensino, como
+as pessoas falam: "a partir de agora a senha do wifi é casa456", "fica sabendo que o portão
+abre às 7h", "anota aí: revisão do carro em março". O começo é trocado pela forma padrão
+("anote que…") e o resto segue as mesmas regras: com "é", "fica", "custa"… vira um fato com
+pergunta; sem isso, uma nota.
+
+Três cuidados evitam guardar o que não é ensino:
+
+- mensagem que termina em `?` nunca é ensino ("anota aí o que eu disse?");
+- o jeito de ensinar precisa terminar numa palavra inteira: "anota" não vale para "anotações";
+- depois dele precisam vir pelo menos duas palavras.
+
+A comparação é feita letra por letra, em minúsculas e sem acento, sem mudar a posição de
+nenhuma letra. Assim o que é guardado mantém a escrita original da mensagem.
+
+**O mais recente vale.** Quando o ensino começa dizendo que algo mudou ("a partir de agora",
+"de agora em diante", "daqui pra frente") e já existe um fato do dono com a mesma pergunta,
+o novo **substitui** o antigo, e a resposta mostra o que era antes. "A senha do wifi" e "senha
+do wifi" contam como a mesma pergunta: a comparação usa só as palavras de conteúdo, sem artigo,
+acento ou plural. Sem esse começo, os dois fatos convivem, porque "o carro é azul" e "o carro é
+um Passat" são verdades juntas. Conhecimento de addon nunca é substituído pelo chat.
+
 ### Recomendação de addon
 
 O addon de compreensão leva uma cópia resumida do catálogo da loja oficial (id, nome,
@@ -232,7 +257,7 @@ Descritos em detalhe no início de `aprendiz/addons/recursos.py`:
 
 | Arquivo | Classificação | Conteúdo |
 |---|---|---|
-| `compreensao.json` | `compreensao` | seções `expressoes`, `tipos_pergunta`, `autoconhecimento`, `fora_de_alcance`, `necessidades`, `catalogo` e `dialogo` (0.9+) |
+| `compreensao.json` | `compreensao` | seções `expressoes`, `tipos_pergunta`, `autoconhecimento`, `fora_de_alcance`, `necessidades`, `catalogo`, `dialogo` (0.9+), `padroes` (2.0) e `ensino` (2.6) |
 | `lemas.tsv` | (junto com `compreensao.json`) | `palavra<TAB>lema` ou só `palavra`, já normalizadas |
 | `vetores.bin` | `vetores` | binário: cabeçalho, palavras, índice de cada palavra e vetores `int8` |
 

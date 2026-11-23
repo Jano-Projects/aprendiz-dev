@@ -26,6 +26,7 @@ Cada etapa registra o que fez e quanto tempo levou. Esse registro vira a
 
 from __future__ import annotations
 
+import json
 import math
 import re
 import time
@@ -36,6 +37,7 @@ from rapidfuzz import fuzz, process
 from aprendiz.addons import pacote as pacotes
 from aprendiz.algoritmos import BUSCAS, RESPOSTAS, ContextoBusca, titulo_curto
 from aprendiz.algoritmos.base import Candidato
+from aprendiz.algoritmos.busca import ajuste_pessoal, calibrado_pesos
 from aprendiz.algoritmos.resposta.trabalhada import resumo
 from aprendiz.aplicativo.configuracoes import Configuracoes
 from aprendiz.capacidades.compreensao import Compreensao, FRASE_TIPO, resposta_dinamica
@@ -47,8 +49,9 @@ from aprendiz.capacidades import revisao
 from aprendiz.core.expressao import Expressao
 from aprendiz.core.padroes import Padroes
 from aprendiz.core.teia import Teia
-from aprendiz.memoria.banco import lista_json, teia_de
+from aprendiz.memoria.banco import agora as agora_iso, lista_json, teia_de
 from aprendiz.linguagem import ClassificadorIntencoes, Linguagem, extrair_entidades
+from aprendiz.linguagem.intencoes import corrigir_para_exemplos
 from aprendiz.linguagem.normalizador import VERSAO_NORMALIZACAO, normalizar
 from aprendiz.linguagem.stemmer import radical, singular
 from aprendiz.memoria import Banco
@@ -58,6 +61,10 @@ from aprendiz.memoria import Banco
 # aqui precisamos EXTRAIR as partes da frase, não apenas reconhecer a intenção.
 # ---------------------------------------------------------------------------
 _VERBOS_ENSINO = r"(?:aprenda|aprende|memorize|memoriza|lembre(?:-se)?|anote|guarde|grave|registre)"
+
+# Começos que dizem que algo MUDOU (2.6): o fato novo substitui o antigo.
+_MUDANCA = ("a partir de agora ", "de agora em diante ", "daqui pra frente ",
+            "daqui para frente ")
 
 # "pergunta: horário da farmácia resposta: 8h às 20h"
 PADRAO_PAR = re.compile(r"^\s*pergunta\s*:\s*(?P<p>.+?)\s*resposta\s*:\s*(?P<r>.+)$",
@@ -231,6 +238,7 @@ class Assistente:
         self._df, self._df_total, self._df_versao = {}, 0, -1   # palavras do assunto de um "o que é X?"
         self.contexto.expressao = Expressao(banco)
         self.contexto.sinais_assunto = self._sinais_assunto
+        self._carregar_ajuste()
         self.configuracoes = Configuracoes(banco)
         self.dicionario = Dicionario(banco, self.linguagem)
         self.compreensao = Compreensao(banco, self.linguagem)
@@ -404,7 +412,8 @@ class Assistente:
             pacote.configuracoes,
             {"compreensao": pacote.compreensao, "lemas": pacote.lemas,
              "vetores": pacote.vetores, "norma": pacote.norma,
-             "vocabulario": pacote.vocabulario})
+             "vocabulario": pacote.vocabulario, "ajuste": pacote.ajuste})
+        self._carregar_ajuste()
 
         # Sinônimos/abreviações novos (ou removidos na atualização) mudam os
         # radicais de TODA a base, não só os do addon. Lemas e expressões de
@@ -521,6 +530,7 @@ class Assistente:
             raise ValueError("Addon não encontrado.")
         self.banco.definir_addon_ativo(addon_id, ativo)
         self._garantir_indice(forcar=bool(addon["total_linguagem"]))
+        self._carregar_ajuste()
         return self.banco.obter_addon(addon_id)
 
     def remover_addon(self, addon_id: str) -> bool:
@@ -529,6 +539,7 @@ class Assistente:
             return False
         self.banco.remover_addon(addon_id)
         self._garantir_indice(forcar=bool(addon["total_linguagem"]))
+        self._carregar_ajuste()
         return True
 
     def _ensino_explicito(self, mensagem: str) -> dict[str, Any] | None:
@@ -538,17 +549,47 @@ class Assistente:
             c = self.ensinar(m["r"], pergunta=m["p"], origem="chat")
             return {"conhecimento": c, "formato": "pergunta/resposta"}
 
+        # 2.6: outros jeitos de começar um ensino, vindos do addon de
+        # compreensão ("a partir de agora…", "anota aí…"). Viram a forma
+        # padrão ("anote que…") e seguem pelas mesmas regras abaixo.
+        mudanca = normalizar(mensagem).startswith(_MUDANCA)
+        resto = self.compreensao.resto_ensino(mensagem) if self.compreensao.ativa else None
+        if resto:
+            mensagem = f"anote que {resto}"
+
         m = PADRAO_FATO.match(mensagem)
         if m:
             sujeito = m["p"].strip()
             conteudo = f"{_capitalizar(sujeito)} {m['v'].lower()} {m['r'].strip()}."
-            c = self.ensinar(conteudo, pergunta=sujeito, origem="chat")
-            return {"conhecimento": c, "formato": "fato"}
+            # 2.6: quando a pessoa diz que MUDOU ("a partir de agora a senha
+            # do wifi é casa456"), o fato novo substitui o antigo de mesma
+            # pergunta: vale o mais recente. Sem isso, os dois convivem
+            # ("o carro é azul" e "o carro é um Passat" são verdades juntas).
+            antigo = self._mesmo_fato(sujeito) if mudanca else None
+            c = self.ensinar(conteudo, pergunta=sujeito, origem="chat",
+                             id=antigo["id"] if antigo else None)
+            return {"conhecimento": c, "formato": "fato",
+                    "substituiu": antigo["conteudo"] if antigo else None}
 
         m = PADRAO_NOTA.match(mensagem)
         if m and len(m["n"].split()) >= 2:
             c = self.ensinar(_capitalizar(m["n"].strip()), tipo="nota", origem="chat")
             return {"conhecimento": c, "formato": "nota"}
+        return None
+
+    def _mesmo_fato(self, pergunta: str) -> dict[str, Any] | None:
+        """
+        Conhecimento do DONO com a mesma pergunta (mesmas palavras de conteúdo,
+        sem contar artigos, acentos e plural): "a senha do wifi" = "senha do
+        wifi". Conhecimentos de addons nunca são substituídos pelo chat.
+        """
+        chave = self.linguagem.processar(pergunta, corrigir=False).radicais
+        if not chave:
+            return None
+        for c in self.banco.todos_conhecimentos():
+            if not c.get("addon_id") and c.get("pergunta") and \
+                    self.linguagem.processar(c["pergunta"], corrigir=False).radicais == chave:
+                return c
         return None
 
     # ================================================================ INTENÇÕES
@@ -558,9 +599,13 @@ class Assistente:
             return
         exemplos = []
         self._frases_exatas = {}
+        self._vocabulario_intencoes: dict[str, str] = {}   # palavra → radical (2.6)
         for e in self.banco.exemplos_intencoes(incluir_addons=True):
             processado = self.linguagem.processar(e["frase"], corrigir=False)
             exemplos.append((e["intencao"], processado.radicais_todos))
+            if len(processado.tokens) == len(processado.radicais_todos):
+                self._vocabulario_intencoes.update(zip(processado.tokens,
+                                                       processado.radicais_todos))
             self._frases_exatas[" ".join(processado.tokens)] = e["intencao"]
         self.classificador.treinar(exemplos)
         self._versao_classificador = self.banco.versao_linguagem
@@ -656,8 +701,13 @@ class Assistente:
         ensino = self._ensino_explicito(mensagem)
         if ensino:
             c = ensino["conhecimento"]
-            etapas.marcar("Ensino", {"formato": ensino["formato"], "id": c["id"]})
-            if c["pergunta"]:
+            etapas.marcar("Ensino", {"formato": ensino["formato"], "id": c["id"],
+                                     **({"substituiu": ensino["substituiu"]}
+                                        if ensino.get("substituiu") else {})})
+            if ensino.get("substituiu") and ensino["substituiu"] != c["conteudo"]:
+                texto = (f"Atualizei! Sobre **{c['pergunta']}**, agora vou responder:\n\n"
+                         f"{c['conteudo']}\n\n*Antes era: {ensino['substituiu']}*")
+            elif c["pergunta"]:
                 texto = f"Aprendi! Quando perguntarem sobre **{c['pergunta']}**, vou responder:\n\n{c['conteudo']}"
             else:
                 texto = f"Anotado! Guardei esta informação:\n\n{c['conteudo']}"
@@ -712,7 +762,9 @@ class Assistente:
         if exata:
             intencoes = [{"intencao": exata, "probabilidade": 1.0, "exata": True}]
         else:
-            intencoes = self.classificador.classificar(consulta.radicais_todos)
+            intencoes = self.classificador.classificar(corrigir_para_exemplos(
+                consulta.tokens, consulta.radicais_todos, self._vocabulario_intencoes,
+                self.linguagem.stopwords))
         entidades = extrair_entidades(mensagem)
         etapas.marcar("Interpretação", {"intencoes": intencoes[:4], "entidades": entidades})
 
@@ -1199,6 +1251,10 @@ class Assistente:
                     "**Ensinar isso** e eu passo a saber."), "dialogo", []
 
         if acao == "outras_opcoes" and anterior:
+            # 2.6: "não era isso" também é uma avaliação (👎) da resposta anterior.
+            if meta.get("tipo") == "conhecimento" and meta.get("fontes") and contexto.get("pergunta"):
+                self._avaliar_fonte(contexto["pergunta"], meta["fontes"][0]["id"], False,
+                                    "nao_era_isso")
             usados = {f["id"] for f in meta.get("fontes") or []}
             busca_anterior = next((e for e in (meta.get("explicacao") or {}).get("etapas", [])
                                    if e["nome"].startswith("Busca")), None)
@@ -1665,9 +1721,117 @@ class Assistente:
                 break
 
         c = self.ensinar(resposta_correta, pergunta=pergunta, origem="correcao", id=alvo)
+        # 2.6: a correção também ensina a busca: o novo era o certo e o que
+        # tinha respondido (se era outro conhecimento) era o errado.
+        self._avaliar_fonte(pergunta, c["id"], True, "correcao", treinar=False)
+        fontes = meta.get("fontes") or []
+        if fontes and fontes[0]["id"] != c["id"]:
+            self._avaliar_fonte(pergunta, fontes[0]["id"], False, "correcao", treinar=False)
+        self.ajustar_pessoal()
         meta["corrigida_por"] = c["id"]
         self.banco.atualizar_meta_mensagem(mensagem_id, meta)
         return c
+
+    # ================================================================ AJUSTE PESSOAL (2.6)
+    CHAVE_AJUSTE = ajuste_pessoal.CHAVE_META
+    TREINAR_A_CADA = 5            # avaliações novas entre um treino e outro
+
+    def avaliar(self, mensagem_id: str, util: bool) -> dict[str, Any]:
+        """👍 / 👎 numa resposta: guarda o exemplo e, de tempos em tempos, treina."""
+        msg = self.banco.obter_mensagem(mensagem_id)
+        if not msg or msg["papel"] != "assistente":
+            raise ValueError("Mensagem não encontrada.")
+        meta = msg["meta"] or {}
+        if meta.get("tipo") != "conhecimento" or not meta.get("fontes") or not meta.get("pergunta"):
+            raise ValueError("Só dá para avaliar respostas que vieram de um conhecimento.")
+        self._avaliar_fonte(meta["pergunta"], meta["fontes"][0]["id"], util,
+                            "util" if util else "nao_util", treinar=False)
+        meta["avaliacao"] = "util" if util else "nao_util"
+        self.banco.atualizar_meta_mensagem(mensagem_id, meta)
+        self.ajustar_pessoal()
+        return {"avaliacao": meta["avaliacao"], "ajuste": self.estado_ajuste()}
+
+    def _avaliar_fonte(self, pergunta: str, conhecimento_id: str, certo: bool, origem: str,
+                       treinar: bool = True) -> None:
+        self.banco.registrar_avaliacao(pergunta, conhecimento_id, certo, origem)
+        if treinar:
+            self.ajustar_pessoal()
+
+    def ajustar_pessoal(self, forcar: bool = False) -> dict[str, Any] | None:
+        """
+        Treina o ajuste pessoal quando há avaliações novas suficientes (ou
+        sempre, com forcar). Grava no banco e passa a usar na hora.
+        """
+        contagem = self.banco.contar_avaliacoes()
+        atual = self.contexto.modelo_calibrado or {}
+        ultima = int(self.banco.obter_meta("calibrado.pessoal.ultima") or 0)
+        novas = self._avaliacoes_desde(ultima)
+        if not forcar and novas < self.TREINAR_A_CADA:
+            return atual.get("pessoal")
+        calibrado = BUSCAS["calibrado"]
+        # A âncora é o ajuste de um addon ativo, se houver (2.6b): quem
+        # instalou o ajuste de outra máquina continua a partir dele.
+        de_addon = self._ajuste_de_addon()
+        modelo = ajuste_pessoal.ajustar(
+            self.banco.listar_avaliacoes(ajuste_pessoal.MAX_AVALIACOES),
+            lambda pergunta: calibrado.sinais(self.linguagem.processar(pergunta), self.contexto),
+            de_addon or calibrado_pesos.MODELO, agora_iso())
+        self.banco.definir_meta("calibrado.pessoal.ultima", str(contagem["ultima"]))
+        if modelo is None:
+            return None
+        modelo["pessoal"]["ancora"] = (de_addon or {}).get("pessoal", {}).get("addon") or "oficial"
+        self.banco.definir_meta(self.CHAVE_AJUSTE, json.dumps(modelo, ensure_ascii=False))
+        self.contexto.modelo_calibrado = modelo
+        return modelo["pessoal"]
+
+    def _avaliacoes_desde(self, ultima: int) -> int:
+        return self.banco.contar_avaliacoes(desde=ultima)["total"]
+
+    def _carregar_ajuste(self) -> None:
+        """
+        Escolhe o modelo da Calibrada em uso. Vale o primeiro que existir:
+        o ajuste do DONO, o de um addon ativo (o mais novo) ou o oficial.
+        Um ajuste que não serve mais ao modelo oficial é descartado.
+        """
+        # Treino oficial novo, com outros sinais: o ajuste antigo é ignorado.
+        modelo = ajuste_pessoal.do_banco(self.banco, calibrado_pesos.MODELO)
+        self.contexto.modelo_calibrado = modelo or self._ajuste_de_addon()
+
+    def _ajuste_de_addon(self) -> dict[str, Any] | None:
+        """O ajuste (ajuste.json) do addon ativo mais novo, já como modelo completo."""
+        for addon_id, dados in reversed(self.banco.recursos_ativos("ajuste.json")):
+            ajuste = json.loads(dados)
+            modelo = {**calibrado_pesos.MODELO, "pesos": ajuste["pesos"], "vies": ajuste["vies"],
+                      "pessoal": {**(ajuste.get("resumo") or {}), "addon": addon_id}}
+            if ajuste_pessoal.compativel(modelo, calibrado_pesos.MODELO):
+                return modelo
+        return None
+
+    def voltar_ao_oficial(self, apagar_avaliacoes: bool = False) -> dict[str, Any]:
+        """Desliga o ajuste pessoal (a Calibrada volta aos pesos oficiais)."""
+        self.banco.definir_meta(self.CHAVE_AJUSTE, "")
+        self.banco.definir_meta("calibrado.pessoal.ultima",
+                                str(self.banco.contar_avaliacoes()["ultima"]))
+        if apagar_avaliacoes:
+            self.banco.apagar_avaliacoes()
+        self._carregar_ajuste()   # sobra o de um addon ativo, se houver
+        return self.estado_ajuste()
+
+    def estado_ajuste(self) -> dict[str, Any]:
+        """Resumo para a tela: avaliações, se o ajuste está ativo e o que mudou."""
+        contagem = self.banco.contar_avaliacoes()
+        modelo = self.contexto.modelo_calibrado
+        resumo = (modelo or {}).get("pessoal") or {}
+        return {
+            "avaliacoes": {k: contagem[k] for k in ("total", "certos", "errados")},
+            # De quem é o ajuste em uso: "dono", o id de um addon ou None (oficial).
+            "origem": (resumo.get("addon") or "dono") if modelo else None,
+            "minimo": ajuste_pessoal.MIN_AVALIACOES,
+            "treinar_a_cada": self.TREINAR_A_CADA,
+            "ativo": bool(modelo),
+            "resumo": (modelo or {}).get("pessoal"),
+            "busca_em_uso": self.configuracoes.efetivas()["busca.padrao"]["valor"],
+        }
 
     # ================================================================ utilidades
     @staticmethod

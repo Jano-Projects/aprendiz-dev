@@ -6,6 +6,51 @@ seguem o [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ## [Não lançado]
 
+## [2.6.0] - 2026-11-23
+
+O Aprendiz passa a aprender com o dono: cada 👍, 👎, "não era isso" e correção ajusta a busca
+no próprio aparelho, sem internet. A busca Calibrada, com pesos aprendidos, vira a padrão, e a
+conversa entende mais jeitos de ensinar e de escrever.
+
+Os addons **Compreensão do português 2.1.0** e **Diálogo do português 2.2.0** da loja oficial
+exigem esta versão.
+
+### Mudado
+- **A busca padrão passa a ser a Calibrada** (era a BM25). No teste ela acerta 64,2% (BM25
+  58,4%) e inventa em 66,2% das perguntas sem resposta (BM25 83,8%); na homologação, 234/249
+  (BM25 227). Quem escolheu outra busca nas Configurações continua com a sua.
+
+### Adicionado
+- **Jeitos de ensinar vindos do addon**: a seção `ensino` do `compreensao.json` traz outros
+  começos de ensino ("a partir de agora…", "fica sabendo que…", "anota aí:…"), que viram fato
+  ou nota pelas regras de sempre. Pergunta (`?`) nunca é ensino. Ver
+  [Compreensão](docs/estudo/compreensao.md#jeitos-de-ensinar-26).
+- **O mais recente vale**: "a partir de agora a senha do wifi é casa456" substitui o fato antigo
+  de mesma pergunta e mostra o que era antes. Sem "a partir de agora" (ou "de agora em diante",
+  "daqui pra frente"), os dois fatos continuam valendo juntos.
+- **Ajuste pessoal da Calibrada**: 👍/👎 nas respostas, "não era isso" e Corrigir viram
+  exemplos (tabela `avaliacoes`). A partir de 5, a Calibrada treina no próprio aparelho, em
+  Python puro, com os pesos puxados de volta para os oficiais (regularização L2 em direção ao
+  modelo oficial). Nova seção em Configurações, rotas `/api/avaliar` e `/api/ajuste`. Ver
+  [Algoritmos](docs/estudo/algoritmos.md#ajuste-pessoal-a-calibrada-aprende-com-você-26).
+- **Ajuste no addon** (`ajuste.json`, classificação `parametros`): exportar leva os pesos do
+  ajuste pessoal para outra máquina, só números. Vale o do dono, depois o de um addon ativo,
+  depois o oficial; quem treina por cima de um addon parte dos pesos dele.
+- **Calibrada, sinal `pares`**: pares de palavras vizinhas da pergunta que também são
+  vizinhos no texto. O treino (`ferramentas/treinar_calibrado.py`) passa a juntar a cada pergunta
+  de treino cópias com ruído (cortesia, abreviação, sem acento, letras trocadas); o teste
+  continua limpo. `--limiar` em `homologar.py` e em `treinar_calibrado.py` mede outros limiares
+  sem mudar o app.
+- **Decisão de responder com sinais do 1º lugar**: a 2ª etapa da Calibrada também lê
+  `topo_cobertura_idf`, `topo_pares`, `topo_cobre_assunto`, `topo_melhor_assunto`,
+  `topo_consenso_hibrido` e `topo_termos`. Modelos antigos seguem com os dois sinais de antes.
+- **Intenção com erro de escrita**: uma palavra desconhecida vira a mais parecida dos exemplos
+  de intenção, se a semelhança for de 80% ou mais ("valew" → "valeu", "obrigadoo" →
+  "obrigado"). A Compreensão do português ganhou exemplos de agradecimento como "com certeza
+  valeu" e "beleza valeu".
+- Casos de ensino na homologação (`ferramentas/homologar.py`, grupo "ensino").
+- Documento [Versionamento](docs/referencia/versionamento.md): o que faz cada número subir.
+
 ## [2.5.1] - 2026-11-22
 
 Uma suíte de testes nova, mais dura, procurou erros que ninguém tinha pensado em escrever, e

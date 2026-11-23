@@ -123,7 +123,7 @@ declarou.
 |---|---|---|---|
 | `memoria` | alimenta a memória | `conhecimentos.json` | aceito |
 | `linguagem` | amplia o banco de linguagem | `linguagem.json` | aceito |
-| `parametros` | ajusta parâmetros dos algoritmos | `parametros.json` | aceito |
+| `parametros` | ajusta parâmetros dos algoritmos | `parametros.json` e/ou `ajuste.json` | aceito (`ajuste.json`: 2.6+) |
 | `personalizacao` | customiza nome, cor e boas-vindas | `personalizacao.json` | aceito |
 | `compreensao` | interpretação de texto: tipos de pergunta, expressões, lemas, autoconhecimento, recomendação | `compreensao.json` (+ `lemas.tsv`) | aceito (0.7+) |
 | `vetores` | vetores de sentido das palavras | `vetores.bin` | aceito (0.7+) |
@@ -443,6 +443,7 @@ palavras (`lemas.tsv`) e um binário de vetores (`vetores.bin`):
 | `conhecimentos.json` | se `memoria` | lista de `{"pergunta"?, "conteudo", "tipo"?, "variacoes"?, "traducoes"?}`; `tipo` é `pergunta`, `nota`, `trecho` ou `verbete` (0.4.1+); `variacoes` e `traducoes` (só em verbetes) são listas de textos (0.6+) |
 | `linguagem.json` | se `linguagem` | `{"sinonimos": {...}, "abreviacoes": {...}}` |
 | `parametros.json` | se `parametros` | `{"chave": valor}` da lista fechada |
+| `ajuste.json` | não | pesos do ajuste pessoal da busca Calibrada (2.6+): `{"sinais": [...], "pesos": [...], "vies": n, "resumo"?: {...}}`. Os sinais precisam ser os mesmos da Calibrada do app, na mesma ordem; só os pesos e o viés viajam |
 | `personalizacao.json` | se `personalizacao` | `{"chave": valor}` da lista fechada |
 | `compreensao.json` | se `compreensao` | regras de interpretação (0.7+; veja [compreensao.md](../estudo/compreensao.md)) |
 | `lemas.tsv` | não | léxico e lemas, junto com `compreensao.json` (0.7+) |

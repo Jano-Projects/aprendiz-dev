@@ -31,13 +31,14 @@ Tudo é comparação de palavras e de vetores; nenhuma regex vem de addon.
 from __future__ import annotations
 
 import json
+import re
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any
 
 from rapidfuzz import fuzz
 
-from aprendiz.linguagem.normalizador import normalizar, tokenizar
+from aprendiz.linguagem.normalizador import normalizar, remover_acentos, tokenizar
 from aprendiz.linguagem.lexico import cosseno
 from aprendiz.linguagem.stemmer import radical
 from aprendiz.addons.recursos import TIPOS_PERGUNTA
@@ -122,7 +123,9 @@ class Compreensao:
         if self._versao == self.banco.versao_linguagem:
             return
         dados: dict[str, list] = {"tipos_pergunta": [], "autoconhecimento": [],
-                                  "fora_de_alcance": [], "necessidades": [], "catalogo": []}
+                                  "fora_de_alcance": [], "necessidades": [], "catalogo": [],
+                                  "ensino": []}
+        ensino: set[str] = set()
         auto: dict[str, dict] = {}
         catalogo: dict[str, dict] = {}
         for _, bruto in self.banco.recursos_ativos("compreensao.json"):
@@ -144,6 +147,7 @@ class Compreensao:
             for item in doc.get("necessidades", []):
                 dados["necessidades"].append(
                     {**item, "_frases": [self._frase(g) for g in item["gatilhos"]]})
+            ensino.update(doc.get("ensino", []))
             for item in doc.get("catalogo", []):
                 # Peso de cada radical: as primeiras palavras da lista (nome,
                 # etiquetas, região, as mais repetidas) valem mais que as últimas.
@@ -156,6 +160,11 @@ class Compreensao:
         dados["tipos_pergunta"].sort(key=lambda t: -len(t[0]))
         dados["autoconhecimento"] = list(auto.values())
         dados["catalogo"] = list(catalogo.values())
+        # Jeitos de começar um ensino (2.6), o mais longo primeiro: "anota ai
+        # que" vence "anota ai". As palavras podem vir separadas por vírgula.
+        dados["ensino"] = [
+            re.compile(r"^[\W_]*" + r"[\s,]+".join(map(re.escape, p.split())) + r"(?![a-z0-9])")
+            for p in sorted(ensino, key=lambda p: (-len(p), p))]
         self.dados = dados
         self._vetores_catalogo = {}
         self._versao = self.banco.versao_linguagem
@@ -172,6 +181,30 @@ class Compreensao:
             if proc.radicais and _SEGUNDA_PESSOA & set(proc.tokens):
                 chaves.append(frozenset(proc.radicais))
         return chaves
+
+    def resto_ensino(self, mensagem: str) -> str | None:
+        """
+        2.6: se a mensagem COMEÇA por um jeito de ensinar que o addon traz
+        ("a partir de agora", "fica sabendo que", "anota aí"), devolve o que
+        vem depois, com a escrita original. Senão, None.
+
+            "Anota aí: revisão do carro em março" → "revisão do carro em março"
+
+        Pergunta nunca é ensino: "anota aí o que eu disse?" fica de fora.
+        """
+        self._carregar()
+        if not self.dados.get("ensino") or mensagem.rstrip().endswith("?"):
+            return None
+        # Letra por letra, minúscula e sem acento: cada letra continua na MESMA
+        # posição da mensagem original, então o corte vale para as duas.
+        dobrada = "".join((remover_acentos(c.lower()) or " ")[:1] for c in mensagem)
+        for padrao in self.dados["ensino"]:
+            achou = padrao.match(dobrada)
+            if achou:
+                resto = mensagem[achou.end():].lstrip(" \t:;,.!-–—")
+                resto = re.sub(r"^que\s+", "", resto, flags=re.I)
+                return resto if len(resto.split()) >= 2 else None
+        return None
 
     @property
     def ativa(self) -> bool:

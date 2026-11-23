@@ -233,6 +233,7 @@ select:focus-visible, input:focus-visible, textarea:focus-visible, button:focus-
 }
 .acao:hover { background: var(--fundo-suave); color: var(--texto); }
 .acao.ativa { background: var(--primaria-suave); color: var(--primaria); }
+.acao.avaliado { background: var(--primaria-suave); color: var(--primaria); }
 .acao.destaque { color: var(--primaria); font-weight: 600; }
 .selo { font-size: 11.5px; color: var(--texto-suave); margin-left: auto; padding-left: 8px; display: inline-flex; align-items: center; gap: 4px; }
 
@@ -698,3 +699,6 @@ body.com-monitor .seletor select { min-width: 0; max-width: 200px; text-overflow
   .monitor { position: fixed; inset: 0 0 0 auto; width: min(430px, 100vw); z-index: 7; box-shadow: var(--sombra); }
 }
 @media (prefers-reduced-motion: reduce) { .etapa-mon.chegou, .pulso { animation: none; } }
+
+/* Ajuste pessoal (2.6): botões lado a lado numa seção das Configurações */
+.linha-botoes { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }

@@ -42,6 +42,7 @@ aprendiz/
 │   ├── algoritmos/                      # Seletor de algoritmos.
 │   │   ├── busca/                       # Algoritmos de busca. A ordem de importação define a ordem no seletor.
 │   │   │   ├── __init__.py              # Algoritmos de busca. A ordem de importação define a ordem no seletor.
+│   │   │   ├── ajuste_pessoal.py        # Ajuste pessoal da busca Calibrada (2.6): o modelo aprende com o DONO, no próprio…
 │   │   │   ├── bm25.py                  # Busca BM25 usando o índice FTS5 do próprio SQLite.
 │   │   │   ├── calibrado.py             # Busca calibrada: um reordenador APRENDIDO por regressão logística (2.4).
 │   │   │   ├── calibrado_pesos.py       # Pesos da busca Calibrada. ARQUIVO GERADO por ferramentas/treinar_calibrado.py: não edite…
@@ -120,7 +121,8 @@ aprendiz/
 │   │   └── tela-principal.png           # Captura da tela principal (README)
 │   ├── referencia/                      # Mapa do projeto: arquitetura e estrutura de arquivos
 │   │   ├── arquitetura.md               # Camadas, decisões de projeto e tabelas do banco
-│   │   └── estrutura.md                 # Este mapa (gerado por ferramentas/gerar_estrutura.py)
+│   │   ├── estrutura.md                 # Este mapa (gerado por ferramentas/gerar_estrutura.py)
+│   │   └── versionamento.md             # Regra de versões do app e dos addons, branches e pré-versões
 │   └── README.md                        # Índice da documentação: por onde começar e o que tem em cada pasta
 ├── exemplos/                            # Exemplos prontos para usar e estudar
 │   └── addons/                          # Addons de exemplo (oficiais): fontes e arquivos .aprendiz gerados
@@ -152,6 +154,7 @@ aprendiz/
 ├── tests/                               # Testes automatizados (pytest)
 │   ├── conftest.py                      # Fixtures compartilhadas: cada teste ganha um banco novo, num arquivo temporário.
 │   ├── test_addons.py                   # Testes dos addons: formato, segurança, instalação, ativação e migração.
+│   ├── test_ajuste_pessoal.py           # Ajuste pessoal da busca Calibrada (2.6): avaliações do dono viram exemplos e um treino…
 │   ├── test_algoritmos.py               # Testes dos algoritmos de busca e de resposta, e do pipeline completo.
 │   ├── test_api.py                      # Testes da API HTTP (o mesmo caminho que a interface usa).
 │   ├── test_atualizacao.py              # Atualização sob pedido (2.2): só com o gatilho, com SHA-256 conferido. Sem rede: baixar…
@@ -162,9 +165,11 @@ aprendiz/
 │   ├── test_dialogo.py                  # Testes do diálogo (0.9): a seção "dialogo" dos addons de compreensão e a herança de grupo…
 │   ├── test_dicionario.py               # Testes da 0.6: dicionário nos dois sentidos (traduções e regiões), variações de pergunta…
 │   ├── test_documentacao.py             # Garante que o projeto continue documentado: todo arquivo tem explicação.
+│   ├── test_ensino_26.py                # Jeitos de ensinar vindos do addon de compreensão (2.6): a seção "ensino".
 │   ├── test_exportacao.py               # Testes da exportação: prévia com avisos de privacidade, escolha de itens e ida e volta.
 │   ├── test_formato2.py                 # Testes do formato 2: origem, classificação, versão do app, dependências e configurações.
 │   ├── test_girias.py                   # Testes da 0.4.1: verbetes (dicionário), stopwords e intenções vindas de addons de…
+│   ├── test_intencoes_26.py             # Intenções com erro de escrita (2.6): uma palavra desconhecida vira a mais parecida dos…
 │   ├── test_invariantes.py              # Invariantes do assistente inteiro (2.5.1).
 │   ├── test_juntar.py                   # Testes de "juntar e reinterpretar" (1.0): panorama ("o que você sabe sobre X?"), pedido…
 │   ├── test_linguagem.py                # Testes do processamento de linguagem: radicais, normalização, intenções, entidades.

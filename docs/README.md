@@ -45,5 +45,6 @@ A documentação está dividida em três pastas, pelo que você quer fazer:
 |---|---|
 | [Arquitetura](referencia/arquitetura.md) | Camadas, decisões de projeto, caminho de uma mensagem, tabelas e migrações |
 | [Estrutura](referencia/estrutura.md) | Todos os arquivos do projeto, com o papel de cada um (gerado pelo código) |
+| [Versionamento](referencia/versionamento.md) | O que faz cada número da versão subir, branches, pré-versões e versões dos addons |
 
 Para contribuir, veja o [guia de contribuição](../.github/CONTRIBUTING.md).

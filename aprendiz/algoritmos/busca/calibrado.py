@@ -64,6 +64,10 @@ def prever(sinais: dict[str, float], modelo: dict | None = None) -> tuple[float,
 
 
 SINAIS_DA_DECISAO = ("nota_do_primeiro", "distancia_do_segundo")
+# 2.6: a decisão também olha o próprio 1º lugar, não só a nota dele. Cada um
+# vira "topo_<sinal>" na lista de sinais da decisão (ex.: "topo_cobertura_idf").
+SINAIS_DO_TOPO = ("cobertura_idf", "pares", "cobre_assunto", "melhor_assunto",
+                  "consenso_hibrido", "termos")
 
 
 def _logito(p: float) -> float:
@@ -82,15 +86,44 @@ def sinais_da_decisao(probabilidades: list[float]) -> list[float]:
     return [primeiro, primeiro - segundo]
 
 
-def chance_de_responder_certo(probabilidades: list[float], modelo: dict | None = None) -> float:
+def vetor_da_decisao(nomes: list[str], probabilidades: list[float],
+                     topo: dict[str, float] | None = None) -> list[float]:
+    """
+    Os sinais da 2ª etapa na ordem de `nomes`: os dois que vêm das notas
+    (SINAIS_DA_DECISAO) e os "topo_<sinal>", lidos dos sinais do 1º lugar.
+    """
+    das_notas = dict(zip(SINAIS_DA_DECISAO, sinais_da_decisao(probabilidades)))
+    topo = topo or {}
+    return [das_notas[n] if n in das_notas else float(topo.get(n.removeprefix("topo_"), 0.0))
+            for n in nomes]
+
+
+def chance_de_responder_certo(probabilidades: list[float], modelo: dict | None = None,
+                              topo: dict[str, float] | None = None) -> float:
     """2ª etapa: a chance de o 1º lugar ser a resposta certa (decide se responde)."""
     modelo = modelo or calibrado_pesos.MODELO
     decisao = modelo.get("decisao")
     if not decisao or not probabilidades:
         return probabilidades[0] if probabilidades else 0.0
-    z = decisao["vies"] + sum(p * s for p, s in zip(decisao["pesos"],
-                                                     sinais_da_decisao(probabilidades)))
+    nomes = decisao.get("sinais") or list(SINAIS_DA_DECISAO)
+    z = decisao["vies"] + sum(p * s for p, s in zip(
+        decisao["pesos"], vetor_da_decisao(nomes, probabilidades, topo)))
     return sigmoide(z)
+
+
+def pares_em_sequencia(radicais: list[str], texto_busca: str) -> float:
+    """
+    Sinal "pares" (2.6): a fração dos pares de palavras VIZINHAS da pergunta
+    que aparecem vizinhas também no conhecimento. "numerar as linhas" → o par
+    (numer, linh); um texto que diz "numerar linhas" junto vale mais que um
+    que fala de "número" num lugar e de "linha" em outro. 0 com uma palavra só.
+    """
+    pares = set(zip(radicais, radicais[1:]))
+    if not pares:
+        return 0.0
+    sequencia = texto_busca.split()
+    do_texto = set(zip(sequencia, sequencia[1:]))
+    return len(pares & do_texto) / len(pares)
 
 
 def cobertura_idf(termos: list[str], doc_termos: set[str], idf: dict[str, float],
@@ -112,7 +145,7 @@ def cobertura_idf(termos: list[str], doc_termos: set[str], idf: dict[str, float]
 @registrar
 class BuscaCalibrada(AlgoritmoBusca):
     nome = "calibrado"
-    titulo = "Calibrado (aprendido)"
+    titulo = "Calibrado (padrão)"
     apelido = "Calibrado"
     quando_usar = "Uso geral: junta todos os sinais numa probabilidade aprendida com perguntas reais."
     custo = "pesado"
@@ -182,6 +215,7 @@ quem desenvolve). O app leva só os números: nenhuma biblioteca a mais.
                 s[f"{nome}_conf"] = conf
                 s[f"{nome}_rank"] = 1 / pos if pos else 0.0
             s["cobertura_idf"] = cobertura_idf(termos, doc_termos, idf, idf_ausente)
+            s["pares"] = pares_em_sequencia(consulta.radicais, doc.get("texto_busca") or "")
             s["termos"] = min(len(termos), 6) / 6
             # De propósito, nenhum sinal diz DE ONDE o conhecimento veio (dono ou
             # addon, com teia ou sem, nota ou pergunta): o treino só tem perguntas
@@ -216,9 +250,13 @@ quem desenvolve). O app leva só os números: nenhuma biblioteca a mais.
     def buscar(self, consulta: TextoProcessado, ctx: ContextoBusca,
                limite: int = 5) -> list[Candidato]:
         # 1ª etapa: a chance de cada candidato ser a resposta (ORDENA).
+        # Modelo em uso: o ajuste pessoal do dono (2.6) ou o oficial.
+        modelo = getattr(ctx, "modelo_calibrado", None) or calibrado_pesos.MODELO
         candidatos = []
+        brutos: dict[str, dict[str, float]] = {}
         for doc, s in self.sinais(consulta, ctx):
-            p, contribuicoes = prever(s)
+            brutos[doc["id"]] = s
+            p, contribuicoes = prever(s, modelo)
             principais = dict(sorted(contribuicoes.items(), key=lambda kv: -abs(kv[1]))[:5])
             candidatos.append(Candidato(
                 conhecimento=doc,
@@ -230,8 +268,9 @@ quem desenvolve). O app leva só os números: nenhuma biblioteca a mais.
                 detalhes={"chance": round(p, 4), "sinais_que_mais_pesaram": principais,
                           "sinais": {k: round(v, 4) for k, v in s.items()},
                           "contribuicoes": contribuicoes,
-                          "vies": round(calibrado_pesos.MODELO["vies"], 4),
-                          "z": round(calibrado_pesos.MODELO["vies"] + sum(contribuicoes.values()), 4)},
+                          "vies": round(modelo["vies"], 4),
+                          "z": round(modelo["vies"] + sum(contribuicoes.values()), 4),
+                          "modelo": "pessoal" if "pessoal" in modelo else "oficial"},
             ))
         if not candidatos:
             return []
@@ -240,10 +279,12 @@ quem desenvolve). O app leva só os números: nenhuma biblioteca a mais.
         # 2ª etapa: a chance de o 1º lugar estar certo (DECIDE se responde).
         # Ela é a confiança do 1º; os outros ficam na mesma proporção, abaixo dele.
         notas = [c.pontuacao for c in candidatos]
-        certo = chance_de_responder_certo(notas)
+        topo = brutos.get(candidatos[0].id)
+        certo = chance_de_responder_certo(notas, modelo, topo)
         for c in candidatos:
             c.confianca = round(certo * (c.pontuacao / notas[0] if notas[0] else 0.0), 4)
         candidatos[0].detalhes["chance_de_estar_certo"] = round(certo, 4)
-        candidatos[0].detalhes["decisao"] = dict(zip(SINAIS_DA_DECISAO,
-                                                     (round(x, 4) for x in sinais_da_decisao(notas))))
+        nomes = (modelo.get("decisao") or {}).get("sinais") or list(SINAIS_DA_DECISAO)
+        candidatos[0].detalhes["decisao"] = dict(zip(
+            nomes, (round(x, 4) for x in vetor_da_decisao(nomes, notas, topo))))
         return candidatos[:limite]

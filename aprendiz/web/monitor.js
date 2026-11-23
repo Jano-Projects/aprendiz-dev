@@ -79,6 +79,7 @@
     fuzzy_conf: "letras parecidas (Fuzzy)",
     fuzzy_rank: "posição na lista do Fuzzy",
     cobertura_idf: "palavras raras da pergunta presentes",
+    pares: "pares de palavras vizinhas da pergunta também vizinhos no texto",
     termos: "tamanho da pergunta",
     assunto: "quanto bate no assunto declarado",
     palavras_assunto: "quantas palavras batem no assunto",
@@ -294,7 +295,8 @@
       if (primeiro && det.decisao) {
         html += avancado()
           ? `<div class="formula">2ª etapa ${termo("calibracao", "calibração")}: nota_do_primeiro = ${num(det.decisao.nota_do_primeiro, 3)} ${termo("logito", "logito")},
-               distancia_do_segundo = ${num(det.decisao.distancia_do_segundo, 3)} → P(1º certo) = <b>${num(det.chance_de_estar_certo, 4)}</b>
+               distancia_do_segundo = ${num(det.decisao.distancia_do_segundo, 3)}${Object.entries(det.decisao)
+                 .filter(([k]) => k.startsWith("topo_")).map(([k, v]) => `, ${esc(k)} = ${num(v, 3)}`).join("")} → P(1º certo) = <b>${num(det.chance_de_estar_certo, 4)}</b>
                ${det.chance_de_estar_certo >= limiar ? "≥" : "<"} limiar ${num(limiar)}</div>`
           : `<p class="mon-dica">Depois, a <b>2ª etapa</b> olha quanto ele ficou à frente do 2º lugar: a chance de esta resposta estar certa é <b>${num(det.chance_de_estar_certo * 100, 1)}%</b>${det.chance_de_estar_certo >= limiar ? ", acima do limiar: respondeu." : ", abaixo do limiar: não respondeu."}</p>`;
       }

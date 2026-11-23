@@ -112,7 +112,7 @@ DEFINICOES: dict[str, Definicao] = {d.chave: d for d in [
     # ---- parâmetros
     Definicao("busca.padrao", "parametros", "Algoritmo de busca",
               "Algoritmo usado para encontrar os conhecimentos.",
-              "bm25", _escolha(_buscas), {"opcoes": "busca"}),
+              "calibrado", _escolha(_buscas), {"opcoes": "busca"}),
     Definicao("resposta.padrao", "parametros", "Algoritmo de resposta",
               "Como o texto final é montado.",
               "direta", _escolha(_respostas), {"opcoes": "resposta"}),

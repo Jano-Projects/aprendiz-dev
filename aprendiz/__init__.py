@@ -21,4 +21,4 @@ Mapa dos pacotes:
     └── aplicativo/      → caminhos, configurações, atualização e a janela de desktop
 """
 
-__version__ = "2.5.1"
+__version__ = "2.6.0"

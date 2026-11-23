@@ -44,6 +44,9 @@ class ContextoBusca:
     # Sinais do assunto declarado (2.4): função (consulta, conhecimento) → dict,
     # preenchida pelo Assistente e usada pela busca Calibrada.
     sinais_assunto: Any = None
+    # Modelo da Calibrada em uso (2.6): o ajuste pessoal do dono, quando há um
+    # (algoritmos/busca/ajuste_pessoal.py); None = o modelo oficial.
+    modelo_calibrado: Any = None
 
     def limiar(self, nome: str) -> float:
         """Confiança mínima em vigor para o algoritmo de busca `nome`."""

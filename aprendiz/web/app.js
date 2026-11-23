@@ -335,6 +335,24 @@
     if (meta.tipo === "desconhecido") {
       acoes.appendChild(botaoAcao("ensinar", "Ensinar isso", () => abrirEnsinar({ pergunta: meta.pergunta }), "destaque"));
     }
+    if (meta.tipo === "conhecimento" && msg.id) {
+      // 2.6: 👍/👎 viram exemplos para o ajuste pessoal da Calibrada.
+      ["util", "nao_util"].forEach((valor) => {
+        const b = botaoAcao(valor === "util" ? "util" : "nao-util", valor === "util" ? "Útil" : "Não ajudou",
+          async (botao) => {
+            try {
+              await api("/api/avaliar", { metodo: "POST", corpo: { mensagem_id: msg.id, util: valor === "util" } });
+              meta.avaliacao = valor;
+              acoes.querySelectorAll(".acao.avaliado").forEach((x) => x.classList.remove("avaliado"));
+              botao.classList.add("avaliado");
+              avisar(valor === "util" ? "Obrigado! Vou lembrar que essa resposta serviu."
+                                      : "Anotado. Vou levar isso em conta na busca Calibrada.");
+            } catch (e) { avisar(e.message, "alerta"); }
+          });
+        if (meta.avaliacao === valor) b.classList.add("avaliado");
+        acoes.appendChild(b);
+      });
+    }
     if (meta.tipo === "conhecimento") {
       acoes.appendChild(botaoAcao(meta.corrigida_por ? "check" : "corrigir",
         meta.corrigida_por ? "Corrigida" : "Corrigir", () => abrirCorrigir(msg.id, meta.pergunta)));
@@ -859,6 +877,7 @@
           t.conhecimentos && plural(t.conhecimentos, "conhecimento", "conhecimentos"),
           t.linguagem && plural(t.linguagem, "termo de linguagem", "termos de linguagem"),
           t.parametros && plural(t.parametros, "parâmetro", "parâmetros"),
+          t.ajuste !== null && t.ajuste !== undefined && `ajuste da busca Calibrada${t.ajuste ? ` (${t.ajuste} avaliações)` : ""}`,
           t.personalizacao && plural(t.personalizacao, "personalização", "personalizações"),
           t.compreensao && plural(t.compreensao, "regra de compreensão", "regras de compreensão"),
           t.lemas && `${t.lemas.toLocaleString("pt-BR")} palavras no léxico`,
@@ -1037,6 +1056,11 @@
       grupo: "parametros", valor: c.chave, marcado: c.marcado, titulo: `${c.titulo}: ${c.valor}` })));
     grupo("Personalização", "editar", dados.personalizacao.map((c) => ({
       grupo: "personalizacao", valor: c.chave, marcado: c.marcado, titulo: `${c.titulo}: ${c.valor}` })));
+    grupo("Ajuste pessoal da busca", "algoritmo", (dados.ajuste || []).map((a) => ({
+      grupo: "ajuste", valor: a.id, marcado: a.marcado,
+      titulo: `Pesos da Calibrada aprendidos com ${a.avaliacoes} avaliações`,
+      detalhe: a.data ? `treinados em ${a.data}` : "",
+    })), "Só números (o peso de cada sinal). Nenhuma pergunta ou resposta vai junto.");
     grupo("Dependências (addons instalados)", "link", dados.dependencias.map((d) => ({
       grupo: "dependencias", valor: d.id, marcado: d.marcado,
       titulo: `${d.nome} v${d.versao}`,
@@ -1108,7 +1132,7 @@
         autor: $("#exp-autor").value.trim() || null, licenca: $("#exp-licenca").value.trim() || null,
         descricao: $("#exp-descricao").value.trim() || null,
       },
-      conhecimentos: [], abreviacoes: [], sinonimos: [], parametros: [], personalizacao: [], dependencias: [],
+      conhecimentos: [], abreviacoes: [], sinonimos: [], parametros: [], personalizacao: [], ajuste: [], dependencias: [],
       recomendado: { busca: $("#exp-busca").value, resposta: $("#exp-resposta").value },
     };
     $$("#exp-itens input[data-grupo]:checked").forEach((c) => corpo[c.dataset.grupo].push(c.dataset.valor));
@@ -1360,8 +1384,39 @@
       <dt>Memória</dt><dd><code>${esc(s.banco || "")}</code></dd>
       <dt>Cópias de segurança</dt><dd><code>${esc(pastaDoBanco() + separador + "backups")}</code></dd>`;
     aplicarTema(preferencias.ler("tema", "sistema"));
+    await mostrarAjuste();
     $("#dlg-config").showModal();
   }
+
+  // ---- Ajuste pessoal da Calibrada (2.6)
+  function mostrarAjuste(dados) {
+    const preencher = (a) => {
+      const r = a.resumo;
+      const pct = (x) => `${Math.round((x || 0) * 100)}%`;
+      $("#dados-ajuste").innerHTML = `
+        <dt>Avaliações</dt><dd>${a.avaliacoes.total} (${a.avaliacoes.certos} certas, ${a.avaliacoes.errados} erradas)</dd>
+        <dt>Situação</dt><dd>${a.ativo ? (a.origem === "dono" ? "em uso (o seu)" : `em uso (do addon ${esc(a.origem)})`) : (a.avaliacoes.total < a.minimo
+          ? `faltam ${a.minimo - a.avaliacoes.total} avaliações para o primeiro treino` : "pesos oficiais")}</dd>
+        ${r ? `<dt>Último treino</dt><dd>${esc(new Date(r.data).toLocaleString())} · ${r.exemplos} exemplos</dd>
+        <dt>Nas suas avaliações</dt><dd>certo em 1º lugar: ${pct(r.acerto_antes)} com os pesos oficiais → ${pct(r.acerto_depois)} com o ajuste</dd>
+        <dt>Distância do oficial</dt><dd>${esc(String(r.distancia_do_oficial))}</dd>` : ""}
+        <dt>Busca em uso</dt><dd>${esc(a.busca_em_uso)}${a.busca_em_uso === "calibrado" ? "" : " (o ajuste só vale na Calibrada)"}</dd>`;
+      $("#btn-ajuste-oficial").disabled = a.origem !== "dono";
+    };
+    if (dados) { preencher(dados); return Promise.resolve(); }
+    return api("/api/ajuste").then(preencher).catch(() => {});
+  }
+  $("#btn-ajuste-treinar").addEventListener("click", async () => {
+    try {
+      const a = await api("/api/ajuste/treinar", { metodo: "POST" });
+      mostrarAjuste(a);
+      avisar(a.ativo ? "Ajuste pessoal treinado." : "Ainda não há avaliações suficientes.", a.ativo ? "check" : "info");
+    } catch (e) { avisar(e.message, "alerta"); }
+  });
+  $("#btn-ajuste-oficial").addEventListener("click", async () => {
+    try { mostrarAjuste(await api("/api/ajuste", { metodo: "DELETE" })); avisar("De volta aos pesos oficiais."); }
+    catch (e) { avisar(e.message, "alerta"); }
+  });
 
   $$("#seg-tema button").forEach((b) => b.addEventListener("click", () => aplicarTema(b.dataset.tema)));
 
