@@ -298,6 +298,47 @@ evita confusões entre domínios que o treino quase não tem ("indicar um livro"
 
 ---
 
+### Ajuste pessoal: a Calibrada aprende com você (2.6)
+
+O treino oficial só viu perguntas escritas a partir dos addons. O ajuste pessoal
+(`busca/ajuste_pessoal.py`) continua esse treino **no seu aparelho**, com as suas avaliações:
+
+| Você faz | Vira o exemplo |
+|---|---|
+| 👍 numa resposta | aquele conhecimento era o **certo**; os outros candidatos da mesma pergunta, **errados** |
+| 👎 numa resposta, ou "não era isso" no chat | aquele conhecimento era o **errado** |
+| **Corrigir** | o conhecimento novo era o **certo**, o que tinha respondido era o **errado** |
+
+O banco guarda só a pergunta e o conhecimento (tabela `avaliacoes`). Os sinais são calculados
+de novo a cada treino, com a base como ela está naquele momento.
+
+**A conta** é a mesma regressão logística do treino oficial, resolvida por descida de gradiente
+em Python puro, sem scikit-learn. A diferença está na regularização. O treino oficial puxa os
+pesos para **zero**; o ajuste pessoal puxa os pesos para os **oficiais**:
+
+    perda = média das perdas logísticas + λ / (2n) · Σ (peso − peso_oficial)²
+
+Com λ = 5, poucas avaliações quase não mexem no modelo, e uma semana de uso não apaga o que o
+treino oficial aprendeu. Quanto mais avaliações, mais a sua opinião pesa. Só a 1ª etapa (os
+pesos de cada sinal e o viés) é ajustada; a decisão de responder ou não continua a oficial.
+
+**Quando treina:** a partir de 5 avaliações, e de novo a cada 5 novas. Também dá para treinar
+na hora, em **Configurações → Ajuste pessoal da busca**, que mostra:
+
+- quantas avaliações você fez;
+- em quantas das suas perguntas com 👍 o certo ficava em 1º lugar com os pesos oficiais e com o
+  ajuste. A conta é feita sobre os próprios exemplos do treino, então mostra o que o ajuste
+  aprendeu, não uma prova independente;
+- a distância entre os pesos pessoais e os oficiais.
+
+**Voltar aos pesos oficiais** desliga o ajuste e mantém as avaliações; dá para treinar de novo
+depois. Um treino oficial novo, com outros sinais, descarta o ajuste antigo sozinho, porque os
+pesos não teriam mais a que se referir. No Monitor, os detalhes de cada candidato dizem qual
+modelo foi usado (`"modelo": "pessoal"` ou `"oficial"`).
+
+O ajuste só vale quando a **Calibrada** é o algoritmo de busca. As avaliações são guardadas
+com qualquer algoritmo.
+
 ## 6. Resposta direta (`resposta/direta.py`)
 
 Devolve o conteúdo do melhor candidato aceito, como foi ensinado.

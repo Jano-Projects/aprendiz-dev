@@ -173,6 +173,20 @@ CREATE TABLE IF NOT EXISTS mensagens (
     criada_em   TEXT NOT NULL
 );
 CREATE INDEX IF NOT EXISTS idx_mensagens_conversa ON mensagens (conversa_id, criada_em);
+
+-- Avaliações do dono (2.6): cada linha diz se um conhecimento era (certo = 1)
+-- ou não era (certo = 0) a resposta para uma pergunta. Vêm do 👍/👎, do
+-- "não era isso" e do Corrigir, e treinam o ajuste pessoal da busca Calibrada
+-- (algoritmos/busca/ajuste_pessoal.py). Guardamos a PERGUNTA, não os sinais:
+-- os sinais são recalculados no treino, com a base como ela estiver.
+CREATE TABLE IF NOT EXISTS avaliacoes (
+    id              INTEGER PRIMARY KEY AUTOINCREMENT,
+    pergunta        TEXT NOT NULL,
+    conhecimento_id TEXT NOT NULL,
+    certo           INTEGER NOT NULL CHECK (certo IN (0, 1)),
+    origem          TEXT NOT NULL,     -- util, nao_util, nao_era_isso, correcao
+    criada_em       TEXT NOT NULL
+);
 """
 
 
@@ -323,6 +337,34 @@ class Banco:
             (chave, valor),
         )
 
+    # ------------------------------------------------------------------ avaliações
+    def registrar_avaliacao(self, pergunta: str, conhecimento_id: str, certo: bool,
+                            origem: str) -> None:
+        """Guarda um exemplo para o ajuste pessoal. A mesma pergunta + conhecimento
+        avaliada de novo troca a avaliação antiga (vale a última opinião)."""
+        with self._trava:
+            self._con.execute("DELETE FROM avaliacoes WHERE pergunta = ? AND conhecimento_id = ?",
+                              (pergunta, conhecimento_id))
+            self._con.execute(
+                "INSERT INTO avaliacoes (pergunta, conhecimento_id, certo, origem, criada_em) "
+                "VALUES (?, ?, ?, ?, ?)", (pergunta, conhecimento_id, int(certo), origem, agora()))
+            self._con.commit()
+
+    def listar_avaliacoes(self, limite: int = 1000) -> list[dict[str, Any]]:
+        """As mais recentes primeiro."""
+        return self._consultar("SELECT * FROM avaliacoes ORDER BY id DESC LIMIT ?", (limite,))
+
+    def contar_avaliacoes(self, desde: int = 0) -> dict[str, int]:
+        """Totais (só as de id maior que `desde`, se informado)."""
+        linha = self._consultar("SELECT COUNT(*) AS total, COALESCE(SUM(certo), 0) AS certos, "
+                                "COALESCE(MAX(id), 0) AS ultima FROM avaliacoes WHERE id > ?",
+                                (desde,))[0]
+        return {"total": linha["total"], "certos": linha["certos"],
+                "errados": linha["total"] - linha["certos"], "ultima": linha["ultima"]}
+
+    def apagar_avaliacoes(self) -> int:
+        return self._executar("DELETE FROM avaliacoes").rowcount
+
     # ------------------------------------------------------------------ sementes
     def semear(self) -> None:
         """Grava o banco de linguagem inicial (só na primeira execução)."""
@@ -400,6 +442,9 @@ class Banco:
             if configuracoes:
                 apagados["configuracoes"] = c.execute(
                     "DELETE FROM configuracoes WHERE addon_id = ''").rowcount
+            if conhecimentos:
+                c.execute("DELETE FROM avaliacoes")
+                c.execute("DELETE FROM meta WHERE chave = 'calibrado.pessoal'")
             if conversas:
                 c.execute("DELETE FROM mensagens")
                 apagados["conversas"] = c.execute("DELETE FROM conversas").rowcount

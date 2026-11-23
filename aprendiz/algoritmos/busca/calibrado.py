@@ -216,9 +216,11 @@ quem desenvolve). O app leva só os números: nenhuma biblioteca a mais.
     def buscar(self, consulta: TextoProcessado, ctx: ContextoBusca,
                limite: int = 5) -> list[Candidato]:
         # 1ª etapa: a chance de cada candidato ser a resposta (ORDENA).
+        # Modelo em uso: o ajuste pessoal do dono (2.6) ou o oficial.
+        modelo = getattr(ctx, "modelo_calibrado", None) or calibrado_pesos.MODELO
         candidatos = []
         for doc, s in self.sinais(consulta, ctx):
-            p, contribuicoes = prever(s)
+            p, contribuicoes = prever(s, modelo)
             principais = dict(sorted(contribuicoes.items(), key=lambda kv: -abs(kv[1]))[:5])
             candidatos.append(Candidato(
                 conhecimento=doc,
@@ -230,8 +232,9 @@ quem desenvolve). O app leva só os números: nenhuma biblioteca a mais.
                 detalhes={"chance": round(p, 4), "sinais_que_mais_pesaram": principais,
                           "sinais": {k: round(v, 4) for k, v in s.items()},
                           "contribuicoes": contribuicoes,
-                          "vies": round(calibrado_pesos.MODELO["vies"], 4),
-                          "z": round(calibrado_pesos.MODELO["vies"] + sum(contribuicoes.values()), 4)},
+                          "vies": round(modelo["vies"], 4),
+                          "z": round(modelo["vies"] + sum(contribuicoes.values()), 4),
+                          "modelo": "pessoal" if "pessoal" in modelo else "oficial"},
             ))
         if not candidatos:
             return []
@@ -240,7 +243,7 @@ quem desenvolve). O app leva só os números: nenhuma biblioteca a mais.
         # 2ª etapa: a chance de o 1º lugar estar certo (DECIDE se responde).
         # Ela é a confiança do 1º; os outros ficam na mesma proporção, abaixo dele.
         notas = [c.pontuacao for c in candidatos]
-        certo = chance_de_responder_certo(notas)
+        certo = chance_de_responder_certo(notas, modelo)
         for c in candidatos:
             c.confianca = round(certo * (c.pontuacao / notas[0] if notas[0] else 0.0), 4)
         candidatos[0].detalhes["chance_de_estar_certo"] = round(certo, 4)

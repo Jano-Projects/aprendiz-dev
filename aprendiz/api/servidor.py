@@ -14,6 +14,10 @@ A interface (pasta web/) conversa com estas rotas via fetch() em JSON:
     POST   /api/chat/fluxo                → o mesmo, AO VIVO: uma linha JSON por etapa (2.4)
     GET    /api/modelo                    → ficha técnica: componentes e parâmetros (2.4)
     POST   /api/corrigir                  → corrige uma resposta (vira ensinamento)
+    POST   /api/avaliar                   → 👍/👎 numa resposta (2.6, ajuste pessoal)
+    GET    /api/ajuste                    → estado do ajuste pessoal da Calibrada
+    POST   /api/ajuste/treinar            → treina o ajuste pessoal agora
+    DELETE /api/ajuste                    → volta aos pesos oficiais (?avaliacoes=true apaga os exemplos)
     GET    /api/normas                    → normas da língua dos addons ativos (0.8+)
     POST   /api/revisar                   → revisa um texto pela norma escolhida (0.8+)
     POST   /api/sinal                     → "sinal de vida" da interface (ver aplicativo/desktop.py)
@@ -99,6 +103,11 @@ class PedidoChat(BaseModel):
 class PedidoRevisao(BaseModel):
     texto: str = Field(..., min_length=1, max_length=20_000)
     norma: str | None = Field(None, max_length=10)
+
+
+class PedidoAvaliacao(BaseModel):
+    mensagem_id: str
+    util: bool
 
 
 class PedidoCorrecao(BaseModel):
@@ -334,6 +343,26 @@ def criar_app(caminho_banco: str | Path | None = None) -> FastAPI:
             return assistente.corrigir(pedido.mensagem_id, pedido.resposta_correta)
         except ValueError as erro:
             raise HTTPException(400, str(erro)) from erro
+
+    @app.post("/api/avaliar")
+    def avaliar(pedido: PedidoAvaliacao):
+        try:
+            return assistente.avaliar(pedido.mensagem_id, pedido.util)
+        except ValueError as erro:
+            raise HTTPException(400, str(erro)) from erro
+
+    @app.get("/api/ajuste")
+    def ajuste():
+        return assistente.estado_ajuste()
+
+    @app.post("/api/ajuste/treinar")
+    def ajuste_treinar():
+        assistente.ajustar_pessoal(forcar=True)
+        return assistente.estado_ajuste()
+
+    @app.delete("/api/ajuste")
+    def ajuste_desligar(avaliacoes: bool = False):
+        return assistente.voltar_ao_oficial(apagar_avaliacoes=avaliacoes)
 
     @app.post("/api/resetar")
     def resetar(pedido: PedidoReset):

@@ -16,6 +16,11 @@ Versão em preparação: **2.6.0** (branch `aprendiz-2.6`).
 - **O mais recente vale**: "a partir de agora a senha do wifi é casa456" substitui o fato antigo
   de mesma pergunta e mostra o que era antes. Sem "a partir de agora" (ou "de agora em diante",
   "daqui pra frente"), os dois fatos continuam valendo juntos.
+- **Ajuste pessoal da Calibrada**: 👍/👎 nas respostas, "não era isso" e Corrigir viram
+  exemplos (tabela `avaliacoes`). A partir de 5, a Calibrada treina no próprio aparelho, em
+  Python puro, com os pesos puxados de volta para os oficiais (regularização L2 em direção ao
+  modelo oficial). Nova seção em Configurações, rotas `/api/avaliar` e `/api/ajuste`. Ver
+  [Algoritmos](docs/estudo/algoritmos.md#ajuste-pessoal-a-calibrada-aprende-com-você-26).
 - Casos de ensino na homologação (`ferramentas/homologar.py`, grupo "ensino").
 - Documento [Versionamento](docs/referencia/versionamento.md): o que faz cada número subir.
 

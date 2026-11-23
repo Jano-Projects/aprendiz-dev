@@ -26,6 +26,7 @@ Cada etapa registra o que fez e quanto tempo levou. Esse registro vira a
 
 from __future__ import annotations
 
+import json
 import math
 import re
 import time
@@ -36,6 +37,7 @@ from rapidfuzz import fuzz, process
 from aprendiz.addons import pacote as pacotes
 from aprendiz.algoritmos import BUSCAS, RESPOSTAS, ContextoBusca, titulo_curto
 from aprendiz.algoritmos.base import Candidato
+from aprendiz.algoritmos.busca import ajuste_pessoal, calibrado_pesos
 from aprendiz.algoritmos.resposta.trabalhada import resumo
 from aprendiz.aplicativo.configuracoes import Configuracoes
 from aprendiz.capacidades.compreensao import Compreensao, FRASE_TIPO, resposta_dinamica
@@ -47,7 +49,7 @@ from aprendiz.capacidades import revisao
 from aprendiz.core.expressao import Expressao
 from aprendiz.core.padroes import Padroes
 from aprendiz.core.teia import Teia
-from aprendiz.memoria.banco import lista_json, teia_de
+from aprendiz.memoria.banco import agora as agora_iso, lista_json, teia_de
 from aprendiz.linguagem import ClassificadorIntencoes, Linguagem, extrair_entidades
 from aprendiz.linguagem.normalizador import VERSAO_NORMALIZACAO, normalizar
 from aprendiz.linguagem.stemmer import radical, singular
@@ -235,6 +237,7 @@ class Assistente:
         self._df, self._df_total, self._df_versao = {}, 0, -1   # palavras do assunto de um "o que é X?"
         self.contexto.expressao = Expressao(banco)
         self.contexto.sinais_assunto = self._sinais_assunto
+        self._carregar_ajuste()
         self.configuracoes = Configuracoes(banco)
         self.dicionario = Dicionario(banco, self.linguagem)
         self.compreensao = Compreensao(banco, self.linguagem)
@@ -1238,6 +1241,10 @@ class Assistente:
                     "**Ensinar isso** e eu passo a saber."), "dialogo", []
 
         if acao == "outras_opcoes" and anterior:
+            # 2.6: "não era isso" também é uma avaliação (👎) da resposta anterior.
+            if meta.get("tipo") == "conhecimento" and meta.get("fontes") and contexto.get("pergunta"):
+                self._avaliar_fonte(contexto["pergunta"], meta["fontes"][0]["id"], False,
+                                    "nao_era_isso")
             usados = {f["id"] for f in meta.get("fontes") or []}
             busca_anterior = next((e for e in (meta.get("explicacao") or {}).get("etapas", [])
                                    if e["nome"].startswith("Busca")), None)
@@ -1704,9 +1711,98 @@ class Assistente:
                 break
 
         c = self.ensinar(resposta_correta, pergunta=pergunta, origem="correcao", id=alvo)
+        # 2.6: a correção também ensina a busca: o novo era o certo e o que
+        # tinha respondido (se era outro conhecimento) era o errado.
+        self._avaliar_fonte(pergunta, c["id"], True, "correcao", treinar=False)
+        fontes = meta.get("fontes") or []
+        if fontes and fontes[0]["id"] != c["id"]:
+            self._avaliar_fonte(pergunta, fontes[0]["id"], False, "correcao", treinar=False)
+        self.ajustar_pessoal()
         meta["corrigida_por"] = c["id"]
         self.banco.atualizar_meta_mensagem(mensagem_id, meta)
         return c
+
+    # ================================================================ AJUSTE PESSOAL (2.6)
+    CHAVE_AJUSTE = "calibrado.pessoal"
+    TREINAR_A_CADA = 5            # avaliações novas entre um treino e outro
+
+    def avaliar(self, mensagem_id: str, util: bool) -> dict[str, Any]:
+        """👍 / 👎 numa resposta: guarda o exemplo e, de tempos em tempos, treina."""
+        msg = self.banco.obter_mensagem(mensagem_id)
+        if not msg or msg["papel"] != "assistente":
+            raise ValueError("Mensagem não encontrada.")
+        meta = msg["meta"] or {}
+        if meta.get("tipo") != "conhecimento" or not meta.get("fontes") or not meta.get("pergunta"):
+            raise ValueError("Só dá para avaliar respostas que vieram de um conhecimento.")
+        self._avaliar_fonte(meta["pergunta"], meta["fontes"][0]["id"], util,
+                            "util" if util else "nao_util", treinar=False)
+        meta["avaliacao"] = "util" if util else "nao_util"
+        self.banco.atualizar_meta_mensagem(mensagem_id, meta)
+        self.ajustar_pessoal()
+        return {"avaliacao": meta["avaliacao"], "ajuste": self.estado_ajuste()}
+
+    def _avaliar_fonte(self, pergunta: str, conhecimento_id: str, certo: bool, origem: str,
+                       treinar: bool = True) -> None:
+        self.banco.registrar_avaliacao(pergunta, conhecimento_id, certo, origem)
+        if treinar:
+            self.ajustar_pessoal()
+
+    def ajustar_pessoal(self, forcar: bool = False) -> dict[str, Any] | None:
+        """
+        Treina o ajuste pessoal quando há avaliações novas suficientes (ou
+        sempre, com forcar). Grava no banco e passa a usar na hora.
+        """
+        contagem = self.banco.contar_avaliacoes()
+        atual = self.contexto.modelo_calibrado or {}
+        ultima = int(self.banco.obter_meta("calibrado.pessoal.ultima") or 0)
+        novas = self._avaliacoes_desde(ultima)
+        if not forcar and novas < self.TREINAR_A_CADA:
+            return atual.get("pessoal")
+        calibrado = BUSCAS["calibrado"]
+        modelo = ajuste_pessoal.ajustar(
+            self.banco.listar_avaliacoes(ajuste_pessoal.MAX_AVALIACOES),
+            lambda pergunta: calibrado.sinais(self.linguagem.processar(pergunta), self.contexto),
+            calibrado_pesos.MODELO, agora_iso())
+        self.banco.definir_meta("calibrado.pessoal.ultima", str(contagem["ultima"]))
+        if modelo is None:
+            return None
+        self.banco.definir_meta(self.CHAVE_AJUSTE, json.dumps(modelo, ensure_ascii=False))
+        self.contexto.modelo_calibrado = modelo
+        return modelo["pessoal"]
+
+    def _avaliacoes_desde(self, ultima: int) -> int:
+        return self.banco.contar_avaliacoes(desde=ultima)["total"]
+
+    def _carregar_ajuste(self) -> None:
+        """Lê o ajuste pessoal gravado; descarta se não serve mais ao modelo oficial."""
+        bruto = self.banco.obter_meta(self.CHAVE_AJUSTE)
+        modelo = json.loads(bruto) if bruto else None
+        if modelo and not ajuste_pessoal.compativel(modelo, calibrado_pesos.MODELO):
+            modelo = None   # treino oficial novo, com outros sinais: recomeça
+        self.contexto.modelo_calibrado = modelo
+
+    def voltar_ao_oficial(self, apagar_avaliacoes: bool = False) -> dict[str, Any]:
+        """Desliga o ajuste pessoal (a Calibrada volta aos pesos oficiais)."""
+        self.banco.definir_meta(self.CHAVE_AJUSTE, "")
+        self.banco.definir_meta("calibrado.pessoal.ultima",
+                                str(self.banco.contar_avaliacoes()["ultima"]))
+        if apagar_avaliacoes:
+            self.banco.apagar_avaliacoes()
+        self.contexto.modelo_calibrado = None
+        return self.estado_ajuste()
+
+    def estado_ajuste(self) -> dict[str, Any]:
+        """Resumo para a tela: avaliações, se o ajuste está ativo e o que mudou."""
+        contagem = self.banco.contar_avaliacoes()
+        modelo = self.contexto.modelo_calibrado
+        return {
+            "avaliacoes": {k: contagem[k] for k in ("total", "certos", "errados")},
+            "minimo": ajuste_pessoal.MIN_AVALIACOES,
+            "treinar_a_cada": self.TREINAR_A_CADA,
+            "ativo": bool(modelo),
+            "resumo": (modelo or {}).get("pessoal"),
+            "busca_em_uso": self.configuracoes.efetivas()["busca.padrao"]["valor"],
+        }
 
     # ================================================================ utilidades
     @staticmethod

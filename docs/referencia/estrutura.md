@@ -42,6 +42,7 @@ aprendiz/
 │   ├── algoritmos/                      # Seletor de algoritmos.
 │   │   ├── busca/                       # Algoritmos de busca. A ordem de importação define a ordem no seletor.
 │   │   │   ├── __init__.py              # Algoritmos de busca. A ordem de importação define a ordem no seletor.
+│   │   │   ├── ajuste_pessoal.py        # Ajuste pessoal da busca Calibrada (2.6): o modelo aprende com o DONO, no próprio…
 │   │   │   ├── bm25.py                  # Busca BM25 usando o índice FTS5 do próprio SQLite.
 │   │   │   ├── calibrado.py             # Busca calibrada: um reordenador APRENDIDO por regressão logística (2.4).
 │   │   │   ├── calibrado_pesos.py       # Pesos da busca Calibrada. ARQUIVO GERADO por ferramentas/treinar_calibrado.py: não edite…
@@ -153,6 +154,7 @@ aprendiz/
 ├── tests/                               # Testes automatizados (pytest)
 │   ├── conftest.py                      # Fixtures compartilhadas: cada teste ganha um banco novo, num arquivo temporário.
 │   ├── test_addons.py                   # Testes dos addons: formato, segurança, instalação, ativação e migração.
+│   ├── test_ajuste_pessoal.py           # Ajuste pessoal da busca Calibrada (2.6): avaliações do dono viram exemplos e um treino…
 │   ├── test_algoritmos.py               # Testes dos algoritmos de busca e de resposta, e do pipeline completo.
 │   ├── test_api.py                      # Testes da API HTTP (o mesmo caminho que a interface usa).
 │   ├── test_atualizacao.py              # Atualização sob pedido (2.2): só com o gatilho, com SHA-256 conferido. Sem rede: baixar…
