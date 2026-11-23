@@ -13,6 +13,9 @@ Versão em preparação: **2.6.0** (branch `aprendiz-2.6`).
   começos de ensino ("a partir de agora…", "fica sabendo que…", "anota aí:…"), que viram fato
   ou nota pelas regras de sempre. Pergunta (`?`) nunca é ensino. Ver
   [Compreensão](docs/estudo/compreensao.md#jeitos-de-ensinar-26).
+- **O mais recente vale**: "a partir de agora a senha do wifi é casa456" substitui o fato antigo
+  de mesma pergunta e mostra o que era antes. Sem "a partir de agora" (ou "de agora em diante",
+  "daqui pra frente"), os dois fatos continuam valendo juntos.
 - Casos de ensino na homologação (`ferramentas/homologar.py`, grupo "ensino").
 - Documento [Versionamento](docs/referencia/versionamento.md): o que faz cada número subir.
 

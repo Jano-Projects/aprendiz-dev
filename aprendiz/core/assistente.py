@@ -59,6 +59,10 @@ from aprendiz.memoria import Banco
 # ---------------------------------------------------------------------------
 _VERBOS_ENSINO = r"(?:aprenda|aprende|memorize|memoriza|lembre(?:-se)?|anote|guarde|grave|registre)"
 
+# Começos que dizem que algo MUDOU (2.6): o fato novo substitui o antigo.
+_MUDANCA = ("a partir de agora ", "de agora em diante ", "daqui pra frente ",
+            "daqui para frente ")
+
 # "pergunta: horário da farmácia resposta: 8h às 20h"
 PADRAO_PAR = re.compile(r"^\s*pergunta\s*:\s*(?P<p>.+?)\s*resposta\s*:\s*(?P<r>.+)$",
                         re.I | re.S)
@@ -541,6 +545,7 @@ class Assistente:
         # 2.6: outros jeitos de começar um ensino, vindos do addon de
         # compreensão ("a partir de agora…", "anota aí…"). Viram a forma
         # padrão ("anote que…") e seguem pelas mesmas regras abaixo.
+        mudanca = normalizar(mensagem).startswith(_MUDANCA)
         resto = self.compreensao.resto_ensino(mensagem) if self.compreensao.ativa else None
         if resto:
             mensagem = f"anote que {resto}"
@@ -549,13 +554,35 @@ class Assistente:
         if m:
             sujeito = m["p"].strip()
             conteudo = f"{_capitalizar(sujeito)} {m['v'].lower()} {m['r'].strip()}."
-            c = self.ensinar(conteudo, pergunta=sujeito, origem="chat")
-            return {"conhecimento": c, "formato": "fato"}
+            # 2.6: quando a pessoa diz que MUDOU ("a partir de agora a senha
+            # do wifi é casa456"), o fato novo substitui o antigo de mesma
+            # pergunta: vale o mais recente. Sem isso, os dois convivem
+            # ("o carro é azul" e "o carro é um Passat" são verdades juntas).
+            antigo = self._mesmo_fato(sujeito) if mudanca else None
+            c = self.ensinar(conteudo, pergunta=sujeito, origem="chat",
+                             id=antigo["id"] if antigo else None)
+            return {"conhecimento": c, "formato": "fato",
+                    "substituiu": antigo["conteudo"] if antigo else None}
 
         m = PADRAO_NOTA.match(mensagem)
         if m and len(m["n"].split()) >= 2:
             c = self.ensinar(_capitalizar(m["n"].strip()), tipo="nota", origem="chat")
             return {"conhecimento": c, "formato": "nota"}
+        return None
+
+    def _mesmo_fato(self, pergunta: str) -> dict[str, Any] | None:
+        """
+        Conhecimento do DONO com a mesma pergunta (mesmas palavras de conteúdo,
+        sem contar artigos, acentos e plural): "a senha do wifi" = "senha do
+        wifi". Conhecimentos de addons nunca são substituídos pelo chat.
+        """
+        chave = self.linguagem.processar(pergunta, corrigir=False).radicais
+        if not chave:
+            return None
+        for c in self.banco.todos_conhecimentos():
+            if not c.get("addon_id") and c.get("pergunta") and \
+                    self.linguagem.processar(c["pergunta"], corrigir=False).radicais == chave:
+                return c
         return None
 
     # ================================================================ INTENÇÕES
@@ -663,8 +690,13 @@ class Assistente:
         ensino = self._ensino_explicito(mensagem)
         if ensino:
             c = ensino["conhecimento"]
-            etapas.marcar("Ensino", {"formato": ensino["formato"], "id": c["id"]})
-            if c["pergunta"]:
+            etapas.marcar("Ensino", {"formato": ensino["formato"], "id": c["id"],
+                                     **({"substituiu": ensino["substituiu"]}
+                                        if ensino.get("substituiu") else {})})
+            if ensino.get("substituiu") and ensino["substituiu"] != c["conteudo"]:
+                texto = (f"Atualizei! Sobre **{c['pergunta']}**, agora vou responder:\n\n"
+                         f"{c['conteudo']}\n\n*Antes era: {ensino['substituiu']}*")
+            elif c["pergunta"]:
                 texto = f"Aprendi! Quando perguntarem sobre **{c['pergunta']}**, vou responder:\n\n{c['conteudo']}"
             else:
                 texto = f"Anotado! Guardei esta informação:\n\n{c['conteudo']}"

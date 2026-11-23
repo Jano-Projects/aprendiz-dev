@@ -75,3 +75,30 @@ def test_nao_e_ensino(com_ensino, mensagem):
 def test_sem_addon_nada_muda(assistente):
     assert _tipo(assistente, "a partir de agora a senha do wifi é casa456") != "ensino"
     assert _tipo(assistente, "aprenda que a senha do wifi é casa123") == "ensino"
+
+
+# --- O mais recente vale (2.6) ---------------------------------------------
+def test_a_partir_de_agora_substitui(com_ensino):
+    com_ensino.responder("aprenda que a senha do wifi é casa123")
+    r = com_ensino.responder("a partir de agora a senha do wifi é casa456")["mensagem"]
+    assert r["texto"].startswith("Atualizei!") and "casa123" in r["texto"]
+    assert "casa456" in com_ensino.responder("qual a senha do wifi")["mensagem"]["texto"]
+    assert sum("senha do wifi" in (c["pergunta"] or "")
+               for c in com_ensino.banco.todos_conhecimentos()) == 1
+
+
+def test_sem_mudanca_os_dois_convivem(com_ensino):
+    com_ensino.responder("aprenda que o carro é azul")
+    com_ensino.responder("aprenda que o carro é um Passat")
+    conteudos = [c["conteudo"] for c in com_ensino.banco.todos_conhecimentos()]
+    assert "O carro é azul." in conteudos and "O carro é um Passat." in conteudos
+
+
+def test_conhecimento_de_addon_nunca_e_substituido(com_ensino):
+    from tests.test_compreensao import manifesto
+    com_ensino.instalar_addon(pacotes.criar_pacote(
+        manifesto("faq"), [{"tipo": "pergunta", "pergunta": "senha do wifi",
+                            "conteudo": "Pergunte ao administrador."}]))
+    com_ensino.responder("a partir de agora a senha do wifi é casa456")
+    textos = [c["conteudo"] for c in com_ensino.banco.todos_conhecimentos()]
+    assert "Pergunte ao administrador." in textos

@@ -159,6 +159,13 @@ Três cuidados evitam guardar o que não é ensino:
 A comparação é feita letra por letra, em minúsculas e sem acento, sem mudar a posição de
 nenhuma letra. Assim o que é guardado mantém a escrita original da mensagem.
 
+**O mais recente vale.** Quando o ensino começa dizendo que algo mudou ("a partir de agora",
+"de agora em diante", "daqui pra frente") e já existe um fato do dono com a mesma pergunta,
+o novo **substitui** o antigo, e a resposta mostra o que era antes. "A senha do wifi" e "senha
+do wifi" contam como a mesma pergunta: a comparação usa só as palavras de conteúdo, sem artigo,
+acento ou plural. Sem esse começo, os dois fatos convivem, porque "o carro é azul" e "o carro é
+um Passat" são verdades juntas. Conhecimento de addon nunca é substituído pelo chat.
+
 ### Recomendação de addon
 
 O addon de compreensão leva uma cópia resumida do catálogo da loja oficial (id, nome,
