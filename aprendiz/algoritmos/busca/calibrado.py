@@ -93,6 +93,21 @@ def chance_de_responder_certo(probabilidades: list[float], modelo: dict | None =
     return sigmoide(z)
 
 
+def pares_em_sequencia(radicais: list[str], texto_busca: str) -> float:
+    """
+    Sinal "pares" (2.6): a fração dos pares de palavras VIZINHAS da pergunta
+    que aparecem vizinhas também no conhecimento. "numerar as linhas" → o par
+    (numer, linh); um texto que diz "numerar linhas" junto vale mais que um
+    que fala de "número" num lugar e de "linha" em outro. 0 com uma palavra só.
+    """
+    pares = set(zip(radicais, radicais[1:]))
+    if not pares:
+        return 0.0
+    sequencia = texto_busca.split()
+    do_texto = set(zip(sequencia, sequencia[1:]))
+    return len(pares & do_texto) / len(pares)
+
+
 def cobertura_idf(termos: list[str], doc_termos: set[str], idf: dict[str, float],
                   idf_ausente: float) -> float:
     """
@@ -182,6 +197,7 @@ quem desenvolve). O app leva só os números: nenhuma biblioteca a mais.
                 s[f"{nome}_conf"] = conf
                 s[f"{nome}_rank"] = 1 / pos if pos else 0.0
             s["cobertura_idf"] = cobertura_idf(termos, doc_termos, idf, idf_ausente)
+            s["pares"] = pares_em_sequencia(consulta.radicais, doc.get("texto_busca") or "")
             s["termos"] = min(len(termos), 6) / 6
             # De propósito, nenhum sinal diz DE ONDE o conhecimento veio (dono ou
             # addon, com teia ou sem, nota ou pergunta): o treino só tem perguntas

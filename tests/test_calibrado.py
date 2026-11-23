@@ -83,3 +83,11 @@ def test_limiar_do_dono_vale(assistente_ensinado):
     assistente_ensinado.configuracoes.definir("limiar.calibrado", 1.0)
     r = assistente_ensinado.responder("qual a senha do wifi?", busca="calibrado")
     assert r["mensagem"]["meta"]["tipo"] == "desconhecido"
+
+
+def test_pares_em_sequencia():
+    from aprendiz.algoritmos.busca.calibrado import pares_em_sequencia
+    assert pares_em_sequencia(["numer", "linh"], "us row numb numer linh rank") == 1.0
+    assert pares_em_sequencia(["numer", "linh"], "numer de linh") == 0.0
+    assert pares_em_sequencia(["numer", "linh", "result"], "numer linh x") == 0.5
+    assert pares_em_sequencia(["numer"], "numer linh") == 0.0

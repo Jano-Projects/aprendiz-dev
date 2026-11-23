@@ -20,7 +20,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "busca hibrida",
+  "esperado": "aprendiz-algoritmos:como funciona a busca híbrida do aprendiz",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "busca híbrdia",
+  "esperado": "aprendiz-algoritmos:como funciona a busca híbrida do aprendiz",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "o que fazem os addons de compreensão e vetores",
+  "esperado": "aprendiz-algoritmos:como funciona a compreensão do aprendiz",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "me explica o q fazem os addons de compreensao e vetores",
+  "esperado": "aprendiz-algoritmos:como funciona a compreensão do aprendiz",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que fazem os addons de compreenãso e vetores",
   "esperado": "aprendiz-algoritmos:como funciona a compreensão do aprendiz",
   "grupo": "treino"
  },
@@ -30,7 +50,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "queria saber por q o aprendiz n corrige qualquer palavra",
+  "esperado": "aprendiz-algoritmos:como funciona a correção de digitação do aprendiz",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "por que o apredniz não corrige qualquer palavra",
+  "esperado": "aprendiz-algoritmos:como funciona a correção de digitação do aprendiz",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "quais as etapas da normalização",
+  "esperado": "aprendiz-algoritmos:como funciona a normalização do aprendiz",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "quais as etapas da normalizacao",
+  "esperado": "aprendiz-algoritmos:como funciona a normalização do aprendiz",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "quais as etapas da nromalização",
   "esperado": "aprendiz-algoritmos:como funciona a normalização do aprendiz",
   "grupo": "treino"
  },
@@ -40,7 +80,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "vc sabe o q e textrank",
+  "esperado": "aprendiz-algoritmos:como funciona a resposta direta",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é textarnk",
+  "esperado": "aprendiz-algoritmos:como funciona a resposta direta",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "o que é a resposta trabalhada",
+  "esperado": "aprendiz-algoritmos:como funciona a resposta trabalhada do aprendiz",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "me explica o q e a resposta trabalhada",
+  "esperado": "aprendiz-algoritmos:como funciona a resposta trabalhada do aprendiz",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é a resposta tarbalhada",
   "esperado": "aprendiz-algoritmos:como funciona a resposta trabalhada do aprendiz",
   "grupo": "treino"
  },
@@ -50,7 +110,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "vc sabe como o aprendiz corrige ortografia",
+  "esperado": "aprendiz-algoritmos:como funciona a revisão de texto do aprendiz",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como o aprendiz corrige ortgorafia",
+  "esperado": "aprendiz-algoritmos:como funciona a revisão de texto do aprendiz",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "explica a fórmula do bm25",
+  "esperado": "aprendiz-algoritmos:como funciona o bm25 do aprendiz",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "queria saber explica a formula do bm25",
+  "esperado": "aprendiz-algoritmos:como funciona o bm25 do aprendiz",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "expilca a fórmula do bm25",
   "esperado": "aprendiz-algoritmos:como funciona o bm25 do aprendiz",
   "grupo": "treino"
  },
@@ -61,6 +141,11 @@
  },
  {
   "pergunta": "o que é o rslp",
+  "esperado": "aprendiz-algoritmos:como funciona o radicalizador do aprendiz",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "vc sabe o q e o rslp",
   "esperado": "aprendiz-algoritmos:como funciona o radicalizador do aprendiz",
   "grupo": "treino"
  },
@@ -95,7 +180,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "queria saber o q e acerto@1",
+  "esperado": "aprendiz-algoritmos:como o aprendiz recomenda o algoritmo de um addon",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é acreto@1",
+  "esperado": "aprendiz-algoritmos:como o aprendiz recomenda o algoritmo de um addon",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "o que é classificação de intenções",
+  "esperado": "aprendiz-algoritmos:como o aprendiz reconhece cumprimentos",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "queria saber o q e classificacao de intencoes",
+  "esperado": "aprendiz-algoritmos:como o aprendiz reconhece cumprimentos",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é classiifcação de intenções",
   "esperado": "aprendiz-algoritmos:como o aprendiz reconhece cumprimentos",
   "grupo": "treino"
  },
@@ -110,6 +215,16 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "vc sabe o q e o assunto declarado no aprendiz",
+  "esperado": null,
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é o assunto dcelarado no aprendiz",
+  "esperado": null,
+  "grupo": "treino"
+ },
+ {
   "pergunta": "exercícios sobre os algoritmos do aprendiz",
   "esperado": null,
   "grupo": "treino"
@@ -120,12 +235,42 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "por favor como praticar com os algoritmos do aprendiz",
+  "esperado": null,
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como praticar com os alogritmos do aprendiz",
+  "esperado": null,
+  "grupo": "treino"
+ },
+ {
   "pergunta": "como o aprendiz entende a estrutura da frase",
   "esperado": "aprendiz-algoritmos:o que são os padrões de frase do aprendiz",
   "grupo": "treino"
  },
  {
+  "pergunta": "vc sabe como o aprendiz entende a estrutura da frase",
+  "esperado": "aprendiz-algoritmos:o que são os padrões de frase do aprendiz",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como o aprendiz entende a estruutra da frase",
+  "esperado": "aprendiz-algoritmos:o que são os padrões de frase do aprendiz",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "por que nao não é stopword",
+  "esperado": "aprendiz-algoritmos:o que são stopwords no aprendiz",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "queria saber por q nao n e stopword",
+  "esperado": "aprendiz-algoritmos:o que são stopwords no aprendiz",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "por que nao não é stpoword",
   "esperado": "aprendiz-algoritmos:o que são stopwords no aprendiz",
   "grupo": "treino"
  },
@@ -145,7 +290,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "me diz como medir se o aprendiz esta acertando",
+  "esperado": "aprendiz-algoritmos:o que é a homologação do aprendiz",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como medir se o aprendiz está aecrtando",
+  "esperado": "aprendiz-algoritmos:o que é a homologação do aprendiz",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "por que o que eu ensino vence o addon",
+  "esperado": "aprendiz-algoritmos:o que é a prioridade do dono no aprendiz",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "queria saber por q o q eu ensino vence o addon",
+  "esperado": "aprendiz-algoritmos:o que é a prioridade do dono no aprendiz",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "por que o que eu enisno vence o addon",
   "esperado": "aprendiz-algoritmos:o que é a prioridade do dono no aprendiz",
   "grupo": "treino"
  },
@@ -165,6 +330,16 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "me diz o q e o modo estrito",
+  "esperado": "aprendiz-algoritmos:o que é limiar no aprendiz",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é o modo estirto",
+  "esperado": "aprendiz-algoritmos:o que é limiar no aprendiz",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "diferença entre híbrido e calibrado",
   "esperado": "aprendiz-algoritmos:qual algoritmo de busca usar no aprendiz",
   "grupo": "teste"
@@ -180,7 +355,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "vc sabe em q ordem estudar os arquivos do aprendiz",
+  "esperado": "aprendiz-arquitetura:como ler o código do aprendiz pela primeira vez",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "em que ordem estudar os aqruivos do aprendiz",
+  "esperado": "aprendiz-arquitetura:como ler o código do aprendiz pela primeira vez",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "quais são as camadas do aprendiz",
+  "esperado": "aprendiz-arquitetura:como o aprendiz funciona por dentro",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "me diz quais sao as camadas do aprendiz",
+  "esperado": "aprendiz-arquitetura:como o aprendiz funciona por dentro",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "quais são as camadas do aperndiz",
   "esperado": "aprendiz-arquitetura:como o aprendiz funciona por dentro",
   "grupo": "treino"
  },
@@ -195,7 +390,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "me explica quem importa quem no aprendiz",
+  "esperado": "aprendiz-arquitetura:diagrama de dependências entre os módulos do aprendiz",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "quem importa quem no apredniz",
+  "esperado": "aprendiz-arquitetura:diagrama de dependências entre os módulos do aprendiz",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "o que faz o arquivo __main__.py do aprendiz",
+  "esperado": "aprendiz-arquitetura:o que faz o arquivo __init__.py do aprendiz",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "vc sabe o q faz o arquivo __main__.py do aprendiz",
+  "esperado": "aprendiz-arquitetura:o que faz o arquivo __init__.py do aprendiz",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que faz o arquivo __mani__.py do aprendiz",
   "esperado": "aprendiz-arquitetura:o que faz o arquivo __init__.py do aprendiz",
   "grupo": "treino"
  },
@@ -205,7 +420,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "me diz como o aprendiz le um arquivo .aprendiz",
+  "esperado": "aprendiz-arquitetura:o que faz o arquivo addons.py",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como o aprendiz lê um arquivo .apredniz",
+  "esperado": "aprendiz-arquitetura:o que faz o arquivo addons.py",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "o que é a classe assistente",
+  "esperado": "aprendiz-arquitetura:o que faz o arquivo assistente.py do aprendiz",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "me explica o q e a classe assistente",
+  "esperado": "aprendiz-arquitetura:o que faz o arquivo assistente.py do aprendiz",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é a classe assistetne",
   "esperado": "aprendiz-arquitetura:o que faz o arquivo assistente.py do aprendiz",
   "grupo": "treino"
  },
@@ -215,7 +450,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "me explica o q faz o config.py",
+  "esperado": "aprendiz-arquitetura:o que faz o arquivo config.py do aprendiz",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que faz o configp.y",
+  "esperado": "aprendiz-arquitetura:o que faz o arquivo config.py do aprendiz",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "o que faz o configuracoes.py",
+  "esperado": "aprendiz-arquitetura:o que faz o arquivo configuracoes.py",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "vc sabe o q faz o configuracoes.py",
+  "esperado": "aprendiz-arquitetura:o que faz o arquivo configuracoes.py",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que faz o configuraoces.py",
   "esperado": "aprendiz-arquitetura:o que faz o arquivo configuracoes.py",
   "grupo": "treino"
  },
@@ -230,12 +485,22 @@
   "grupo": "teste"
  },
  {
-  "pergunta": "o que faz o criar_addon.py",
+  "pergunta": "o que faz o gerar_estrutura.py",
   "esperado": "aprendiz-arquitetura:o que fazem os arquivos da pasta ferramentas",
   "grupo": "teste"
  },
  {
-  "pergunta": "o que faz o iniciar.py",
+  "pergunta": "o que tem na pasta distribuicao do aprendiz",
+  "esperado": "aprendiz-arquitetura:o que fazem os arquivos instalar executar e empacotar",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "vc sabe o q tem na pasta distribuicao do aprendiz",
+  "esperado": "aprendiz-arquitetura:o que fazem os arquivos instalar executar e empacotar",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que tem na pasta ditsribuicao do aprendiz",
   "esperado": "aprendiz-arquitetura:o que fazem os arquivos instalar executar e empacotar",
   "grupo": "treino"
  },
@@ -245,7 +510,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "vc sabe o q faz o editorconfig gitattributes e gitignore",
+  "esperado": "aprendiz-arquitetura:o que são os arquivos readme changelog contributing security",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que faz o editorconfig gitattirbutes e gitignore",
+  "esperado": "aprendiz-arquitetura:o que são os arquivos readme changelog contributing security",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "quais os subpacotes do aprendiz",
+  "esperado": "aprendiz-arquitetura:o que tem dentro da pasta aprendiz",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "me explica quais os subpacotes do aprendiz",
+  "esperado": "aprendiz-arquitetura:o que tem dentro da pasta aprendiz",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "quais os subpacoets do aprendiz",
   "esperado": "aprendiz-arquitetura:o que tem dentro da pasta aprendiz",
   "grupo": "treino"
  },
@@ -255,9 +540,34 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "por favor o q fazem os arquivos de busca e resposta",
+  "esperado": "aprendiz-arquitetura:o que tem na pasta algoritmos do aprendiz",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que fazem os arquvios de busca e resposta",
+  "esperado": "aprendiz-arquitetura:o que tem na pasta algoritmos do aprendiz",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "o que fazem dicionario.py compreensao.py revisao.py",
   "esperado": "aprendiz-arquitetura:o que tem na pasta core do aprendiz",
   "grupo": "teste"
+ },
+ {
+  "pergunta": "como a documentação do aprendiz é organizada",
+  "esperado": "aprendiz-arquitetura:o que tem na pasta docs do aprendiz",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "vc sabe como a documentacao do aprendiz e organizada",
+  "esperado": "aprendiz-arquitetura:o que tem na pasta docs do aprendiz",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como a documentaãço do aprendiz é organizada",
+  "esperado": "aprendiz-arquitetura:o que tem na pasta docs do aprendiz",
+  "grupo": "treino"
  },
  {
   "pergunta": "o que tem na pasta linguagem do aprendiz",
@@ -270,7 +580,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "me explica o q faz o stemmer.py",
+  "esperado": null,
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que faz o stemmre.py",
+  "esperado": null,
+  "grupo": "treino"
+ },
+ {
   "pergunta": "o que faz o arquivo sementes.py",
+  "esperado": "aprendiz-arquitetura:o que tem na pasta memoria do aprendiz",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "me explica o q faz o arquivo sementes.py",
+  "esperado": "aprendiz-arquitetura:o que tem na pasta memoria do aprendiz",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que faz o arquivo semenets.py",
   "esperado": "aprendiz-arquitetura:o que tem na pasta memoria do aprendiz",
   "grupo": "treino"
  },
@@ -280,12 +610,47 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "por favor quais os arquivos de teste do aprendiz",
+  "esperado": "aprendiz-arquitetura:o que tem na pasta tests do aprendiz",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "quais os aqruivos de teste do aprendiz",
+  "esperado": "aprendiz-arquitetura:o que tem na pasta tests do aprendiz",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "o que tem na pasta web",
   "esperado": "aprendiz-arquitetura:o que tem na pasta web do aprendiz",
   "grupo": "treino"
  },
  {
+  "pergunta": "por favor o q tem na pasta web",
+  "esperado": "aprendiz-arquitetura:o que tem na pasta web do aprendiz",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que tem na patsa web",
+  "esperado": "aprendiz-arquitetura:o que tem na pasta web do aprendiz",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "onde fica o benchmark do aprendiz",
+  "esperado": "aprendiz-arquitetura:o que tem nas pastas exemplos benchmarks e .github do aprendiz",
+  "grupo": "teste"
+ },
+ {
   "pergunta": "o que é a rota chat fluxo",
+  "esperado": "aprendiz-arquitetura:o que é o monitor do aprendiz",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "queria saber o q e a rota chat fluxo",
+  "esperado": "aprendiz-arquitetura:o que é o monitor do aprendiz",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é a rota chat flxuo",
   "esperado": "aprendiz-arquitetura:o que é o monitor do aprendiz",
   "grupo": "treino"
  },
@@ -295,17 +660,47 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "queria saber por q o aprendiz n usa inteligencia artificial",
+  "esperado": "aprendiz-arquitetura:quais as decisões de projeto do aprendiz",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "por que o aprendiz não usa intleigência artificial",
+  "esperado": "aprendiz-arquitetura:quais as decisões de projeto do aprendiz",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "como é o banco de dados do aprendiz",
   "esperado": "aprendiz-arquitetura:quais as tabelas do banco do aprendiz",
   "grupo": "teste"
  },
  {
-  "pergunta": "o que tem em cada pasta do aprendiz",
+  "pergunta": "estrutura de pastas do aprendiz",
+  "esperado": "aprendiz-arquitetura:quais são as pastas do projeto aprendiz",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "por favor estrutura de pastas do aprendiz",
+  "esperado": "aprendiz-arquitetura:quais são as pastas do projeto aprendiz",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "estrutrua de pastas do aprendiz",
   "esperado": "aprendiz-arquitetura:quais são as pastas do projeto aprendiz",
   "grupo": "treino"
  },
  {
   "pergunta": "como funciona o pipeline",
+  "esperado": "aprendiz-arquitetura:qual o caminho de uma mensagem no aprendiz",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "por favor como funciona o pipeline",
+  "esperado": "aprendiz-arquitetura:qual o caminho de uma mensagem no aprendiz",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como funcoina o pipeline",
   "esperado": "aprendiz-arquitetura:qual o caminho de uma mensagem no aprendiz",
   "grupo": "treino"
  },
@@ -320,7 +715,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "por favor explica o __init__ do banco",
+  "esperado": "aprendiz-codigo:como funciona a classe banco por dentro",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "explica o __iint__ do banco",
+  "esperado": "aprendiz-codigo:como funciona a classe banco por dentro",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "explica o _corrigir do normalizador",
+  "esperado": "aprendiz-codigo:como funciona a correção de digitação no código",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "me explica explica o _corrigir do normalizador",
+  "esperado": "aprendiz-codigo:como funciona a correção de digitação no código",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "explica o _corrigir do normaliazdor",
   "esperado": "aprendiz-codigo:como funciona a correção de digitação no código",
   "grupo": "treino"
  },
@@ -330,7 +745,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "vc sabe explica o criar_app do servidor",
+  "esperado": "aprendiz-codigo:como funciona a função criar_app",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "explica o cria_rapp do servidor",
+  "esperado": "aprendiz-codigo:como funciona a função criar_app",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "explica o código do classificador de intenções",
+  "esperado": "aprendiz-codigo:como funciona o naive bayes no código",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "vc sabe explica o codigo do classificador de intencoes",
+  "esperado": "aprendiz-codigo:como funciona o naive bayes no código",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "explica o código do classifciador de intenções",
   "esperado": "aprendiz-codigo:como funciona o naive bayes no código",
   "grupo": "treino"
  },
@@ -365,7 +800,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "me diz explica o _migrar",
+  "esperado": "aprendiz-codigo:como funcionam as migrações do banco do aprendiz",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "expilca o _migrar",
+  "esperado": "aprendiz-codigo:como funcionam as migrações do banco do aprendiz",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "técnica para entender código desconhecido",
+  "esperado": "aprendiz-codigo:como ler um arquivo do aprendiz que eu nunca vi",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "por favor tecnica pra entender codigo desconhecido",
+  "esperado": "aprendiz-codigo:como ler um arquivo do aprendiz que eu nunca vi",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "técnica para entender código decsonhecido",
   "esperado": "aprendiz-codigo:como ler um arquivo do aprendiz que eu nunca vi",
   "grupo": "treino"
  },
@@ -375,7 +830,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "vc sabe explica a funcao pasta_dados do config.py",
+  "esperado": "aprendiz-codigo:como o aprendiz descobre onde guardar os dados",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "explica a função pastad_ados do config.py",
+  "esperado": "aprendiz-codigo:como o aprendiz descobre onde guardar os dados",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "explica a função escolher_porta",
+  "esperado": "aprendiz-codigo:como o aprendiz escolhe a porta do servidor",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "explica a funcao escolher_porta",
+  "esperado": "aprendiz-codigo:como o aprendiz escolhe a porta do servidor",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "explica a função escolher_oprta",
   "esperado": "aprendiz-codigo:como o aprendiz escolhe a porta do servidor",
   "grupo": "treino"
  },
@@ -385,12 +860,42 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "vc sabe como funciona o sinal de vida do aprendiz",
+  "esperado": "aprendiz-codigo:como o aprendiz sabe que a janela foi fechada",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como fnuciona o sinal de vida do aprendiz",
+  "esperado": "aprendiz-codigo:como o aprendiz sabe que a janela foi fechada",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "explica a função iniciar_servidor",
   "esperado": "aprendiz-codigo:como o aprendiz sobe o servidor numa thread",
   "grupo": "treino"
  },
  {
+  "pergunta": "explica a funcao iniciar_servidor",
+  "esperado": "aprendiz-codigo:como o aprendiz sobe o servidor numa thread",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "explica a função inicira_servidor",
+  "esperado": "aprendiz-codigo:como o aprendiz sobe o servidor numa thread",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "explica a função buscar_fts",
+  "esperado": "aprendiz-codigo:como o banco faz a busca bm25",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "queria saber explica a funcao buscar_fts",
+  "esperado": "aprendiz-codigo:como o banco faz a busca bm25",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "explica a função buscarf_ts",
   "esperado": "aprendiz-codigo:como o banco faz a busca bm25",
   "grupo": "treino"
  },
@@ -401,6 +906,16 @@
  },
  {
   "pergunta": "como o aprendiz mede o tempo de cada etapa",
+  "esperado": "aprendiz-codigo:explica a classe etapas do assistente",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "me diz como o aprendiz mede o tempo de cada etapa",
+  "esperado": "aprendiz-codigo:explica a classe etapas do assistente",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como o aprenidz mede o tempo de cada etapa",
   "esperado": "aprendiz-codigo:explica a classe etapas do assistente",
   "grupo": "treino"
  },
@@ -425,7 +940,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "vc sabe como funciona o teia.py",
+  "esperado": "aprendiz-codigo:explica o código da teia do aprendiz",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como funcinoa o teia.py",
+  "esperado": "aprendiz-codigo:explica o código da teia do aprendiz",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "o que é a função _numero do configuracoes.py",
+  "esperado": "aprendiz-codigo:explica o código das configurações com closures",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "por favor o q e a funcao _numero do configuracoes.py",
+  "esperado": "aprendiz-codigo:explica o código das configurações com closures",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é a função _numero do configurcaoes.py",
   "esperado": "aprendiz-codigo:explica o código das configurações com closures",
   "grupo": "treino"
  },
@@ -445,7 +980,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "me diz como o javascript chama a api do aprendiz",
+  "esperado": "aprendiz-codigo:explica o código do app.js do aprendiz",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como o javasrcipt chama a api do aprendiz",
+  "esperado": "aprendiz-codigo:explica o código do app.js do aprendiz",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "como o aprendiz evita xss",
+  "esperado": "aprendiz-codigo:explica o código do markdown.js",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "me explica como o aprendiz evita xss",
+  "esperado": "aprendiz-codigo:explica o código do markdown.js",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como o arpendiz evita xss",
   "esperado": "aprendiz-codigo:explica o código do markdown.js",
   "grupo": "treino"
  },
@@ -455,12 +1010,37 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "me explica explica o metodo _pipeline",
+  "esperado": "aprendiz-codigo:explica o pipeline no código do assistente",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "explica o método _pipelnie",
+  "esperado": "aprendiz-codigo:explica o pipeline no código do assistente",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "explica as dataclasses do base.py",
   "esperado": "aprendiz-codigo:o que são as classes candidato e contextobusca",
   "grupo": "treino"
  },
  {
+  "pergunta": "vc sabe explica as dataclasses do base.py",
+  "esperado": "aprendiz-codigo:o que são as classes candidato e contextobusca",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "explica as dataclasess do base.py",
+  "esperado": "aprendiz-codigo:o que são as classes candidato e contextobusca",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "explica a classe pedidochat",
+  "esperado": "aprendiz-codigo:o que são os modelos pydantic do servidor",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "explica a classe pediodchat",
   "esperado": "aprendiz-codigo:o que são os modelos pydantic do servidor",
   "grupo": "treino"
  },
@@ -475,7 +1055,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "bloco de codigo no perguntas.txt",
+  "esperado": "aprendiz-do-zero:como colocar código dentro das respostas de um addon",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "bloco de código no perugntas.txt",
+  "esperado": "aprendiz-do-zero:como colocar código dentro das respostas de um addon",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "como mandar minha mudança para o projeto aprendiz",
+  "esperado": "aprendiz-do-zero:como contribuir com o aprendiz",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "me explica como mandar minha mudanca pra o projeto aprendiz",
+  "esperado": "aprendiz-do-zero:como contribuir com o aprendiz",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como mandar minha mudança para o projeto aprenidz",
   "esperado": "aprendiz-do-zero:como contribuir com o aprendiz",
   "grupo": "treino"
  },
@@ -495,6 +1095,16 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "queria saber como construir um mini aprendiz",
+  "esperado": "aprendiz-do-zero:como criar um assistente como o aprendiz do zero",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como consrtuir um mini aprendiz",
+  "esperado": "aprendiz-do-zero:como criar um assistente como o aprendiz do zero",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "como criar um parâmetro novo no aprendiz",
   "esperado": null,
   "grupo": "treino"
@@ -505,12 +1115,32 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "por favor como adicionar o limiar do jaccard nas configuracoes",
+  "esperado": null,
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como adicionar o limiar do jaccard nas configuraçeõs",
+  "esperado": null,
+  "grupo": "treino"
+ },
+ {
   "pergunta": "como adicionar um endpoint na api do aprendiz",
   "esperado": "aprendiz-do-zero:como criar uma rota nova no aprendiz",
   "grupo": "teste"
  },
  {
   "pergunta": "o que dá para mudar no aprendiz",
+  "esperado": "aprendiz-do-zero:como customizar o aprendiz",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "me explica o q da pra mudar no aprendiz",
+  "esperado": "aprendiz-do-zero:como customizar o aprendiz",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que dá para mudar no apredniz",
   "esperado": "aprendiz-do-zero:como customizar o aprendiz",
   "grupo": "treino"
  },
@@ -535,6 +1165,16 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "me diz como empacotar o aprendiz com pyinstaller",
+  "esperado": null,
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como empacotar o aprendiz com pyinsatller",
+  "esperado": null,
+  "grupo": "treino"
+ },
+ {
   "pergunta": "como mudar o nome do assistente",
   "esperado": "aprendiz-do-zero:como mudar a cor e o nome do aprendiz",
   "grupo": "teste"
@@ -545,12 +1185,42 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "queria saber como funciona a loja de addons do aprendiz",
+  "esperado": "aprendiz-do-zero:como publicar um addon na loja oficial",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como funicona a loja de addons do aprendiz",
+  "esperado": "aprendiz-do-zero:como publicar um addon na loja oficial",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "como começar o projeto do mini aprendiz",
   "esperado": "aprendiz-do-zero:mini aprendiz passo 1",
   "grupo": "treino"
  },
  {
+  "pergunta": "vc sabe como comecar o projeto do mini aprendiz",
+  "esperado": "aprendiz-do-zero:mini aprendiz passo 1",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como começar o projeto do mini aperndiz",
+  "esperado": "aprendiz-do-zero:mini aprendiz passo 1",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "como fazer o normalizador do mini aprendiz",
+  "esperado": "aprendiz-do-zero:mini aprendiz passo 2",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "por favor como fazer o normalizador do mini aprendiz",
+  "esperado": "aprendiz-do-zero:mini aprendiz passo 2",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como fazer o nomralizador do mini aprendiz",
   "esperado": "aprendiz-do-zero:mini aprendiz passo 2",
   "grupo": "treino"
  },
@@ -570,7 +1240,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "queria saber como fazer a tela de chat do mini aprendiz",
+  "esperado": "aprendiz-do-zero:mini aprendiz passo 5",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como fazer a tela de chat do mini arpendiz",
+  "esperado": "aprendiz-do-zero:mini aprendiz passo 5",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "como rodar o mini aprendiz",
+  "esperado": "aprendiz-do-zero:mini aprendiz passo 6",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "queria saber como rodar o mini aprendiz",
+  "esperado": "aprendiz-do-zero:mini aprendiz passo 6",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como rodar o mini aprenidz",
   "esperado": "aprendiz-do-zero:mini aprendiz passo 6",
   "grupo": "treino"
  },
@@ -585,7 +1275,22 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "como evoluir o mini arpendiz",
+  "esperado": "aprendiz-do-zero:mini aprendiz próximos passos",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "desafio final do aprendiz",
+  "esperado": "aprendiz-do-zero:roteiro de projeto final da trilha aprendiz por dentro",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "queria saber desafio final do aprendiz",
+  "esperado": "aprendiz-do-zero:roteiro de projeto final da trilha aprendiz por dentro",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "desafio final do aprenidz",
   "esperado": "aprendiz-do-zero:roteiro de projeto final da trilha aprendiz por dentro",
   "grupo": "treino"
  },
@@ -595,7 +1300,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "queria saber o q fazer depois de criar um algoritmo no aprendiz",
+  "esperado": "aprendiz-do-zero:testes que falham ao criar um algoritmo no aprendiz",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que fazer depois de criar um algortimo no aprendiz",
+  "esperado": "aprendiz-do-zero:testes que falham ao criar um algoritmo no aprendiz",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "como saber se meu ambiente está pronto",
+  "esperado": "aprendiz-preparar-ambiente:checklist do ambiente pronto para o aprendiz",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "me diz como saber se meu ambiente esta pronto",
+  "esperado": "aprendiz-preparar-ambiente:checklist do ambiente pronto para o aprendiz",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como saber se meu abmiente está pronto",
   "esperado": "aprendiz-preparar-ambiente:checklist do ambiente pronto para o aprendiz",
   "grupo": "treino"
  },
@@ -605,12 +1330,42 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "queria saber como escolher o interpretador python no vs code",
+  "esperado": "aprendiz-preparar-ambiente:como abrir o projeto aprendiz no vs code",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como escolher o intrepretador python no vs code",
+  "esperado": "aprendiz-preparar-ambiente:como abrir o projeto aprendiz no vs code",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "como abrir o terminal no ubuntu",
   "esperado": "aprendiz-preparar-ambiente:como abrir o terminal",
   "grupo": "treino"
  },
  {
+  "pergunta": "me diz como abrir o terminal no ubuntu",
+  "esperado": "aprendiz-preparar-ambiente:como abrir o terminal",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como abrir o temrinal no ubuntu",
+  "esperado": "aprendiz-preparar-ambiente:como abrir o terminal",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "como baixar a versão nova do aprendiz",
+  "esperado": "aprendiz-preparar-ambiente:como atualizar o código do aprendiz",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como baixar a versao nova do aprendiz",
+  "esperado": "aprendiz-preparar-ambiente:como atualizar o código do aprendiz",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como baixar a versão nova do arpendiz",
   "esperado": "aprendiz-preparar-ambiente:como atualizar o código do aprendiz",
   "grupo": "treino"
  },
@@ -625,7 +1380,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "me explica fluxo de git pra mexer no aprendiz",
+  "esperado": "aprendiz-preparar-ambiente:como criar uma branch para estudar o aprendiz",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "fluxo de git para mexer no aprnediz",
+  "esperado": "aprendiz-preparar-ambiente:como criar uma branch para estudar o aprendiz",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "como depurar o aprendiz",
+  "esperado": "aprendiz-preparar-ambiente:como depurar o aprendiz no vs code",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "queria saber como depurar o aprendiz",
+  "esperado": "aprendiz-preparar-ambiente:como depurar o aprendiz no vs code",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como depurar o aperndiz",
   "esperado": "aprendiz-preparar-ambiente:como depurar o aprendiz no vs code",
   "grupo": "treino"
  },
@@ -635,7 +1410,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "o q e a trilha aprendiz por dentro",
+  "esperado": "aprendiz-preparar-ambiente:como estudar o código do aprendiz",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é a trilha aprnediz por dentro",
+  "esperado": "aprendiz-preparar-ambiente:como estudar o código do aprendiz",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "como criar o ambiente virtual do aprendiz",
+  "esperado": "aprendiz-preparar-ambiente:como instalar o aprendiz manualmente",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "me explica como criar o ambiente virtual do aprendiz",
+  "esperado": "aprendiz-preparar-ambiente:como instalar o aprendiz manualmente",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como criar o ambeinte virtual do aprendiz",
   "esperado": "aprendiz-preparar-ambiente:como instalar o aprendiz manualmente",
   "grupo": "treino"
  },
@@ -655,12 +1450,42 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "vc sabe como instalar git no fedora",
+  "esperado": "aprendiz-preparar-ambiente:como instalar o git",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como instaalr git no fedora",
+  "esperado": "aprendiz-preparar-ambiente:como instalar o git",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "qual versão do python o aprendiz precisa",
   "esperado": "aprendiz-preparar-ambiente:como instalar o python para o aprendiz",
   "grupo": "treino"
  },
  {
+  "pergunta": "me explica qual versao do python o aprendiz precisa",
+  "esperado": "aprendiz-preparar-ambiente:como instalar o python para o aprendiz",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "qual versão do python o aprnediz precisa",
+  "esperado": "aprendiz-preparar-ambiente:como instalar o python para o aprendiz",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "como configurar o vs code para python",
+  "esperado": "aprendiz-preparar-ambiente:como instalar o vs code",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "me explica como configurar o vs code pra python",
+  "esperado": "aprendiz-preparar-ambiente:como instalar o vs code",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como cofnigurar o vs code para python",
   "esperado": "aprendiz-preparar-ambiente:como instalar o vs code",
   "grupo": "treino"
  },
@@ -675,7 +1500,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "vc sabe rodar o aprendiz",
+  "esperado": null,
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "rodar o aprnediz",
+  "esperado": null,
+  "grupo": "treino"
+ },
+ {
   "pergunta": "rodar pytest no aprendiz",
+  "esperado": "aprendiz-preparar-ambiente:como rodar os testes do aprendiz",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "queria saber rodar pytest no aprendiz",
+  "esperado": "aprendiz-preparar-ambiente:como rodar os testes do aprendiz",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "rodar pytest no apredniz",
   "esperado": "aprendiz-preparar-ambiente:como rodar os testes do aprendiz",
   "grupo": "treino"
  },
@@ -685,7 +1530,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "por favor como testar o aprendiz numa vm debian",
+  "esperado": "aprendiz-preparar-ambiente:como usar uma máquina virtual para estudar o aprendiz",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como testar o aprnediz numa vm debian",
+  "esperado": "aprendiz-preparar-ambiente:como usar uma máquina virtual para estudar o aprendiz",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "como usar o devtools com o aprendiz",
+  "esperado": "aprendiz-preparar-ambiente:como ver as requisições da interface no navegador",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "vc sabe como usar o devtools com o aprendiz",
+  "esperado": "aprendiz-preparar-ambiente:como ver as requisições da interface no navegador",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como usar o devtolos com o aprendiz",
   "esperado": "aprendiz-preparar-ambiente:como ver as requisições da interface no navegador",
   "grupo": "treino"
  },
@@ -695,7 +1560,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "o q faz o verificar.py",
+  "esperado": "aprendiz-preparar-ambiente:como verificar a instalação do aprendiz",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que faz o verifiacr.py",
+  "esperado": "aprendiz-preparar-ambiente:como verificar a instalação do aprendiz",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "erro python não encontrado no windows",
+  "esperado": "aprendiz-preparar-ambiente:erro externally managed environment no aprendiz",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "queria saber erro python n encontrado no windows",
+  "esperado": "aprendiz-preparar-ambiente:erro externally managed environment no aprendiz",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "erro python não enconrtado no windows",
   "esperado": "aprendiz-preparar-ambiente:erro externally managed environment no aprendiz",
   "grupo": "treino"
  },
@@ -725,7 +1610,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "vc sabe como apagar uma pasta no terminal",
+  "esperado": "atalhos-terminal-linux:como apagar um arquivo no terminal linux",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como apagar uma pasta no termnial",
+  "esperado": "atalhos-terminal-linux:como apagar um arquivo no terminal linux",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "o que faz apt upgrade",
+  "esperado": "atalhos-terminal-linux:como atualizar o sistema no Debian ou Ubuntu",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o q faz apt upgrade",
+  "esperado": "atalhos-terminal-linux:como atualizar o sistema no Debian ou Ubuntu",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que faz apt ugprade",
   "esperado": "atalhos-terminal-linux:como atualizar o sistema no Debian ou Ubuntu",
   "grupo": "treino"
  },
@@ -740,7 +1645,22 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "vc sabe o q faz dnf upgrade",
+  "esperado": null,
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que faz dnf upgrdae",
+  "esperado": null,
+  "grupo": "treino"
+ },
+ {
   "pergunta": "o que faz o curl",
+  "esperado": "atalhos-terminal-linux:como baixar um arquivo da internet pelo terminal",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "queria saber o q faz o curl",
   "esperado": "atalhos-terminal-linux:como baixar um arquivo da internet pelo terminal",
   "grupo": "treino"
  },
@@ -756,6 +1676,16 @@
  },
  {
   "pergunta": "como criar um arquivo zip no terminal",
+  "esperado": "atalhos-terminal-linux:como compactar uma pasta no terminal linux",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "me explica como criar um arquivo zip no terminal",
+  "esperado": "atalhos-terminal-linux:como compactar uma pasta no terminal linux",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como criar um arquivo zip no termnial",
   "esperado": "atalhos-terminal-linux:como compactar uma pasta no terminal linux",
   "grupo": "treino"
  },
@@ -780,12 +1710,32 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "o q faz o mkdir",
+  "esperado": "atalhos-terminal-linux:como criar uma pasta no terminal linux",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que faz o mkidr",
+  "esperado": "atalhos-terminal-linux:como criar uma pasta no terminal linux",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "como tornar um script executável",
   "esperado": "atalhos-terminal-linux:como dar permissão de execução a um arquivo no terminal linux",
   "grupo": "teste"
  },
  {
   "pergunta": "como abrir um arquivo compactado no terminal",
+  "esperado": "atalhos-terminal-linux:como descompactar um arquivo zip no terminal linux",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "me explica como abrir um arquivo compactado no terminal",
+  "esperado": "atalhos-terminal-linux:como descompactar um arquivo zip no terminal linux",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como abrir um arquivo copmactado no terminal",
   "esperado": "atalhos-terminal-linux:como descompactar um arquivo zip no terminal linux",
   "grupo": "treino"
  },
@@ -800,12 +1750,37 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "me explica como usar o nano",
+  "esperado": "atalhos-terminal-linux:como editar um arquivo de texto no terminal linux",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "como voltar uma pasta no terminal",
   "esperado": "atalhos-terminal-linux:como entrar em uma pasta no terminal linux",
   "grupo": "treino"
  },
  {
+  "pergunta": "vc sabe como voltar uma pasta no terminal",
+  "esperado": "atalhos-terminal-linux:como entrar em uma pasta no terminal linux",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como voltar uma pasta no termnial",
+  "esperado": "atalhos-terminal-linux:como entrar em uma pasta no terminal linux",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "como virar root",
+  "esperado": "atalhos-terminal-linux:como executar um comando como administrador no linux",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "me explica como virar root",
+  "esperado": "atalhos-terminal-linux:como executar um comando como administrador no linux",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como viarr root",
   "esperado": "atalhos-terminal-linux:como executar um comando como administrador no linux",
   "grupo": "treino"
  },
@@ -830,7 +1805,22 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "queria saber como ver os arquivos ocultos",
+  "esperado": "atalhos-terminal-linux:como listar os arquivos de uma pasta no terminal linux",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como ver os arqiuvos ocultos",
+  "esperado": "atalhos-terminal-linux:como listar os arquivos de uma pasta no terminal linux",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "como mudar o nome de uma pasta no terminal",
+  "esperado": "atalhos-terminal-linux:como mover ou renomear um arquivo no terminal linux",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como mudar o nome de uma pasta no terimnal",
   "esperado": "atalhos-terminal-linux:como mover ou renomear um arquivo no terminal linux",
   "grupo": "treino"
  },
@@ -845,12 +1835,37 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "queria saber como pesquisar uma palavra nos arquivos",
+  "esperado": "atalhos-terminal-linux:como procurar um texto dentro de arquivos no terminal linux",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como pesquiasr uma palavra nos arquivos",
+  "esperado": "atalhos-terminal-linux:como procurar um texto dentro de arquivos no terminal linux",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "o que faz o pwd",
   "esperado": "atalhos-terminal-linux:como saber em qual pasta eu estou no terminal linux",
   "grupo": "treino"
  },
  {
+  "pergunta": "vc sabe o q faz o pwd",
+  "esperado": "atalhos-terminal-linux:como saber em qual pasta eu estou no terminal linux",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "estou preso no vim",
+  "esperado": "atalhos-terminal-linux:como sair do vim",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "vc sabe estou preso no vim",
+  "esperado": "atalhos-terminal-linux:como sair do vim",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "esotu preso no vim",
   "esperado": "atalhos-terminal-linux:como sair do vim",
   "grupo": "treino"
  },
@@ -875,6 +1890,16 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "vc sabe como acompanhar um log no terminal",
+  "esperado": null,
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como acopmanhar um log no terminal",
+  "esperado": null,
+  "grupo": "treino"
+ },
+ {
   "pergunta": "como ler um arquivo no terminal",
   "esperado": "atalhos-terminal-linux:como ver o conteúdo de um arquivo de texto no terminal linux",
   "grupo": "teste"
@@ -885,7 +1910,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "por favor qual o meu ip no linux",
+  "esperado": "atalhos-terminal-linux:como ver o endereço IP do computador no terminal linux",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "qual o meu ip no lniux",
+  "esperado": "atalhos-terminal-linux:como ver o endereço IP do computador no terminal linux",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "como saber se o disco está cheio",
+  "esperado": "atalhos-terminal-linux:como ver o espaço livre no disco no terminal linux",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "queria saber como saber se o disco esta cheio",
+  "esperado": "atalhos-terminal-linux:como ver o espaço livre no disco no terminal linux",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como saebr se o disco está cheio",
   "esperado": "atalhos-terminal-linux:como ver o espaço livre no disco no terminal linux",
   "grupo": "treino"
  },
@@ -895,7 +1940,22 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "vc sabe qto de memoria ram esta livre",
+  "esperado": "atalhos-terminal-linux:como ver o uso de memória no terminal linux",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "quanto de memóira ram está livre",
+  "esperado": "atalhos-terminal-linux:como ver o uso de memória no terminal linux",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "o que faz o top",
+  "esperado": "atalhos-terminal-linux:como ver os programas em execução no terminal linux",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "vc sabe o q faz o top",
   "esperado": "atalhos-terminal-linux:como ver os programas em execução no terminal linux",
   "grupo": "treino"
  },
@@ -906,6 +1966,11 @@
  },
  {
   "pergunta": "o que faz win r",
+  "esperado": "atalhos-windows:como abrir a janela executar no windows",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "me diz o q faz win r",
   "esperado": "atalhos-windows:como abrir a janela executar no windows",
   "grupo": "treino"
  },
@@ -925,6 +1990,16 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "me explica como digitar falando",
+  "esperado": "atalhos-windows:como abrir o ditado por voz no windows",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como diigtar falando",
+  "esperado": "atalhos-windows:como abrir o ditado por voz no windows",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "como abrir o windows explorer",
   "esperado": "atalhos-windows:como abrir o explorador de arquivos no windows",
   "grupo": "teste"
@@ -935,7 +2010,22 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "vc sabe atalho do gerenciador de tarefas",
+  "esperado": "atalhos-windows:como abrir o gerenciador de tarefas no windows",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "atalho do geernciador de tarefas",
+  "esperado": "atalhos-windows:como abrir o gerenciador de tarefas no windows",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "como pesquisar um programa no windows",
+  "esperado": "atalhos-windows:como abrir o menu iniciar pelo teclado",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como peqsuisar um programa no windows",
   "esperado": "atalhos-windows:como abrir o menu iniciar pelo teclado",
   "grupo": "treino"
  },
@@ -945,12 +2035,42 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "vc sabe como navegar em modo privado",
+  "esperado": "atalhos-windows:como abrir uma janela anônima no navegador",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como naevgar em modo privado",
+  "esperado": "atalhos-windows:como abrir uma janela anônima no navegador",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "como fechar a aba do navegador pelo teclado",
   "esperado": "atalhos-windows:como abrir uma nova aba no navegador",
   "grupo": "treino"
  },
  {
+  "pergunta": "vc sabe como fechar a aba do navegador pelo teclado",
+  "esperado": "atalhos-windows:como abrir uma nova aba no navegador",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como fechar a aba do naevgador pelo teclado",
+  "esperado": "atalhos-windows:como abrir uma nova aba no navegador",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "como mudar de programa aberto",
+  "esperado": "atalhos-windows:como alternar entre janelas no windows",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "me explica como mudar de programa aberto",
+  "esperado": "atalhos-windows:como alternar entre janelas no windows",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como mudar de prgorama aberto",
   "esperado": "atalhos-windows:como alternar entre janelas no windows",
   "grupo": "treino"
  },
@@ -970,6 +2090,11 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "queria saber o q faz ctrl c e ctrl v",
+  "esperado": "atalhos-windows:como copiar e colar no windows",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "como criar uma nova área de trabalho virtual no windows",
   "esperado": null,
   "grupo": "teste"
@@ -985,7 +2110,22 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "vc sabe como voltar o q eu apaguei sem querer",
+  "esperado": "atalhos-windows:como desfazer a última ação no windows",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como voltar o que eu aapguei sem querer",
+  "esperado": "atalhos-windows:como desfazer a última ação no windows",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "como maximizar uma janela pelo teclado",
+  "esperado": "atalhos-windows:como encaixar uma janela na metade da tela no windows",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como maxiimzar uma janela pelo teclado",
   "esperado": "atalhos-windows:como encaixar uma janela na metade da tela no windows",
   "grupo": "treino"
  },
@@ -1000,7 +2140,22 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "queria saber como gravar um video da tela",
+  "esperado": "atalhos-windows:como gravar a tela no windows",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como grvaar um vídeo da tela",
+  "esperado": "atalhos-windows:como gravar a tela no windows",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "o que faz ctrl p",
+  "esperado": "atalhos-windows:como imprimir pelo teclado",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "me diz o q faz ctrl p",
   "esperado": "atalhos-windows:como imprimir pelo teclado",
   "grupo": "treino"
  },
@@ -1015,12 +2170,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "me explica atalho pra ir pra o desktop",
+  "esperado": "atalhos-windows:como mostrar a área de trabalho no windows",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "atalho para ir para o destkop",
+  "esperado": "atalhos-windows:como mostrar a área de trabalho no windows",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "como procurar uma palavra na página ou no documento",
   "esperado": null,
   "grupo": "treino"
  },
  {
   "pergunta": "o que faz ctrl f",
+  "esperado": null,
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "me diz o q faz ctrl f",
   "esperado": null,
   "grupo": "treino"
  },
@@ -1045,7 +2215,17 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "vc sabe o q faz ctrl s",
+  "esperado": "atalhos-windows:como salvar um arquivo pelo teclado",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "o que faz ctrl a",
+  "esperado": "atalhos-windows:como selecionar tudo no windows",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "por favor o q faz ctrl a",
   "esperado": "atalhos-windows:como selecionar tudo no windows",
   "grupo": "treino"
  },
@@ -1060,12 +2240,42 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "queria saber atalho da ferramenta de captura",
+  "esperado": "atalhos-windows:como tirar um print de uma parte da tela no windows",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "atalho da ferrametna de captura",
+  "esperado": "atalhos-windows:como tirar um print de uma parte da tela no windows",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "como ver o que eu copiei antes",
   "esperado": "atalhos-windows:como ver o histórico da área de transferência no windows",
   "grupo": "treino"
  },
  {
+  "pergunta": "queria saber como ver o q eu copiei antes",
+  "esperado": "atalhos-windows:como ver o histórico da área de transferência no windows",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como ver o que eu coipei antes",
+  "esperado": "atalhos-windows:como ver o histórico da área de transferência no windows",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "o que é ctypes",
+  "esperado": "c-avancado:como chamar código c a partir do python",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "queria saber o q e ctypes",
+  "esperado": "c-avancado:como chamar código c a partir do python",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é ctyeps",
   "esperado": "c-avancado:como chamar código c a partir do python",
   "grupo": "treino"
  },
@@ -1095,7 +2305,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "vc sabe como depurar programa c",
+  "esperado": "c-avancado:como usar o gdb",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como depurar progarma c",
+  "esperado": "c-avancado:como usar o gdb",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "valgrind",
+  "esperado": "c-avancado:como usar o valgrind",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "por favor valgrind",
+  "esperado": "c-avancado:como usar o valgrind",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "valgirnd",
   "esperado": "c-avancado:como usar o valgrind",
   "grupo": "treino"
  },
@@ -1105,7 +2335,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "queria saber ordenar em c",
+  "esperado": "c-avancado:como usar qsort em c",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "ordeanr em c",
+  "esperado": "c-avancado:como usar qsort em c",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "concorrência em c",
+  "esperado": "c-avancado:como usar threads em c",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "vc sabe concorrencia em c",
+  "esperado": "c-avancado:como usar threads em c",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "cnocorrência em c",
   "esperado": "c-avancado:como usar threads em c",
   "grupo": "treino"
  },
@@ -1115,7 +2365,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "queria saber o q e bitwise",
+  "esperado": "c-avancado:o que são operadores bit a bit em c",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é bitiwse",
+  "esperado": "c-avancado:o que são operadores bit a bit em c",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "o que é static_assert em c",
+  "esperado": "c-avancado:o que é _generic em c",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o q e static_assert em c",
+  "esperado": "c-avancado:o que é _generic em c",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é staitc_assert em c",
   "esperado": "c-avancado:o que é _generic em c",
   "grupo": "treino"
  },
@@ -1140,7 +2410,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "o q e undefined behavior",
+  "esperado": "c-avancado:o que é comportamento indefinido em c",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é udnefined behavior",
+  "esperado": "c-avancado:o que é comportamento indefinido em c",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "o que é little endian e big endian",
+  "esperado": "c-avancado:o que é endianness",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "vc sabe o q e little endian e big endian",
+  "esperado": "c-avancado:o que é endianness",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é litlte endian e big endian",
   "esperado": "c-avancado:o que é endianness",
   "grupo": "treino"
  },
@@ -1165,12 +2455,42 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "por favor ponteiro de funcao",
+  "esperado": "c-avancado:o que é ponteiro de função em c",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "pontiero de função",
+  "esperado": "c-avancado:o que é ponteiro de função em c",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "como alterar um ponteiro dentro de uma função",
   "esperado": "c-avancado:o que é ponteiro para ponteiro em c",
   "grupo": "treino"
  },
  {
+  "pergunta": "por favor como alterar um ponteiro dentro de uma funcao",
+  "esperado": "c-avancado:o que é ponteiro para ponteiro em c",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como alterar um potneiro dentro de uma função",
+  "esperado": "c-avancado:o que é ponteiro para ponteiro em c",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "diferença entre struct e union",
+  "esperado": "c-avancado:o que é union em c",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "vc sabe diferenca entre struct e union",
+  "esperado": "c-avancado:o que é union em c",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "difereçna entre struct e union",
   "esperado": "c-avancado:o que é union em c",
   "grupo": "treino"
  },
@@ -1185,7 +2505,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "me explica o q construir pra dominar c",
+  "esperado": "c-avancado:projetos avançados em c",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que consrtuir para dominar c",
+  "esperado": "c-avancado:projetos avançados em c",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "o que mudou no c99 c11 c17 e c23",
+  "esperado": "c-avancado:quais as versões do c",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "por favor o q mudou no c99 c11 c17 e c23",
+  "esperado": "c-avancado:quais as versões do c",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que mduou no c99 c11 c17 e c23",
   "esperado": "c-avancado:quais as versões do c",
   "grupo": "treino"
  },
@@ -1195,7 +2535,22 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "como usar srtcmp",
+  "esperado": "c-basico:como comparar strings em c",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "como rodar um código c",
+  "esperado": "c-basico:como compilar e executar um programa em c",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "por favor como rodar um codigo c",
+  "esperado": "c-basico:como compilar e executar um programa em c",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como rodar um cóidgo c",
   "esperado": "c-basico:como compilar e executar um programa em c",
   "grupo": "treino"
  },
@@ -1205,7 +2560,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "por favor vetores em c",
+  "esperado": "c-basico:como criar um vetor em c",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "vetoers em c",
+  "esperado": "c-basico:como criar um vetor em c",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "o que é protótipo de função em c",
+  "esperado": "c-basico:como criar uma função em c",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "queria saber o q e prototipo de funcao em c",
+  "esperado": "c-basico:como criar uma função em c",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é prtoótipo de função em c",
   "esperado": "c-basico:como criar uma função em c",
   "grupo": "treino"
  },
@@ -1215,7 +2590,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "me explica variaveis em c",
+  "esperado": "c-basico:como declarar variáveis em c",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "vraiaveis em c",
+  "esperado": "c-basico:como declarar variáveis em c",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "diferença entre const e define",
+  "esperado": "c-basico:como fazer constantes em c",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "me explica diferenca entre const e define",
+  "esperado": "c-basico:como fazer constantes em c",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "diefrença entre const e define",
   "esperado": "c-basico:como fazer constantes em c",
   "grupo": "treino"
  },
@@ -1235,6 +2630,16 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "por favor string em c",
+  "esperado": "c-basico:como funciona string em c",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "stirng em c",
+  "esperado": "c-basico:como funciona string em c",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "como gerar número aleatório em c",
   "esperado": null,
   "grupo": "treino"
@@ -1245,7 +2650,22 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "vc sabe como usar rand em c",
+  "esperado": null,
+  "grupo": "treino"
+ },
+ {
   "pergunta": "como instalar gcc no ubuntu",
+  "esperado": "c-basico:como instalar o compilador c",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "por favor como instalar gcc no ubuntu",
+  "esperado": "c-basico:como instalar o compilador c",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como insatlar gcc no ubuntu",
   "esperado": "c-basico:como instalar o compilador c",
   "grupo": "treino"
  },
@@ -1265,7 +2685,22 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "queria saber por q n usar gets",
+  "esperado": "c-basico:como ler uma linha inteira em c",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "como usar math.h",
+  "esperado": "c-basico:como usar funções matemáticas em c",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "me diz como usar math.h",
+  "esperado": "c-basico:como usar funções matemáticas em c",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como usar mat.hh",
   "esperado": "c-basico:como usar funções matemáticas em c",
   "grupo": "treino"
  },
@@ -1285,7 +2720,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "vc sabe switch case em c",
+  "esperado": "c-basico:como usar switch em c",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "siwtch case em c",
+  "esperado": "c-basico:como usar switch em c",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "calculadora em c",
+  "esperado": "c-basico:exemplo de programa completo em c",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "por favor calculadora em c",
+  "esperado": "c-basico:exemplo de programa completo em c",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "calcluadora em c",
   "esperado": "c-basico:exemplo de programa completo em c",
   "grupo": "treino"
  },
@@ -1300,12 +2755,42 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "vc sabe o q praticar em c",
+  "esperado": null,
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que prtaicar em c",
+  "esperado": null,
+  "grupo": "treino"
+ },
+ {
   "pergunta": "primeiro programa em c",
   "esperado": "c-basico:hello world em c",
   "grupo": "treino"
  },
  {
+  "pergunta": "queria saber primeiro programa em c",
+  "esperado": "c-basico:hello world em c",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "pirmeiro programa em c",
+  "esperado": "c-basico:hello world em c",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "o que é pré processador compilador e linker",
+  "esperado": "c-basico:o que acontece na compilação em c",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "vc sabe o q e pre processador compilador e linker",
+  "esperado": "c-basico:o que acontece na compilação em c",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é pré processaodr compilador e linker",
   "esperado": "c-basico:o que acontece na compilação em c",
   "grupo": "treino"
  },
@@ -1320,7 +2805,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "queria saber o q e falha de segmentacao",
+  "esperado": "c-basico:o que é segmentation fault",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é falha de segemntação",
+  "esperado": "c-basico:o que é segmentation fault",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "o que é signed e unsigned",
+  "esperado": "c-basico:o que é unsigned em c",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "queria saber o q e signed e unsigned",
+  "esperado": "c-basico:o que é unsigned em c",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é signed e usnigned",
   "esperado": "c-basico:o que é unsigned em c",
   "grupo": "treino"
  },
@@ -1330,12 +2835,37 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "vc sabe como fazer conversao de tipo em c",
+  "esperado": "c-basico:por que 5 dividido por 2 dá 2 em c",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como fazer covnersão de tipo em c",
+  "esperado": "c-basico:por que 5 dividido por 2 dá 2 em c",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "erros comuns em c",
   "esperado": "c-basico:quais os erros mais comuns em c para iniciantes",
   "grupo": "treino"
  },
  {
+  "pergunta": "erros coumns em c",
+  "esperado": "c-basico:quais os erros mais comuns em c para iniciantes",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "o que é incremento e decremento em c",
+  "esperado": "c-basico:quais os operadores em c",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "vc sabe o q e incremento e decremento em c",
+  "esperado": "c-basico:quais os operadores em c",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é incremneto e decremento em c",
   "esperado": "c-basico:quais os operadores em c",
   "grupo": "treino"
  },
@@ -1346,6 +2876,16 @@
  },
  {
   "pergunta": "como usar atoi e strtol",
+  "esperado": "c-intermediario:como converter string para número em c",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "me diz como usar atoi e strtol",
+  "esperado": "c-intermediario:como converter string para número em c",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como usar atoi e strotl",
   "esperado": "c-intermediario:como converter string para número em c",
   "grupo": "treino"
  },
@@ -1370,6 +2910,11 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "como usar foepn em c",
+  "esperado": "c-intermediario:como ler e escrever arquivos em c",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "como passar parâmetro por referência em c",
   "esperado": null,
   "grupo": "treino"
@@ -1380,7 +2925,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "por favor como fazer funcao de troca swap em c",
+  "esperado": null,
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como fazer funãço de troca swap em c",
+  "esperado": null,
+  "grupo": "treino"
+ },
+ {
   "pergunta": "c tem exceção",
+  "esperado": "c-intermediario:como tratar erros em c",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "me explica c tem excecao",
+  "esperado": "c-intermediario:como tratar erros em c",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "c tem exceãço",
   "esperado": "c-intermediario:como tratar erros em c",
   "grupo": "treino"
  },
@@ -1390,7 +2955,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "queria saber como aumentar um vetor dinamico em c",
+  "esperado": "c-intermediario:diferença entre malloc calloc e realloc",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como amuentar um vetor dinâmico em c",
+  "esperado": "c-intermediario:diferença entre malloc calloc e realloc",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "diferença entre stack e heap em c",
+  "esperado": "c-intermediario:diferença entre stack e heap",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "vc sabe diferenca entre stack e heap em c",
+  "esperado": "c-intermediario:diferença entre stack e heap",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "diefrença entre stack e heap em c",
   "esperado": "c-intermediario:diferença entre stack e heap",
   "grupo": "treino"
  },
@@ -1401,6 +2986,16 @@
  },
  {
   "pergunta": "projeto para praticar ponteiros e structs",
+  "esperado": null,
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "me explica projeto pra praticar ponteiros e structs",
+  "esperado": null,
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "projeto para praticar ponterios e structs",
   "esperado": null,
   "grupo": "treino"
  },
@@ -1420,6 +3015,16 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "diferenca entre & e * em ponteiros",
+  "esperado": "c-intermediario:o que significam os símbolos & e * dos ponteiros em c",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "difereçna entre & e * em ponteiros",
+  "esperado": "c-intermediario:o que significam os símbolos & e * dos ponteiros em c",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "o que é #ifndef em c",
   "esperado": null,
   "grupo": "treino"
@@ -1430,12 +3035,37 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "por favor o q e include guard",
+  "esperado": null,
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é incldue guard",
+  "esperado": null,
+  "grupo": "treino"
+ },
+ {
   "pergunta": "malloc",
   "esperado": "c-intermediario:o que é alocação dinâmica de memória em c",
   "grupo": "treino"
  },
  {
+  "pergunta": "malolc",
+  "esperado": "c-intermediario:o que é alocação dinâmica de memória em c",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "como receber argumentos da linha de comando em c",
+  "esperado": "c-intermediario:o que é argc e argv em c",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "me diz como receber argumentos da linha de comando em c",
+  "esperado": "c-intermediario:o que é argc e argv em c",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como receber argumnetos da linha de comando em c",
   "esperado": "c-intermediario:o que é argc e argv em c",
   "grupo": "treino"
  },
@@ -1450,7 +3080,22 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "me diz diferenca entre const int * e int * const",
+  "esperado": "c-intermediario:o que é const com ponteiro em c",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "difereçna entre const int * e int * const",
+  "esperado": "c-intermediario:o que é const com ponteiro em c",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "como usar enum",
+  "esperado": "c-intermediario:o que é enum em c",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "me explica como usar enum",
   "esperado": "c-intermediario:o que é enum em c",
   "grupo": "treino"
  },
@@ -1465,7 +3110,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "queria saber include em c",
+  "esperado": "c-intermediario:o que é o pré processador em c",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "inculde em c",
+  "esperado": "c-intermediario:o que é o pré processador em c",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "diferença entre ponto e seta em struct",
+  "esperado": "c-intermediario:o que é operador seta em c",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "vc sabe diferenca entre ponto e seta em struct",
+  "esperado": "c-intermediario:o que é operador seta em c",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "difeernça entre ponto e seta em struct",
   "esperado": "c-intermediario:o que é operador seta em c",
   "grupo": "treino"
  },
@@ -1475,7 +3140,22 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "me diz pra q serve ponteiro",
+  "esperado": "c-intermediario:o que é ponteiro em c",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "para que serve ponetiro",
+  "esperado": "c-intermediario:o que é ponteiro em c",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "o que é null em c",
+  "esperado": "c-intermediario:o que é ponteiro nulo",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "vc sabe o q e null em c",
   "esperado": "c-intermediario:o que é ponteiro nulo",
   "grupo": "treino"
  },
@@ -1485,12 +3165,42 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "queria saber variavel static dentro de funcao",
+  "esperado": "c-intermediario:o que é static em c",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "varáivel static dentro de função",
+  "esperado": "c-intermediario:o que é static em c",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "como criar uma struct em c",
   "esperado": "c-intermediario:o que é struct em c",
   "grupo": "treino"
  },
  {
+  "pergunta": "por favor como criar uma struct em c",
+  "esperado": "c-intermediario:o que é struct em c",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como criar uma sturct em c",
+  "esperado": "c-intermediario:o que é struct em c",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "como usar typedef com struct",
+  "esperado": "c-intermediario:o que é typedef em c",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "me explica como usar typedef com struct",
+  "esperado": "c-intermediario:o que é typedef em c",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como usar typdeef com struct",
   "esperado": "c-intermediario:o que é typedef em c",
   "grupo": "treino"
  },
@@ -1510,7 +3220,22 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "converter graus fahrneheit em celsius",
+  "esperado": "conversoes-medidas:como converter fahrenheit para celsius",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "converter metros por segundo em quilômetros por hora",
+  "esperado": "conversoes-medidas:como converter km/h para m/s",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "converter metros por segundo em quilometros por hora",
+  "esperado": "conversoes-medidas:como converter km/h para m/s",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "converter metros por segundo em qiulômetros por hora",
   "esperado": "conversoes-medidas:como converter km/h para m/s",
   "grupo": "treino"
  },
@@ -1520,7 +3245,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "vc sabe converter mph pra km/h",
+  "esperado": "conversoes-medidas:como converter milhas por hora para km/h",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "covnerter mph para km/h",
+  "esperado": "conversoes-medidas:como converter milhas por hora para km/h",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "converter nós para km/h",
+  "esperado": "conversoes-medidas:quanto vale um nó em km/h",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "queria saber converter nos pra km/h",
+  "esperado": "conversoes-medidas:quanto vale um nó em km/h",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "converetr nós para km/h",
   "esperado": "conversoes-medidas:quanto vale um nó em km/h",
   "grupo": "treino"
  },
@@ -1530,7 +3275,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "me diz quantos megabytes tem um gigabyte",
+  "esperado": "conversoes-medidas:quantos bytes tem um kilobyte",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "quantos megabtyes tem um gigabyte",
+  "esperado": "conversoes-medidas:quantos bytes tem um kilobyte",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "1 pé tem quantos cm",
+  "esperado": "conversoes-medidas:quantos centímetros tem um pé",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "vc sabe 1 pe tem quantos cm",
+  "esperado": "conversoes-medidas:quantos centímetros tem um pé",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "1 pé tem qunatos cm",
   "esperado": "conversoes-medidas:quantos centímetros tem um pé",
   "grupo": "treino"
  },
@@ -1560,12 +3325,42 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "vc sabe uma xicara de farinha pesa qto",
+  "esperado": "conversoes-medidas:quantos gramas de farinha tem uma xícara",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "uma xícara de fairnha pesa quanto",
+  "esperado": "conversoes-medidas:quantos gramas de farinha tem uma xícara",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "1 libra tem quantos quilos",
   "esperado": "conversoes-medidas:quantos gramas tem uma libra",
   "grupo": "treino"
  },
  {
+  "pergunta": "me explica 1 libra tem quantos quilos",
+  "esperado": "conversoes-medidas:quantos gramas tem uma libra",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "1 libra tem quanots quilos",
+  "esperado": "conversoes-medidas:quantos gramas tem uma libra",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "converter onça para gramas",
+  "esperado": "conversoes-medidas:quantos gramas tem uma onça",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "me explica converter onca pra gramas",
+  "esperado": "conversoes-medidas:quantos gramas tem uma onça",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "convreter onça para gramas",
   "esperado": "conversoes-medidas:quantos gramas tem uma onça",
   "grupo": "treino"
  },
@@ -1585,6 +3380,16 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "queria saber 1 m³ tem quantos litros",
+  "esperado": "conversoes-medidas:quantos litros tem um metro cúbico",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "1 m³ tem quatnos litros",
+  "esperado": "conversoes-medidas:quantos litros tem um metro cúbico",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "converter acre para hectare",
   "esperado": "conversoes-medidas:quantos metros quadrados tem um acre",
   "grupo": "teste"
@@ -1595,7 +3400,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "por favor converter hectare pra metros quadrados",
+  "esperado": "conversoes-medidas:quantos metros quadrados tem um hectare",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "conevrter hectare para metros quadrados",
+  "esperado": "conversoes-medidas:quantos metros quadrados tem um hectare",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "converter jarda para metro",
+  "esperado": "conversoes-medidas:quantos metros tem uma jarda",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "me diz converter jarda pra metro",
+  "esperado": "conversoes-medidas:quantos metros tem uma jarda",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "converetr jarda para metro",
   "esperado": "conversoes-medidas:quantos metros tem uma jarda",
   "grupo": "treino"
  },
@@ -1605,7 +3430,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "converter milha nautica pra km",
+  "esperado": "conversoes-medidas:quantos metros tem uma milha náutica",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "convreter milha náutica para km",
+  "esperado": "conversoes-medidas:quantos metros tem uma milha náutica",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "um copo americano tem quantos ml",
+  "esperado": "conversoes-medidas:quantos ml tem um copo americano",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "queria saber um copo americano tem quantos ml",
+  "esperado": "conversoes-medidas:quantos ml tem um copo americano",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "um copo americnao tem quantos ml",
   "esperado": "conversoes-medidas:quantos ml tem um copo americano",
   "grupo": "treino"
  },
@@ -1616,6 +3461,16 @@
  },
  {
   "pergunta": "uma colher de sopa tem quantos ml",
+  "esperado": "conversoes-medidas:quantos ml tem uma colher de sopa",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "me diz uma colher de sopa tem quantos ml",
+  "esperado": "conversoes-medidas:quantos ml tem uma colher de sopa",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "uma colher de sopa tem quanots ml",
   "esperado": "conversoes-medidas:quantos ml tem uma colher de sopa",
   "grupo": "treino"
  },
@@ -1635,6 +3490,16 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "me diz uma xicara tem quantos ml",
+  "esperado": null,
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "uma xícara tem qunatos ml",
+  "esperado": null,
+  "grupo": "treino"
+ },
+ {
   "pergunta": "converter bar para psi",
   "esperado": "conversoes-medidas:quantos psi tem um bar",
   "grupo": "teste"
@@ -1650,7 +3515,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "me explica 1 milha tem quantos km",
+  "esperado": "conversoes-medidas:quantos quilômetros tem uma milha",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "1 milha tem qunatos km",
+  "esperado": "conversoes-medidas:quantos quilômetros tem uma milha",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "converter hp para watts",
+  "esperado": "conversoes-medidas:quantos watts tem um cavalo vapor",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "me explica converter hp pra watts",
+  "esperado": "conversoes-medidas:quantos watts tem um cavalo vapor",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "convreter hp para watts",
   "esperado": "conversoes-medidas:quantos watts tem um cavalo vapor",
   "grupo": "treino"
  },
@@ -1660,7 +3545,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "queria saber como deixar c++ mais rapido",
+  "esperado": "cpp-avancado:como otimizar código c++",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como deiaxr c++ mais rápido",
+  "esperado": "cpp-avancado:como otimizar código c++",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "o que é googletest",
+  "esperado": "cpp-avancado:como testar código c++",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "me explica o q e googletest",
+  "esperado": "cpp-avancado:como testar código c++",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é gogoletest",
   "esperado": "cpp-avancado:como testar código c++",
   "grupo": "treino"
  },
@@ -1670,12 +3575,42 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "me diz thread em c++",
+  "esperado": "cpp-avancado:como usar threads em c++",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "trhead em c++",
+  "esperado": "cpp-avancado:como usar threads em c++",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "como gerenciar dependências em c++",
   "esperado": "cpp-avancado:ferramentas para c++ moderno",
   "grupo": "treino"
  },
  {
+  "pergunta": "por favor como gerenciar dependencias em c++",
+  "esperado": "cpp-avancado:ferramentas para c++ moderno",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como gerenciar dependêncais em c++",
+  "esperado": "cpp-avancado:ferramentas para c++ moderno",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "quais as versões do c++",
+  "esperado": "cpp-avancado:o que mudou no c++11 c++14 c++17 c++20 e c++23",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "me explica quais as versoes do c++",
+  "esperado": "cpp-avancado:o que mudou no c++11 c++14 c++17 c++20 e c++23",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "quais as vesrões do c++",
   "esperado": "cpp-avancado:o que mudou no c++11 c++14 c++17 c++20 e c++23",
   "grupo": "treino"
  },
@@ -1700,7 +3635,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "o q e views em c++",
+  "esperado": "cpp-avancado:o que são ranges em c++20",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é veiws em c++",
+  "esperado": "cpp-avancado:o que são ranges em c++20",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "quando usar std::atomic",
+  "esperado": "cpp-avancado:o que é atomic em c++",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "queria saber qdo usar std::atomic",
+  "esperado": "cpp-avancado:o que é atomic em c++",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "quando usar std::taomic",
   "esperado": "cpp-avancado:o que é atomic em c++",
   "grupo": "treino"
  },
@@ -1715,7 +3670,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "por favor como fazer produtor consumidor em c++",
+  "esperado": null,
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como fazer produtor consumdior em c++",
+  "esperado": null,
+  "grupo": "treino"
+ },
+ {
   "pergunta": "como calcular em tempo de compilação em c++",
+  "esperado": "cpp-avancado:o que é constexpr e consteval",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "me explica como calcular em tempo de compilacao em c++",
+  "esperado": "cpp-avancado:o que é constexpr e consteval",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como calcular em tempo de compialção em c++",
   "esperado": "cpp-avancado:o que é constexpr e consteval",
   "grupo": "treino"
  },
@@ -1725,7 +3700,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "vc sabe o q e a referencia com dois e comerciais em c++",
+  "esperado": "cpp-avancado:o que é lvalue e rvalue",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é a rfeerência com dois e comerciais em c++",
+  "esperado": "cpp-avancado:o que é lvalue e rvalue",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "o que é deadlock",
+  "esperado": "cpp-avancado:o que é mutex em c++",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "me diz o q e deadlock",
+  "esperado": "cpp-avancado:o que é mutex em c++",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é deadlcok",
   "esperado": "cpp-avancado:o que é mutex em c++",
   "grupo": "treino"
  },
@@ -1735,12 +3730,42 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "me diz o q e referencia universal",
+  "esperado": "cpp-avancado:o que é perfect forwarding",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é refernêcia universal",
+  "esperado": "cpp-avancado:o que é perfect forwarding",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "posso retornar vector por valor em c++",
   "esperado": "cpp-avancado:o que é rvo",
   "grupo": "treino"
  },
  {
+  "pergunta": "queria saber posso retornar vector por valor em c++",
+  "esperado": "cpp-avancado:o que é rvo",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "posso reotrnar vector por valor em c++",
+  "esperado": "cpp-avancado:o que é rvo",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "o que faz std::move",
+  "esperado": "cpp-avancado:o que é semântica de movimento em c++",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "queria saber o q faz std::move",
+  "esperado": "cpp-avancado:o que é semântica de movimento em c++",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que faz std:m:ove",
   "esperado": "cpp-avancado:o que é semântica de movimento em c++",
   "grupo": "treino"
  },
@@ -1760,7 +3785,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "por favor o q e std::print",
+  "esperado": "cpp-avancado:o que é std::format",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é st:d:print",
+  "esperado": "cpp-avancado:o que é std::format",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "o que é std::visit",
+  "esperado": "cpp-avancado:o que é std::variant",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "queria saber o q e std::visit",
+  "esperado": "cpp-avancado:o que é std::variant",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é std::vsiit",
   "esperado": "cpp-avancado:o que é std::variant",
   "grupo": "treino"
  },
@@ -1780,12 +3825,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "me diz o q e fold expression",
+  "esperado": "cpp-avancado:o que é variadic template",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "o que construir para dominar c++",
   "esperado": "cpp-avancado:projetos avançados em c++",
   "grupo": "teste"
  },
  {
   "pergunta": "classes em c++",
+  "esperado": "cpp-basico:como criar uma classe em c++",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "queria saber classes em c++",
+  "esperado": "cpp-basico:como criar uma classe em c++",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "calsses em c++",
   "esperado": "cpp-basico:como criar uma classe em c++",
   "grupo": "treino"
  },
@@ -1800,7 +3860,22 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "como instlaar g++",
+  "esperado": "cpp-basico:como instalar compilador c++",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "como ler uma linha inteira em c++",
+  "esperado": "cpp-basico:como ler do teclado em c++",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "por favor como ler uma linha inteira em c++",
+  "esperado": "cpp-basico:como ler do teclado em c++",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como ler uma linha itneira em c++",
   "esperado": "cpp-basico:como ler do teclado em c++",
   "grupo": "treino"
  },
@@ -1810,7 +3885,22 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "me explica como usar fstream em c++",
+  "esperado": "cpp-basico:como ler e escrever arquivos em c++",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como usar fsrteam em c++",
+  "esperado": "cpp-basico:como ler e escrever arquivos em c++",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "como ordenar vector c++",
+  "esperado": "cpp-basico:como ordenar um vector em c++",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como ordeanr vector c++",
   "esperado": "cpp-basico:como ordenar um vector em c++",
   "grupo": "treino"
  },
@@ -1830,6 +3920,16 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "queria saber diferenca entre std::array e vector",
+  "esperado": "cpp-basico:como usar array em c++",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "diferença entre std::arary e vector",
+  "esperado": "cpp-basico:como usar array em c++",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "o que é constexpr",
   "esperado": "cpp-basico:como usar const em c++",
   "grupo": "teste"
@@ -1841,6 +3941,16 @@
  },
  {
   "pergunta": "como adicionar e remover itens de um vector",
+  "esperado": "cpp-basico:como usar vector em c++",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "me diz como adicionar e remover itens de um vector",
+  "esperado": "cpp-basico:como usar vector em c++",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como adicinoar e remover itens de um vector",
   "esperado": "cpp-basico:como usar vector em c++",
   "grupo": "treino"
  },
@@ -1860,7 +3970,22 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "queria saber o q e iostream e cout",
+  "esperado": "cpp-basico:hello world em c++",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é iotsream e cout",
+  "esperado": "cpp-basico:hello world em c++",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "devo usar new em c++",
+  "esperado": "cpp-basico:o que são new e delete em c++",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "me explica devo usar new em c++",
   "esperado": "cpp-basico:o que são new e delete em c++",
   "grupo": "treino"
  },
@@ -1870,7 +3995,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "me explica inferencia de tipo em c++",
+  "esperado": "cpp-basico:o que é auto em c++",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "inferênica de tipo em c++",
+  "esperado": "cpp-basico:o que é auto em c++",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "o que é nullptr em c++",
+  "esperado": "cpp-basico:o que é bool em c++",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o q e nullptr em c++",
+  "esperado": "cpp-basico:o que é bool em c++",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é nulltpr em c++",
   "esperado": "cpp-basico:o que é bool em c++",
   "grupo": "treino"
  },
@@ -1885,7 +4030,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "me explica o q e construtor padrao",
+  "esperado": "cpp-basico:o que é construtor em c++",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é constrtuor padrão",
+  "esperado": "cpp-basico:o que é construtor em c++",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "devo usar using namespace std",
+  "esperado": "cpp-basico:o que é namespace em c++",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "vc sabe devo usar using namespace std",
+  "esperado": "cpp-basico:o que é namespace em c++",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "devo usar using namepsace std",
   "esperado": "cpp-basico:o que é namespace em c++",
   "grupo": "treino"
  },
@@ -1900,12 +4065,42 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "me explica o q e overload",
+  "esperado": "cpp-basico:o que é sobrecarga de função em c++",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é oevrload",
+  "esperado": "cpp-basico:o que é sobrecarga de função em c++",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "o que é herança em c++",
   "esperado": "cpp-intermediario:como fazer herança em c++",
   "grupo": "treino"
  },
  {
+  "pergunta": "me explica o q e heranca em c++",
+  "esperado": "cpp-intermediario:como fazer herança em c++",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é hernaça em c++",
+  "esperado": "cpp-intermediario:como fazer herança em c++",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "o que é cmake",
+  "esperado": "cpp-intermediario:como organizar um projeto c++",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o q e cmake",
+  "esperado": "cpp-intermediario:como organizar um projeto c++",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é cmkae",
   "esperado": "cpp-intermediario:como organizar um projeto c++",
   "grupo": "treino"
  },
@@ -1920,7 +4115,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "por favor como usar try catch em c++",
+  "esperado": null,
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como usar try ctach em c++",
+  "esperado": null,
+  "grupo": "treino"
+ },
+ {
   "pergunta": "dicionário em c++",
+  "esperado": "cpp-intermediario:como usar map em c++",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "vc sabe dicionario em c++",
+  "esperado": "cpp-intermediario:como usar map em c++",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "dicioánrio em c++",
   "esperado": "cpp-intermediario:como usar map em c++",
   "grupo": "treino"
  },
@@ -1940,12 +4155,42 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "queria saber como remover duplicados em c++",
+  "esperado": null,
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como remover duplicaods em c++",
+  "esperado": null,
+  "grupo": "treino"
+ },
+ {
   "pergunta": "como fazer interface em c++",
   "esperado": "cpp-intermediario:o que é classe abstrata em c++",
   "grupo": "treino"
  },
  {
+  "pergunta": "vc sabe como fazer interface em c++",
+  "esperado": "cpp-intermediario:o que é classe abstrata em c++",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como fazer intefrace em c++",
+  "esperado": "cpp-intermediario:o que é classe abstrata em c++",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "o que é cópia rasa e cópia profunda",
+  "esperado": "cpp-intermediario:o que é construtor de cópia em c++",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o q e copia rasa e copia profunda",
+  "esperado": "cpp-intermediario:o que é construtor de cópia em c++",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é cópia rasa e cópia profnuda",
   "esperado": "cpp-intermediario:o que é construtor de cópia em c++",
   "grupo": "treino"
  },
@@ -1960,6 +4205,11 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "me diz o q e raii",
+  "esperado": null,
+  "grupo": "treino"
+ },
+ {
   "pergunta": "o que é begin e end",
   "esperado": "cpp-intermediario:o que é iterador em c++",
   "grupo": "teste"
@@ -1970,7 +4220,22 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "labmda em c++",
+  "esperado": "cpp-intermediario:o que é lambda em c++",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "o que é método estático",
+  "esperado": "cpp-intermediario:o que é membro static em c++",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "queria saber o q e metodo estatico",
+  "esperado": "cpp-intermediario:o que é membro static em c++",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é método esáttico",
   "esperado": "cpp-intermediario:o que é membro static em c++",
   "grupo": "treino"
  },
@@ -1995,12 +4260,37 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "vc sabe como sobrecarregar operador em c++",
+  "esperado": "cpp-intermediario:o que é sobrecarga de operadores em c++",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como sobrecarreagr operador em c++",
+  "esperado": "cpp-intermediario:o que é sobrecarga de operadores em c++",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "quais os contêineres do c++",
   "esperado": "cpp-intermediario:o que é stl",
   "grupo": "treino"
  },
  {
+  "pergunta": "me diz quais os conteineres do c++",
+  "esperado": "cpp-intermediario:o que é stl",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "quais os conêtineres do c++",
+  "esperado": "cpp-intermediario:o que é stl",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "como criar classe template",
+  "esperado": "cpp-intermediario:o que é template em c++",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como criar classe tepmlate",
   "esperado": "cpp-intermediario:o que é template em c++",
   "grupo": "treino"
  },
@@ -2030,7 +4320,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "vc sabe frases basicas em kabuverdianu",
+  "esperado": "expressoes-cabo-verde:como dizer como estas em crioulo cabo verdiano",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "frases basicas em kabuvredianu",
+  "esperado": "expressoes-cabo-verde:como dizer como estas em crioulo cabo verdiano",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "variedades do crioulo cabo verdiano",
+  "esperado": "expressoes-cabo-verde:diferenca entre badiu e sampadjudu",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "por favor variedades do crioulo cabo verdiano",
+  "esperado": "expressoes-cabo-verde:diferenca entre badiu e sampadjudu",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "varideades do crioulo cabo verdiano",
   "esperado": "expressoes-cabo-verde:diferenca entre badiu e sampadjudu",
   "grupo": "treino"
  },
@@ -2040,7 +4350,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "me diz como se escreve o crioulo cabo-verdiano",
+  "esperado": "expressoes-cabo-verde:o que e o alupec",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como se escreve o crioulo cabo-evrdiano",
+  "esperado": "expressoes-cabo-verde:o que e o alupec",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "o crioulo e lingua oficial em cabo verde",
+  "esperado": "expressoes-cabo-verde:quais as linguas de cabo verde",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "vc sabe o crioulo e lingua oficial em cabo verde",
+  "esperado": "expressoes-cabo-verde:quais as linguas de cabo verde",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o croiulo e lingua oficial em cabo verde",
   "esperado": "expressoes-cabo-verde:quais as linguas de cabo verde",
   "grupo": "treino"
  },
@@ -2050,12 +4380,42 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "queria saber cabo verde segue o acordo ortografico",
+  "esperado": "expressoes-cabo-verde:qual a ortografia de cabo verde",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "cabo verde segue o acordo ortogrfaico",
+  "esperado": "expressoes-cabo-verde:qual a ortografia de cabo verde",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "como dizer como estas em kriol",
   "esperado": "expressoes-guine-bissau:frases basicas em kriol",
   "grupo": "treino"
  },
  {
+  "pergunta": "queria saber como dizer como estas em kriol",
+  "esperado": "expressoes-guine-bissau:frases basicas em kriol",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como diezr como estas em kriol",
+  "esperado": "expressoes-guine-bissau:frases basicas em kriol",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "que lingua se fala na guine bissau",
+  "esperado": "expressoes-guine-bissau:quais as linguas da guine bissau",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "queria saber q lingua se fala na guine bissau",
+  "esperado": "expressoes-guine-bissau:quais as linguas da guine bissau",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "que lignua se fala na guine bissau",
   "esperado": "expressoes-guine-bissau:quais as linguas da guine bissau",
   "grupo": "treino"
  },
@@ -2070,12 +4430,42 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "queria saber a guine bissau segue o acordo ortografico",
+  "esperado": null,
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "a guine bissau segue o acordo ortorgafico",
+  "esperado": null,
+  "grupo": "treino"
+ },
+ {
   "pergunta": "o forro esta a desaparecer",
   "esperado": "expressoes-sao-tome-e-principe:os crioulos de sao tome estao em risco",
   "grupo": "treino"
  },
  {
+  "pergunta": "vc sabe o forro esta a desaparecer",
+  "esperado": "expressoes-sao-tome-e-principe:os crioulos de sao tome estao em risco",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o forro esta a desapraecer",
+  "esperado": "expressoes-sao-tome-e-principe:os crioulos de sao tome estao em risco",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "que lingua se fala em sao tome",
+  "esperado": "expressoes-sao-tome-e-principe:quais as linguas de sao tome e principe",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "me diz q lingua se fala em sao tome",
+  "esperado": "expressoes-sao-tome-e-principe:quais as linguas de sao tome e principe",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "que lignua se fala em sao tome",
   "esperado": "expressoes-sao-tome-e-principe:quais as linguas de sao tome e principe",
   "grupo": "treino"
  },
@@ -2095,12 +4485,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "vc sabe q lingua se fala em timor",
+  "esperado": "expressoes-timor-leste:quais as linguas oficiais de timor leste",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "que lignua se fala em timor",
+  "esperado": "expressoes-timor-leste:quais as linguas oficiais de timor leste",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "qual a ortografia de timor leste",
   "esperado": null,
   "grupo": "treino"
  },
  {
   "pergunta": "timor segue o acordo ortografico",
+  "esperado": null,
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "timor segue o acordo ortogarfico",
   "esperado": null,
   "grupo": "treino"
  },
@@ -2115,12 +4520,42 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "me diz diferencas entre o portugues de angola e o de portugal",
+  "esperado": null,
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "diferecnas entre o portugues de angola e o de portugal",
+  "esperado": null,
+  "grupo": "treino"
+ },
+ {
   "pergunta": "linguas nacionais de angola",
   "esperado": "girias-angola:quais as linguas de angola",
   "grupo": "treino"
  },
  {
+  "pergunta": "me diz linguas nacionais de angola",
+  "esperado": "girias-angola:quais as linguas de angola",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "linguas nacioanis de angola",
+  "esperado": "girias-angola:quais as linguas de angola",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "acao ou accao em angola",
+  "esperado": "girias-angola:qual a ortografia de angola",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "me explica acao ou accao em angola",
+  "esperado": "girias-angola:qual a ortografia de angola",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "acao ou accao em anogla",
   "esperado": "girias-angola:qual a ortografia de angola",
   "grupo": "treino"
  },
@@ -2140,6 +4575,11 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "greundio no brasil",
+  "esperado": "girias-brasil:estou fazendo ou estou a fazer",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "ha ou a para tempo",
   "esperado": null,
   "grupo": "treino"
@@ -2150,7 +4590,22 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "vc sabe ha dois anos ou a dois anos",
+  "esperado": null,
+  "grupo": "treino"
+ },
+ {
   "pergunta": "fazem dois anos ou faz dois anos",
+  "esperado": "girias-brasil:haviam ou havia",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "por favor fazem dois anos ou faz dois anos",
+  "esperado": "girias-brasil:haviam ou havia",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "fzaem dois anos ou faz dois anos",
   "esperado": "girias-brasil:haviam ou havia",
   "grupo": "treino"
  },
@@ -2160,7 +4615,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "me explica proclise enclise e mesoclise no brasil",
+  "esperado": "girias-brasil:me empresta ou empresta-me",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "proclise enclise e mescolise no brasil",
+  "esperado": "girias-brasil:me empresta ou empresta-me",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "o que mudou na ortografia em 2009",
+  "esperado": "girias-brasil:o que mudou com o acordo ortografico no brasil",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "por favor o q mudou na ortografia em 2009",
+  "esperado": "girias-brasil:o que mudou com o acordo ortografico no brasil",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que mudou na ortogrfaia em 2009",
   "esperado": "girias-brasil:o que mudou com o acordo ortografico no brasil",
   "grupo": "treino"
  },
@@ -2170,7 +4645,22 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "me explica mal ou mau",
+  "esperado": "girias-brasil:qual a diferenca entre mal e mau",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "os quatro porques",
+  "esperado": "girias-brasil:qual a diferenca entre por que porque por que e porque",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "queria saber os quatro porques",
+  "esperado": "girias-brasil:qual a diferenca entre por que porque por que e porque",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "os quatro poqrues",
   "esperado": "girias-brasil:qual a diferenca entre por que porque por que e porque",
   "grupo": "treino"
  },
@@ -2190,7 +4680,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "qdo eu ver ou qdo eu vir",
+  "esperado": "girias-brasil:se eu ver ou se eu vir",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "qaundo eu ver ou quando eu vir",
+  "esperado": "girias-brasil:se eu ver ou se eu vir",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "onde se usa tu no brasil",
+  "esperado": "girias-brasil:tu ou voce no brasil",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "me diz onde se usa tu no brasil",
+  "esperado": "girias-brasil:tu ou voce no brasil",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "onde se usa tu no braisl",
   "esperado": "girias-brasil:tu ou voce no brasil",
   "grupo": "treino"
  },
@@ -2200,7 +4710,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "por favor diferencas entre o portugues de mocambique e o de portugal",
+  "esperado": "girias-mocambique:caracteristicas do portugues de mocambique",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "diferenacs entre o portugues de mocambique e o de portugal",
+  "esperado": "girias-mocambique:caracteristicas do portugues de mocambique",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "linguas nacionais de mocambique",
+  "esperado": "girias-mocambique:quais as linguas de mocambique",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "vc sabe linguas nacionais de mocambique",
+  "esperado": "girias-mocambique:quais as linguas de mocambique",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "linguas nacionais de mocamibque",
   "esperado": "girias-mocambique:quais as linguas de mocambique",
   "grupo": "treino"
  },
@@ -2210,7 +4740,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "por favor mocambique segue o acordo ortografico",
+  "esperado": "girias-mocambique:qual a ortografia de mocambique",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "mocambique segue o acordo ortografcio",
+  "esperado": "girias-mocambique:qual a ortografia de mocambique",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "acento no preterito perfeito",
+  "esperado": "girias-portugal:amamos ou amamos com acento",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "queria saber acento no preterito perfeito",
+  "esperado": "girias-portugal:amamos ou amamos com acento",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "acento no prteerito perfeito",
   "esperado": "girias-portugal:amamos ou amamos com acento",
   "grupo": "treino"
  },
@@ -2220,7 +4770,22 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "me explica enclise em portugal",
+  "esperado": "girias-portugal:colocacao dos pronomes em portugal",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "enclise em potrugal",
+  "esperado": "girias-portugal:colocacao dos pronomes em portugal",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "gerundio em portugal",
+  "esperado": "girias-portugal:estou a fazer ou estou fazendo",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "gernudio em portugal",
   "esperado": "girias-portugal:estou a fazer ou estou fazendo",
   "grupo": "treino"
  },
@@ -2230,7 +4795,22 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "me diz fazem dois anos ou faz dois anos",
+  "esperado": "girias-portugal:haviam ou havia",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "faezm dois anos ou faz dois anos",
+  "esperado": "girias-portugal:haviam ou havia",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "dar-te-ei",
+  "esperado": "girias-portugal:o que e mesoclise",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "dar-t-eei",
   "esperado": "girias-portugal:o que e mesoclise",
   "grupo": "treino"
  },
@@ -2240,7 +4820,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "por favor acao ou accao",
+  "esperado": "girias-portugal:o que mudou com o acordo ortografico em portugal",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "acao ou acaco",
+  "esperado": "girias-portugal:o que mudou com o acordo ortografico em portugal",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "porque ou por que em portugal",
+  "esperado": "girias-portugal:porque na pergunta em portugal",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "queria saber pq ou por q em portugal",
+  "esperado": "girias-portugal:porque na pergunta em portugal",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "porque ou por que em portuagl",
   "esperado": "girias-portugal:porque na pergunta em portugal",
   "grupo": "treino"
  },
@@ -2250,7 +4850,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "me explica grafias duplas do acordo",
+  "esperado": "girias-portugal:porque recepcao no brasil e rececao em portugal",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "grfaias duplas do acordo",
+  "esperado": "girias-portugal:porque recepcao no brasil e rececao em portugal",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "portugal segue o acordo ortografico",
+  "esperado": "girias-portugal:qual a ortografia oficial de portugal",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "queria saber portugal segue o acordo ortografico",
+  "esperado": "girias-portugal:qual a ortografia oficial de portugal",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "portugal segue o acordo ortogrfaico",
   "esperado": "girias-portugal:qual a ortografia oficial de portugal",
   "grupo": "treino"
  },
@@ -2260,7 +4880,22 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "a ou a",
+  "esperado": "girias-portugal:quando usar crase em portugal",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "voce e falta de educacao em portugal",
+  "esperado": "girias-portugal:tu ou voce em portugal",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "por favor vc e falta de educacao em portugal",
+  "esperado": "girias-portugal:tu ou voce em portugal",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "voce e falta de eudcacao em portugal",
   "esperado": "girias-portugal:tu ou voce em portugal",
   "grupo": "treino"
  },
@@ -2275,6 +4910,16 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "por favor ainda se usa vos",
+  "esperado": null,
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "anida se usa vos",
+  "esperado": null,
+  "grupo": "treino"
+ },
+ {
   "pergunta": "o que é tabela associativa",
   "esperado": "prog-banco-dados:como fazer relacionamento muitos para muitos",
   "grupo": "teste"
@@ -2285,7 +4930,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "me explica o q significa acid em banco de dados",
+  "esperado": "prog-banco-dados:o que é acid",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que singifica acid em banco de dados",
+  "esperado": "prog-banco-dados:o que é acid",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "como fazer backup do banco",
+  "esperado": "prog-banco-dados:o que é backup de banco de dados",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "queria saber como fazer backup do banco",
+  "esperado": "prog-banco-dados:o que é backup de banco de dados",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como fazer bakcup do banco",
   "esperado": "prog-banco-dados:o que é backup de banco de dados",
   "grupo": "treino"
  },
@@ -2310,6 +4975,16 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "vc sabe o q e foreign key",
+  "esperado": "prog-banco-dados:o que é chave estrangeira",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é foerign key",
+  "esperado": "prog-banco-dados:o que é chave estrangeira",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "pk",
   "esperado": "prog-banco-dados:o que é chave primária",
   "grupo": "treino"
@@ -2320,12 +4995,37 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "o q e oltp e olap",
+  "esperado": "prog-banco-dados:o que é data warehouse",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "quando desnormalizar",
   "esperado": "prog-banco-dados:o que é desnormalização",
   "grupo": "treino"
  },
  {
+  "pergunta": "qdo desnormalizar",
+  "esperado": "prog-banco-dados:o que é desnormalização",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "quando desnormalziar",
+  "esperado": "prog-banco-dados:o que é desnormalização",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "como modelar um banco de dados",
+  "esperado": "prog-banco-dados:o que é modelo entidade relacionamento",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "queria saber como modelar um banco de dados",
+  "esperado": "prog-banco-dados:o que é modelo entidade relacionamento",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como modealr um banco de dados",
   "esperado": "prog-banco-dados:o que é modelo entidade relacionamento",
   "grupo": "treino"
  },
@@ -2340,6 +5040,16 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "me explica o q e normalizacao",
+  "esperado": null,
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é normailzação",
+  "esperado": null,
+  "grupo": "treino"
+ },
+ {
   "pergunta": "diferença entre sql e nosql",
   "esperado": "prog-banco-dados:o que é nosql",
   "grupo": "teste"
@@ -2350,12 +5060,42 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "vc sabe o q e sqlalchemy",
+  "esperado": "prog-banco-dados:o que é orm",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é sqllachemy",
+  "esperado": "prog-banco-dados:o que é orm",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "o que é relacionamento muitos para muitos",
   "esperado": "prog-banco-dados:o que é relacionamento um para um",
   "grupo": "treino"
  },
  {
+  "pergunta": "o q e relacionamento muitos pra muitos",
+  "esperado": "prog-banco-dados:o que é relacionamento um para um",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é relacionamneto muitos para muitos",
+  "esperado": "prog-banco-dados:o que é relacionamento um para um",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "o que é sistema gerenciador de banco de dados",
+  "esperado": "prog-banco-dados:o que é sgbd",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "por favor o q e sistema gerenciador de banco de dados",
+  "esperado": "prog-banco-dados:o que é sgbd",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é sistema greenciador de banco de dados",
   "esperado": "prog-banco-dados:o que é sgbd",
   "grupo": "treino"
  },
@@ -2370,12 +5110,42 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "vc sabe injecao de sql",
+  "esperado": "prog-banco-dados:o que é sql injection",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "ijneção de sql",
+  "esperado": "prog-banco-dados:o que é sql injection",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "por que o aprendiz usa sqlite",
   "esperado": "prog-banco-dados:o que é sqlite",
   "grupo": "treino"
  },
  {
+  "pergunta": "queria saber por q o aprendiz usa sqlite",
+  "esperado": "prog-banco-dados:o que é sqlite",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "por que o apredniz usa sqlite",
+  "esperado": "prog-banco-dados:o que é sqlite",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "o que é gatilho em banco de dados",
+  "esperado": "prog-banco-dados:o que é stored procedure",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "queria saber o q e gatilho em banco de dados",
+  "esperado": "prog-banco-dados:o que é stored procedure",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é gatihlo em banco de dados",
   "esperado": "prog-banco-dados:o que é stored procedure",
   "grupo": "treino"
  },
@@ -2390,12 +5160,42 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "queria saber transacoes",
+  "esperado": "prog-banco-dados:o que é transação em banco de dados",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "transaçeõs",
+  "esperado": "prog-banco-dados:o que é transação em banco de dados",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "o que é visão",
   "esperado": "prog-banco-dados:o que é view em banco de dados",
   "grupo": "treino"
  },
  {
+  "pergunta": "me diz o q e visao",
+  "esperado": "prog-banco-dados:o que é view em banco de dados",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é vsião",
+  "esperado": "prog-banco-dados:o que é view em banco de dados",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "para que serve um índice",
+  "esperado": "prog-banco-dados:o que é índice em banco de dados",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "pra q serve um indice",
+  "esperado": "prog-banco-dados:o que é índice em banco de dados",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "para que serve um ínidce",
   "esperado": "prog-banco-dados:o que é índice em banco de dados",
   "grupo": "treino"
  },
@@ -2410,7 +5210,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "me explica como saber o big o de um algoritmo",
+  "esperado": "prog-estruturas-dados:como calcular a complexidade de um código",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como saber o big o de um agloritmo",
+  "esperado": "prog-estruturas-dados:como calcular a complexidade de um código",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "código do bubble sort",
+  "esperado": "prog-estruturas-dados:como funciona o bubble sort",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "codigo do bubble sort",
+  "esperado": "prog-estruturas-dados:como funciona o bubble sort",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "cdóigo do bubble sort",
   "esperado": "prog-estruturas-dados:como funciona o bubble sort",
   "grupo": "treino"
  },
@@ -2420,7 +5240,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "me explica ordenacao por insercao",
+  "esperado": "prog-estruturas-dados:como funciona o insertion sort",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "orednação por inserção",
+  "esperado": "prog-estruturas-dados:como funciona o insertion sort",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "o que é dividir para conquistar",
+  "esperado": "prog-estruturas-dados:como funciona o merge sort",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "me diz o q e dividir pra conquistar",
+  "esperado": "prog-estruturas-dados:como funciona o merge sort",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é dividir para cnoquistar",
   "esperado": "prog-estruturas-dados:como funciona o merge sort",
   "grupo": "treino"
  },
@@ -2430,7 +5270,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "vc sabe o q e pivo na ordenacao",
+  "esperado": "prog-estruturas-dados:como funciona o quick sort",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é pivô na orednação",
+  "esperado": "prog-estruturas-dados:como funciona o quick sort",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "o que é greedy",
+  "esperado": "prog-estruturas-dados:o que é algoritmo guloso",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "me explica o q e greedy",
+  "esperado": "prog-estruturas-dados:o que é algoritmo guloso",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é gredey",
   "esperado": "prog-estruturas-dados:o que é algoritmo guloso",
   "grupo": "treino"
  },
@@ -2440,12 +5300,37 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "por favor como funciona o indice do banco de dados",
+  "esperado": "prog-estruturas-dados:o que é b tree",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como funcoina o índice do banco de dados",
+  "esperado": "prog-estruturas-dados:o que é b tree",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "busca binaria",
   "esperado": "prog-estruturas-dados:o que é busca binária",
   "grupo": "treino"
  },
  {
+  "pergunta": "vc sabe busca binaria",
+  "esperado": "prog-estruturas-dados:o que é busca binária",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "busca binaira",
+  "esperado": "prog-estruturas-dados:o que é busca binária",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "o que é bfs e dfs",
+  "esperado": "prog-estruturas-dados:o que é busca em largura",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "queria saber o q e bfs e dfs",
   "esperado": "prog-estruturas-dados:o que é busca em largura",
   "grupo": "treino"
  },
@@ -2470,7 +5355,22 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "me explica o q e complexidade de memoria",
+  "esperado": null,
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é complexiddae de memória",
+  "esperado": null,
+  "grupo": "treino"
+ },
+ {
   "pergunta": "o que é set",
+  "esperado": "prog-estruturas-dados:o que é conjunto em programação",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "vc sabe o q e set",
   "esperado": "prog-estruturas-dados:o que é conjunto em programação",
   "grupo": "treino"
  },
@@ -2480,7 +5380,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "vc sabe o q e distancia de edicao",
+  "esperado": "prog-estruturas-dados:o que é distância de levenshtein",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é distnâcia de edição",
+  "esperado": "prog-estruturas-dados:o que é distância de levenshtein",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "para que servem estruturas de dados",
+  "esperado": "prog-estruturas-dados:o que é estrutura de dados",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "me diz pra q servem estruturas de dados",
+  "esperado": "prog-estruturas-dados:o que é estrutura de dados",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "para que servem estrutruas de dados",
   "esperado": "prog-estruturas-dados:o que é estrutura de dados",
   "grupo": "treino"
  },
@@ -2500,6 +5420,11 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "me diz o q e heap",
+  "esperado": "prog-estruturas-dados:o que é fila de prioridade",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "o que é hash sha256",
   "esperado": "prog-estruturas-dados:o que é função hash",
   "grupo": "teste"
@@ -2510,7 +5435,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "me diz grafos",
+  "esperado": "prog-estruturas-dados:o que é grafo",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "grfaos",
+  "esperado": "prog-estruturas-dados:o que é grafo",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "lista encadeada",
+  "esperado": "prog-estruturas-dados:o que é lista ligada",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "queria saber lista encadeada",
+  "esperado": "prog-estruturas-dados:o que é lista ligada",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "lista encaedada",
   "esperado": "prog-estruturas-dados:o que é lista ligada",
   "grupo": "treino"
  },
@@ -2520,12 +5465,42 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "me explica como achar o menor caminho num grafo",
+  "esperado": "prog-estruturas-dados:o que é o algoritmo de dijkstra",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como achar o menor camniho num grafo",
+  "esperado": "prog-estruturas-dados:o que é o algoritmo de dijkstra",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "o que é pré ordem em ordem e pós ordem",
   "esperado": "prog-estruturas-dados:o que é percurso em árvore",
   "grupo": "treino"
  },
  {
+  "pergunta": "me diz o q e pre ordem em ordem e pos ordem",
+  "esperado": "prog-estruturas-dados:o que é percurso em árvore",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é pré oredm em ordem e pós ordem",
+  "esperado": "prog-estruturas-dados:o que é percurso em árvore",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "o que é stack em estrutura de dados",
+  "esperado": "prog-estruturas-dados:o que é pilha",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "me explica o q e stack em estrutura de dados",
+  "esperado": "prog-estruturas-dados:o que é pilha",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é stack em estruutra de dados",
   "esperado": "prog-estruturas-dados:o que é pilha",
   "grupo": "treino"
  },
@@ -2540,7 +5515,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "me explica tabela de dispersao",
+  "esperado": "prog-estruturas-dados:o que é tabela hash",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "tabela de dispresão",
+  "esperado": "prog-estruturas-dados:o que é tabela hash",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "o que é árvore de prefixos",
+  "esperado": "prog-estruturas-dados:o que é trie",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "vc sabe o q e arvore de prefixos",
+  "esperado": "prog-estruturas-dados:o que é trie",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é árvore de prefioxs",
   "esperado": "prog-estruturas-dados:o que é trie",
   "grupo": "treino"
  },
@@ -2550,7 +5545,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "vc sabe como funciona um array na memoria",
+  "esperado": "prog-estruturas-dados:o que é vetor em estrutura de dados",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como fucniona um array na memória",
+  "esperado": "prog-estruturas-dados:o que é vetor em estrutura de dados",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "árvore binária",
+  "esperado": "prog-estruturas-dados:o que é árvore binária de busca",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "por favor arvore binaria",
+  "esperado": "prog-estruturas-dados:o que é árvore binária de busca",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "árvore bináira",
   "esperado": "prog-estruturas-dados:o que é árvore binária de busca",
   "grupo": "treino"
  },
@@ -2560,12 +5575,42 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "por favor o q e raiz folha e no",
+  "esperado": "prog-estruturas-dados:o que é árvore em estrutura de dados",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é raiz fohla e nó",
+  "esperado": "prog-estruturas-dados:o que é árvore em estrutura de dados",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "como funciona um buscador",
   "esperado": "prog-estruturas-dados:o que é índice invertido",
   "grupo": "treino"
  },
  {
+  "pergunta": "vc sabe como funciona um buscador",
+  "esperado": "prog-estruturas-dados:o que é índice invertido",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como funcinoa um buscador",
+  "esperado": "prog-estruturas-dados:o que é índice invertido",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "como ordenar uma lista",
+  "esperado": "prog-estruturas-dados:quais são os algoritmos de ordenação",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "por favor como ordenar uma lista",
+  "esperado": "prog-estruturas-dados:quais são os algoritmos de ordenação",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como ordnear uma lista",
   "esperado": "prog-estruturas-dados:quais são os algoritmos de ordenação",
   "grupo": "treino"
  },
@@ -2580,6 +5625,16 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "vc sabe algoritmo pra encontrar o maior e o menor",
+  "esperado": "prog-logica:como achar o maior valor de uma lista",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "agloritmo para encontrar o maior e o menor",
+  "esperado": "prog-logica:como achar o maior valor de uma lista",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "como aprender a programar",
   "esperado": null,
   "grupo": "treino"
@@ -2590,7 +5645,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "por favor qual a melhor linguagem pra comecar",
+  "esperado": null,
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "qual a melhor lignuagem para começar",
+  "esperado": null,
+  "grupo": "treino"
+ },
+ {
   "pergunta": "algoritmo de fibonacci",
+  "esperado": "prog-logica:como fazer a sequência de fibonacci",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "me diz algoritmo de fibonacci",
+  "esperado": "prog-logica:como fazer a sequência de fibonacci",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "algortimo de fibonacci",
   "esperado": "prog-logica:como fazer a sequência de fibonacci",
   "grupo": "treino"
  },
@@ -2600,7 +5675,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "vc sabe algoritmo de numero primo",
+  "esperado": "prog-logica:como saber se um número é primo",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "algortimo de número primo",
+  "esperado": "prog-logica:como saber se um número é primo",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "como fazer swap",
+  "esperado": "prog-logica:como trocar o valor de duas variáveis",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "por favor como fazer swap",
+  "esperado": "prog-logica:como trocar o valor de duas variáveis",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como fzaer swap",
   "esperado": "prog-logica:como trocar o valor de duas variáveis",
   "grupo": "treino"
  },
@@ -2610,7 +5705,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "vc sabe como funciona o for",
+  "esperado": "prog-logica:diferença entre while e for",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como fucniona o for",
+  "esperado": "prog-logica:diferença entre while e for",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "o que é stack overflow",
+  "esperado": "prog-logica:o que é a pilha de chamadas",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "por favor o q e stack overflow",
+  "esperado": "prog-logica:o que é a pilha de chamadas",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é stack overfolw",
   "esperado": "prog-logica:o que é a pilha de chamadas",
   "grupo": "treino"
  },
@@ -2620,12 +5735,42 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "por favor como funciona o sistema binario",
+  "esperado": "prog-logica:o que é binário",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como funcinoa o sistema binário",
+  "esperado": "prog-logica:o que é binário",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "como somar valores num laço",
   "esperado": "prog-logica:o que é contador e acumulador",
   "grupo": "treino"
  },
  {
+  "pergunta": "me diz como somar valores num laco",
+  "esperado": "prog-logica:o que é contador e acumulador",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como somar vaolres num laço",
+  "esperado": "prog-logica:o que é contador e acumulador",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "o que é código de máquina",
+  "esperado": "prog-logica:o que é código fonte",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "me diz o q e codigo de maquina",
+  "esperado": "prog-logica:o que é código fonte",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é código de máqiuna",
   "esperado": "prog-logica:o que é código fonte",
   "grupo": "treino"
  },
@@ -2640,7 +5785,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "como fazer repita ate",
+  "esperado": "prog-logica:o que é do while",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como fazer rpeita até",
+  "esperado": "prog-logica:o que é do while",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "o que é entrada e saída de dados",
+  "esperado": "prog-logica:o que é entrada processamento e saída",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "me explica o q e entrada e saida de dados",
+  "esperado": "prog-logica:o que é entrada processamento e saída",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é enrtada e saída de dados",
   "esperado": "prog-logica:o que é entrada processamento e saída",
   "grupo": "treino"
  },
@@ -2650,7 +5815,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "me explica qdo usar switch em vez de if",
+  "esperado": "prog-logica:o que é escolha caso",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "quadno usar switch em vez de if",
+  "esperado": "prog-logica:o que é escolha caso",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "o que é variável local e global",
+  "esperado": "prog-logica:o que é escopo de variável",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "me explica o q e variavel local e global",
+  "esperado": "prog-logica:o que é escopo de variável",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é variáevl local e global",
   "esperado": "prog-logica:o que é escopo de variável",
   "grupo": "treino"
  },
@@ -2675,6 +5860,16 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "me diz como fazer um for dentro de outro for",
+  "esperado": "prog-logica:o que é laço aninhado",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como fazer um for denrto de outro for",
+  "esperado": "prog-logica:o que é laço aninhado",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "como sair de um laço",
   "esperado": "prog-logica:o que é laço infinito",
   "grupo": "teste"
@@ -2690,7 +5885,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "por favor o q sao as leis de de morgan",
+  "esperado": "prog-logica:o que é lógica booleana",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que são as leis de de mogran",
+  "esperado": "prog-logica:o que é lógica booleana",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "diferença entre parâmetro e argumento",
+  "esperado": "prog-logica:o que é parâmetro e argumento",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "vc sabe diferenca entre parametro e argumento",
+  "esperado": "prog-logica:o que é parâmetro e argumento",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "difeernça entre parâmetro e argumento",
   "esperado": "prog-logica:o que é parâmetro e argumento",
   "grupo": "treino"
  },
@@ -2705,7 +5920,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "queria saber o q e programar",
+  "esperado": "prog-logica:o que é programação",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é prgoramar",
+  "esperado": "prog-logica:o que é programação",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "como escrever um algoritmo em português",
+  "esperado": "prog-logica:o que é pseudocódigo",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "queria saber como escrever um algoritmo em portugues",
+  "esperado": "prog-logica:o que é pseudocódigo",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como escrever um alogritmo em português",
   "esperado": "prog-logica:o que é pseudocódigo",
   "grupo": "treino"
  },
@@ -2715,7 +5950,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "me explica o q e recursividade",
+  "esperado": "prog-logica:o que é recursão",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é reucrsividade",
+  "esperado": "prog-logica:o que é recursão",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "o que é cadeia de caracteres",
+  "esperado": "prog-logica:o que é string",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "me explica o q e cadeia de caracteres",
+  "esperado": "prog-logica:o que é string",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é cadeia de caractrees",
   "esperado": "prog-logica:o que é string",
   "grupo": "treino"
  },
@@ -2725,12 +5980,42 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "me explica como fazer teste de mesa",
+  "esperado": "prog-logica:o que é teste de mesa",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como faezr teste de mesa",
+  "esperado": "prog-logica:o que é teste de mesa",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "python tem tipo",
   "esperado": "prog-logica:o que é tipagem estática e dinâmica",
   "grupo": "treino"
  },
  {
+  "pergunta": "vc sabe python tem tipo",
+  "esperado": "prog-logica:o que é tipagem estática e dinâmica",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "pyhton tem tipo",
+  "esperado": "prog-logica:o que é tipagem estática e dinâmica",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "exemplo de algoritmo do dia a dia",
+  "esperado": "prog-logica:o que é um algoritmo",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "queria saber exemplo de algoritmo do dia a dia",
+  "esperado": "prog-logica:o que é um algoritmo",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "exemplo de agloritmo do dia a dia",
   "esperado": "prog-logica:o que é um algoritmo",
   "grupo": "treino"
  },
@@ -2745,7 +6030,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "me diz diferenca entre algoritmo e programa",
+  "esperado": null,
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "difeernça entre algoritmo e programa",
+  "esperado": null,
+  "grupo": "treino"
+ },
+ {
   "pergunta": "o que é um array",
+  "esperado": "prog-logica:o que é um vetor na lógica de programação",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "me explica o q e um array",
+  "esperado": "prog-logica:o que é um vetor na lógica de programação",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é um arary",
   "esperado": "prog-logica:o que é um vetor na lógica de programação",
   "grupo": "treino"
  },
@@ -2755,7 +6060,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "vc sabe diferenca entre variavel e constante",
+  "esperado": "prog-logica:o que é uma constante",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "difeernça entre variável e constante",
+  "esperado": "prog-logica:o que é uma constante",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "função em programação",
+  "esperado": "prog-logica:o que é uma função",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "funcao em programacao",
+  "esperado": "prog-logica:o que é uma função",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "função em progarmação",
   "esperado": "prog-logica:o que é uma função",
   "grupo": "treino"
  },
@@ -2765,7 +6090,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "vc sabe quais as linguagens de programacao mais usadas",
+  "esperado": "prog-logica:o que é uma linguagem de programação",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "quais as linguagens de prograamção mais usadas",
+  "esperado": "prog-logica:o que é uma linguagem de programação",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "variável",
+  "esperado": "prog-logica:o que é uma variável",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "me diz variavel",
+  "esperado": "prog-logica:o que é uma variável",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "vairável",
   "esperado": "prog-logica:o que é uma variável",
   "grupo": "treino"
  },
@@ -2775,7 +6120,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "queria saber o q e ponto flutuante",
+  "esperado": "prog-logica:por que 0.1 mais 0.2 não dá 0.3",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é ponto flutuatne",
+  "esperado": "prog-logica:por que 0.1 mais 0.2 não dá 0.3",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "me dá um exercício de lógica",
+  "esperado": "prog-logica:quais exercícios de lógica de programação para iniciantes",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "me explica me da um exercicio de logica",
+  "esperado": "prog-logica:quais exercícios de lógica de programação para iniciantes",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "me dá um exerccíio de lógica",
   "esperado": "prog-logica:quais exercícios de lógica de programação para iniciantes",
   "grupo": "treino"
  },
@@ -2785,7 +6150,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "vc sabe o q e erro de sintaxe",
+  "esperado": "prog-logica:quais os tipos de erro em programação",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é erro de sintxae",
+  "esperado": "prog-logica:quais os tipos de erro em programação",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "o que é divisão inteira",
+  "esperado": "prog-logica:quais são os operadores aritméticos",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "queria saber o q e divisao inteira",
+  "esperado": "prog-logica:quais são os operadores aritméticos",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é diivsão inteira",
   "esperado": "prog-logica:quais são os operadores aritméticos",
   "grupo": "treino"
  },
@@ -2800,7 +6185,22 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "me explica o q e operador de comparacao",
+  "esperado": "prog-logica:quais são os operadores relacionais",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é operador de comparaãço",
+  "esperado": "prog-logica:quais são os operadores relacionais",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "tipos de dados",
+  "esperado": "prog-logica:quais são os tipos de dados",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "tiops de dados",
   "esperado": "prog-logica:quais são os tipos de dados",
   "grupo": "treino"
  },
@@ -2811,6 +6211,16 @@
  },
  {
   "pergunta": "nomes de variáveis em português",
+  "esperado": "prog-vocabulario:devo programar em português ou inglês",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "por favor nomes de variaveis em portugues",
+  "esperado": "prog-vocabulario:devo programar em português ou inglês",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "nomes de vraiáveis em português",
   "esperado": "prog-vocabulario:devo programar em português ou inglês",
   "grupo": "treino"
  },
@@ -2830,7 +6240,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "por favor o q significa api",
+  "esperado": "prog-vocabulario:o que é api",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que signifcia api",
+  "esperado": "prog-vocabulario:o que é api",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "o que é encoding",
+  "esperado": "prog-vocabulario:o que é ascii e unicode",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "vc sabe o q e encoding",
+  "esperado": "prog-vocabulario:o que é ascii e unicode",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é encoidng",
   "esperado": "prog-vocabulario:o que é ascii e unicode",
   "grupo": "treino"
  },
@@ -2840,7 +6270,22 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "queria saber o q e uma lib",
+  "esperado": "prog-vocabulario:o que é biblioteca em programação",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "o que é merge",
+  "esperado": "prog-vocabulario:o que é branch",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "me diz o q e merge",
+  "esperado": "prog-vocabulario:o que é branch",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é megre",
   "esperado": "prog-vocabulario:o que é branch",
   "grupo": "treino"
  },
@@ -2850,7 +6295,22 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "me explica de onde vem o nome bug",
+  "esperado": "prog-vocabulario:o que é bug",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "o que é camel case",
+  "esperado": "prog-vocabulario:o que é camelcase",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "queria saber o q e camel case",
+  "esperado": "prog-vocabulario:o que é camelcase",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é cmael case",
   "esperado": "prog-vocabulario:o que é camelcase",
   "grupo": "treino"
  },
@@ -2860,12 +6320,42 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "vc sabe o q e integracao continua",
+  "esperado": "prog-vocabulario:o que é ci cd",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é itnegração contínua",
+  "esperado": "prog-vocabulario:o que é ci cd",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "o que é atributo e método",
   "esperado": "prog-vocabulario:o que é classe e objeto",
   "grupo": "treino"
  },
  {
+  "pergunta": "me diz o q e atributo e metodo",
+  "esperado": "prog-vocabulario:o que é classe e objeto",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é artibuto e método",
+  "esperado": "prog-vocabulario:o que é classe e objeto",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "o que é localhost",
+  "esperado": "prog-vocabulario:o que é cliente servidor",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "me explica o q e localhost",
+  "esperado": "prog-vocabulario:o que é cliente servidor",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é lcoalhost",
   "esperado": "prog-vocabulario:o que é cliente servidor",
   "grupo": "treino"
  },
@@ -2885,6 +6375,16 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "me explica qdo escrever comentarios",
+  "esperado": null,
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "quando escrever comentárois",
+  "esperado": null,
+  "grupo": "treino"
+ },
+ {
   "pergunta": "o que é conventional commits",
   "esperado": "prog-vocabulario:o que é commit",
   "grupo": "teste"
@@ -2900,7 +6400,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "me explica o q e homologacao",
+  "esperado": "prog-vocabulario:o que é deploy",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é homloogação",
+  "esperado": "prog-vocabulario:o que é deploy",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "o que é padrão de projeto",
+  "esperado": "prog-vocabulario:o que é design pattern",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "vc sabe o q e padrao de projeto",
+  "esperado": "prog-vocabulario:o que é design pattern",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é padrão de prjoeto",
   "esperado": "prog-vocabulario:o que é design pattern",
   "grupo": "treino"
  },
@@ -2920,12 +6440,42 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "me explica o q e polimorfismo",
+  "esperado": "prog-vocabulario:o que é encapsulamento herança e polimorfismo",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é polimofrismo",
+  "esperado": "prog-vocabulario:o que é encapsulamento herança e polimorfismo",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "framework",
   "esperado": "prog-vocabulario:o que é framework",
   "grupo": "treino"
  },
  {
+  "pergunta": "me explica framework",
+  "esperado": "prog-vocabulario:o que é framework",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "fraemwork",
+  "esperado": "prog-vocabulario:o que é framework",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "o que é full stack",
+  "esperado": "prog-vocabulario:o que é front end e back end",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "queria saber o q e full stack",
+  "esperado": "prog-vocabulario:o que é front end e back end",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é full satck",
   "esperado": "prog-vocabulario:o que é front end e back end",
   "grupo": "treino"
  },
@@ -2940,6 +6490,16 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "vc sabe pra q serve o arquivo gitignore",
+  "esperado": "prog-vocabulario:o que é gitignore",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "para que serve o arquivo gitginore",
+  "esperado": "prog-vocabulario:o que é gitignore",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "o que é http",
   "esperado": null,
   "grupo": "treino"
@@ -2950,12 +6510,37 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "queria saber o q sao os codigos de status http",
+  "esperado": null,
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que são os cóidgos de status http",
+  "esperado": null,
+  "grupo": "treino"
+ },
+ {
   "pergunta": "ide",
   "esperado": "prog-vocabulario:o que é ide",
   "grupo": "treino"
  },
  {
+  "pergunta": "vc sabe ide",
+  "esperado": "prog-vocabulario:o que é ide",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "para que serve indentar o código",
+  "esperado": "prog-vocabulario:o que é indentação",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "me diz pra q serve indentar o codigo",
+  "esperado": "prog-vocabulario:o que é indentação",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "para que serve indetnar o código",
   "esperado": "prog-vocabulario:o que é indentação",
   "grupo": "treino"
  },
@@ -2970,12 +6555,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "me diz json",
+  "esperado": "prog-vocabulario:o que é json",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "o que é código aberto",
   "esperado": "prog-vocabulario:o que é licença de software",
   "grupo": "teste"
  },
  {
   "pergunta": "o que é programação orientada a objetos",
+  "esperado": "prog-vocabulario:o que é paradigma de programação",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "por favor o q e programacao orientada a objetos",
+  "esperado": "prog-vocabulario:o que é paradigma de programação",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é progrmaação orientada a objetos",
   "esperado": "prog-vocabulario:o que é paradigma de programação",
   "grupo": "treino"
  },
@@ -3000,7 +6600,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "me explica quais sao os principios solid",
+  "esperado": "prog-vocabulario:o que é solid",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "quais são os prinícpios solid",
+  "esperado": "prog-vocabulario:o que é solid",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "onde tirar dúvidas de programação",
+  "esperado": "prog-vocabulario:o que é stack overflow site",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "por favor onde tirar duvidas de programacao",
+  "esperado": "prog-vocabulario:o que é stack overflow site",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "onde tirar dúvidas de programçaão",
   "esperado": "prog-vocabulario:o que é stack overflow site",
   "grupo": "treino"
  },
@@ -3015,7 +6635,22 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "vc sabe o q e desenvolvimento guiado por testes",
+  "esperado": "prog-vocabulario:o que é tdd",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é desenvolivmento guiado por testes",
+  "esperado": "prog-vocabulario:o que é tdd",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "o que é cli",
+  "esperado": "prog-vocabulario:o que é terminal",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "vc sabe o q e cli",
   "esperado": "prog-vocabulario:o que é terminal",
   "grupo": "treino"
  },
@@ -3035,12 +6670,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "por favor o q e semver",
+  "esperado": "prog-vocabulario:o que é versionamento semântico",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é smever",
+  "esperado": "prog-vocabulario:o que é versionamento semântico",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "qual padrão de nome usar em python",
   "esperado": null,
   "grupo": "treino"
  },
  {
   "pergunta": "o que é a pep 8",
+  "esperado": null,
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "me diz o q e a pep 8",
   "esperado": null,
   "grupo": "treino"
  },
@@ -3055,7 +6705,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "me diz como usar argparse",
+  "esperado": "python-avancado:como criar um programa de linha de comando em python",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como usar argpasre",
+  "esperado": "python-avancado:como criar um programa de linha de comando em python",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "o que é uvicorn",
+  "esperado": "python-avancado:como criar uma api com fastapi",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "me explica o q e uvicorn",
+  "esperado": "python-avancado:como criar uma api com fastapi",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é uvicron",
   "esperado": "python-avancado:como criar uma api com fastapi",
   "grupo": "treino"
  },
@@ -3070,6 +6740,16 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "me diz dicas de otimizacao em python",
+  "esperado": null,
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "dicas de otmiização em python",
+  "esperado": null,
+  "grupo": "treino"
+ },
+ {
   "pergunta": "como criar um executável do meu programa python",
   "esperado": "python-avancado:como empacotar um programa python em executável",
   "grupo": "teste"
@@ -3080,7 +6760,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "me explica como usar hashlib",
+  "esperado": "python-avancado:como fazer hash de arquivo em python",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como usar hashilb",
+  "esperado": "python-avancado:como fazer hash de arquivo em python",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "como usar o módulo logging",
+  "esperado": "python-avancado:como fazer logging em python",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "por favor como usar o modulo logging",
+  "esperado": "python-avancado:como fazer logging em python",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como usar o módulo loggnig",
   "esperado": "python-avancado:como fazer logging em python",
   "grupo": "treino"
  },
@@ -3090,7 +6790,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "me explica o q e requirements.txt",
+  "esperado": "python-avancado:como gerenciar dependências em python",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é requiremetns.txt",
+  "esperado": "python-avancado:como gerenciar dependências em python",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "como achar o que está lento em python",
+  "esperado": "python-avancado:como medir desempenho em python",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "vc sabe como achar o q esta lento em python",
+  "esperado": "python-avancado:como medir desempenho em python",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como achar o que está lento em ptyhon",
   "esperado": "python-avancado:como medir desempenho em python",
   "grupo": "treino"
  },
@@ -3100,7 +6820,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "o q e um pacote python",
+  "esperado": "python-avancado:como organizar um projeto python",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é um pcaote python",
+  "esperado": "python-avancado:como organizar um projeto python",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "como usar pytest",
+  "esperado": "python-avancado:como testar código python",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "vc sabe como usar pytest",
+  "esperado": "python-avancado:como testar código python",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como usar ptyest",
   "esperado": "python-avancado:como testar código python",
   "grupo": "treino"
  },
@@ -3125,7 +6865,22 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "me explica boas praticas com sqlite3 no python",
+  "esperado": "python-avancado:como usar sqlite3 em python de forma profissional",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "boas prátcias com sqlite3 no python",
+  "esperado": "python-avancado:como usar sqlite3 em python de forma profissional",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "threads python",
+  "esperado": "python-avancado:como usar threads em python",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "therads python",
   "esperado": "python-avancado:como usar threads em python",
   "grupo": "treino"
  },
@@ -3135,7 +6890,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "queria saber como usar regex em python",
+  "esperado": "python-avancado:o que são expressões regulares em python",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como usar regex em pytohn",
+  "esperado": "python-avancado:o que são expressões regulares em python",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "o que é dunder method",
+  "esperado": "python-avancado:o que são métodos mágicos em python",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o q e dunder method",
+  "esperado": "python-avancado:o que são métodos mágicos em python",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é dnuder method",
   "esperado": "python-avancado:o que são métodos mágicos em python",
   "grupo": "treino"
  },
@@ -3150,12 +6925,32 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "o q e externally managed environment",
+  "esperado": "python-avancado:o que é ambiente virtual em python",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é externally managed environmnet",
+  "esperado": "python-avancado:o que é ambiente virtual em python",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "o que é async await em python",
   "esperado": null,
   "grupo": "treino"
  },
  {
   "pergunta": "o que é asyncio",
+  "esperado": null,
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o q e asyncio",
+  "esperado": null,
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é asnycio",
   "esperado": null,
   "grupo": "treino"
  },
@@ -3170,6 +6965,16 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "queria saber como usar counter defaultdict e deque",
+  "esperado": null,
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como usar counter defauldtict e deque",
+  "esperado": null,
+  "grupo": "treino"
+ },
+ {
   "pergunta": "o que é dataclass em python",
   "esperado": null,
   "grupo": "treino"
@@ -3180,12 +6985,42 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "vc sabe dataclass",
+  "esperado": null,
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "dataclsas",
+  "esperado": null,
+  "grupo": "treino"
+ },
+ {
   "pergunta": "o que significa @ em cima da função",
   "esperado": "python-avancado:o que é decorador em python",
   "grupo": "treino"
  },
  {
+  "pergunta": "o q significa @ em cima da funcao",
+  "esperado": "python-avancado:o que é decorador em python",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que signfiica @ em cima da função",
+  "esperado": "python-avancado:o que é decorador em python",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "o que é yield",
+  "esperado": "python-avancado:o que é gerador em python",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "por favor o q e yield",
+  "esperado": "python-avancado:o que é gerador em python",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é yiled",
   "esperado": "python-avancado:o que é gerador em python",
   "grupo": "treino"
  },
@@ -3196,6 +7031,16 @@
  },
  {
   "pergunta": "o que é super em python",
+  "esperado": "python-avancado:o que é herança em python",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o q e super em python",
+  "esperado": "python-avancado:o que é herança em python",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é super em pyhton",
   "esperado": "python-avancado:o que é herança em python",
   "grupo": "treino"
  },
@@ -3215,12 +7060,42 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "me explica como fazer cache de funcao em python",
+  "esperado": "python-avancado:o que é lru_cache",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como fazer cache de fnução em python",
+  "esperado": "python-avancado:o que é lru_cache",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "como usar monkeypatch",
   "esperado": "python-avancado:o que é mock em testes python",
   "grupo": "treino"
  },
  {
+  "pergunta": "me explica como usar monkeypatch",
+  "esperado": "python-avancado:o que é mock em testes python",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como usar mokneypatch",
+  "esperado": "python-avancado:o que é mock em testes python",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "o que é import this",
+  "esperado": "python-avancado:o que é pep e zen do python",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "me diz o q e import this",
+  "esperado": "python-avancado:o que é pep e zen do python",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é ipmort this",
   "esperado": "python-avancado:o que é pep e zen do python",
   "grupo": "treino"
  },
@@ -3235,7 +7110,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "me explica como validar dados em python",
+  "esperado": null,
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como valiadr dados em python",
+  "esperado": null,
+  "grupo": "treino"
+ },
+ {
   "pergunta": "o que é * e ** em chamadas de função",
+  "esperado": "python-avancado:o que é unpacking em python",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "vc sabe o q e * e ** em chamadas de funcao",
+  "esperado": "python-avancado:o que é unpacking em python",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é * e ** em cahmadas de função",
   "esperado": "python-avancado:o que é unpacking em python",
   "grupo": "treino"
  },
@@ -3255,7 +7150,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "me diz novidades do python",
+  "esperado": "python-avancado:quais recursos novos do python 3.10 ao 3.14",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "noivdades do python",
+  "esperado": "python-avancado:quais recursos novos do python 3.10 ao 3.14",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "como contar palavras em um texto em python",
+  "esperado": "python-basico:como contar ocorrências em python",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "por favor como contar palavras em um texto em python",
+  "esperado": "python-basico:como contar ocorrências em python",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como contar paalvras em um texto em python",
   "esperado": "python-basico:como contar ocorrências em python",
   "grupo": "treino"
  },
@@ -3265,12 +7180,42 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "me explica def python",
+  "esperado": "python-basico:como criar uma função em python",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "def pyhton",
+  "esperado": "python-basico:como criar uma função em python",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "lista em python",
   "esperado": "python-basico:como criar uma lista em python",
   "grupo": "treino"
  },
  {
+  "pergunta": "queria saber lista em python",
+  "esperado": "python-basico:como criar uma lista em python",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "lista em pytohn",
+  "esperado": "python-basico:como criar uma lista em python",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "variáveis em python",
+  "esperado": "python-basico:como criar variáveis em python",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "me explica variaveis em python",
+  "esperado": "python-basico:como criar variáveis em python",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "vairáveis em python",
   "esperado": "python-basico:como criar variáveis em python",
   "grupo": "treino"
  },
@@ -3285,7 +7230,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "por favor o q e slicing em python",
+  "esperado": null,
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é sliicng em python",
+  "esperado": null,
+  "grupo": "treino"
+ },
+ {
   "pergunta": "como usar random em python",
+  "esperado": "python-basico:como gerar números aleatórios em python",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "queria saber como usar random em python",
+  "esperado": "python-basico:como gerar números aleatórios em python",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como usar radnom em python",
   "esperado": "python-basico:como gerar números aleatórios em python",
   "grupo": "treino"
  },
@@ -3295,7 +7260,22 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "por favor o q e import em python",
+  "esperado": "python-basico:como importar módulos em python",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é ipmort em python",
+  "esperado": "python-basico:como importar módulos em python",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "como usar pip",
+  "esperado": "python-basico:como instalar bibliotecas em python",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "por favor como usar pip",
   "esperado": "python-basico:como instalar bibliotecas em python",
   "grupo": "treino"
  },
@@ -3305,7 +7285,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "por favor instalar python no ubuntu",
+  "esperado": "python-basico:como instalar python",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "instaalr python no ubuntu",
+  "esperado": "python-basico:como instalar python",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "como ler do teclado em python",
+  "esperado": "python-basico:como ler dados do teclado em python",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "me diz como ler do teclado em python",
+  "esperado": "python-basico:como ler dados do teclado em python",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como ler do tecldao em python",
   "esperado": "python-basico:como ler dados do teclado em python",
   "grupo": "treino"
  },
@@ -3316,6 +7316,16 @@
  },
  {
   "pergunta": "abrir arquivo em python",
+  "esperado": null,
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "me diz abrir arquivo em python",
+  "esperado": null,
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "abrir aruqivo em python",
   "esperado": null,
   "grupo": "treino"
  },
@@ -3335,6 +7345,16 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "me explica como usar datetime em python",
+  "esperado": "python-basico:como trabalhar com datas em python",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como usar dateitme em python",
+  "esperado": "python-basico:como trabalhar com datas em python",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "como tratar erros em python",
   "esperado": null,
   "grupo": "treino"
@@ -3345,12 +7365,37 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "queria saber excecao em python",
+  "esperado": null,
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "excçeão em python",
+  "esperado": null,
+  "grupo": "treino"
+ },
+ {
   "pergunta": "laço em python",
   "esperado": "python-basico:como usar for em python",
   "grupo": "treino"
  },
  {
+  "pergunta": "vc sabe laco em python",
+  "esperado": "python-basico:como usar for em python",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "laço em pyhton",
+  "esperado": "python-basico:como usar for em python",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "condicional em python",
+  "esperado": "python-basico:como usar if em python",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "conidcional em python",
   "esperado": "python-basico:como usar if em python",
   "grupo": "treino"
  },
@@ -3365,12 +7410,42 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "me explica como usar break e continue em python",
+  "esperado": "python-basico:como usar while em python",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como usar break e cnotinue em python",
+  "esperado": "python-basico:como usar while em python",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "o que é indentationerror",
   "esperado": "python-basico:erros comuns em python para iniciantes",
   "grupo": "treino"
  },
  {
+  "pergunta": "me diz o q e indentationerror",
+  "esperado": "python-basico:erros comuns em python para iniciantes",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é idnentationerror",
+  "esperado": "python-basico:erros comuns em python para iniciantes",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "jogo de adivinhação em python",
+  "esperado": "python-basico:exemplo de programa completo em python",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "jogo de adivinhacao em python",
+  "esperado": "python-basico:exemplo de programa completo em python",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "jogo de adiivnhação em python",
   "esperado": "python-basico:exemplo de programa completo em python",
   "grupo": "treino"
  },
@@ -3381,6 +7456,16 @@
  },
  {
   "pergunta": "o que praticar em python",
+  "esperado": null,
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "vc sabe o q praticar em python",
+  "esperado": null,
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que prtaicar em python",
   "esperado": null,
   "grupo": "treino"
  },
@@ -3400,7 +7485,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "me diz o q e argumento nomeado em python",
+  "esperado": "python-basico:o que são parâmetros com valor padrão em python",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é arguemnto nomeado em python",
+  "esperado": "python-basico:o que são parâmetros com valor padrão em python",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "como usar dict em python",
+  "esperado": "python-basico:o que é dicionário em python",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "me explica como usar dict em python",
+  "esperado": "python-basico:o que é dicionário em python",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como usar dict em pyhton",
   "esperado": "python-basico:o que é dicionário em python",
   "grupo": "treino"
  },
@@ -3410,7 +7515,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "vc sabe o q e global em python",
+  "esperado": "python-basico:o que é escopo em python",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é gloabl em python",
+  "esperado": "python-basico:o que é escopo em python",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "f string",
+  "esperado": "python-basico:o que é f-string em python",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "me explica f string",
+  "esperado": "python-basico:o que é f-string em python",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "f strnig",
   "esperado": "python-basico:o que é f-string em python",
   "grupo": "treino"
  },
@@ -3420,12 +7545,42 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "queria saber pra q serve __main__ em python",
+  "esperado": "python-basico:o que é if __name__ == \"__main__\"",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "para que serve __amin__ em python",
+  "esperado": "python-basico:o que é if __name__ == \"__main__\"",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "lambda python",
   "esperado": "python-basico:o que é lambda em python",
   "grupo": "treino"
  },
  {
+  "pergunta": "me explica lambda python",
+  "esperado": "python-basico:o que é lambda em python",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "lamdba python",
+  "esperado": "python-basico:o que é lambda em python",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "para que serve python",
+  "esperado": "python-basico:o que é python",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "me diz pra q serve python",
+  "esperado": "python-basico:o que é python",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "para que serve pyhton",
   "esperado": "python-basico:o que é python",
   "grupo": "treino"
  },
@@ -3445,6 +7600,16 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "diferenca entre lista e tupla",
+  "esperado": "python-basico:o que é tupla em python",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "diferneça entre lista e tupla",
+  "esperado": "python-basico:o que é tupla em python",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "operadores em python",
   "esperado": null,
   "grupo": "teste"
@@ -3460,12 +7625,37 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "me diz o q e int float str bool em python",
+  "esperado": "python-basico:quais os tipos de dados em python",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é int float str bool em pyhton",
+  "esperado": "python-basico:quais os tipos de dados em python",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "índice em sql",
   "esperado": "sql-avancado:como criar índice em sql",
   "grupo": "treino"
  },
  {
+  "pergunta": "vc sabe indice em sql",
+  "esperado": "sql-avancado:como criar índice em sql",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "ídnice em sql",
+  "esperado": "sql-avancado:como criar índice em sql",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "o que é fts5",
+  "esperado": "sql-avancado:como fazer busca de texto no sqlite",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "me diz o q e fts5",
   "esperado": "sql-avancado:como fazer busca de texto no sqlite",
   "grupo": "treino"
  },
@@ -3480,7 +7670,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "me explica minha consulta sql esta lenta",
+  "esperado": "sql-avancado:como otimizar consultas sql",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "minha consutla sql está lenta",
+  "esperado": "sql-avancado:como otimizar consultas sql",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "funções json do sqlite",
+  "esperado": "sql-avancado:como trabalhar com json no sql",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "funcoes json do sqlite",
+  "esperado": "sql-avancado:como trabalhar com json no sql",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "fuçnões json do sqlite",
   "esperado": "sql-avancado:como trabalhar com json no sql",
   "grupo": "treino"
  },
@@ -3520,7 +7730,22 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "vc sabe window function",
+  "esperado": "sql-avancado:o que são funções de janela em sql",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "window functoin",
+  "esperado": "sql-avancado:o que são funções de janela em sql",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "with em sql",
+  "esperado": "sql-avancado:o que é cte em sql",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "queria saber with em sql",
   "esperado": "sql-avancado:o que é cte em sql",
   "grupo": "treino"
  },
@@ -3530,12 +7755,42 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "queria saber como consultar hierarquia em sql",
+  "esperado": "sql-avancado:o que é cte recursiva",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como consultar hiearrquia em sql",
+  "esperado": "sql-avancado:o que é cte recursiva",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "como transformar linhas em colunas em sql",
   "esperado": "sql-avancado:o que é pivot em sql",
   "grupo": "treino"
  },
  {
+  "pergunta": "por favor como transformar linhas em colunas em sql",
+  "esperado": "sql-avancado:o que é pivot em sql",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como transfomrar linhas em colunas em sql",
+  "esperado": "sql-avancado:o que é pivot em sql",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "como montar sql com segurança",
+  "esperado": "sql-avancado:o que é sql dinâmico",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "por favor como montar sql com seguranca",
+  "esperado": "sql-avancado:o que é sql dinâmico",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como montar sql com segruança",
   "esperado": "sql-avancado:o que é sql dinâmico",
   "grupo": "treino"
  },
@@ -3560,7 +7815,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "me explica como criar um gatilho no sqlite",
+  "esperado": "sql-avancado:o que é trigger em sql",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como criar um gatliho no sqlite",
+  "esperado": "sql-avancado:o que é trigger em sql",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "como inserir ou atualizar se já existir em sql",
+  "esperado": "sql-avancado:o que é upsert",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "me explica como inserir ou atualizar se ja existir em sql",
+  "esperado": "sql-avancado:o que é upsert",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como inserir ou ataulizar se já existir em sql",
   "esperado": "sql-avancado:o que é upsert",
   "grupo": "treino"
  },
@@ -3570,7 +7845,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "vc sabe como criar view em sql",
+  "esperado": "sql-avancado:o que é view materializada",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como cirar view em sql",
+  "esperado": "sql-avancado:o que é view materializada",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "tabelas de exemplo para praticar sql",
+  "esperado": "sql-basico:banco de exemplo da loja",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "por favor tabelas de exemplo pra praticar sql",
+  "esperado": "sql-basico:banco de exemplo da loja",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "tabelas de exemplo para prtaicar sql",
   "esperado": "sql-basico:banco de exemplo da loja",
   "grupo": "treino"
  },
@@ -3580,7 +7875,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "por favor como escrever sql legivel",
+  "esperado": "sql-basico:boas práticas de sql",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como escreevr sql legível",
+  "esperado": "sql-basico:boas práticas de sql",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "como usar alter table",
+  "esperado": "sql-basico:como alterar a estrutura de uma tabela",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "queria saber como usar alter table",
+  "esperado": "sql-basico:como alterar a estrutura de uma tabela",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como usar aletr table",
   "esperado": "sql-basico:como alterar a estrutura de uma tabela",
   "grupo": "treino"
  },
@@ -3590,7 +7905,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "me explica como remover linhas de uma tabela",
+  "esperado": "sql-basico:como apagar dados em sql",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como remoevr linhas de uma tabela",
+  "esperado": "sql-basico:como apagar dados em sql",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "update",
+  "esperado": "sql-basico:como atualizar dados em sql",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "queria saber update",
+  "esperado": "sql-basico:como atualizar dados em sql",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "updtae",
   "esperado": "sql-basico:como atualizar dados em sql",
   "grupo": "treino"
  },
@@ -3605,12 +7940,37 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "vc sabe select",
+  "esperado": "sql-basico:como consultar dados em sql",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "sleect",
+  "esperado": "sql-basico:como consultar dados em sql",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "criar tabela",
   "esperado": "sql-basico:como criar uma tabela em sql",
   "grupo": "treino"
  },
  {
+  "pergunta": "me diz criar tabela",
+  "esperado": "sql-basico:como criar uma tabela em sql",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "criar tablea",
+  "esperado": "sql-basico:como criar uma tabela em sql",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "where",
+  "esperado": "sql-basico:como filtrar resultados em sql",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "wehre",
   "esperado": "sql-basico:como filtrar resultados em sql",
   "grupo": "treino"
  },
@@ -3645,6 +8005,16 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "queria saber como usar order by",
+  "esperado": "sql-basico:como ordenar resultados em sql",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como usar oredr by",
+  "esperado": "sql-basico:como ordenar resultados em sql",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "como trabalhar com datas em sql",
   "esperado": null,
   "grupo": "teste"
@@ -3660,7 +8030,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "queria saber if dentro de select",
+  "esperado": "sql-basico:como usar case when em sql",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "if dnetro de select",
+  "esperado": "sql-basico:como usar case when em sql",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "como agrupar resultados",
+  "esperado": "sql-basico:como usar group by",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "por favor como agrupar resultados",
+  "esperado": "sql-basico:como usar group by",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como agrupar resultaods",
   "esperado": "sql-basico:como usar group by",
   "grupo": "treino"
  },
@@ -3675,12 +8065,37 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "queria saber o q e % e _ no like",
+  "esperado": "sql-basico:como usar like em sql",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "como usar sqlite3 no python",
   "esperado": "sql-basico:como usar sql no python",
   "grupo": "treino"
  },
  {
+  "pergunta": "me explica como usar sqlite3 no python",
+  "esperado": "sql-basico:como usar sql no python",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como usar sqltie3 no python",
+  "esperado": "sql-basico:como usar sql no python",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "exercícios de sql para iniciantes",
+  "esperado": "sql-basico:exercícios de sql básico",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "queria saber exercicios de sql pra iniciantes",
+  "esperado": "sql-basico:exercícios de sql básico",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "exrecícios de sql para iniciantes",
   "esperado": "sql-basico:exercícios de sql básico",
   "grupo": "treino"
  },
@@ -3695,7 +8110,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "por favor como juntar duas tabelas",
+  "esperado": "sql-basico:o que é join em sql",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como juntar duas tableas",
+  "esperado": "sql-basico:o que é join em sql",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "como listar clientes sem pedidos",
+  "esperado": "sql-basico:o que é left join",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "me diz como listar clientes sem pedidos",
+  "esperado": "sql-basico:o que é left join",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como listar clinetes sem pedidos",
   "esperado": "sql-basico:o que é left join",
   "grupo": "treino"
  },
@@ -3705,12 +8140,42 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "me diz como verificar se e nulo em sql",
+  "esperado": "sql-basico:o que é null em sql",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "como veirficar se é nulo em sql",
+  "esperado": "sql-basico:o que é null em sql",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "qual tipo usar para dinheiro em sql",
   "esperado": "sql-basico:quais os tipos de dados no sql",
   "grupo": "treino"
  },
  {
+  "pergunta": "me diz qual tipo usar pra dinheiro em sql",
+  "esperado": "sql-basico:quais os tipos de dados no sql",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "qual tipo usar para dniheiro em sql",
+  "esperado": "sql-basico:quais os tipos de dados no sql",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "o que é right join full outer join e cross join",
+  "esperado": "sql-basico:quais os tipos de join",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "por favor o q e right join full outer join e cross join",
+  "esperado": "sql-basico:quais os tipos de join",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é rgiht join full outer join e cross join",
   "esperado": "sql-basico:quais os tipos de join",
   "grupo": "treino"
  },
@@ -3735,12 +8200,32 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "queria saber exemplo de modelagem de banco de dados passo a passo",
+  "esperado": "sql-teoria-pratica:como modelar um banco de dados na prática",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "exemplo de modelaegm de banco de dados passo a passo",
+  "esperado": "sql-teoria-pratica:como modelar um banco de dados na prática",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "o que é plano de execução por dentro",
   "esperado": "sql-teoria-pratica:como o otimizador de consultas funciona",
   "grupo": "teste"
  },
  {
   "pergunta": "exercícios difíceis de sql",
+  "esperado": "sql-teoria-pratica:desafio de sql",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "queria saber exercicios dificeis de sql",
+  "esperado": "sql-teoria-pratica:desafio de sql",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "exercícois difíceis de sql",
   "esperado": "sql-teoria-pratica:desafio de sql",
   "grupo": "treino"
  },
@@ -3755,12 +8240,42 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "primeira forma normal na pratica",
+  "esperado": "sql-teoria-pratica:o que é 1fn em detalhes",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "pirmeira forma normal na prática",
+  "esperado": "sql-teoria-pratica:o que é 1fn em detalhes",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "o que é dependência parcial",
   "esperado": "sql-teoria-pratica:o que é 2fn em detalhes",
   "grupo": "treino"
  },
  {
+  "pergunta": "por favor o q e dependencia parcial",
+  "esperado": "sql-teoria-pratica:o que é 2fn em detalhes",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é depnedência parcial",
+  "esperado": "sql-teoria-pratica:o que é 2fn em detalhes",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "terceira forma normal",
+  "esperado": "sql-teoria-pratica:o que é 3fn em detalhes",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "queria saber terceira forma normal",
+  "esperado": "sql-teoria-pratica:o que é 3fn em detalhes",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "tecreira forma normal",
   "esperado": "sql-teoria-pratica:o que é 3fn em detalhes",
   "grupo": "treino"
  },
@@ -3785,7 +8300,22 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "me explica o q e bcnf",
+  "esperado": "sql-teoria-pratica:o que é forma normal de boyce codd",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "o que é lock em banco de dados",
+  "esperado": "sql-teoria-pratica:o que é mvcc",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "queria saber o q e lock em banco de dados",
+  "esperado": "sql-teoria-pratica:o que é mvcc",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é lock em bacno de dados",
   "esperado": "sql-teoria-pratica:o que é mvcc",
   "grupo": "treino"
  },
@@ -3795,7 +8325,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "o q e uma relacao na teoria de banco de dados",
+  "esperado": "sql-teoria-pratica:o que é o modelo relacional de codd",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é uma relçaão na teoria de banco de dados",
+  "esperado": "sql-teoria-pratica:o que é o modelo relacional de codd",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "o que é consistência eventual",
+  "esperado": "sql-teoria-pratica:o que é teorema cap",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "queria saber o q e consistencia eventual",
+  "esperado": "sql-teoria-pratica:o que é teorema cap",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é cnosistência eventual",
   "esperado": "sql-teoria-pratica:o que é teorema cap",
   "grupo": "treino"
  },
@@ -3815,12 +8365,42 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "queria saber o q e nested loop hash join e merge join",
+  "esperado": "sql-teoria-pratica:quais os algoritmos de join",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "o que é nseted loop hash join e merge join",
+  "esperado": "sql-teoria-pratica:quais os algoritmos de join",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "resposta exercício 2 de sql avançado",
   "esperado": "sql-teoria-pratica:resposta do exercício 1 de sql avançado",
   "grupo": "treino"
  },
  {
+  "pergunta": "me explica resposta exercicio 2 de sql avancado",
+  "esperado": "sql-teoria-pratica:resposta do exercício 1 de sql avançado",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "resposta exerccíio 2 de sql avançado",
+  "esperado": "sql-teoria-pratica:resposta do exercício 1 de sql avançado",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "resposta do exercício 2 de sql básico",
+  "esperado": "sql-teoria-pratica:resposta do exercício 1 de sql básico",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "por favor resposta do exercicio 2 de sql basico",
+  "esperado": "sql-teoria-pratica:resposta do exercício 1 de sql básico",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "resposta do eexrcício 2 de sql básico",
   "esperado": "sql-teoria-pratica:resposta do exercício 1 de sql básico",
   "grupo": "treino"
  },
@@ -3840,7 +8420,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "por favor resposta exercicio 7 de sql avancado",
+  "esperado": "sql-teoria-pratica:resposta do exercício 5 de sql avançado",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "resposta execrício 7 de sql avançado",
+  "esperado": "sql-teoria-pratica:resposta do exercício 5 de sql avançado",
+  "grupo": "treino"
+ },
+ {
   "pergunta": "resposta do exercício 8 de sql básico",
+  "esperado": "sql-teoria-pratica:resposta do exercício 7 de sql básico",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "resposta do exercicio 8 de sql basico",
+  "esperado": "sql-teoria-pratica:resposta do exercício 7 de sql básico",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "resposta do exercíico 8 de sql básico",
   "esperado": "sql-teoria-pratica:resposta do exercício 7 de sql básico",
   "grupo": "treino"
  },
@@ -3855,7 +8455,27 @@
   "grupo": "treino"
  },
  {
+  "pergunta": "por favor resposta exercicio 9 de sql avancado",
+  "esperado": null,
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "resposta exeríccio 9 de sql avançado",
+  "esperado": null,
+  "grupo": "treino"
+ },
+ {
   "pergunta": "resposta exercício 10 de sql básico",
+  "esperado": "sql-teoria-pratica:resposta do exercício 9 de sql básico",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "me diz resposta exercicio 10 de sql basico",
+  "esperado": "sql-teoria-pratica:resposta do exercício 9 de sql básico",
+  "grupo": "treino"
+ },
+ {
+  "pergunta": "resposta exercíico 10 de sql básico",
   "esperado": "sql-teoria-pratica:resposta do exercício 9 de sql básico",
   "grupo": "treino"
  }

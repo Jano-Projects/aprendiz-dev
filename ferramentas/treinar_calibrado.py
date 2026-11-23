@@ -58,6 +58,14 @@ FRACAO_TESTE = 3    # em 10
 FRACAO_FORA = 1     # em 10: fragmentos removidos (perguntas sem resposta)
 REGULARIZACOES = [0.03, 0.1, 0.3, 1.0, 3.0]
 
+# Ruído do treino (2.6): cada pergunta de TREINO ganha cópias escritas como
+# gente escreve, com cortesia, abreviação, sem acento e letras trocadas. O
+# TESTE fica limpo, para a medida continuar comparável entre versões.
+CORTESIAS = ["", "me explica ", "por favor ", "vc sabe ", "me diz ", "queria saber "]
+ABREVIAR = {"que": "q", "você": "vc", "voce": "vc", "para": "pra", "porque": "pq",
+            "também": "tb", "quando": "qdo", "não": "n", "quanto": "qto"}
+SEM_ACENTO = str.maketrans("áàâãéêíóôõúçÁÀÂÃÉÊÍÓÔÕÚÇ", "aaaaeeioooucAAAAEEIOOOUC")
+
 
 def _hash(texto: str) -> int:
     return int(hashlib.sha1(texto.encode()).hexdigest(), 16)
@@ -68,6 +76,23 @@ def montar_banco(loja: Path) -> Assistente:
     for id_ in ADDONS:
         assistente.instalar_addon((loja / "addons" / f"{id_}.aprendiz").read_bytes())
     return assistente
+
+
+def com_ruido(pergunta: str, h: int) -> list[str]:
+    """Duas cópias da pergunta com ruído, sempre as mesmas para a mesma pergunta."""
+    palavras = pergunta.split()
+    # 1. cortesia + abreviações + sem acento
+    um = CORTESIAS[h % len(CORTESIAS)] + " ".join(ABREVIAR.get(p.lower(), p) for p in palavras)
+    um = um.translate(SEM_ACENTO)
+    # 2. duas letras vizinhas trocadas na palavra mais longa
+    longa = max(range(len(palavras)), key=lambda i: len(palavras[i])) if palavras else 0
+    dois = pergunta
+    if palavras and len(palavras[longa]) > 4:
+        w = palavras[longa]
+        i = 1 + (h // 7) % (len(w) - 3)
+        trocada = w[:i] + w[i + 1] + w[i] + w[i + 2:]
+        dois = " ".join(palavras[:longa] + [trocada] + palavras[longa + 1:])
+    return [v for v in dict.fromkeys([um, dois]) if v != pergunta]
 
 
 def montar_conjunto(assistente: Assistente) -> list[dict]:
@@ -89,12 +114,18 @@ def montar_conjunto(assistente: Assistente) -> list[dict]:
             for pergunta in dict.fromkeys([doc["pergunta"], separada]):
                 casos.append({"pergunta": pergunta, "esperado": None, "fragmento": chave,
                               "grupo": grupo})
+            if grupo == "treino":
+                casos += [{"pergunta": v, "esperado": None, "fragmento": chave, "grupo": grupo,
+                           "ruido": True} for v in com_ruido(separada, h)]
             continue
         restantes = [v for v in lista_json(doc, "variacoes") if v != separada]
         banco._executar("UPDATE conhecimentos SET variacoes = ? WHERE id = ?",
                         (json.dumps(restantes, ensure_ascii=False), doc["id"]))
         casos.append({"pergunta": separada, "esperado": chave, "fragmento": chave,
                       "grupo": grupo, "id": doc["id"]})
+        if grupo == "treino":
+            casos += [{"pergunta": v, "esperado": chave, "fragmento": chave, "grupo": grupo,
+                       "id": doc["id"], "ruido": True} for v in com_ruido(separada, h)]
     banco._con.commit()
     assistente.reindexar()
     return casos
@@ -119,6 +150,7 @@ def coletar(assistente: Assistente, casos: list[dict]) -> list[dict]:
         consulta = preparar(assistente, caso["pergunta"])
         for doc, sinais in calibrado.sinais(consulta, assistente.contexto):
             linhas.append({"caso": n, "grupo": caso["grupo"], "sinais": sinais,
+                           "fragmento": caso["fragmento"],
                            "rotulo": int(doc["id"] == caso.get("id"))})
     return linhas
 
@@ -134,7 +166,10 @@ def treinar(linhas: list[dict]):
     treino = [l for l in linhas if l["grupo"] == "treino"]
     X = np.array([[l["sinais"][s] for s in nomes] for l in treino])
     y = np.array([l["rotulo"] for l in treino])
-    grupos = np.array([l["caso"] for l in treino])
+    # Validação cruzada separada por FRAGMENTO: as cópias com ruído de uma
+    # pergunta nunca ficam de um lado e a original do outro.
+    grupos = np.array([l["fragmento"] for l in treino])
+    casos_treino = np.array([l["caso"] for l in treino])
 
     melhor_c, melhor_nota = None, -math.inf
     for c in REGULARIZACOES:
@@ -158,7 +193,7 @@ def treinar(linhas: list[dict]):
         make_pipeline(StandardScaler(), LogisticRegression(C=melhor_c, max_iter=2000)),
         X, y, groups=grupos, cv=GroupKFold(5), method="predict_proba")[:, 1]
     por_caso: dict[int, list[tuple[float, int]]] = {}
-    for caso, prob, rotulo in zip(grupos, fora_da_dobra, y):
+    for caso, prob, rotulo in zip(casos_treino, fora_da_dobra, y):
         por_caso.setdefault(int(caso), []).append((float(prob), int(rotulo)))
     # Perguntas sem nenhum candidato não entram: a busca já recusa sozinha.
     Xd, yd = [], []
@@ -228,6 +263,8 @@ def main() -> None:
     ap.add_argument("loja", type=Path, help="pasta do repositório aprendiz-addons")
     ap.add_argument("--so-medir", action="store_true",
                     help="não treina: mede os pesos atuais no conjunto de teste")
+    ap.add_argument("--limiar", type=float, action="append",
+                    help="mede a Calibrada também com este limiar (pode repetir)")
     args = ap.parse_args()
 
     print("Instalando os addons…")
@@ -253,6 +290,11 @@ def main() -> None:
 
     print("Medindo no TESTE…")
     medidas = medir(assistente, casos, ["bm25", "hibrido", "calibrado"])
+    for limiar in args.limiar or []:
+        padrao = BUSCAS["calibrado"].limiar
+        BUSCAS["calibrado"].limiar = limiar
+        medidas[f"calibrado@{limiar:g}"] = medir(assistente, casos, ["calibrado"])["calibrado"]
+        BUSCAS["calibrado"].limiar = padrao
     for nome, m in medidas.items():
         print(f"  {nome:10} acerto {m['acerto']:.1%}  errou {m['errou']:.1%}  "
               f"recusou {m['recusou']:.1%}  inventou {m['inventou']:.1%}  "

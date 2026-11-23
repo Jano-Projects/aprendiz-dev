@@ -209,6 +209,7 @@ regras por **uma conta com pesos aprendidos** a partir de perguntas reais.
 | `bm25_conf`, `tfidf_conf`, `fuzzy_conf` | a confiança de cada algoritmo |
 | `bm25_rank`, `tfidf_rank`, `fuzzy_rank` | 1 ÷ posição em cada lista (0 se não apareceu) |
 | `cobertura_idf` | cobertura **ponderada pela raridade**: termos raros (ou que nem existem na base) pesam mais |
+| `pares` | (2.6) fração dos pares de palavras **vizinhas** da pergunta que também são vizinhas no texto: "numerar linhas" junto vale mais que "número" num lugar e "linha" em outro |
 | `assunto`, `palavras_assunto`, `palavra_forte`, `melhor_assunto` | quanto a pergunta bate no assunto declarado (as mesmas medidas das folgas da 2.0) |
 | `cobre_assunto`, `pergunta_exata`, `define` | fala do assunto; é igual a uma variação; é a definição pedida em "o que é X?" |
 | `consenso_hibrido`, `regras_bm25` | se as regras fixas aceitariam o candidato |

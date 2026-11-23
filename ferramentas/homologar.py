@@ -29,6 +29,7 @@ from pathlib import Path
 RAIZ = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(RAIZ))
 
+from aprendiz.algoritmos import BUSCAS  # noqa: E402
 from aprendiz.core import Assistente  # noqa: E402
 from aprendiz.memoria import Banco  # noqa: E402
 
@@ -348,7 +349,11 @@ def main() -> None:
     ap.add_argument("--busca", default="fuzzy")
     ap.add_argument("--resposta", default="trabalhada")
     ap.add_argument("-v", "--verbose", action="store_true")
+    ap.add_argument("--limiar", type=float,
+                    help="troca o limiar da busca escolhida só nesta rodada (ex.: 0.18)")
     args = ap.parse_args()
+    if args.limiar is not None:
+        BUSCAS[args.busca].limiar = args.limiar
 
     assistente = Assistente(Banco(str(Path(tempfile.mkdtemp()) / "homologacao.db")))
     for id_ in ADDONS:

@@ -24,6 +24,11 @@ Versão em preparação: **2.6.0** (branch `aprendiz-2.6`).
 - **Ajuste no addon** (`ajuste.json`, classificação `parametros`): exportar leva os pesos do
   ajuste pessoal para outra máquina, só números. Vale o do dono, depois o de um addon ativo,
   depois o oficial; quem treina por cima de um addon parte dos pesos dele.
+- **Calibrada, sinal `pares`**: pares de palavras vizinhas da pergunta que também são
+  vizinhos no texto. O treino (`ferramentas/treinar_calibrado.py`) passa a juntar a cada pergunta
+  de treino cópias com ruído (cortesia, abreviação, sem acento, letras trocadas); o teste
+  continua limpo. `--limiar` em `homologar.py` e em `treinar_calibrado.py` mede outros limiares
+  sem mudar o app.
 - Casos de ensino na homologação (`ferramentas/homologar.py`, grupo "ensino").
 - Documento [Versionamento](docs/referencia/versionamento.md): o que faz cada número subir.
 

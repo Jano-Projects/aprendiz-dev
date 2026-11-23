@@ -24,7 +24,7 @@ from aprendiz.memoria import Banco
 
 pytestmark = pytest.mark.loja
 
-PISOS = {"hibrido": 231, "bm25": 227, "calibrado": 221, "tfidf": 211, "fuzzy": 162}
+PISOS = {"hibrido": 231, "bm25": 227, "calibrado": 232, "tfidf": 211, "fuzzy": 162}
 
 # Fração mínima de perguntas que continuam certas depois de cada transformação
 # (busca Híbrida). Medido na 2.5.1: 100% em quase todas; erros de digitação, 98%.

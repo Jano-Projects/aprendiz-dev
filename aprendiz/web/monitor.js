@@ -79,6 +79,7 @@
     fuzzy_conf: "letras parecidas (Fuzzy)",
     fuzzy_rank: "posição na lista do Fuzzy",
     cobertura_idf: "palavras raras da pergunta presentes",
+    pares: "pares de palavras vizinhas da pergunta também vizinhos no texto",
     termos: "tamanho da pergunta",
     assunto: "quanto bate no assunto declarado",
     palavras_assunto: "quantas palavras batem no assunto",
