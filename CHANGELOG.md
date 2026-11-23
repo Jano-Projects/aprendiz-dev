@@ -6,11 +6,18 @@ seguem o [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ## [Não lançado]
 
-Versão em preparação: **2.6.0** (branch `aprendiz-2.6`).
+## [2.6.0] - 2026-11-23
+
+O Aprendiz passa a aprender com o dono: cada 👍, 👎, "não era isso" e correção ajusta a busca
+no próprio aparelho, sem internet. A busca Calibrada, com pesos aprendidos, vira a padrão, e a
+conversa entende mais jeitos de ensinar e de escrever.
+
+Os addons **Compreensão do português 2.1.0** e **Diálogo do português 2.2.0** da loja oficial
+exigem esta versão.
 
 ### Mudado
-- **A busca padrão passa a ser a Calibrada** (era a BM25). No teste ela acerta 63,0% (BM25
-  58,4%) e inventa em 66,2% das perguntas sem resposta (BM25 83,8%); na homologação, 232/249
+- **A busca padrão passa a ser a Calibrada** (era a BM25). No teste ela acerta 64,2% (BM25
+  58,4%) e inventa em 66,2% das perguntas sem resposta (BM25 83,8%); na homologação, 234/249
   (BM25 227). Quem escolheu outra busca nas Configurações continua com a sua.
 
 ### Adicionado

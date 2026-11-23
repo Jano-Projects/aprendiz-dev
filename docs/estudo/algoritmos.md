@@ -302,14 +302,15 @@ evita confusões entre domínios que o treino quase não tem ("indicar um livro"
 ### Por que a Calibrada virou o padrão (2.6)
 
 Até a 2.5, a busca padrão era a BM25. Na 2.6, com o treino com ruído (cópias das perguntas de
-treino com cortesia, abreviação, sem acento e letras trocadas) e o sinal `pares`, a Calibrada
+treino com cortesia, abreviação, sem acento e letras trocadas), o sinal `pares` e a decisão com
+sinais do 1º lugar, a Calibrada
 passou a vencer a BM25 nas três medidas:
 
 | | Teste: acerto | Teste: inventa | Homologação |
 |---|---|---|---|
 | BM25 | 58,4% | 83,8% | 227/249 |
 | Híbrido | 54,9% | 85,3% | 236/249 |
-| Calibrada | 63,0% | 66,2% | 232/249 |
+| Calibrada | 64,2% | 66,2% | 234/249 |
 
 O Híbrido ainda acerta mais na homologação, mas inventa mais e acerta menos no teste. A
 Calibrada também é a única que aproveita o ajuste pessoal. Quem escolheu outra busca nas
