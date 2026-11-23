@@ -8,6 +8,11 @@ seguem o [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 Versão em preparação: **2.6.0** (branch `aprendiz-2.6`).
 
+### Mudado
+- **A busca padrão passa a ser a Calibrada** (era a BM25). No teste ela acerta 63,0% (BM25
+  58,4%) e inventa em 66,2% das perguntas sem resposta (BM25 83,8%); na homologação, 232/249
+  (BM25 227). Quem escolheu outra busca nas Configurações continua com a sua.
+
 ### Adicionado
 - **Jeitos de ensinar vindos do addon**: a seção `ensino` do `compreensao.json` traz outros
   começos de ensino ("a partir de agora…", "fica sabendo que…", "anota aí:…"), que viram fato
@@ -29,6 +34,9 @@ Versão em preparação: **2.6.0** (branch `aprendiz-2.6`).
   de treino cópias com ruído (cortesia, abreviação, sem acento, letras trocadas); o teste
   continua limpo. `--limiar` em `homologar.py` e em `treinar_calibrado.py` mede outros limiares
   sem mudar o app.
+- **Decisão de responder com sinais do 1º lugar**: a 2ª etapa da Calibrada também lê
+  `topo_cobertura_idf`, `topo_pares`, `topo_cobre_assunto`, `topo_melhor_assunto`,
+  `topo_consenso_hibrido` e `topo_termos`. Modelos antigos seguem com os dois sinais de antes.
 - Casos de ensino na homologação (`ferramentas/homologar.py`, grupo "ensino").
 - Documento [Versionamento](docs/referencia/versionamento.md): o que faz cada número subir.
 

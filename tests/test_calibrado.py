@@ -49,7 +49,13 @@ def test_pesos_gravados_batem_com_os_sinais(assistente_ensinado):
     modelo = calibrado_pesos.MODELO
     n = len(modelo["sinais"])
     assert n and len(modelo["media"]) == len(modelo["desvio"]) == len(modelo["pesos"]) == n
-    assert len(modelo["decisao"]["pesos"]) == len(SINAIS_DA_DECISAO)
+    # A decisão tem um peso por sinal declarado: os dois das notas e, desde a
+    # 2.6, os "topo_<sinal>" do 1º lugar, que precisam existir na busca.
+    decisao = modelo["decisao"]
+    assert len(decisao["pesos"]) == len(decisao["sinais"])
+    assert set(SINAIS_DA_DECISAO) <= set(decisao["sinais"])
+    assert all(n in SINAIS_DA_DECISAO or n.removeprefix("topo_") in modelo["sinais"]
+               for n in decisao["sinais"])
     # Todo sinal que o modelo espera é medido pela busca (senão valeria a média).
     consulta = assistente_ensinado.linguagem.processar("qual a senha do wifi?")
     linhas = BUSCAS["calibrado"].sinais(consulta, assistente_ensinado.contexto)

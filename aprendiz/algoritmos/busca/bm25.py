@@ -31,7 +31,7 @@ from aprendiz.linguagem import TextoProcessado
 @registrar
 class BuscaBM25(AlgoritmoBusca):
     nome = "bm25"
-    titulo = "BM25 (padrão)"
+    titulo = "BM25"
     apelido = "Rápido"
     quando_usar = "Bases grandes e perguntas escritas com as mesmas palavras do que foi ensinado."
     custo = "leve"

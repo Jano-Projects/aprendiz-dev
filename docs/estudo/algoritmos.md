@@ -43,7 +43,7 @@ O desafio: os itens 1 e 3 falam de farmácia, mas só o 1 responde à pergunta.
 
 ---
 
-## 1. BM25 (`busca/bm25.py`), o padrão
+## 1. BM25 (`busca/bm25.py`)
 
 **Ideia:** um documento é relevante quando contém os termos da pergunta, e termos **raros**
 valem mais que termos comuns.
@@ -193,7 +193,7 @@ pela condição 4.
 
 ---
 
-## 5. Calibrado (`busca/calibrado.py`): pesos aprendidos (2.4)
+## 5. Calibrado (`busca/calibrado.py`): pesos aprendidos (2.4), o padrão (2.6)
 
 O Híbrido e o `Assistente` decidem com **regras fixas**: aceitar até 80% do limiar quem bate no
 assunto, até 60% quem bate mais que todos, exigir consenso de dois algoritmos… Cada regra
@@ -298,6 +298,28 @@ sabe o que o treino viu; e o filtro do assunto (`_cobre_palavra_forte`) continua
 evita confusões entre domínios que o treino quase não tem ("indicar um livro" ≠ "índice").
 
 ---
+
+### Por que a Calibrada virou o padrão (2.6)
+
+Até a 2.5, a busca padrão era a BM25. Na 2.6, com o treino com ruído (cópias das perguntas de
+treino com cortesia, abreviação, sem acento e letras trocadas) e o sinal `pares`, a Calibrada
+passou a vencer a BM25 nas três medidas:
+
+| | Teste: acerto | Teste: inventa | Homologação |
+|---|---|---|---|
+| BM25 | 58,4% | 83,8% | 227/249 |
+| Híbrido | 54,9% | 85,3% | 236/249 |
+| Calibrada | 63,0% | 66,2% | 232/249 |
+
+O Híbrido ainda acerta mais na homologação, mas inventa mais e acerta menos no teste. A
+Calibrada também é a única que aproveita o ajuste pessoal. Quem escolheu outra busca nas
+Configurações continua com a sua.
+
+**A decisão de responder** (2ª etapa) olhava só a nota do 1º lugar e a distância para o 2º.
+Na 2.6 ela também lê sinais do próprio 1º lugar (`topo_cobertura_idf`, `topo_pares`,
+`topo_cobre_assunto`, `topo_melhor_assunto`, `topo_consenso_hibrido`, `topo_termos`): uma nota
+alta de um candidato que mal cobre a pergunta merece menos confiança que a mesma nota de um que
+cobre tudo. Um modelo treinado antes disso continua funcionando com os dois sinais antigos.
 
 ### Ajuste pessoal: a Calibrada aprende com você (2.6)
 

@@ -4,6 +4,7 @@ import json
 
 from fastapi.testclient import TestClient
 
+from aprendiz.algoritmos.busca import calibrado_pesos
 from aprendiz.api import criar_app
 from aprendiz.core import monitor
 from aprendiz.core.assistente import Etapas
@@ -57,7 +58,8 @@ def test_calibrado_entrega_a_conta_inteira_ao_monitor(assistente_ensinado):
     # z = viés + soma das contribuições (a mesma conta que o Monitor mostra)
     assert abs(d["z"] - (d["vies"] + sum(d["contribuicoes"].values()))) < 0.01
     assert set(d["contribuicoes"]) <= set(d["sinais"])
-    assert set(d["decisao"]) == {"nota_do_primeiro", "distancia_do_segundo"}
+    assert set(d["decisao"]) == set(calibrado_pesos.MODELO["decisao"]["sinais"])
+    assert {"nota_do_primeiro", "distancia_do_segundo"} <= set(d["decisao"])
 
 
 def test_ficha_conta_os_parametros_por_tipo(assistente_ensinado):

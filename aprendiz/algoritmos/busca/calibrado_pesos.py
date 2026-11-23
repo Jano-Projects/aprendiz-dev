@@ -89,13 +89,25 @@ MODELO = {
     "decisao": {
         "sinais": [
             "nota_do_primeiro",
-            "distancia_do_segundo"
+            "distancia_do_segundo",
+            "topo_cobertura_idf",
+            "topo_pares",
+            "topo_cobre_assunto",
+            "topo_melhor_assunto",
+            "topo_consenso_hibrido",
+            "topo_termos"
         ],
         "pesos": [
-            0.465161,
-            0.2348
+            0.349932,
+            0.264423,
+            0.45107,
+            0.561772,
+            0.35333,
+            0.073622,
+            -0.399284,
+            -0.071857
         ],
-        "vies": -0.435045
+        "vies": -1.012724
     },
     "treino": {
         "data": "2026-11-23",
@@ -144,35 +156,28 @@ MODELO = {
                 "errou": 0.364,
                 "recusou": 0.052,
                 "inventou": 0.838,
-                "ms_por_pergunta": 4.0
+                "ms_por_pergunta": 4.2
             },
             "hibrido": {
                 "acerto": 0.549,
                 "errou": 0.399,
                 "recusou": 0.052,
                 "inventou": 0.853,
-                "ms_por_pergunta": 11.6
+                "ms_por_pergunta": 16.9
             },
             "calibrado": {
-                "acerto": 0.63,
-                "errou": 0.231,
-                "recusou": 0.139,
+                "acerto": 0.642,
+                "errou": 0.225,
+                "recusou": 0.133,
                 "inventou": 0.662,
-                "ms_por_pergunta": 24.7
+                "ms_por_pergunta": 22.5
             },
             "calibrado@0.18": {
                 "acerto": 0.653,
-                "errou": 0.266,
-                "recusou": 0.081,
-                "inventou": 0.75,
-                "ms_por_pergunta": 20.9
-            },
-            "calibrado@0.12": {
-                "acerto": 0.653,
-                "errou": 0.277,
-                "recusou": 0.069,
-                "inventou": 0.809,
-                "ms_por_pergunta": 36.0
+                "errou": 0.254,
+                "recusou": 0.092,
+                "inventou": 0.735,
+                "ms_por_pergunta": 22.7
             }
         }
     }

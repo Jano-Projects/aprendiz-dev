@@ -196,11 +196,11 @@ explica cada um passo a passo.
 
 | Busca | Apelido | Ideia | Quando usar | Custo |
 |---|---|---|---|---|
-| **BM25** (padrão) | Rápido | Ranking clássico de buscadores, calculado pelo SQLite (FTS5) | Bases grandes, perguntas com as mesmas palavras do que foi ensinado | leve |
+| **BM25** | Rápido | Ranking clássico de buscadores, calculado pelo SQLite (FTS5) | Bases grandes, perguntas com as mesmas palavras do que foi ensinado | leve |
 | **TF-IDF + cosseno** | Didático | Vetores de pesos comparados pelo ângulo | Estudar como uma busca funciona; bases pequenas e médias | leve |
 | **Fuzzy** | Tolerante | Similaridade letra a letra (Levenshtein, RapidFuzz) | Perguntas curtas com muitos erros de digitação | médio |
 | **Híbrido (RRF)** | Equilibrado | Junta os três pela posição e só aceita com **consenso** | Uso geral | pesado |
-| **Calibrado** | Calibrado | Pesa todos os sinais com pesos **aprendidos** (regressão logística); a confiança é a chance de acerto | Uso geral, quando errar custa caro | pesado |
+| **Calibrado** (padrão) | Calibrado | Pesa todos os sinais com pesos **aprendidos** (regressão logística); a confiança é a chance de acerto | Uso geral, quando errar custa caro | pesado |
 
 | Resposta | Apelido | Ideia | Custo |
 |---|---|---|---|

@@ -83,6 +83,7 @@ def test_chave_de_grupo():
 
 # ------------------------------------------------------------------ grupos
 def test_grupos_e_ativacao_em_lote(assistente):
+    assistente.configuracoes.definir("busca.padrao", "bm25")   # o grupo "em uso" é o da BM25
     bm25 = {"busca": "bm25", "resposta": "direta"}
     assistente.instalar_addon(addon("a-um", bm25))
     assistente.instalar_addon(addon("a-dois", bm25))
@@ -91,7 +92,7 @@ def test_grupos_e_ativacao_em_lote(assistente):
                                            personalizacao={"personalizacao.cor": "#0f766e"}))
     grupos = {g["chave"]: g for g in assistente.grupos_de_addons()}
     assert [a["id"] for a in grupos["bm25+direta"]["addons"]] == ["a-dois", "a-um"]
-    assert grupos["bm25+direta"]["em_uso"] is True          # é o padrão de fábrica
+    assert grupos["bm25+direta"]["em_uso"] is True          # é o padrão definido acima
     assert grupos[None]["titulo"] == "Sem recomendação"
     assert list(grupos)[-1] is None                          # "sem recomendação" por último
 
@@ -102,6 +103,7 @@ def test_grupos_e_ativacao_em_lote(assistente):
 
 
 def test_inspecionar_avisa_de_outros_padroes_ativos(assistente):
+    assistente.configuracoes.definir("busca.padrao", "bm25")
     assistente.instalar_addon(addon("b-um", {"busca": "tfidf", "resposta": "direta"}))
     info = assistente.inspecionar_addon(addon("a-um", {"busca": "bm25", "resposta": "direta"}))
     assert info["recomendado"]["ja_em_uso"] is True

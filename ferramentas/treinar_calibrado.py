@@ -45,7 +45,8 @@ sys.path.insert(0, str(RAIZ / "ferramentas"))
 
 from aprendiz import __version__  # noqa: E402
 from aprendiz.algoritmos import BUSCAS  # noqa: E402
-from aprendiz.algoritmos.busca.calibrado import SINAIS_DA_DECISAO, sinais_da_decisao  # noqa: E402
+from aprendiz.algoritmos.busca.calibrado import (  # noqa: E402
+    SINAIS_DA_DECISAO, SINAIS_DO_TOPO, vetor_da_decisao)
 from aprendiz.core import Assistente  # noqa: E402
 from aprendiz.linguagem.normalizador import normalizar  # noqa: E402
 from aprendiz.memoria import Banco  # noqa: E402
@@ -192,15 +193,17 @@ def treinar(linhas: list[dict]):
     fora_da_dobra = cross_val_predict(
         make_pipeline(StandardScaler(), LogisticRegression(C=melhor_c, max_iter=2000)),
         X, y, groups=grupos, cv=GroupKFold(5), method="predict_proba")[:, 1]
-    por_caso: dict[int, list[tuple[float, int]]] = {}
-    for caso, prob, rotulo in zip(casos_treino, fora_da_dobra, y):
-        por_caso.setdefault(int(caso), []).append((float(prob), int(rotulo)))
+    # 2.6: além das notas, sinais do próprio 1º lugar (SINAIS_DO_TOPO).
+    nomes_decisao = list(SINAIS_DA_DECISAO) + [f"topo_{n}" for n in SINAIS_DO_TOPO]
+    por_caso: dict[int, list[tuple[float, int, dict]]] = {}
+    for caso, prob, rotulo, linha in zip(casos_treino, fora_da_dobra, y, treino):
+        por_caso.setdefault(int(caso), []).append((float(prob), int(rotulo), linha["sinais"]))
     # Perguntas sem nenhum candidato não entram: a busca já recusa sozinha.
     Xd, yd = [], []
     for caso in sorted(set(l["caso"] for l in treino)):
-        notas = sorted(por_caso.get(caso, []), reverse=True)
+        notas = sorted(por_caso.get(caso, []), key=lambda t: -t[0])
         if notas:
-            Xd.append(sinais_da_decisao([p for p, _ in notas]))
+            Xd.append(vetor_da_decisao(nomes_decisao, [p for p, _, _ in notas], notas[0][2]))
             yd.append(notas[0][1])
     decisao = LogisticRegression(C=1.0, max_iter=2000).fit(np.array(Xd), np.array(yd))
     return {
@@ -210,7 +213,7 @@ def treinar(linhas: list[dict]):
         "pesos": [round(float(v), 6) for v in reg.coef_[0]],
         "vies": round(float(reg.intercept_[0]), 6),
         "regularizacao": melhor_c,
-        "decisao": {"sinais": list(SINAIS_DA_DECISAO),
+        "decisao": {"sinais": nomes_decisao,
                     "pesos": [round(float(v), 6) for v in decisao.coef_[0]],
                     "vies": round(float(decisao.intercept_[0]), 6)},
     }
