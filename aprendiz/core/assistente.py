@@ -51,6 +51,7 @@ from aprendiz.core.padroes import Padroes
 from aprendiz.core.teia import Teia
 from aprendiz.memoria.banco import agora as agora_iso, lista_json, teia_de
 from aprendiz.linguagem import ClassificadorIntencoes, Linguagem, extrair_entidades
+from aprendiz.linguagem.intencoes import corrigir_para_exemplos
 from aprendiz.linguagem.normalizador import VERSAO_NORMALIZACAO, normalizar
 from aprendiz.linguagem.stemmer import radical, singular
 from aprendiz.memoria import Banco
@@ -598,9 +599,13 @@ class Assistente:
             return
         exemplos = []
         self._frases_exatas = {}
+        self._vocabulario_intencoes: dict[str, str] = {}   # palavra → radical (2.6)
         for e in self.banco.exemplos_intencoes(incluir_addons=True):
             processado = self.linguagem.processar(e["frase"], corrigir=False)
             exemplos.append((e["intencao"], processado.radicais_todos))
+            if len(processado.tokens) == len(processado.radicais_todos):
+                self._vocabulario_intencoes.update(zip(processado.tokens,
+                                                       processado.radicais_todos))
             self._frases_exatas[" ".join(processado.tokens)] = e["intencao"]
         self.classificador.treinar(exemplos)
         self._versao_classificador = self.banco.versao_linguagem
@@ -757,7 +762,9 @@ class Assistente:
         if exata:
             intencoes = [{"intencao": exata, "probabilidade": 1.0, "exata": True}]
         else:
-            intencoes = self.classificador.classificar(consulta.radicais_todos)
+            intencoes = self.classificador.classificar(corrigir_para_exemplos(
+                consulta.tokens, consulta.radicais_todos, self._vocabulario_intencoes,
+                self.linguagem.stopwords))
         entidades = extrair_entidades(mensagem)
         etapas.marcar("Interpretação", {"intencoes": intencoes[:4], "entidades": entidades})
 

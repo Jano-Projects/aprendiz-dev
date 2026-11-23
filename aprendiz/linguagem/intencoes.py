@@ -34,6 +34,44 @@ No final, convertemos de volta com softmax para obter porcentagens.
 
 from __future__ import annotations
 
+# Erro de escrita (2.6) ----------------------------------------------------
+# "obrigadoo" e "valew" não estão em nenhum exemplo, então o classificador
+# não tinha como opinar. Uma palavra DESCONHECIDA é trocada pela palavra mais
+# parecida dos exemplos de intenção, mas só se for muito parecida (letra a
+# letra, ver rapidfuzz): "valew" → "valeu". Uma palavra que não lembra
+# nenhuma ("astronomia") fica como está e é ignorada, como antes.
+# (Pedaços de letras de toda palavra desconhecida foram testados e
+# descartados: qualquer assunto novo acabava parecendo conversa social.)
+SEMELHANCA_MINIMA = 80     # 0 a 100
+TAMANHO_MINIMO = 4         # palavras curtas ("oi", "vc") não são corrigidas
+
+
+def corrigir_para_exemplos(tokens: list[str], radicais: list[str],
+                           vocabulario: dict[str, str],
+                           gramaticais: set[str] | frozenset[str] = frozenset()) -> list[str]:
+    """
+    Os radicais da frase com as palavras desconhecidas trocadas pela mais
+    parecida dos exemplos. `vocabulario`: palavra dos exemplos → radical.
+
+    Palavras gramaticais (`gramaticais`, as stopwords) não entram nem como
+    erro nem como correção: "numa" → "uma" não diz nada sobre a intenção e
+    só mexe na conta.
+    """
+    vocabulario = {p: r for p, r in vocabulario.items() if p not in gramaticais}
+    if len(tokens) != len(radicais) or not vocabulario:
+        return list(radicais)
+    from rapidfuzz import fuzz, process
+    conhecidos = set(vocabulario.values())
+    saida = []
+    for token, rad in zip(tokens, radicais):
+        if rad not in conhecidos and len(token) >= TAMANHO_MINIMO and token not in gramaticais:
+            achado = process.extractOne(token, list(vocabulario), scorer=fuzz.ratio,
+                                        score_cutoff=SEMELHANCA_MINIMA)
+            if achado:
+                rad = vocabulario[achado[0]]
+        saida.append(rad)
+    return saida
+
 import math
 from collections import Counter, defaultdict
 

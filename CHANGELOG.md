@@ -37,6 +37,10 @@ Versão em preparação: **2.6.0** (branch `aprendiz-2.6`).
 - **Decisão de responder com sinais do 1º lugar**: a 2ª etapa da Calibrada também lê
   `topo_cobertura_idf`, `topo_pares`, `topo_cobre_assunto`, `topo_melhor_assunto`,
   `topo_consenso_hibrido` e `topo_termos`. Modelos antigos seguem com os dois sinais de antes.
+- **Intenção com erro de escrita**: uma palavra desconhecida vira a mais parecida dos exemplos
+  de intenção, se a semelhança for de 80% ou mais ("valew" → "valeu", "obrigadoo" →
+  "obrigado"). A Compreensão do português ganhou exemplos de agradecimento como "com certeza
+  valeu" e "beleza valeu".
 - Casos de ensino na homologação (`ferramentas/homologar.py`, grupo "ensino").
 - Documento [Versionamento](docs/referencia/versionamento.md): o que faz cada número subir.
 

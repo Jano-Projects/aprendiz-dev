@@ -170,6 +170,19 @@ Uma resposta social só é dada se a mensagem for curta (até 6 palavras), a pro
 for de pelo menos 45% e ela for pelo menos o dobro da segunda colocada. Mensagens iguais a
 uma frase de exemplo pulam o classificador ("frase exata").
 
+### Palavra com erro de escrita (2.6)
+
+O classificador só conhece as palavras dos exemplos. "obrigadoo" e "valew" não estão em nenhum,
+então antes ele não tinha como opinar. Agora, uma palavra **desconhecida** com 4 letras ou mais é
+trocada pela palavra mais parecida dos exemplos, se a semelhança letra a letra for de pelo menos
+80% (`linguagem/intencoes.py`, com o RapidFuzz): "valew" vira "valeu". Uma palavra que não lembra
+nenhum exemplo ("astronomia") fica como está e é ignorada, como sempre foi.
+
+Antes disso foi testada outra ideia: dar ao classificador pedaços de 3 letras de cada palavra.
+Ela reconhecia os erros de escrita, mas qualquer assunto novo também ganhava pedaços parecidos
+com algum exemplo, e "tem algo sobre astronomia?" virava conversa social. Por isso ficou a
+correção pela palavra mais parecida, que só age quando a semelhança é alta.
+
 ## Entidades: regex
 
 `aprendiz/linguagem/entidades.py` reconhece e-mail, valor em reais, data (inclusive ISO,
