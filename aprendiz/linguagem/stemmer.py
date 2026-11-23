@@ -34,16 +34,23 @@ from functools import lru_cache
 Regra = tuple[str, int, str]
 
 # Passo 1 — plural (só se a palavra termina em "s").
+# Plurais irregulares que nenhuma regra acerta sem os acentos (2.5.1). Cada
+# um vai para a mesma forma do singular: "mães" e "mãe"; "países", "país",
+# "pais" e "pai" (sem acento, país e pai já eram a mesma palavra).
+PLURAIS_IRREGULARES = {"maes": "mae", "paises": "pai", "pais": "pai", "bois": "boi"}
+
 PLURAL: list[Regra] = [
     ("ns", 1, "m"),      # homens → homem
-    ("oes", 3, "ao"),    # botoes → botao
-    ("aes", 1, "ao"),    # maes → mao (sem acento a distinção some; tudo bem)
+    ("eses", 3, ""),     # ingleses → ingl, como inglês (2.5.1)
+    ("oes", 2, "ao"),    # botoes → botao; acoes → acao (2.5.1: mínimo 2)
+    ("aes", 1, "ao"),    # paes → pao, caes → cao
     ("ais", 1, "al"),    # animais → animal
     ("eis", 2, "el"),    # papeis → papel
-    ("ois", 1, "ol"),    # lencois → lencol
+    ("ois", 1, "ol"),    # lencois → lencol, sois → sol
+    ("uis", 2, "ul"),    # azuis → azul (2.5.1)
     ("les", 3, "l"),     # males → mal
     ("res", 3, "r"),     # flores → flor
-    ("is", 2, "il"),     # fuzis → fuzil
+    ("is", 2, "il"),     # fuzis → fuzil (só depois de consoante: veja radical())
     ("s", 2, ""),        # casas → casa
 ]
 
@@ -122,6 +129,25 @@ def _aplicar(palavra: str, regras: list[Regra]) -> tuple[str, bool]:
 
 
 @lru_cache(maxsize=50_000)
+def singular(palavra: str) -> str:
+    """
+    Só o passo do plural ("pães" → "pao", "animais" → "animal"), sem cortar
+    o resto. Serve para comparar palavras sem juntar famílias diferentes,
+    como o radical faria ("ligações" e "ligada"). Palavras de até 3 letras
+    ficam como estão. (2.5.1)
+    """
+    if len(palavra) <= 3 or palavra.isdigit():
+        return palavra
+    if palavra in PLURAIS_IRREGULARES:
+        return PLURAIS_IRREGULARES[palavra]
+    if not palavra.endswith("s"):
+        return palavra
+    if palavra.endswith("eis") and len(palavra) == 4:
+        return palavra[:-1]                 # "leis", "reis" → "lei", "rei"
+    return _aplicar(palavra, PLURAL)[0]
+
+
+@lru_cache(maxsize=50_000)
 def radical(palavra: str) -> str:
     """
     Devolve o radical de uma palavra (já em minúsculas e sem acento).
@@ -133,8 +159,7 @@ def radical(palavra: str) -> str:
     if len(palavra) <= 3 or palavra.isdigit():
         return palavra
 
-    if palavra.endswith("s"):
-        palavra, _ = _aplicar(palavra, PLURAL)
+    palavra = singular(palavra)
     if palavra.endswith("a"):
         palavra, _ = _aplicar(palavra, FEMININO)
     palavra, _ = _aplicar(palavra, GRAU)

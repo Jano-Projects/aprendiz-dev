@@ -6,6 +6,47 @@ seguem o [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ## [Não lançado]
 
+## [2.5.1] - 2026-11-22
+
+Uma suíte de testes nova, mais dura, procurou erros que ninguém tinha pensado em escrever, e
+achou vários. Esta versão traz os testes e as correções. A homologação com os addons da loja
+continua igual (Híbrido 231/243) e as perguntas reescritas (com "por favor", letras trocadas,
+abreviações) passaram a acertar como as originais.
+
+### Adicionado
+- **Testes metamórficos** (`tests/test_metamorficos.py`): maiúsculas, acentos, cortesia, "me
+  explica", letras trocadas, singular/plural e espaços não podem mudar a resposta, nos cinco
+  algoritmos de busca, inclusive numa base com armadilhas ("favor", "milhas" × "linhas").
+- **Fuzz** (`tests/test_robustez.py`): emoji, SQL, HTML, números gigantes, textos de 5 mil
+  palavras e texto aleatório em todas as combinações de busca × resposta.
+- **Invariantes** (`tests/test_invariantes.py`): determinismo, ordem de ensino, ensinar e
+  esquecer, instalar/remover/desativar addon, exportar e importar, banco reaberto e seis
+  threads perguntando ao mesmo tempo.
+- **Propriedades dos modelos** (`tests/test_modelos.py`): Naive Bayes, regressão logística da
+  Calibrada, TF-IDF, RRF e TextRank, com dados gerados por semente fixa.
+- **Homologação como teste** (`tests/test_loja_homologacao.py`, opcional:
+  `pytest --loja ../aprendiz-addons`): pisos de acerto por busca e pisos metamórficos.
+- Documento [Como o Aprendiz é testado](docs/estudo/testes.md).
+
+### Corrigido
+- **Correção de digitação:** letras trocadas de lugar ("snhea", "lihnas") contam como um erro
+  só (distância OSA), e não dois. Num empate, ganha a palavra que forma par com a vizinha e a
+  mais frequente. O texto corrigido agora também chega ao dicionário e aos padrões de frase.
+- **Plurais:** "animais", "papéis", "lençóis", "azuis", "homens", "meses", "países", "pães",
+  "limões", "mulheres", "mães", "bois", "leis" e outros passam a ter o mesmo radical do
+  singular. Uma palavra de três letras que é o assunto ("pão" → "pães da padaria") passa a
+  valer como assunto.
+- **Números:** "2 mil", "3 milhões", "dois bilhões" e o separador de milhar ("1.234.567").
+- **Cortesia:** "por favor", "por gentileza", "pfv", "obrigado", "valeu" no começo ou no fim
+  não entram mais na busca ("por favor" achava o conhecimento sobre "favor").
+- **Diálogo:** "me fala qual é a senha do wifi" não é mais tratado como assunto vago.
+- **Entidades:** datas ISO ("2026-03-12") e CEP ("01310-100") são reconhecidos; datas e
+  horários impossíveis ("31/02", "29/02/2023", "25:99") são descartados.
+
+### Limitações conhecidas
+- Plurais que dependem do acento ("fácil"/"fáceis", "herói"/"heróis") ficam registrados como
+  `xfail` em `tests/test_correcoes_251.py`.
+
 ## [2.5.0] - 2026-11-19
 
 Reorganização do repositório: cada pasta responde a uma pergunta, a raiz ficou só com o que
@@ -572,7 +613,8 @@ Primeira versão pública.
 - Instaladores para Linux e Windows que instalam o Python se faltar, verificador de
   instalação, executável via PyInstaller e CI em Windows, Ubuntu, Fedora e Debian.
 
-[Não lançado]: https://github.com/Jano-Projects/aprendiz-dev/compare/v2.5.0...HEAD
+[Não lançado]: https://github.com/Jano-Projects/aprendiz-dev/compare/v2.5.1...HEAD
+[2.5.1]: https://github.com/Jano-Projects/aprendiz-dev/compare/v2.5.0...v2.5.1
 [2.5.0]: https://github.com/Jano-Projects/aprendiz-dev/compare/v2.4.0...v2.5.0
 [2.4.0]: https://github.com/Jano-Projects/aprendiz-dev/compare/v2.3.1...v2.4.0
 [2.3.1]: https://github.com/Jano-Projects/aprendiz-dev/compare/v2.3.0...v2.3.1

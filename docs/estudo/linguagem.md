@@ -44,9 +44,17 @@ números ganha um nome fixo:
 | `vinte e cinco` | `25` |
 | `três vezes quatro`, `3x4` | `3 multiplicacao 4` |
 | `oito dividido por quatro` | `8 divisao 4` |
+| `2 mil`, `dois mil`, `2.000` | `2000` |
+| `3 milhões`, `três milhões` | `3000000` |
 
 "Um" só vira 1 perto de outro número ou operação (no resto, é artigo), e datas
 (`16/11/2026`, `2026-11-16`) e hexadecimais (`0x10`) ficam como estão.
+
+### Cortesia (2.5.1)
+
+Antes de tudo, "por favor", "por gentileza", "pfv", "obrigado" e "valeu" no começo ou no fim da
+mensagem saem da busca (`sem_cortesia` em `core/assistente.py`). Sem isso, "por favor, qual a
+senha?" podia achar um conhecimento sobre "favor". Se a mensagem for só cortesia, ela fica.
 
 ## 4. Abreviações
 
@@ -59,6 +67,17 @@ juntadas com as suas pelas regras de [Vários addons juntos](#vários-addons-jun
 Para cada palavra com 4 letras ou mais que **não existe na base de conhecimento**, a
 RapidFuzz procura a palavra mais parecida no vocabulário da base. Se a similaridade for
 pelo menos 80 (numa escala de 0 a 100), ela é trocada.
+
+Desde a 2.5.1 a nota principal é a da distância **OSA** (*Optimal String Alignment*), uma
+Levenshtein que conta a **troca de duas letras vizinhas** como um erro só. É o erro de
+digitação mais comum, e a Levenshtein comum o contava como dois:
+
+| Digitado | Levenshtein | OSA |
+|---|---|---|
+| `snhea` → `senha` | 2 erros (60%) | 1 erro (80%) ✔ |
+| `lihnas` → `linhas` | 2 erros (67%) | 1 erro (83%) ✔ |
+
+O texto corrigido (`reescrito`) também é o que o dicionário e os padrões de frase leem.
 
 Quando duas correções empatam ("grup" → "grupo" ou "group"), vence a que forma com a palavra
 vizinha um **par que existe na base** ("group by"); depois, a mais frequente; por fim, a ordem
@@ -109,7 +128,8 @@ saudação. A palavra `nao` fica de fora da lista de propósito, porque negaçã
 `aprendiz/linguagem/stemmer.py` implementa uma versão simplificada do **RSLP**
 (Orengo & Huyck, 2001). As regras são aplicadas em passos:
 
-1. plural (`farmacias → farmacia`)
+1. plural (`farmacias → farmacia`, `animais → animal`, `homens → homem`, `paes → pao`;
+   alguns irregulares, como `maes` e `bois`, ficam numa tabela)
 2. feminino (`obrigada → obrigado`)
 3. grau (`carrinho → carr`)
 4. sufixos de substantivo (`atualizacao → atualiz`)
@@ -117,6 +137,10 @@ saudação. A palavra `nao` fica de fora da lista de propósito, porque negaçã
 6. vogal final (`carro → carr`)
 
 Cada regra tem um **tamanho mínimo de radical**, para não destruir palavras curtas.
+
+Sem acento, alguns plurais ficam ambíguos: `faceis` pode vir de `fácil` (-il átono) ou de
+`fiel` (-el). Esses casos estão listados como limitação conhecida em
+`tests/test_correcoes_251.py` (veja [Testes](testes.md)).
 
 O radicalizador não precisa ser linguisticamente perfeito. Ele precisa ser
 **consistente**: a mesma palavra sempre gera o mesmo radical, ao ensinar e ao perguntar.
@@ -148,8 +172,9 @@ uma frase de exemplo pulam o classificador ("frase exata").
 
 ## Entidades: regex
 
-`aprendiz/linguagem/entidades.py` reconhece e-mail, valor em reais, data, horário,
-telefone e número. Um trecho já reconhecido não é reconhecido de novo por um padrão mais
+`aprendiz/linguagem/entidades.py` reconhece e-mail, valor em reais, data (inclusive ISO,
+`2026-03-12`), horário, CEP, telefone, percentual e número. Datas e horários impossíveis
+(`31/02`, `29/02/2023`, `25:99`) são descartados. Um trecho já reconhecido não é reconhecido de novo por um padrão mais
 genérico. As entidades aparecem no painel de explicação e ajudam a exportação a apontar
 possíveis dados pessoais.
 

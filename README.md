@@ -263,7 +263,8 @@ bash instalar.sh --dev                          # ambiente com pytest e PyInstal
 .venv/bin/pip install -r requirements/treino.txt  # scikit-learn, só para treinar a Calibrada
 .venv/bin/python ferramentas/treinar_calibrado.py ../aprendiz-addons   # treina e mede
 .venv/bin/python ferramentas/homologar.py ../aprendiz-addons --busca calibrado
-.venv/bin/python -m pytest                      # testes
+.venv/bin/python -m pytest                      # testes (ver docs/estudo/testes.md)
+.venv/bin/python -m pytest --loja ../aprendiz-addons  # + homologação com os addons reais
 .venv/bin/python ferramentas/comparar.py         # benchmark dos algoritmos
 .venv/bin/python ferramentas/gerar_estrutura.py # atualiza docs/referencia/estrutura.md
 .venv/bin/python ferramentas/conferir_addons.py addons/*.aprendiz  # conflitos de linguagem entre addons

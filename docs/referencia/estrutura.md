@@ -110,7 +110,8 @@ aprendiz/
 │   │   ├── compreensao.md               # Addons de compreensão e vetores: lemas, tipos de pergunta, recomendação
 │   │   ├── linguagem.md                 # O pipeline de PLN, etapa por etapa
 │   │   ├── monitor.md                   # O Monitor: abas, níveis, fluxo ao vivo (NDJSON) e o que conta como parâmetro
-│   │   └── revisao.md                   # Addons de norma e revisão de texto: vocabulário, grafias, regras de gramática
+│   │   ├── revisao.md                   # Addons de norma e revisão de texto: vocabulário, grafias, regras de gramática
+│   │   └── testes.md                    # Como o Aprendiz é testado: metamórficos, fuzz, invariantes, modelos e homologação
 │   ├── guias/                           # Como fazer: criar addons, criar algoritmos, instalar e empacotar
 │   │   ├── addons.md                    # Formato .aprendiz, como criar addons e segurança
 │   │   ├── criar-algoritmo.md           # Passo a passo para adicionar um algoritmo ao seletor
@@ -157,21 +158,27 @@ aprendiz/
 │   ├── test_calibrado.py                # Testes da busca Calibrada (2.4): contas, pesos gravados e comportamento no pipeline.
 │   ├── test_compreensao.py              # Testes da compreensão (0.7): addons "compreensao" e "vetores".
 │   ├── test_confusao.py                 # Testes da 2.3.1: confusão entre domínios.
+│   ├── test_correcoes_251.py            # Regressão das correções da 2.5.1, achadas pelos testes metamórficos e de fuzz.
 │   ├── test_dialogo.py                  # Testes do diálogo (0.9): a seção "dialogo" dos addons de compreensão e a herança de grupo…
 │   ├── test_dicionario.py               # Testes da 0.6: dicionário nos dois sentidos (traduções e regiões), variações de pergunta…
 │   ├── test_documentacao.py             # Garante que o projeto continue documentado: todo arquivo tem explicação.
 │   ├── test_exportacao.py               # Testes da exportação: prévia com avisos de privacidade, escolha de itens e ida e volta.
 │   ├── test_formato2.py                 # Testes do formato 2: origem, classificação, versão do app, dependências e configurações.
 │   ├── test_girias.py                   # Testes da 0.4.1: verbetes (dicionário), stopwords e intenções vindas de addons de…
+│   ├── test_invariantes.py              # Invariantes do assistente inteiro (2.5.1).
 │   ├── test_juntar.py                   # Testes de "juntar e reinterpretar" (1.0): panorama ("o que você sabe sobre X?"), pedido…
 │   ├── test_linguagem.py                # Testes do processamento de linguagem: radicais, normalização, intenções, entidades.
+│   ├── test_loja_homologacao.py         # Homologação contra os addons REAIS da loja (2.5.1), como teste automático.
 │   ├── test_loja_oficial.py             # Testes do link da loja oficial: endereço fixo, aberto pelo servidor no navegador do…
+│   ├── test_metamorficos.py             # Testes metamórficos (2.5.1).
+│   ├── test_modelos.py                  # Propriedades matemáticas dos modelos (2.5.1).
 │   ├── test_monitor.py                  # Testes do Monitor (2.4): etapas ao vivo, rota de fluxo e ficha do modelo.
 │   ├── test_numeros.py                  # Números e contas escritos de jeitos diferentes viram uma forma só (fase 1 da 2.0).
 │   ├── test_padroes.py                  # Padrões de frase (2.0): a estrutura da frase diz o conceito; as lacunas são exemplos.
 │   ├── test_recomendacao.py             # Testes da 0.5: recomendação de algoritmos, grupos de addons e as opções ao instalar.
 │   ├── test_resolucao.py                # Testes da junção de abreviações e sinônimos de vários addons (1.0).
 │   ├── test_revisao.py                  # Testes das normas da língua e da revisão de texto (0.8).
+│   ├── test_robustez.py                 # Robustez (2.5.1): entradas estranhas nunca derrubam o assistente.
 │   ├── test_sentido.py                  # A resposta precisa falar do assunto da pergunta (2.0).
 │   └── test_teia.py                     # Teia de porquês (2.0): leitura no perguntas.txt, validação e gravação.
 ├── .editorconfig                        # Padrão de indentação e fim de linha para qualquer editor

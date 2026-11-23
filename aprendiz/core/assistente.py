@@ -50,7 +50,7 @@ from aprendiz.core.teia import Teia
 from aprendiz.memoria.banco import lista_json, teia_de
 from aprendiz.linguagem import ClassificadorIntencoes, Linguagem, extrair_entidades
 from aprendiz.linguagem.normalizador import VERSAO_NORMALIZACAO, normalizar
-from aprendiz.linguagem.stemmer import radical
+from aprendiz.linguagem.stemmer import radical, singular
 from aprendiz.memoria import Banco
 
 # ---------------------------------------------------------------------------
@@ -160,6 +160,12 @@ def _parecida(palavra: str, palavras: set[str], digitacao: bool = True, lexico=N
     if any(p.startswith(raiz) and not (lexico is not None and lexico.sem_relacao(palavra, p))
            for p in palavras):
         return True
+    # Singular e plural ("pão" ↔ "pães", "animal" ↔ "animais"): o começo
+    # comum não pega plurais que trocam a terminação (2.5.1).
+    forma = singular(palavra)
+    if any(singular(p) == forma and not (lexico is not None and lexico.sem_relacao(palavra, p))
+           for p in palavras):
+        return True
     # Gerúndio → infinitivo ("dividindo" → "dividir", "ordenando" → "ordenar").
     # Só essa flexão exata: juntar por radical misturaria "ligações" e "ligada".
     for fim, troca in (("ando", "ar"), ("endo", "er"), ("indo", "ir")):
@@ -183,6 +189,24 @@ _ATUALIZAR = re.compile(r"^(?:por favor )?(?:(?:verifi\w*|procur\w*|busc\w*)(?: 
                         r"|(?P<ve>(?:verifi\w*|procur\w*) e atualiz\w*(?: (?:tudo|se|o aprendiz|os addons))?)"
                         r"|(?P<so>atualiz(?:e|ar|a)(?: (?:se|tudo|o aprendiz|os addons|seus addons|o app|voce)"
                         r"(?: e (?:os|seus) addons)?)?))(?: por favor)?$")
+
+
+# Cortesia no começo ou no fim (2.5.1): "por favor, sinônimos de aldeia",
+# "qual a senha do wifi, obrigado". Ela não diz nada sobre o assunto, mas
+# atrapalhava as etapas que leem a frase por padrões (dicionário, padrões).
+_CORTESIA = r"(?:por favor|por gentileza|porfavor|porfa|pfvr|pfv|plis|pls)"
+_CORTESIA_INICIO = re.compile(rf"^\s*{_CORTESIA}\b[\s,;:!.-]*", re.IGNORECASE)
+_CORTESIA_FIM = re.compile(rf"[\s,;:-]+(?:{_CORTESIA}|obrigad[oa]|obgd?|valeu|vlw)[\s!.?]*$",
+                           re.IGNORECASE)
+
+
+def sem_cortesia(mensagem: str) -> str:
+    """
+    Tira "por favor" (e parecidos) do começo, e "por favor"/"obrigado" do fim,
+    se sobrarem pelo menos duas palavras. "por favor" sozinho fica como está.
+    """
+    limpa = _CORTESIA_FIM.sub("", _CORTESIA_INICIO.sub("", mensagem)).strip()
+    return limpa if len(limpa.split()) >= 2 else mensagem
 
 
 def _pedido_atualizacao(mensagem: str) -> str | None:
@@ -612,9 +636,15 @@ class Assistente:
                   profundidade: int = 0) -> tuple[str, str, list[dict]]:
         """Executa as etapas e devolve (texto, tipo, fontes)."""
         contexto = contexto or {"pergunta": None, "resposta": None}
+        cortesia = None
+        if profundidade == 0:
+            limpa = sem_cortesia(mensagem)
+            if limpa != mensagem:
+                cortesia, mensagem = mensagem, limpa
         # 1. Normalização ----------------------------------------------------
         consulta = self.linguagem.processar(mensagem)
-        etapas.marcar("Normalização", consulta.como_dict())
+        etapas.marcar("Normalização", {**consulta.como_dict(),
+                                       **({"sem cortesia": mensagem} if cortesia else {})})
 
         # 2. Ensino explícito -------------------------------------------------
         # 1b. Atualização sob pedido (2.2): "verifique e atualize" ----------------
@@ -647,7 +677,7 @@ class Assistente:
         # "como se diz aldeia em Guiné?", "o que é kota em Angola?"... Vem
         # antes das intenções porque "como se diz obrigado em Timor" não é um
         # agradecimento. Se o dono ensinou exatamente essa pergunta, vale a dele.
-        pedido = self.dicionario.interpretar(mensagem)
+        pedido = self.dicionario.interpretar(mensagem, consulta.reescrito)
         if pedido:
             resposta_dic = self.dicionario.responder(pedido)
             etapas.marcar("Dicionário", {**pedido.como_dict(), "encontrou": bool(resposta_dic)})
@@ -760,7 +790,8 @@ class Assistente:
         # "quantos pedidos cada cliente fez" → agrupar e contar; "pedidos" e
         # "cliente" são o exemplo, não o assunto (core/padroes.py). Só troca a
         # pergunta se a reescrita achar resposta.
-        frase = self.padroes.ler(consulta.normalizado)
+        # 2.5.1: a frase já corrigida ("quanots pedidos cada" → "quantos pedidos cada").
+        frase = self.padroes.ler(consulta.reescrito or consulta.normalizado)
         if frase is not None:
             reescrita = self.linguagem.processar(frase.texto)
             _, achou, _ = self.buscar(reescrita, busca)
@@ -1115,8 +1146,8 @@ class Assistente:
             return com_abertura((self.dialogo.texto(ato, mensagem, leitura.assunto, vago=True),
                                  "dialogo", [])), leitura
         if acao == "convidar" and leitura.assunto:
-            return com_abertura(self._pipeline(leitura.assunto, busca, resposta, etapas,
-                                               contexto, profundidade + 1)), leitura
+            return com_abertura(self._pipeline(leitura.pergunta or leitura.assunto, busca,
+                                               resposta, etapas, contexto, profundidade + 1)), leitura
         if leitura.abertura and leitura.resto:
             etapas.meta.setdefault("entendida", leitura.resto)
             return com_abertura(self._pipeline(leitura.resto, busca, resposta, etapas,
@@ -1554,6 +1585,11 @@ class Assistente:
             if alvo and not any(self._parecida(t, titulo) for t in alvo):
                 return False
         if any(self._parecida(t, titulo, self._tolera(t)) for t in informativas):
+            return True
+        # Palavra de 3 letras que É o assunto declarado ("pão" → "pães da
+        # padaria", "mão", "cão"): conta como as informativas (2.5.1).
+        singulares = {singular(p) for p in titulo}
+        if any(singular(t) in singulares for t in consulta.conteudo if len(t) == 3):
             return True
         # Fragmento com teia DECLARA o que trata: se a pergunta não bate nesse
         # assunto, citar a palavra no meio do texto não basta ("qual a capital

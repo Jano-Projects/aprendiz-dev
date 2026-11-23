@@ -40,6 +40,9 @@ CENTENAS = {"cem": 100, "cento": 100, "duzentos": 200, "duzentas": 200, "trezent
             "setecentas": 700, "oitocentos": 800, "oitocentas": 800, "novecentos": 900,
             "novecentas": 900}
 VALORES = {**UNIDADES, **DEZENAS, **CENTENAS}
+# Multiplicadores grandes (2.5.1): "dois milhões e trezentos mil" → 2300000.
+GRANDES = {"milhao": 1_000_000, "milhoes": 1_000_000,
+           "bilhao": 1_000_000_000, "bilhoes": 1_000_000_000}
 ARTIGOS_NUMERO = {"um", "uma"}
 
 # Palavra da operação → nome fixo. Só vale ENTRE dois números.
@@ -53,11 +56,15 @@ _BARRA = re.compile(r"(?<![\d/])(\d+)\s*/\s*(\d+)(?![\d/]|/\d)")
 # "3x4" e "3 x 4" (mas não o hexadecimal "0x10").
 _VEZES_X = re.compile(r"(?<![\d])(?!0x)(\d+)\s*x\s*(\d+)\b")
 _IGUAL = re.compile(r"(\d)\s*=\s*(\d)")
+# Ponto de milhar (2.5.1): "1.000" e "R$ 1.234.567" viram "1000" e "1234567",
+# e não "1 000". Só um ponto seguido de exatamente três algarismos.
+_MILHAR = re.compile(r"(?<=\d)\.(?=\d{3}(?!\d))")
 _SIMBOLOS = {"+": " mais ", "*": " vezes ", "×": " vezes ", "÷": " dividido "}
 
 
 def simbolos(texto: str) -> str:
     """Etapa 1: símbolos de conta viram palavras (antes de apagar a pontuação)."""
+    texto = _MILHAR.sub("", texto)
     texto = _MENOS.sub(r"\1 menos \2", texto)
     texto = _BARRA.sub(r"\1 dividido \2", texto)
     texto = _VEZES_X.sub(r"\1 vezes \2", texto)
@@ -72,7 +79,7 @@ def _ler_numero(tokens: list[str], i: int) -> tuple[int, int] | None:
     Lê um número por extenso a partir de tokens[i]. Devolve (valor, quantos
     tokens usou) ou None. "vinte e cinco" → (25, 3); "mil e duzentos" → (1200, 3).
     """
-    total, atual, j, usou = 0, 0, i, 0
+    grande, total, atual, j, usou = 0, 0, 0, i, 0
     while j < len(tokens):
         t = tokens[j]
         if t in VALORES:
@@ -80,8 +87,11 @@ def _ler_numero(tokens: list[str], i: int) -> tuple[int, int] | None:
         elif t == "mil":
             total += (atual or 1) * 1000
             atual = 0
+        elif t in GRANDES and (usou or t in ("milhao", "bilhao")):
+            grande += ((total + atual) or 1) * GRANDES[t]
+            total = atual = 0
         elif t == "e" and usou and j + 1 < len(tokens) and (
-                tokens[j + 1] in VALORES or tokens[j + 1] == "mil"):
+                tokens[j + 1] in VALORES or tokens[j + 1] in ("mil", *GRANDES)):
             j += 1
             continue
         else:
@@ -90,11 +100,12 @@ def _ler_numero(tokens: list[str], i: int) -> tuple[int, int] | None:
         usou = j - i
     if not usou:
         return None
-    return total + atual, usou
+    return grande + total + atual, usou
 
 
 def _e_numero(token: str | None) -> bool:
-    return token is not None and (token.isdigit() or token in VALORES or token == "mil")
+    return token is not None and (token.isdigit() or token in VALORES or token == "mil"
+                                  or token in GRANDES)
 
 
 def palavras(tokens: list[str]) -> list[str]:
@@ -102,6 +113,11 @@ def palavras(tokens: list[str]) -> list[str]:
     saida: list[str] = []
     i = 0
     while i < len(tokens):
+        if (tokens[i] in GRANDES or tokens[i] == "mil") and saida and saida[-1].isdigit():
+            # "3 milhões" → 3000000 e "2 mil" → 2000, como "dois mil" (2.5.1)
+            saida[-1] = str(int(saida[-1]) * GRANDES.get(tokens[i], 1000))
+            i += 1
+            continue
         lido = _ler_numero(tokens, i)
         if lido:
             valor, usou = lido

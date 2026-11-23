@@ -88,6 +88,7 @@ DESCRICOES: dict[str, str] = {
     # ---- docs
     "docs/estudo/algoritmos.md": "Como funciona cada algoritmo, com exemplo calculado",
     "docs/estudo/monitor.md": "O Monitor: abas, níveis, fluxo ao vivo (NDJSON) e o que conta como parâmetro",
+    "docs/estudo/testes.md": "Como o Aprendiz é testado: metamórficos, fuzz, invariantes, modelos e homologação",
     "docs/guias/addons.md": "Formato .aprendiz, como criar addons e segurança",
     "docs/referencia/arquitetura.md": "Camadas, decisões de projeto e tabelas do banco",
     "docs/estudo/compreensao.md": "Addons de compreensão e vetores: lemas, tipos de pergunta, recomendação",

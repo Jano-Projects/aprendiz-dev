@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "aprendiz"
-version = "2.5.0"
+version = "2.5.1"
 description = "Assistente pessoal local, leve e offline, que aprende com o que o dono ensina."
 readme = "README.md"
 license = { text = "MIT" }
@@ -35,3 +35,6 @@ aprendiz = ["web/*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+markers = [
+    "loja: roda contra os addons reais da loja (pytest --loja ../aprendiz-addons)",
+]

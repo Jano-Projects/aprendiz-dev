@@ -58,6 +58,8 @@ LIGACOES = {"de", "da", "do", "das", "dos", "sobre", "a", "o", "as", "os", "com"
 ARTIGOS = {"o", "a", "os", "as", "um", "uma"}
 # Artigos indefinidos: "uma gíria de Angola" é um assunto VAGO (qual gíria?).
 INDEFINIDOS = {"um", "uma", "uns", "umas", "algum", "alguma", "alguns", "algumas", "qualquer"}
+# Até quantas palavras depois do indefinido o assunto ainda é vago (2.5.1).
+MAX_ASSUNTO_VAGO = 3
 # "sim" e "não" só valem como a mensagem INTEIRA ("consegue fazer isso?" não é um "sim").
 SO_A_FRASE = {"confirmar", "negar"}
 # Ações que só valem quando a mensagem NÃO traz assunto além do gatilho.
@@ -73,6 +75,9 @@ class Leitura:
     ato: dict[str, Any] | None = None      # o ato de fala reconhecido
     gatilho: str | None = None
     assunto: str | None = None             # o que vem depois do gatilho (texto original)
+    # 2.5.1: o mesmo, sem tirar as ligações do começo ("os 10 clientes…",
+    # "o que o c++ tem…"): é o que segue para a busca.
+    pergunta: str | None = None
     assunto_real: list[str] = field(default_factory=list)  # palavras que são assunto
     vago: bool = False                     # "uma gíria de Angola": qual?
     continuacao: str | None = None         # pergunta anterior reescrita
@@ -263,10 +268,15 @@ class Dialogo:
             leitura.ato, leitura.gatilho = ato, original
             leitura.assunto_real = self.assunto_real(resto_tokens[fim:])
             depois = self._depois(leitura.resto, fim).split()
+            leitura.pergunta = " ".join(depois) or None
             while depois and normalizar(depois[0]) in LIGACOES:
                 depois.pop(0)
             if depois and normalizar(depois[0]) in INDEFINIDOS and len(depois) > 1:
-                leitura.vago = True
+                # Vago é o assunto CURTO ("uma senha", "uma gíria de Angola").
+                # Uma descrição ("uma função que chama ela mesma", "um laço
+                # dentro de outro laço") já diz o que se quer (2.5.1).
+                resto = [normalizar(p) for p in depois[1:]]
+                leitura.vago = len(resto) <= MAX_ASSUNTO_VAGO and "que" not in resto
                 depois.pop(0)
             leitura.assunto = " ".join(depois) or None
         else:

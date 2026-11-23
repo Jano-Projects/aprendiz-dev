@@ -37,6 +37,7 @@ import unicodedata
 from dataclasses import dataclass, field
 
 from rapidfuzz import fuzz, process
+from rapidfuzz.distance import OSA
 
 from aprendiz.linguagem import numeros
 from aprendiz.linguagem.lexico import Lexico
@@ -58,7 +59,7 @@ _SETA = re.compile(r"->")
 
 # Versão das regras de normalização. Se ela mudar, os textos de busca já
 # gravados ficam desatualizados: o Assistente reindexa a base ao abrir.
-VERSAO_NORMALIZACAO = 6
+VERSAO_NORMALIZACAO = 7
 
 
 def remover_acentos(texto: str) -> str:
@@ -105,6 +106,11 @@ class TextoProcessado:
     sinonimos: dict[str, str] = field(default_factory=dict)
     expressoes: dict[str, str] = field(default_factory=dict)
     lemas: dict[str, str] = field(default_factory=dict)
+    # 2.5.1: o normalizado com abreviações expandidas e erros corrigidos, mas
+    # ANTES de sinônimos, expressões e lemas. É o que as etapas que leem a
+    # frase por padrões (dicionário, padrões de frase) devem ver:
+    # "o q siginfica trampo" → "o que significa trampo".
+    reescrito: str = ""
 
     @property
     def texto_busca(self) -> str:
@@ -130,6 +136,10 @@ class Linguagem:
 
     # Correção de digitação: só tenta em palavras com pelo menos 4 letras e
     # aceita a sugestão se a similaridade for >= 80 (de 0 a 100).
+    # A similaridade (2.5.1) vem da distância OSA (Damerau-Levenshtein
+    # restrita): trocar duas letras vizinhas de lugar ("mlihas") custa UMA
+    # edição, e não duas, como na Levenshtein comum. Assim "mlihas" vira
+    # "milhas" (1 troca), e não "linhas" (2 substituições).
     TAMANHO_MINIMO_CORRECAO = 4
     SIMILARIDADE_MINIMA_CORRECAO = 80
 
@@ -212,10 +222,7 @@ class Linguagem:
             ):
                 # rapidfuzz compara a palavra com todo o vocabulário de forma
                 # muito rápida (o núcleo é escrito em C++).
-                achados = process.extract(
-                    t, self.vocabulario, scorer=fuzz.ratio, limit=8,
-                    score_cutoff=self.SIMILARIDADE_MINIMA_CORRECAO,
-                )
+                achados = self._candidatos_correcao(t)
                 if achados:
                     melhor = self._desempatar(achados, saida[-1] if saida else None,
                                               tokens[i + 1] if i + 1 < len(tokens) else None)
@@ -224,21 +231,44 @@ class Linguagem:
             saida.append(t)
         return saida
 
+    def _candidatos_correcao(self, palavra: str) -> list[tuple[str, float, float]]:
+        """
+        Palavras do vocabulário parecidas com `palavra`: (candidata, OSA, ratio),
+        as duas notas de 0 a 100 e calculadas em C++ pela rapidfuzz.
+
+        A nota que decide (2.5.1) é a OSA (Damerau-Levenshtein restrita): ela
+        conta a troca de duas letras vizinhas como UM erro, o que é o erro de
+        digitação mais comum ("mlihas" ~ "milhas", e não "linhas"). A ratio
+        (Indel) também traz candidatas, porque é mais tolerante a letra a mais
+        ou a menos, e desempata no fim.
+        """
+        minimo = self.SIMILARIDADE_MINIMA_CORRECAO - 1e-6
+        vistas: set[str] = set()
+        for escala, scorer in ((1, fuzz.ratio), (100, OSA.normalized_similarity)):
+            for candidata, _, _ in process.extract(palavra, self.vocabulario, scorer=scorer,
+                                                   limit=8, score_cutoff=minimo / escala):
+                vistas.add(candidata)
+        achados = [(c, round(OSA.normalized_similarity(palavra, c) * 100, 4),
+                    round(fuzz.ratio(palavra, c), 4)) for c in vistas]
+        return sorted(achados, key=lambda a: (-a[1], -a[2], a[0]))
+
     def _desempatar(self, achados, anterior: str | None, proxima: str | None) -> str:
         """
-        Entre as correções igualmente parecidas ("grup" → "grupo" ou "group"),
-        vale a que forma com a palavra vizinha um PAR que existe na base
-        ("group by"); depois, a mais frequente na base; por fim, a ordem
-        alfabética. Assim a mesma pergunta é sempre corrigida do mesmo jeito.
+        Entre as correções igualmente parecidas pela OSA ("grup" → "grupo" ou
+        "group"; "torcar" → "trocar" ou "tocar"), vale a que forma com a palavra
+        vizinha um PAR que existe na base ("group by"); depois, a mais frequente
+        na base; depois, a de maior ratio; por fim, a ordem alfabética. Assim a
+        mesma pergunta é sempre corrigida do mesmo jeito.
         """
         nota = achados[0][1]
-        empatados = [a[0] for a in achados if a[1] >= nota - 0.01]
+        empatados = [a for a in achados if a[1] >= nota - 0.01]
 
-        def chave(palavra: str):
+        def chave(achado):
+            palavra = achado[0]
             par = (anterior, palavra) in self._pares or (palavra, proxima) in self._pares
-            return (not par, -self._frequencia.get(palavra, 0), palavra)
+            return (not par, -self._frequencia.get(palavra, 0), -achado[2], palavra)
 
-        return min(empatados, key=chave)
+        return min(empatados, key=chave)[0]
 
     def _aplicar_expressoes(self, tokens: list[str], registro: dict[str, str]) -> list[str]:
         """
@@ -320,6 +350,7 @@ class Linguagem:
         tokens = self._expandir(tokenizar(normalizado), expansoes)
         if corrigir:
             tokens = self._corrigir(tokens, correcoes)
+        reescrito = " ".join(tokens)
         tokens = self._aplicar_expressoes(tokens, expressoes)
         tokens = self._aplicar_sinonimos(tokens, sinonimos)
         tokens = self._lematizar(tokens, lemas)
@@ -337,4 +368,5 @@ class Linguagem:
             sinonimos=sinonimos,
             expressoes=expressoes,
             lemas=lemas,
+            reescrito=reescrito,
         )

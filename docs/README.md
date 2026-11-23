@@ -14,7 +14,7 @@ A documentação está dividida em três pastas, pelo que você quer fazer:
 |---|---|
 | **Iniciante em IA** | [Algoritmos](estudo/algoritmos.md) (seções 1 a 4) → [Linguagem](estudo/linguagem.md) → [Monitor](estudo/monitor.md), usando o app no nível Iniciante |
 | **Dev que quer entender PLN e busca** | [Arquitetura](referencia/arquitetura.md) → [Linguagem](estudo/linguagem.md) → [Algoritmos](estudo/algoritmos.md) → [Criar um algoritmo](guias/criar-algoritmo.md) |
-| **Estudante de aprendizado de máquina** | [Algoritmos](estudo/algoritmos.md) (seção 5, busca Calibrada) → [Monitor](estudo/monitor.md) (parâmetros e fluxo ao vivo) |
+| **Estudante de aprendizado de máquina** | [Algoritmos](estudo/algoritmos.md) (seção 5, busca Calibrada) → [Monitor](estudo/monitor.md) (parâmetros e fluxo ao vivo) → [Testes](estudo/testes.md) (como testar um modelo) |
 | **Quem vai criar addons** | [Addons](guias/addons.md) → [Compreensão](estudo/compreensao.md) → [Revisão](estudo/revisao.md) |
 | **Quem vai distribuir o app** | [Empacotamento](guias/empacotamento.md) |
 
@@ -29,6 +29,7 @@ A documentação está dividida em três pastas, pelo que você quer fazer:
 | [Compreensão](estudo/compreensao.md) | Addons de compreensão e vetores: lemas, tipos de pergunta, padrões de frase, diálogo, recomendação |
 | [Revisão](estudo/revisao.md) | Addons de norma: vocabulário, grafias de cada país, regras de gramática |
 | [Monitor](estudo/monitor.md) | O painel técnico, os níveis Iniciante e Avançado, o fluxo ao vivo e o que conta como parâmetro |
+| [Testes](estudo/testes.md) | Testes metamórficos, fuzz, invariantes, propriedades dos modelos e homologação com a loja |
 
 ### Guias: como fazer
 

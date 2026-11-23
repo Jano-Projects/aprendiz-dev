@@ -1,5 +1,8 @@
 """Fixtures compartilhadas: cada teste ganha um banco novo, num arquivo temporário."""
 
+import os
+from pathlib import Path
+
 import pytest
 
 from aprendiz.core import Assistente
@@ -30,3 +33,28 @@ def assistente_ensinado(assistente):
         tipo="trecho",
     )
     return assistente
+
+
+# ------------------------------------------------------------ loja (opcional)
+# Os testes marcados com @pytest.mark.loja rodam contra os addons REAIS da loja
+# (repositório aprendiz-addons). São lentos (~2 min), então só rodam quando
+# pedidos:  pytest --loja ../aprendiz-addons   (ou APRENDIZ_LOJA=../aprendiz-addons)
+def pytest_addoption(parser):
+    parser.addoption("--loja", default=os.environ.get("APRENDIZ_LOJA"),
+                     help="pasta do repositório aprendiz-addons (liga os testes da loja)")
+
+
+def pytest_collection_modifyitems(config, items):
+    loja = config.getoption("--loja")
+    if loja and (Path(loja) / "addons").is_dir():
+        return
+    motivo = ("use --loja CAMINHO para rodar contra os addons reais" if not loja
+              else f"pasta da loja não encontrada: {loja}")
+    for item in items:
+        if "loja" in item.keywords:
+            item.add_marker(pytest.mark.skip(reason=motivo))
+
+
+@pytest.fixture(scope="session")
+def pasta_loja(pytestconfig):
+    return Path(pytestconfig.getoption("--loja"))

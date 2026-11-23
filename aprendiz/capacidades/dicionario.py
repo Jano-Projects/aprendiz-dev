@@ -253,12 +253,31 @@ class Dicionario:
             palavras.pop(0)
         return " ".join(palavras)
 
-    def interpretar(self, mensagem: str) -> Pedido | None:
-        """Procura um pedido de dicionário na mensagem. None = não é um."""
+    def interpretar(self, mensagem: str, reescrito: str | None = None) -> Pedido | None:
+        """
+        Procura um pedido de dicionário na mensagem. None = não é um.
+
+        `reescrito` (2.5.1) é a mensagem com abreviações expandidas e erros de
+        digitação corrigidos ("o q siginfica trampo" → "o que significa
+        trampo"). Ela é tentada depois da original, e vale se achar um termo
+        que existe no dicionário.
+        """
         indice = self.indice()
         if not indice.termos and not indice.traducoes:
             return None
-        texto = _EDUCADO.sub("", _SUFIXO_COMO.sub("", normalizar(mensagem)))
+        original = normalizar(mensagem)
+        reserva: Pedido | None = None
+        for texto in dict.fromkeys(t for t in (original, reescrito) if t):
+            achado, possivel = self._interpretar_texto(texto, mensagem, indice)
+            if achado:
+                return achado
+            reserva = reserva or possivel
+        return reserva
+
+    def _interpretar_texto(self, texto: str, mensagem: str,
+                           indice) -> tuple[Pedido | None, Pedido | None]:
+        """(pedido com termo do dicionário, pedido possível) lendo um texto normalizado."""
+        texto = _EDUCADO.sub("", _SUFIXO_COMO.sub("", texto))
         miolo, regiao_texto, regioes, em_portugues = self.separar_regiao(texto)
 
         # Com região reconhecida (ou "em português"), testa só o miolo. Com um
@@ -282,9 +301,9 @@ class Dicionario:
                     continue
                 chave = self.chave(pedido.termo)
                 if chave in indice.termos or chave in indice.traducoes:
-                    return pedido
+                    return pedido, None
                 reserva = reserva or pedido
-        return reserva
+        return None, reserva
 
     def _montar(self, numero, sentido, exige_regiao, padrao, alvo, usa_miolo,
                 regiao_texto, regioes, em_portugues, mensagem) -> Pedido | None:
