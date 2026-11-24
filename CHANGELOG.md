@@ -6,6 +6,13 @@ seguem o [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ## [Não lançado]
 
+Versão em preparação: **2.7.0** (branch `aprendiz-2.7`).
+
+### Adicionado
+- **Homologação da base pessoal** (`homologar.py --pessoal`): 16 fatos inventados ensinados
+  pelo dono e 44 perguntas sobre eles, incluindo 12 sem resposta que medem quanto o Aprendiz
+  inventa. Ponto de partida (2.6.0, Calibrada): 35/44, recusou 5 de 12 e inventou 7.
+
 ## [2.6.0] - 2026-11-23
 
 O Aprendiz passa a aprender com o dono: cada 👍, 👎, "não era isso" e correção ajusta a busca

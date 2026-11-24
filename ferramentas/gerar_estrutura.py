@@ -99,6 +99,7 @@ DESCRICOES: dict[str, str] = {
     "docs/referencia/versionamento.md": "Regra de versões do app e dos addons, branches e pré-versões",
     "docs/estudo/linguagem.md": "O pipeline de PLN, etapa por etapa",
     # ---- exemplos e ferramentas
+    "ferramentas/dados/base_pessoal.json": "Base pessoal inventada e perguntas sobre ela (homologar.py --pessoal)",
     "ferramentas/dados/dados_exemplo.json": "Base e perguntas usadas no benchmark",
     "ferramentas/dados/conjunto_calibrado.json": "Perguntas rotuladas (treino e teste) da busca Calibrada, geradas das variações dos addons",
     "exemplos/addons/conversoes-medidas.aprendiz": "Addon pronto para importar",

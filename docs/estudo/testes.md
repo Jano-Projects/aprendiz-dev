@@ -81,17 +81,38 @@ esses testes passarem.
 
 ## 6. Homologação com a loja — `tests/test_loja_homologacao.py`
 
-Opcional (`--loja` ou a variável `APRENDIZ_LOJA`). Instala os addons publicados e faz as 243
+Opcional (`--loja` ou a variável `APRENDIZ_LOJA`). Instala os addons publicados e faz as 249
 perguntas de [`ferramentas/homologar.py`](../../ferramentas/homologar.py). Cada busca tem um
 **piso** de acertos; cair abaixo dele é regressão:
 
-| Busca | Piso (2.5.1) |
+| Busca | Piso (2.6.0) |
 |---|---|
 | Híbrido | 231 |
 | BM25 | 227 |
-| Calibrado | 221 |
+| Calibrado | 234 |
 | TF-IDF | 211 |
 | Fuzzy | 162 |
+
+### Base pessoal — `homologar.py --pessoal` (2.7)
+
+As 249 perguntas acima medem o conteúdo dos addons. O uso principal do Aprendiz é outro:
+responder sobre o que o **dono** ensinou. Com `--pessoal`, a homologação ensina os 16 fatos
+inventados de [`ferramentas/dados/base_pessoal.json`](../../ferramentas/dados/base_pessoal.json)
+(senha do wifi, aniversários, carro, contas…) por cima dos mesmos addons e faz 44 perguntas,
+escritas como gente escreve:
+
+| Grupo | O que mede |
+|---|---|
+| direto, variação, escrita, pedido | achar o fato com outras palavras, abreviação, erro e pedido |
+| sem resposta | perguntas parecidas com o que foi ensinado, mas sobre outra coisa ("senha do **banco**", "telefone do **eletricista**"): o certo é dizer que não sabe |
+
+No fim, além do total, sai a linha `sem resposta: recusou X/12, inventou Y`. É a medida de
+quanto o Aprendiz inventa quando não sabe.
+
+```bash
+python ferramentas/homologar.py ../aprendiz-addons --pessoal --busca calibrado
+```
+
 
 O mesmo arquivo repete os testes metamórficos sobre as 204 perguntas que o Híbrido acerta, com
 pisos por transformação (100% para maiúsculas, cortesia e pontuação; 97% para letras trocadas).

@@ -138,6 +138,7 @@ aprendiz/
 │       └── modo-exigente.aprendiz       # Addon pronto para importar (limiares mais altos)
 ├── ferramentas/                         # Ferramentas de desenvolvimento: verificar, criar e conferir addons, homologar, treinar, comparar
 │   ├── dados/                           # Dados das ferramentas: base do benchmark e perguntas rotuladas da Calibrada
+│   │   ├── base_pessoal.json            # Base pessoal inventada e perguntas sobre ela (homologar.py --pessoal)
 │   │   ├── conjunto_calibrado.json      # Perguntas rotuladas (treino e teste) da busca Calibrada, geradas das variações dos addons
 │   │   └── dados_exemplo.json           # Base e perguntas usadas no benchmark
 │   ├── comparar.py                      # Benchmark: compara os algoritmos de busca num mesmo conjunto de perguntas.
