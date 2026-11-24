@@ -26,6 +26,7 @@ aprendiz/
 │   │   ├── bug.md                       # Modelo para relatar um erro
 │   │   └── ideia.md                     # Modelo para sugerir uma melhoria
 │   ├── workflows/                       # Integração contínua (GitHub Actions)
+│   │   ├── homologacao.yml              # Homologação com os addons da loja em Debian, Fedora, Ubuntu e Windows
 │   │   └── testes.yml                   # Testa a instalação em Windows, Ubuntu, Fedora e Debian
 │   ├── CODE_OF_CONDUCT.md               # Código de conduta da comunidade
 │   ├── CONTRIBUTING.md                  # Como contribuir: ambiente, padrões e fluxo de PR
@@ -116,12 +117,15 @@ aprendiz/
 │   ├── guias/                           # Como fazer: criar addons, criar algoritmos, instalar e empacotar
 │   │   ├── addons.md                    # Formato .aprendiz, como criar addons e segurança
 │   │   ├── criar-algoritmo.md           # Passo a passo para adicionar um algoritmo ao seletor
-│   │   └── empacotamento.md             # Instaladores, executável e problemas comuns
+│   │   ├── desenvolvimento.md           # Comandos do dia a dia, CI, executável e onde ficam os dados
+│   │   ├── empacotamento.md             # Instaladores, executável e problemas comuns
+│   │   └── recursos.md                  # Tudo o que o Aprendiz faz, com o link para cada explicação
 │   ├── imagens/                         # Imagens usadas no README
 │   │   └── tela-principal.png           # Captura da tela principal (README)
 │   ├── referencia/                      # Mapa do projeto: arquitetura e estrutura de arquivos
 │   │   ├── arquitetura.md               # Camadas, decisões de projeto e tabelas do banco
 │   │   ├── estrutura.md                 # Este mapa (gerado por ferramentas/gerar_estrutura.py)
+│   │   ├── homologacao.md               # Homologação automática e manual por plataforma: roteiro e registro
 │   │   └── versionamento.md             # Regra de versões do app e dos addons, branches e pré-versões
 │   └── README.md                        # Índice da documentação: por onde começar e o que tem em cada pasta
 ├── exemplos/                            # Exemplos prontos para usar e estudar
@@ -175,7 +179,7 @@ aprendiz/
 │   ├── test_invariantes.py              # Invariantes do assistente inteiro (2.5.1).
 │   ├── test_juntar.py                   # Testes de "juntar e reinterpretar" (1.0): panorama ("o que você sabe sobre X?"), pedido…
 │   ├── test_linguagem.py                # Testes do processamento de linguagem: radicais, normalização, intenções, entidades.
-│   ├── test_loja_homologacao.py         # Homologação contra os addons REAIS da loja (2.5.1), como teste automático.
+│   ├── test_loja_homologacao.py         # Homologação contra os addons REAIS da loja, como teste automático.
 │   ├── test_loja_oficial.py             # Testes do link da loja oficial: endereço fixo, aberto pelo servidor no navegador do…
 │   ├── test_metamorficos.py             # Testes metamórficos (2.5.1).
 │   ├── test_modelos.py                  # Propriedades matemáticas dos modelos (2.5.1).

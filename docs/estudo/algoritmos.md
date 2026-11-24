@@ -23,6 +23,27 @@ Cada algoritmo de busca devolve candidatos com dois números:
 Todos os números deste documento foram **calculados pelo próprio código**. Para reproduzir,
 ensine os três itens abaixo num banco vazio e use o Monitor.
 
+
+## Visão geral
+
+Cada modelo tem um **apelido** (como aparece no seletor), o nome técnico e um custo de
+processamento por pergunta. A tela **Como funcionam os algoritmos** (botão **?** no topo)
+explica cada um passo a passo.
+
+| Busca | Apelido | Ideia | Quando usar | Custo |
+|---|---|---|---|---|
+| **BM25** | Rápido | Ranking clássico de buscadores, calculado pelo SQLite (FTS5) | Bases grandes, perguntas com as mesmas palavras do que foi ensinado | leve |
+| **TF-IDF + cosseno** | Didático | Vetores de pesos comparados pelo ângulo | Estudar como uma busca funciona; bases pequenas e médias | leve |
+| **Fuzzy** | Tolerante | Similaridade letra a letra (Levenshtein, RapidFuzz) | Perguntas curtas com muitos erros de digitação | médio |
+| **Híbrido (RRF)** | Equilibrado | Junta os três pela posição e só aceita com **consenso** | Uso geral | pesado |
+| **Calibrado** (padrão) | Calibrado | Pesa todos os sinais com pesos **aprendidos** (regressão logística); a confiança é a chance de acerto | Uso geral, quando errar custa caro | pesado |
+
+| Resposta | Apelido | Ideia | Custo |
+|---|---|---|---|
+| **Direta** | Fiel | O conhecimento mais relevante, como foi ensinado | leve |
+| **Extrativa** | Resumo | As frases mais relevantes de vários conhecimentos (relevância + TextRank) | médio |
+| **Trabalhada** | Explica | O fato e a cadeia de porquês da teia dos addons, dita com as frases de expressão | médio |
+
 ## A base de exemplo
 
 | # | O que foi ensinado | Texto de busca (radicais) |

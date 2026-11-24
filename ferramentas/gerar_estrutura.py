@@ -75,6 +75,7 @@ DESCRICOES: dict[str, str] = {
     "executar.bat": "Abre o Aprendiz no Windows (instala na primeira vez)",
     # ---- .github
     ".github/workflows/testes.yml": "Testa a instalação em Windows, Ubuntu, Fedora e Debian",
+    ".github/workflows/homologacao.yml": "Homologação com os addons da loja em Debian, Fedora, Ubuntu e Windows",
     ".github/ISSUE_TEMPLATE/bug.md": "Modelo para relatar um erro",
     ".github/ISSUE_TEMPLATE/ideia.md": "Modelo para sugerir uma melhoria",
     ".github/PULL_REQUEST_TEMPLATE.md": "Checklist de pull request",
@@ -95,8 +96,11 @@ DESCRICOES: dict[str, str] = {
     "docs/estudo/revisao.md": "Addons de norma e revisão de texto: vocabulário, grafias, regras de gramática",
     "docs/guias/criar-algoritmo.md": "Passo a passo para adicionar um algoritmo ao seletor",
     "docs/guias/empacotamento.md": "Instaladores, executável e problemas comuns",
+    "docs/guias/recursos.md": "Tudo o que o Aprendiz faz, com o link para cada explicação",
+    "docs/guias/desenvolvimento.md": "Comandos do dia a dia, CI, executável e onde ficam os dados",
     "docs/referencia/estrutura.md": "Este mapa (gerado por ferramentas/gerar_estrutura.py)",
     "docs/referencia/versionamento.md": "Regra de versões do app e dos addons, branches e pré-versões",
+    "docs/referencia/homologacao.md": "Homologação automática e manual por plataforma: roteiro e registro",
     "docs/estudo/linguagem.md": "O pipeline de PLN, etapa por etapa",
     # ---- exemplos e ferramentas
     "ferramentas/dados/base_pessoal.json": "Base pessoal inventada e perguntas sobre ela (homologar.py --pessoal)",

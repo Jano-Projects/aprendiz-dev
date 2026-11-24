@@ -10,7 +10,8 @@ etapa do que pensa: da tokenização à regressão logística.
 
 [![Testes](https://github.com/Jano-Projects/aprendiz-dev/actions/workflows/testes.yml/badge.svg)](https://github.com/Jano-Projects/aprendiz-dev/actions/workflows/testes.yml)
 ![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-3776ab)
-![Plataformas](https://img.shields.io/badge/plataformas-Linux%20%7C%20Windows-6b7280)
+[![Homologação](https://github.com/Jano-Projects/aprendiz-dev/actions/workflows/homologacao.yml/badge.svg)](https://github.com/Jano-Projects/aprendiz-dev/actions/workflows/homologacao.yml)
+![Plataformas](https://img.shields.io/badge/plataformas-Debian%20%7C%20Fedora%20%7C%20Ubuntu%20%7C%20Windows-6b7280)
 ![Offline](https://img.shields.io/badge/funciona-100%25%20offline-16a34a)
 [![Licença MIT](https://img.shields.io/badge/licen%C3%A7a-MIT-4f46e5)](LICENSE)
 
@@ -23,93 +24,48 @@ etapa do que pensa: da tokenização à regressão logística.
 
 ---
 
-## Sumário
-
-- [O que é](#o-que-é)
-- [Para quem é](#para-quem-é)
-- [O Monitor](#o-monitor)
-- [Recursos](#recursos)
-- [Rodando a partir do código](#rodando-a-partir-do-código)
-- [Primeiros passos](#primeiros-passos)
-- [Para quem vai estudar o código](#para-quem-vai-estudar-o-código)
-- [Os algoritmos](#os-algoritmos)
-- [Estrutura do projeto](#estrutura-do-projeto)
-- [Desenvolvimento](#desenvolvimento)
-- [Onde ficam os dados](#onde-ficam-os-dados)
-- [Contribuindo](#contribuindo) · [Licença](#licença)
-
 ## O que é
 
 O Aprendiz é um chat que roda no seu computador, **sem internet e sem nuvem**. Você ensina
 informações do dia a dia (a senha do wi-fi, o horário da farmácia, quando trocar o óleo do
-carro) e depois pergunta do jeito que quiser. Ele entende abreviações, sinônimos, erros de
-digitação e variações das palavras.
+carro) e depois pergunta do jeito que quiser. Ele entende abreviações, sinônimos e erros de
+digitação, aprende com as suas avaliações e, quando não sabe, diz que não sabe.
 
 Não há nenhum modelo de IA gigante aqui. A "inteligência" vem de técnicas clássicas de
-**PLN**, **recuperação de informação** e **aprendizado de máquina**: normalização,
-radicalização, Naive Bayes, BM25, TF-IDF, distância de Levenshtein, *Reciprocal Rank Fusion*,
-TextRank, vetores de palavras, busca em grafo e uma **regressão logística treinada** com
-perguntas reais. Tudo implementado de forma legível e comentada em português, e pequeno o
-bastante para rodar em máquinas bem modestas.
+**PLN**, **recuperação de informação** e **aprendizado de máquina** (BM25, TF-IDF, Naive Bayes,
+Levenshtein, TextRank, vetores de palavras, busca em grafo e uma **regressão logística
+treinada**), implementadas de forma legível e comentada em português, pequenas o bastante para
+rodar em máquinas bem modestas. O **Monitor**, ao lado do chat, mostra cada etapa ao vivo, com
+tempo, dados, fórmulas e parâmetros.
 
-> **Projeto educacional.** Cada arquivo começa explicando o que faz, cada algoritmo explica a
-> teoria por trás dele (no código, na documentação e dentro do app) e o **Monitor** mostra,
-> enquanto o Aprendiz pensa, cada etapa com tempo, dados, fórmulas e parâmetros.
+Tudo o que ele faz: [Recursos](docs/guias/recursos.md).
 
 ## Para quem é
 
 | Você é… | Comece por | Depois |
 |---|---|---|
 | **Iniciante em IA** | Use o app com o Monitor no nível **Iniciante**: cada etapa explicada em palavras simples, e um glossário com os termos | [docs/estudo/algoritmos.md](docs/estudo/algoritmos.md), seções 1 a 4, com as contas feitas à mão |
-| **Dev que quer entender PLN e busca** | A [trilha do código](#para-quem-vai-estudar-o-código): normalizador, stemmer, Naive Bayes, BM25, TF-IDF | Crie o seu algoritmo de busca ([docs/guias/criar-algoritmo.md](docs/guias/criar-algoritmo.md)) e compare no benchmark |
+| **Dev que quer entender PLN e busca** | A [trilha do código](docs/README.md#trilha-do-código): normalizador, stemmer, Naive Bayes, BM25, TF-IDF | Crie o seu algoritmo de busca ([docs/guias/criar-algoritmo.md](docs/guias/criar-algoritmo.md)) e compare no benchmark |
 | **Estudante de aprendizado de máquina** | A busca **Calibrada**: sinais, padronização, regressão logística em duas etapas, limiar tirado do custo ([docs](docs/estudo/algoritmos.md#5-calibrado-buscacalibradopy-pesos-aprendidos-24)) | Treine de novo com `ferramentas/treinar_calibrado.py`, mude os sinais e meça no conjunto de teste e na homologação |
 | **Avançado** | O Monitor no nível **Avançado**: nomes técnicos, fórmulas, contribuição de cada peso e o JSON bruto de cada etapa | A API ao vivo (`/api/chat/fluxo`, NDJSON) e a ficha de parâmetros (`/api/modelo`) para os seus próprios experimentos ([docs/estudo/monitor.md](docs/estudo/monitor.md)) |
 
-## O Monitor
+## Plataformas homologadas
 
-O painel à direita do chat mostra o que acontece por dentro de cada resposta, em dois níveis
-de leitura (**Iniciante** e **Avançado**):
+| Sistema | Instalação e testes | Homologação | Manual |
+|---|---|---|---|
+| **Debian** (estável) | a cada envio | a cada envio | [registro](docs/referencia/homologacao.md#manual-registro) |
+| **Fedora** (mais recente) | a cada envio | a cada envio | [registro](docs/referencia/homologacao.md#manual-registro) |
+| **Ubuntu** (LTS e mais recente) | a cada envio | a cada envio | [registro](docs/referencia/homologacao.md#manual-registro) |
+| **Windows** (com e sem Python) | a cada envio | a cada envio | [registro](docs/referencia/homologacao.md#manual-registro) |
 
-| Aba | O que mostra |
-|---|---|
-| **Pipeline** | Cada etapa **ao vivo**, assim que termina: o tempo, quando começou (como um gráfico de Gantt) e os dados. A **câmera lenta** espaça as etapas para acompanhar o raciocínio |
-| **Busca** | Os candidatos, a confiança de cada um e o limiar. Na busca Calibrada, a conta inteira: `z = viés + Σ peso·sinal`, `p = σ(z)`, a parte de cada sinal num gráfico e a 2ª etapa, que decide se responde |
-| **Modelo** | A ficha técnica: **quantos parâmetros** existem, de que tipo (aprendidos, estatísticas da base, pré-treinados, hiperparâmetros), o treino da Calibrada e o ambiente |
-| **Desempenho** | Tempo médio de cada etapa, p90 e memória do processo nesta sessão |
-| **Glossário** | Os termos técnicos, de *token* a *validação cruzada*, com a definição simples e a técnica |
+- **Instalação e testes:** o GitHub instala o Aprendiz com os próprios scripts, partindo de um
+  sistema **sem Python**, e roda a suíte inteira ([testes.yml](.github/workflows/testes.yml)).
+- **Homologação:** com os addons da loja oficial, confere os pisos de acerto das 249 perguntas
+  de gente de verdade e da base pessoal de exemplo ([homologacao.yml](.github/workflows/homologacao.yml)).
+- **Manual:** um [roteiro de 12 itens](docs/referencia/homologacao.md#manual-roteiro) para
+  conferir o que só uma pessoa vê, com o registro de cada versão por sistema.
 
-Detalhes, formato do fluxo ao vivo e o que conta como parâmetro: [docs/estudo/monitor.md](docs/estudo/monitor.md).
-
-## Recursos
-
-| | |
-|---|---|
-| 💬 **Chat moderno** | Histórico de conversas, tema claro/escuro, Markdown, ícones, responsivo |
-| 🎓 **Aprende pelo chat** | `aprenda que a senha do wifi é casa123` · `pergunta: … resposta: …` · `anote: …` |
-| 🔁 **Aprende com correções** | Errou? *Corrigir* transforma a resposta certa em ensinamento |
-| 🕸️ **Teia de porquês** | Addons dizem *por que* cada resposta é assim e a que outros conceitos ela se liga, inclusive em outros addons; a resposta **Trabalhada** explica a cadeia até a base ([docs](docs/estudo/algoritmos.md#8-resposta-trabalhada-e-teia-de-porquês-20)) |
-| 🧩 **Entende a frase** | Padrões de frase ("quantos pedidos cada cliente fez" = agrupar e contar), números por extenso ("dois mais dois") e a regra de que a resposta precisa falar do assunto da pergunta ([docs](docs/estudo/compreensao.md#padrões-de-frase-20)) |
-| 🧩 **Addons** | Pacotes `.aprendiz` (memória, linguagem, parâmetros, personalização, compreensão, vetores, norma) com confirmação antes de instalar ([docs](docs/guias/addons.md)) |
-| ✍️ **Revisão de texto** | Com um addon de norma: ortografia, gramática e palavras de outras variantes pelo português de cada país (Brasil, Portugal, Angola, Moçambique, Cabo Verde, Guiné-Bissau, São Tomé e Príncipe, Timor-Leste): `revise: …`, `o certo é X ou Y?` e a tela **Revisar texto** ([docs](docs/estudo/revisao.md)) |
-| 🧠 **Compreensão** | Com o addon de compreensão: tipo de pergunta, expressões, formas irregulares, perguntas sobre o próprio app, limites de um assistente offline e indicação do addon certo quando não sabe algo ([docs](docs/estudo/compreensao.md)) |
-| 🧭 **Busca por sentido** | Com o addon de vetores: se a palavra não está na base, tenta as de sentido parecido |
-| 📖 **Dicionários** | Respondem nos dois sentidos, "o que significa kota?" e "como se diz dinheiro em Angola?", sem atrapalhar o resto da conversa |
-| 🗣️ **Vários jeitos de perguntar** | Addons trazem variações de cada pergunta, que levam à mesma resposta |
-| 🧪 **Algoritmo recomendado** | Cada addon traz a busca e a resposta que funcionam melhor com ele, medidas num teste com o próprio conteúdo e com perguntas fora do assunto |
-| ✅ **Homologação** | `ferramentas/homologar.py` faz perguntas de gente de verdade contra os addons reais da loja, incluindo perguntas inéditas ([docs](docs/estudo/algoritmos.md#homologação)) |
-| 🗂️ **Grupos de addons** | Addons com a mesma recomendação são ativados juntos, no mesmo padrão de busca; os de apoio (compreensão, diálogo, vetores, personalização) entram no grupo dos addons que complementam |
-| 💬 **Diálogo** | Com o addon de diálogo: cumprimento + pedido na mesma frase, desabafo, pedido de opinião, perguntas reflexivas e reações à resposta anterior ("não entendi", "não era isso", "sim", "e em Portugal?") ([docs](docs/estudo/compreensao.md#diálogo)) |
-| 📦 **Exporta o que você ensinou** | Gera um addon para compartilhar, escolhendo item a item; dados pessoais vêm desmarcados |
-| 🎨 **Configurações** | Limiares, algoritmos padrão, nome, cor e boas-vindas do assistente |
-| 🔍 **Seletor de algoritmos** | 5 de busca e 3 de resposta, cada um com explicação no botão **?** |
-| 📈 **Busca Calibrada** | Regressão logística treinada com as perguntas dos addons; a confiança é a chance de acerto ([docs](docs/estudo/algoritmos.md#5-calibrado-buscacalibradopy-pesos-aprendidos-24)) |
-| 🖥️ **Monitor** | O pipeline ao vivo, a conta da busca, os parâmetros do modelo, o desempenho e um glossário, em nível Iniciante ou Avançado ([docs](docs/estudo/monitor.md)) |
-| 🛡️ **Modo estrito** | Se não sabe, diz que não sabe. Nada é inventado |
-| 🗣️ **Banco de linguagem** | Abreviações, sinônimos e intenções editáveis pela interface |
-| 📄 **Importa arquivos** | `.txt` e `.md`, divididos automaticamente em trechos |
-| ♻️ **Reset com backup** | Volta ao estado inicial, salvando antes uma cópia de segurança completa |
-
-## Rodando a partir do código
+## Instalar e rodar
 
 **Não é preciso instalar nada antes.** O instalador confere o Python e, se faltar, instala
 sozinho, avisando antes que vai precisar de permissão de administrador. A internet é usada só
@@ -142,158 +98,24 @@ Detalhes, executável e problemas comuns: [docs/guias/empacotamento.md](docs/gui
 1. **Ensine:** `pergunta: horário da farmácia resposta: 8h às 20h`
 2. **Pergunte do seu jeito:** `que horas a farmácia abre?`
 3. **Veja o raciocínio:** abra o **Monitor** (à direita) e acompanhe cada etapa ao vivo
-4. **Compare algoritmos:** troque a busca no topo da tela e pergunte de novo
-5. **Instale um addon:** *Addons → Importar addon* →
+4. **Diga se ajudou:** 👍 ou 👎 embaixo da resposta; com 5 avaliações, a busca começa a se
+   ajustar a você
+5. **Compare algoritmos:** troque a busca no topo da tela e pergunte de novo
+6. **Instale um addon:** *Addons → Importar addon* →
    `exemplos/addons/conversoes-medidas.aprendiz`, e pergunte `quanto vale 1 pol em cm?`
-6. **Conheça a loja oficial:** *Addons → Abrir loja oficial* abre no navegador a
+7. **Conheça a loja oficial:** *Addons → Abrir loja oficial* abre no navegador a
    [loja oficial de addons](https://jano-projects.github.io/aprendiz-addons/) da Jano Projects.
 
-## Para quem vai estudar o código
+## Documentação
 
-**Trilha sugerida**, do geral para o específico:
-
-| # | Arquivo | O que você aprende |
-|---|---|---|
-| 1 | [`core/assistente.py`](aprendiz/core/assistente.py) | O pipeline completo de uma mensagem |
-| 2 | [`linguagem/normalizador.py`](aprendiz/linguagem/normalizador.py) | Acentos, abreviações, correção, sinônimos, stopwords |
-| 3 | [`linguagem/stemmer.py`](aprendiz/linguagem/stemmer.py) | Radicalização (RSLP simplificado) |
-| 4 | [`linguagem/intencoes.py`](aprendiz/linguagem/intencoes.py) | Naive Bayes do zero, com Laplace e softmax |
-| 5 | [`algoritmos/busca/tfidf.py`](aprendiz/algoritmos/busca/tfidf.py) | TF-IDF e cosseno, conta a conta |
-| 6 | [`algoritmos/busca/bm25.py`](aprendiz/algoritmos/busca/bm25.py) · [`hibrido.py`](aprendiz/algoritmos/busca/hibrido.py) | BM25 no SQLite e Reciprocal Rank Fusion |
-| 6b | [`algoritmos/busca/calibrado.py`](aprendiz/algoritmos/busca/calibrado.py) · [`ferramentas/treinar_calibrado.py`](ferramentas/treinar_calibrado.py) | Aprendizado de máquina sem pesar no dispositivo: treino fora, inferência em Python puro |
-| 7 | [`algoritmos/resposta/extrativa.py`](aprendiz/algoritmos/resposta/extrativa.py) | TextRank |
-| 7b | [`core/teia.py`](aprendiz/core/teia.py) · [`resposta/trabalhada.py`](aprendiz/algoritmos/resposta/trabalhada.py) | Grafo de porquês: busca em largura com freios de sentido |
-| 7c | [`core/padroes.py`](aprendiz/core/padroes.py) | Sentido pela estrutura da frase (lacunas = exemplos) |
-| 8 | [`memoria/banco.py`](aprendiz/memoria/banco.py) | SQLite, FTS5, transações e migrações |
-| 9 | [`addons/pacote.py`](aprendiz/addons/pacote.py) · [`configuracoes.py`](aprendiz/aplicativo/configuracoes.py) | Leitura segura de arquivos não confiáveis e lista fechada de ajustes |
-| 10 | [`addons/recomendacao.py`](aprendiz/addons/recomendacao.py) | Escolher um algoritmo medindo, não chutando |
-| 11 | [`api/servidor.py`](aprendiz/api/servidor.py) · [`web/app.js`](aprendiz/web/app.js) | Como a interface conversa com o núcleo |
-| 12 | [`core/monitor.py`](aprendiz/core/monitor.py) · [`web/monitor.js`](aprendiz/web/monitor.js) | Telemetria ao vivo (produtor-consumidor, NDJSON) e contagem de parâmetros |
-
-**Documentação** ([índice completo](docs/README.md)):
-
-| Pasta | Documento | Conteúdo |
-|---|---|---|
-| **Estudo:** como a IA funciona | [Algoritmos](docs/estudo/algoritmos.md) | Cada algoritmo de busca e resposta, com um exemplo calculado de ponta a ponta |
-| | [Linguagem](docs/estudo/linguagem.md) | O pipeline de PLN, etapa por etapa |
-| | [Compreensão](docs/estudo/compreensao.md) · [Revisão](docs/estudo/revisao.md) | Compreensão, vetores, diálogo e revisão de texto pelos addons |
-| | [Monitor](docs/estudo/monitor.md) | O painel técnico, o fluxo ao vivo (NDJSON) e a ficha de parâmetros |
-| **Guias:** como fazer | [Addons](docs/guias/addons.md) | Formato `.aprendiz`, classificação, origem, dicionários, recomendação, grupos, exportação e segurança |
-| | [Criar um algoritmo](docs/guias/criar-algoritmo.md) | Como adicionar o seu ao seletor |
-| | [Empacotamento](docs/guias/empacotamento.md) | Instaladores, executável e problemas comuns |
-| **Referência:** o mapa | [Arquitetura](docs/referencia/arquitetura.md) | Camadas, decisões de projeto, tabelas e migrações |
-| | [Estrutura](docs/referencia/estrutura.md) | Mapa indentado de **todos** os arquivos, com o papel de cada um |
-
-## Os algoritmos
-
-```
-pergunta ─► normalização ─► BUSCA ─► candidatos ─► limiar ─► RESPOSTA ─► texto
-```
-
-Cada modelo tem um **apelido** (como aparece no seletor), o nome técnico e um custo de
-processamento por pergunta. A tela **Como funcionam os algoritmos** (botão **?** no topo)
-explica cada um passo a passo.
-
-| Busca | Apelido | Ideia | Quando usar | Custo |
-|---|---|---|---|---|
-| **BM25** | Rápido | Ranking clássico de buscadores, calculado pelo SQLite (FTS5) | Bases grandes, perguntas com as mesmas palavras do que foi ensinado | leve |
-| **TF-IDF + cosseno** | Didático | Vetores de pesos comparados pelo ângulo | Estudar como uma busca funciona; bases pequenas e médias | leve |
-| **Fuzzy** | Tolerante | Similaridade letra a letra (Levenshtein, RapidFuzz) | Perguntas curtas com muitos erros de digitação | médio |
-| **Híbrido (RRF)** | Equilibrado | Junta os três pela posição e só aceita com **consenso** | Uso geral | pesado |
-| **Calibrado** (padrão) | Calibrado | Pesa todos os sinais com pesos **aprendidos** (regressão logística); a confiança é a chance de acerto | Uso geral, quando errar custa caro | pesado |
-
-| Resposta | Apelido | Ideia | Custo |
-|---|---|---|---|
-| **Direta** | Fiel | O conhecimento mais relevante, como foi ensinado | leve |
-| **Extrativa** | Resumo | As frases mais relevantes de vários conhecimentos (relevância + TextRank) | médio |
-| **Trabalhada** | Explica | O fato e a cadeia de porquês da teia dos addons, dita com as frases de expressão | médio |
-
-Benchmark com os dados de exemplo (`python ferramentas/comparar.py`):
-
-| Algoritmo | Acerto@1 | Não inventou (5 perguntas sem resposta) |
-|---|---|---|
-| BM25 | 100% | 3/5 |
-| TF-IDF | 100% | 3/5 |
-| Fuzzy | 83% | 4/5 |
-| Híbrido | 100% | 3/5 |
-| Calibrado | 100% | 4/5 |
-
-Com perguntas que o modelo nunca viu (o conjunto de teste da Calibrada), a diferença aparece:
-
-| Busca | Acertou | Errou | Inventou (sem resposta) |
-|---|---|---|---|
-| BM25 | 58,7% | 34,9% | 83,8% |
-| Híbrido | 52,9% | 40,1% | 83,8% |
-| Calibrado | 59,9% | 22,1% | 57,4% |
-
-## Estrutura do projeto
-
-Resumo. O mapa completo, com **todos** os arquivos comentados, está em
-[docs/referencia/estrutura.md](docs/referencia/estrutura.md), gerado a partir dos docstrings do código.
-
-```
-aprendiz/
-├── aprendiz/                  # o programa (pacote Python)
-│   ├── core/                  #   o pipeline (assistente.py), a teia de porquês, padrões e o Monitor
-│   ├── linguagem/             #   PLN clássico: normalizador, stemmer, léxico, Naive Bayes, entidades
-│   ├── algoritmos/            #   o seletor (padrão Strategy)
-│   │   ├── busca/             #     bm25, tfidf, fuzzy, hibrido, calibrado
-│   │   └── resposta/          #     direta, extrativa, trabalhada
-│   ├── capacidades/           #   compreensão, diálogo, dicionário e revisão (ligadas por addons)
-│   ├── addons/                #   o arquivo .aprendiz, recursos, normas, exportação e recomendação
-│   ├── memoria/               #   SQLite: conhecimento, linguagem, conversas, addons
-│   ├── api/                   #   API local (FastAPI, só em 127.0.0.1)
-│   ├── web/                   #   interface e Monitor: HTML, CSS e JS puros, offline
-│   └── aplicativo/            #   caminhos, configurações, atualização e a janela de desktop
-├── docs/                      # documentação: estudo/, guias/ e referencia/ (índice em docs/README.md)
-├── tests/                     # pytest: unidade, API, addons, documentação
-├── ferramentas/               # verificar, criar e conferir addons, homologar, treinar, comparar
-├── exemplos/addons/           # addons de exemplo (fonte + .aprendiz)
-├── distribuicao/              # instalador do Windows, empacotamento e entrada do executável
-├── requirements/              # dependências opcionais: dev, janela nativa, treino
-├── .github/                   # CI, modelos de issue/PR, contribuição, conduta e segurança
-├── instalar.* · executar.*    # instalar e abrir: .sh no Linux, .bat no Windows
-└── requirements.txt · pyproject.toml
-```
-
-## Desenvolvimento
-
-```bash
-bash instalar.sh --dev                          # ambiente com pytest e PyInstaller
-.venv/bin/pip install -r requirements/treino.txt  # scikit-learn, só para treinar a Calibrada
-.venv/bin/python ferramentas/treinar_calibrado.py ../aprendiz-addons   # treina e mede
-.venv/bin/python ferramentas/homologar.py ../aprendiz-addons --busca calibrado
-.venv/bin/python -m pytest                      # testes (ver docs/estudo/testes.md)
-.venv/bin/python -m pytest --loja ../aprendiz-addons  # + homologação com os addons reais
-.venv/bin/python ferramentas/comparar.py         # benchmark dos algoritmos
-.venv/bin/python ferramentas/gerar_estrutura.py # atualiza docs/referencia/estrutura.md
-.venv/bin/python ferramentas/conferir_addons.py addons/*.aprendiz  # conflitos de linguagem entre addons
-.venv/bin/python -m aprendiz --modo servidor    # só o servidor: http://127.0.0.1:8765
-```
-
-Com o servidor rodando, a documentação interativa da API fica em `http://127.0.0.1:8765/docs`.
-Essa página carrega componentes da internet, então só funciona online.
-
-**Executável:** `bash distribuicao/empacotar.sh` (Linux) ou `distribuicao\empacotar.bat` (Windows) gera `dist/Aprendiz/`,
-que inclui o próprio Python. Ao criar uma tag `v*`, o GitHub Actions gera os executáveis dos
-dois sistemas.
-
-**Integração contínua:** a cada push, o GitHub instala o projeto com os próprios scripts e roda
-os testes no Windows (com e sem Python) e em contêineres Ubuntu, Fedora e Debian que partem
-**sem Python** ([testes.yml](.github/workflows/testes.yml)).
-
-## Onde ficam os dados
-
-Toda a memória fica em **um único arquivo SQLite**, fora da pasta do programa:
-
-| Sistema | Pasta |
+| Para | Leia |
 |---|---|
-| Linux | `~/.local/share/aprendiz/aprendiz.db` |
-| Windows | `%APPDATA%\Aprendiz\aprendiz.db` |
-| macOS | `~/Library/Application Support/Aprendiz/aprendiz.db` |
-
-Para fazer backup, basta copiar esse arquivo. O reset salva antes uma cópia em `backups/`, na
-mesma pasta. Para usar outra pasta, defina a variável de ambiente `APRENDIZ_DADOS`.
+| Começar a estudar o código | [Trilha do código](docs/README.md#trilha-do-código) |
+| Entender cada algoritmo, com as contas | [Algoritmos](docs/estudo/algoritmos.md) · [Linguagem](docs/estudo/linguagem.md) · [Compreensão](docs/estudo/compreensao.md) · [Monitor](docs/estudo/monitor.md) |
+| Criar addons e algoritmos | [Addons](docs/guias/addons.md) · [Criar um algoritmo](docs/guias/criar-algoritmo.md) |
+| Desenvolver, testar e empacotar | [Desenvolvimento](docs/guias/desenvolvimento.md) · [Testes](docs/estudo/testes.md) · [Empacotamento](docs/guias/empacotamento.md) |
+| Consultar o mapa | [Arquitetura](docs/referencia/arquitetura.md) · [Estrutura](docs/referencia/estrutura.md) · [Versionamento](docs/referencia/versionamento.md) |
+| Todos os documentos | [Índice](docs/README.md) · [CHANGELOG](CHANGELOG.md) |
 
 ## Contribuindo
 

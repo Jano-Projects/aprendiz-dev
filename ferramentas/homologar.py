@@ -384,6 +384,9 @@ def main() -> None:
     ap.add_argument("-v", "--verbose", action="store_true")
     ap.add_argument("--limiar", type=float,
                     help="troca o limiar da busca escolhida só nesta rodada (ex.: 0.18)")
+    ap.add_argument("--registro", action="store_true",
+                    help="no fim, imprime a linha para a tabela de homologação manual "
+                         "(docs/referencia/homologacao.md): versão, sistema, Python e resultado")
     ap.add_argument("--pessoal", action="store_true",
                     help="2.7: roda a base PESSOAL (ferramentas/dados/base_pessoal.json): "
                          "fatos ensinados pelo dono e perguntas sobre eles, com os mesmos addons")
@@ -415,7 +418,33 @@ def main() -> None:
     com_aviso = sum(1 for g, _ in rodar.incertos if g != "sem resposta")
     if com_aviso:
         print(f"com resposta, mas com aviso de incerteza: {com_aviso}")
+    if args.registro:
+        print(linha_de_registro(args, len(casos) - len(falhas), len(casos),
+                                inventou if sem_resposta else None))
     sys.exit(1 if falhas else 0)
+
+
+def sistema() -> str:
+    """Nome legível do sistema: a distribuição no Linux, a versão no Windows."""
+    os_release = Path("/etc/os-release")
+    if os_release.exists():
+        for linha in os_release.read_text(encoding="utf-8").splitlines():
+            if linha.startswith("PRETTY_NAME="):
+                return linha.split("=", 1)[1].strip('"')
+    import platform
+    return f"{platform.system()} {platform.release()} ({platform.version()})"
+
+
+def linha_de_registro(args, certos: int, total: int, inventou: int | None) -> str:
+    """A linha da tabela de registro, pronta para colar (data, versão, sistema…)."""
+    import datetime
+    import platform
+
+    import aprendiz
+    conjunto = "base pessoal" if args.pessoal else "addons da loja"
+    resultado = f"{certos}/{total}" + (f", inventou {inventou}" if inventou is not None else "")
+    return (f"| {datetime.date.today():%Y-%m-%d} | {aprendiz.__version__} | {sistema()} | "
+            f"{platform.python_version()} | {args.busca} · {conjunto} | {resultado} | |")
 
 
 if __name__ == "__main__":

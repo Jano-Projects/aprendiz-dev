@@ -6,6 +6,18 @@ seguem o [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ## [Não lançado]
 
+### Documentação e homologação
+- **README enxuto** (de 307 para 129 linhas): o que é, plataformas homologadas, instalar, primeiros
+  passos e links. O detalhe foi para [Recursos](docs/guias/recursos.md),
+  [Desenvolvimento](docs/guias/desenvolvimento.md), a trilha do código no
+  [índice dos docs](docs/README.md#trilha-do-código) e a visão geral de
+  [Algoritmos](docs/estudo/algoritmos.md#visão-geral).
+- **Homologação por plataforma**: o workflow [homologacao.yml](.github/workflows/homologacao.yml)
+  roda as homologações com os addons da loja em Debian, Fedora, Ubuntu (LTS e mais recente) e
+  Windows; `tests/test_loja_homologacao.py` ganhou a base pessoal (piso 41/44, inventa no máximo
+  1) e o piso do Híbrido subiu para 237. Roteiro manual de 12 itens e tabela de registro em
+  [Homologação](docs/referencia/homologacao.md); `homologar.py --registro` gera a linha pronta.
+
 ## [2.7.0] - 2026-11-24
 
 O Aprendiz para de responder com segurança o que não sabe: quando falta a palavra que diferencia

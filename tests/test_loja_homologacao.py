@@ -1,12 +1,12 @@
 """
-Homologação contra os addons REAIS da loja (2.5.1), como teste automático.
+Homologação contra os addons REAIS da loja, como teste automático.
 
 Opcional e lento (~2 min). Roda só quando a loja é informada:
 
     pytest --loja ../aprendiz-addons
     APRENDIZ_LOJA=../aprendiz-addons pytest
 
-São 243 perguntas de gente de verdade (ferramentas/homologar.py). Cada busca
+São 249 perguntas de gente de verdade (ferramentas/homologar.py). Cada busca
 tem um PISO: o número de acertos da 2.5.1. Uma mudança que derrube o piso
 é regressão; uma que suba, atualize o piso aqui e nos documentos.
 """
@@ -24,7 +24,10 @@ from aprendiz.memoria import Banco
 
 pytestmark = pytest.mark.loja
 
-PISOS = {"hibrido": 231, "bm25": 227, "calibrado": 236, "tfidf": 211, "fuzzy": 162}
+PISOS = {"hibrido": 237, "bm25": 227, "calibrado": 236, "tfidf": 211, "fuzzy": 162}
+# Base pessoal (2.7, homologar.py --pessoal), na busca padrão: acertos mínimos
+# e o máximo de perguntas sem resposta em que pode inventar.
+PISO_PESSOAL = {"busca": "calibrado", "acertos": 41, "inventou": 1}
 
 # Fração mínima de perguntas que continuam certas depois de cada transformação
 # (busca Híbrida). Medido na 2.5.1: 100% em quase todas; erros de digitação, 98%.
@@ -141,3 +144,19 @@ def test_metamorficos_na_loja(homologar, com_loja):
     abaixo = {k: f"{certos[k]}/{total[k]}" for k in TRANSFORMACOES
               if total[k] and certos[k] / total[k] < PISOS_METAMORFICOS[k]}
     assert not abaixo, abaixo
+
+
+def test_base_pessoal_nao_cai_abaixo_do_piso(homologar, com_loja):
+    """O uso principal: o dono ensina e pergunta (ferramentas/dados/base_pessoal.json)."""
+    import json
+    base = json.loads(homologar.BASE_PESSOAL.read_text(encoding="utf-8"))
+    for fato in base["fatos"]:
+        com_loja.ensinar(fato["conteudo"], pergunta=fato["pergunta"])
+    certos, inventou = 0, 0
+    for grupo, pergunta, esperado in base["casos"]:
+        ok = homologar.confere(com_loja.responder(pergunta, busca=PISO_PESSOAL["busca"],
+                                                  resposta="trabalhada"), esperado)
+        certos += ok
+        inventou += grupo == "sem resposta" and not ok
+    assert certos >= PISO_PESSOAL["acertos"], f"base pessoal: {certos}/{len(base['casos'])}"
+    assert inventou <= PISO_PESSOAL["inventou"], f"inventou em {inventou} perguntas sem resposta"

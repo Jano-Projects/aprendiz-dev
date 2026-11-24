@@ -1,0 +1,79 @@
+# Homologação por plataforma: instala o Aprendiz com os próprios scripts, baixa
+# os addons da loja oficial (Jano-Projects/aprendiz-addons) e confere os pisos
+# de tests/test_loja_homologacao.py: as 249 perguntas dos addons em cada busca
+# e a base pessoal (ferramentas/dados/base_pessoal.json).
+# O resultado de cada plataforma aparece no resumo da execução.
+name: Homologação
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+# A saída tem "→" e "·": no Windows, sem isto, o console em cp1252 quebra.
+env:
+  PYTHONUTF8: "1"
+
+jobs:
+  linux:
+    name: ${{ matrix.nome }}
+    runs-on: ubuntu-latest
+    container: ${{ matrix.imagem }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { nome: "Debian (estável)", imagem: "debian:stable" }
+          - { nome: "Fedora (mais recente)", imagem: "fedora:latest" }
+          - { nome: "Ubuntu (LTS)", imagem: "ubuntu:latest" }
+          - { nome: "Ubuntu (mais recente)", imagem: "ubuntu:rolling" }
+    steps:
+      - name: Ferramentas que o checkout usa (tar/gzip)
+        run: |
+          if ! command -v tar >/dev/null; then
+            if command -v dnf >/dev/null; then dnf install -y tar gzip
+            else apt-get update && apt-get install -y tar gzip; fi
+          fi
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: Jano-Projects/aprendiz-addons
+          path: loja
+      - name: Instalar
+        run: bash instalar.sh --dev
+      - name: Homologação (addons da loja e base pessoal)
+        run: .venv/bin/python -m pytest -q tests/test_loja_homologacao.py --loja loja
+      - name: Resumo
+        if: always()
+        run: |
+          .venv/bin/python ferramentas/homologar.py loja --busca calibrado --registro | tail -1 >> resumo.txt || true
+          .venv/bin/python ferramentas/homologar.py loja --busca calibrado --pessoal --registro | tail -1 >> resumo.txt || true
+          { echo "### ${{ matrix.nome }}"; echo "| Data | Versão | Sistema | Python | Busca · conjunto | Resultado | |"; echo "|---|---|---|---|---|---|---|"; cat resumo.txt; } >> "$GITHUB_STEP_SUMMARY"
+
+  windows:
+    name: Windows
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: Jano-Projects/aprendiz-addons
+          path: loja
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Instalar
+        shell: cmd
+        run: instalar.bat --dev
+      - name: Homologação (addons da loja e base pessoal)
+        shell: cmd
+        run: .venv\Scripts\python -m pytest -q tests\test_loja_homologacao.py --loja loja
+      - name: Resumo
+        if: always()
+        shell: bash
+        run: |
+          PY=.venv/Scripts/python
+          $PY ferramentas/homologar.py loja --busca calibrado --registro | tail -1 >> resumo.txt || true
+          $PY ferramentas/homologar.py loja --busca calibrado --pessoal --registro | tail -1 >> resumo.txt || true
+          { echo "### Windows"; echo "| Data | Versão | Sistema | Python | Busca · conjunto | Resultado | |"; echo "|---|---|---|---|---|---|---|"; cat resumo.txt; } >> "$GITHUB_STEP_SUMMARY"
