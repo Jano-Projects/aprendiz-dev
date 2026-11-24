@@ -23,13 +23,16 @@ Mapa de todas as pastas e arquivos, com o papel de cada um.
 aprendiz/
 ├── .github/                             # Configurações do GitHub
 │   ├── ISSUE_TEMPLATE/                  # Modelos para abrir issues
-│   │   ├── bug.md                       # Modelo para relatar um erro
-│   │   └── ideia.md                     # Modelo para sugerir uma melhoria
+│   │   ├── 1-problema.yml               # Formulário: algo não funciona
+│   │   ├── 2-resposta-errada.yml        # Formulário: resposta errada ou inventada
+│   │   ├── 3-ideia.yml                  # Formulário: ideia de melhoria
+│   │   └── config.yml                   # Desliga a issue em branco; atalhos para segurança e para a loja
 │   ├── workflows/                       # Integração contínua (GitHub Actions)
 │   │   ├── homologacao.yml              # Homologação com os addons da loja em Debian, Fedora, Ubuntu e Windows
 │   │   └── testes.yml                   # Testa a instalação em Windows, Ubuntu, Fedora e Debian
 │   ├── CODE_OF_CONDUCT.md               # Código de conduta da comunidade
 │   ├── CONTRIBUTING.md                  # Como contribuir: ambiente, padrões e fluxo de PR
+│   ├── dependabot.yml                   # Atualiza as actions e as dependências Python uma vez por mês
 │   ├── PULL_REQUEST_TEMPLATE.md         # Checklist de pull request
 │   └── SECURITY.md                      # Política de segurança e como reportar falhas
 ├── aprendiz/                            # Aprendiz — um assistente pessoal local, leve e offline.

@@ -22,6 +22,9 @@
 - **Recomendação de addon** não baixa nada: o botão só abre a loja oficial (endereço fixo)
   filtrada pelo id do addon, que precisa ter só letras minúsculas, números e hífen.
 - **A interface escapa todo texto** antes de exibir (proteção contra XSS).
+- **O ajuste pessoal fica no aparelho** (2.6): as avaliações (👍/👎) e os pesos aprendidos ficam
+  no mesmo arquivo SQLite. Exportado como addon, o ajuste leva **só números** (`ajuste.json`),
+  validados na importação: um peso por sinal, com limite de tamanho, e nenhuma pergunta ou resposta.
 
 ## Versões com suporte
 
@@ -29,8 +32,9 @@ Só a versão mais recente recebe correções de segurança.
 
 ## Como reportar uma falha
 
-**Não abra uma issue pública** para falhas de segurança. Use o recurso
-**"Report a vulnerability"** na aba *Security* do repositório no GitHub (relato privado).
+**Não abra uma issue pública** para falhas de segurança. Use
+**[Reportar uma vulnerabilidade](https://github.com/Jano-Projects/aprendiz-dev/security/advisories/new)**,
+na aba *Security* do repositório (relato privado, visível só para quem mantém o projeto).
 
 Inclua, se puder:
 - a versão do Aprendiz e o sistema operacional;

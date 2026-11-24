@@ -1,0 +1,16 @@
+# Mantém as actions do GitHub e as dependências Python atualizadas (um PR por mês, no máximo).
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    commit-message:
+      prefix: "CI"
+  - package-ecosystem: pip
+    directory: /
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 3
+    commit-message:
+      prefix: "Dependências"

@@ -1,0 +1,16 @@
+name: Ideia
+description: Uma melhoria para o app, os algoritmos ou a documentação
+labels: ["ideia"]
+body:
+  - type: textarea
+    id: problema
+    attributes:
+      label: O que falta ou incomoda
+      description: Descreva o problema que a ideia resolve, não só a solução.
+    validations:
+      required: true
+  - type: textarea
+    id: exemplo
+    attributes:
+      label: Exemplo de uso
+      description: Uma conversa ou situação (com dados inventados) em que isso ajudaria.

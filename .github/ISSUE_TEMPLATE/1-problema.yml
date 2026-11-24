@@ -1,0 +1,41 @@
+name: Problema
+description: Algo não funciona (instalação, tela, addons, exportação…)
+labels: ["problema"]
+body:
+  - type: markdown
+    attributes:
+      value: Não cole dados pessoais. Se for falha de segurança, use o aviso em sigilo.
+  - type: input
+    id: versao
+    attributes:
+      label: Versão do Aprendiz
+      description: Aparece em Configurações → Sobre esta instalação.
+      placeholder: "Ex.: 2.7.0"
+    validations:
+      required: true
+  - type: dropdown
+    id: sistema
+    attributes:
+      label: Sistema
+      options: [Debian, Fedora, Ubuntu, Windows, Outro Linux, macOS]
+    validations:
+      required: true
+  - type: textarea
+    id: passos
+    attributes:
+      label: Como reproduzir
+      description: O que você fez, passo a passo.
+    validations:
+      required: true
+  - type: textarea
+    id: esperado
+    attributes:
+      label: O que aconteceu e o que você esperava
+    validations:
+      required: true
+  - type: textarea
+    id: verificar
+    attributes:
+      label: Saída do verificar.py
+      description: "`.venv/bin/python ferramentas/verificar.py` (Linux) ou `.venv\\Scripts\\python ferramentas\\verificar.py` (Windows)."
+      render: text

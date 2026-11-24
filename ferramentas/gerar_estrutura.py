@@ -76,8 +76,11 @@ DESCRICOES: dict[str, str] = {
     # ---- .github
     ".github/workflows/testes.yml": "Testa a instalação em Windows, Ubuntu, Fedora e Debian",
     ".github/workflows/homologacao.yml": "Homologação com os addons da loja em Debian, Fedora, Ubuntu e Windows",
-    ".github/ISSUE_TEMPLATE/bug.md": "Modelo para relatar um erro",
-    ".github/ISSUE_TEMPLATE/ideia.md": "Modelo para sugerir uma melhoria",
+    ".github/ISSUE_TEMPLATE/config.yml": "Desliga a issue em branco; atalhos para segurança e para a loja",
+    ".github/ISSUE_TEMPLATE/1-problema.yml": "Formulário: algo não funciona",
+    ".github/ISSUE_TEMPLATE/2-resposta-errada.yml": "Formulário: resposta errada ou inventada",
+    ".github/ISSUE_TEMPLATE/3-ideia.yml": "Formulário: ideia de melhoria",
+    ".github/dependabot.yml": "Atualiza as actions e as dependências Python uma vez por mês",
     ".github/PULL_REQUEST_TEMPLATE.md": "Checklist de pull request",
     # ---- interface
     "aprendiz/web/index.html": "Estrutura da página, ícones SVG e diálogos",

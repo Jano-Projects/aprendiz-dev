@@ -18,6 +18,10 @@ on:
   pull_request:
   workflow_dispatch:
 
+# Só leitura: os workflows não publicam nada no repositório.
+permissions:
+  contents: read
+
 jobs:
   windows:
     name: Windows · Python ${{ matrix.python }}

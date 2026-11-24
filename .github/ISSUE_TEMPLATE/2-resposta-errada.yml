@@ -1,0 +1,32 @@
+name: Resposta errada
+description: O Aprendiz respondeu errado, inventou ou não achou algo que sabia
+labels: ["resposta"]
+body:
+  - type: markdown
+    attributes:
+      value: Use dados inventados na pergunta e no que foi ensinado (sem senhas ou telefones reais).
+  - type: input
+    id: versao
+    attributes:
+      label: Versão do Aprendiz e busca em uso
+      placeholder: "Ex.: 2.7.0, Calibrado"
+    validations:
+      required: true
+  - type: textarea
+    id: base
+    attributes:
+      label: O que estava ensinado ou quais addons estavam ativos
+    validations:
+      required: true
+  - type: textarea
+    id: pergunta
+    attributes:
+      label: A pergunta, a resposta e o que você esperava
+    validations:
+      required: true
+  - type: textarea
+    id: porque
+    attributes:
+      label: O painel "Por que respondi isso?"
+      description: Clique no botão embaixo da resposta e cole o que ele mostra.
+      render: text

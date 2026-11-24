@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Falha de segurança
+    url: https://github.com/Jano-Projects/aprendiz-dev/security/advisories/new
+    about: Avise em sigilo, sem abrir uma issue pública.
+  - name: Problema num addon da loja
+    url: https://github.com/Jano-Projects/aprendiz-addons/issues/new/choose
+    about: Resposta errada ou desatualizada que vem de um addon oficial.

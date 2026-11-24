@@ -17,6 +17,9 @@ seguem o [Versionamento Semântico](https://semver.org/lang/pt-BR/).
   Windows; `tests/test_loja_homologacao.py` ganhou a base pessoal (piso 41/44, inventa no máximo
   1) e o piso do Híbrido subiu para 237. Roteiro manual de 12 itens e tabela de registro em
   [Homologação](docs/referencia/homologacao.md); `homologar.py --registro` gera a linha pronta.
+- **Repositório no GitHub**: formulários de issue (*Problema*, *Resposta errada*, *Ideia*) no lugar
+  dos modelos em texto, sem issue em branco; Dependabot para as actions e as dependências Python;
+  workflows só com permissão de leitura; política de segurança com o link do aviso em sigilo.
 
 ## [2.7.0] - 2026-11-24
 
