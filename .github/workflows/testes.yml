@@ -31,7 +31,7 @@ jobs:
       matrix:
         python: ["3.10", "3.14"]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python }}
@@ -51,7 +51,7 @@ jobs:
     name: Windows · instalação automática do Python
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Instalar (baixa e instala o Python do python.org)
         shell: cmd
         run: instalar.bat --instalar-python --dev
@@ -81,7 +81,7 @@ jobs:
             if command -v dnf >/dev/null; then dnf install -y tar gzip
             else apt-get update && apt-get install -y tar gzip; fi
           fi
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Instalar (instalar.sh instala o Python da distribuição sozinho)
         run: bash instalar.sh --dev
       - name: Testes
@@ -99,7 +99,7 @@ jobs:
       matrix:
         os: [windows-latest, ubuntu-22.04]   # 22.04: executável roda em distros mais antigas também
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: actions/setup-python@v5
         with:
           python-version: "3.13"

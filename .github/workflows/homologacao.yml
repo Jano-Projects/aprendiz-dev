@@ -39,8 +39,8 @@ jobs:
             if command -v dnf >/dev/null; then dnf install -y tar gzip
             else apt-get update && apt-get install -y tar gzip; fi
           fi
-      - uses: actions/checkout@v4
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
+      - uses: actions/checkout@v7
         with:
           repository: Jano-Projects/aprendiz-addons
           path: loja
@@ -59,8 +59,8 @@ jobs:
     name: Windows
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
+      - uses: actions/checkout@v7
         with:
           repository: Jano-Projects/aprendiz-addons
           path: loja
