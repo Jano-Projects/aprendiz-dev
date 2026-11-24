@@ -6,6 +6,29 @@ seguem o [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ## [Não lançado]
 
+## [2.7.0] - 2026-11-24
+
+O Aprendiz para de responder com segurança o que não sabe: quando falta a palavra que diferencia
+a pergunta ("senha do **banco**" com só a senha do wifi na base), ele avisa e mostra o mais perto.
+Uma homologação nova mede o uso principal, a base pessoal do dono.
+
+### Adicionado
+- **Homologação da base pessoal** (`homologar.py --pessoal`): 16 fatos inventados ensinados
+  pelo dono e 44 perguntas sobre eles, incluindo 12 sem resposta que medem quanto o Aprendiz
+  inventa. Ponto de partida (2.6.0, Calibrada): 35/44, recusou 5 de 12 e inventou 7.
+- **Resposta "incerto"**: quando o núcleo da pergunta está no conhecimento mas o que a
+  especifica não ("senha do **banco**" com só "senha do wifi"), o Aprendiz avisa que não tem e
+  mostra o mais perto, com 👍/👎 e Corrigir. Em addons, só quando o núcleo está no título. Base
+  pessoal: 41/44 e inventou 1 de 12 (era 7); homologação dos addons sem mudança (234/249). Ver
+  [Compreensão](docs/estudo/compreensao.md#especificador-que-falta-a-resposta-incerto-27).
+
+### Corrigido
+- **Padrão de frase não passa mais por cima de uma resposta melhor**: "os 3 primeiros
+  caracteres de uma string" era reescrita pelo padrão "<n> primeiros" e respondida com o LIMIT
+  do SQL. Agora a pergunta original vence quando o 1º lugar dela tem no título uma palavra da
+  pergunta que o 1º da reescrita não tem **e** confiança maior. Calibrada na homologação: 236/249
+  (era 234); Híbrido sem mudança (237).
+
 ## [2.6.0] - 2026-11-23
 
 O Aprendiz passa a aprender com o dono: cada 👍, 👎, "não era isso" e correção ajusta a busca

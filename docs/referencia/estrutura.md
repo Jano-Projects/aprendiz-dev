@@ -138,6 +138,7 @@ aprendiz/
 │       └── modo-exigente.aprendiz       # Addon pronto para importar (limiares mais altos)
 ├── ferramentas/                         # Ferramentas de desenvolvimento: verificar, criar e conferir addons, homologar, treinar, comparar
 │   ├── dados/                           # Dados das ferramentas: base do benchmark e perguntas rotuladas da Calibrada
+│   │   ├── base_pessoal.json            # Base pessoal inventada e perguntas sobre ela (homologar.py --pessoal)
 │   │   ├── conjunto_calibrado.json      # Perguntas rotuladas (treino e teste) da busca Calibrada, geradas das variações dos addons
 │   │   └── dados_exemplo.json           # Base e perguntas usadas no benchmark
 │   ├── comparar.py                      # Benchmark: compara os algoritmos de busca num mesmo conjunto de perguntas.
@@ -169,6 +170,7 @@ aprendiz/
 │   ├── test_exportacao.py               # Testes da exportação: prévia com avisos de privacidade, escolha de itens e ida e volta.
 │   ├── test_formato2.py                 # Testes do formato 2: origem, classificação, versão do app, dependências e configurações.
 │   ├── test_girias.py                   # Testes da 0.4.1: verbetes (dicionário), stopwords e intenções vindas de addons de…
+│   ├── test_incerto_27.py               # Especificador que falta (2.7): "senha do BANCO" com só "senha do wifi" na base vira…
 │   ├── test_intencoes_26.py             # Intenções com erro de escrita (2.6): uma palavra desconhecida vira a mais parecida dos…
 │   ├── test_invariantes.py              # Invariantes do assistente inteiro (2.5.1).
 │   ├── test_juntar.py                   # Testes de "juntar e reinterpretar" (1.0): panorama ("o que você sabe sobre X?"), pedido…

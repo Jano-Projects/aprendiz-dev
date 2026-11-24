@@ -22,6 +22,7 @@ Um caso com "seguir" é feito na mesma conversa da pergunta anterior.
 from __future__ import annotations
 
 import argparse
+import json
 import sys
 import tempfile
 from pathlib import Path
@@ -336,6 +337,9 @@ def confere(r: dict, esperado: str) -> bool:
         return " encontrei" in msg["texto"][:200]
     if esperado.startswith("texto:"):
         return esperado[6:] in msg["texto"]
+    if esperado == "tipo:desconhecido":
+        # "incerto" (2.7) também não inventou: avisou que não tem e mostrou o mais perto.
+        return tipo in ("desconhecido", "incerto")
     if esperado.startswith("tipo:"):
         return tipo == esperado[5:]
     if esperado.startswith("!q:"):
@@ -343,24 +347,13 @@ def confere(r: dict, esperado: str) -> bool:
     return any(alvo in titulo for alvo in esperado[2:].split("|"))
 
 
-def main() -> None:
-    ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    ap.add_argument("loja", type=Path)
-    ap.add_argument("--busca", default="fuzzy")
-    ap.add_argument("--resposta", default="trabalhada")
-    ap.add_argument("-v", "--verbose", action="store_true")
-    ap.add_argument("--limiar", type=float,
-                    help="troca o limiar da busca escolhida só nesta rodada (ex.: 0.18)")
-    args = ap.parse_args()
-    if args.limiar is not None:
-        BUSCAS[args.busca].limiar = args.limiar
+BASE_PESSOAL = Path(__file__).parent / "dados" / "base_pessoal.json"
 
-    assistente = Assistente(Banco(str(Path(tempfile.mkdtemp()) / "homologacao.db")))
-    for id_ in ADDONS:
-        assistente.instalar_addon((args.loja / "addons" / f"{id_}.aprendiz").read_bytes())
 
-    falhas, conversa, grupo_atual = [], None, None
-    for grupo, pergunta, esperado in CASOS:
+def rodar(assistente: Assistente, casos: list, args) -> list[tuple[str, str]]:
+    """Roda os casos e imprime cada um. Devolve as falhas como (grupo, pergunta)."""
+    falhas, incertos, conversa, grupo_atual = [], [], None, None
+    for grupo, pergunta, esperado in casos:
         if pergunta not in SEGUIR:
             conversa = None
         r = assistente.responder(pergunta, conversa_id=conversa, busca=args.busca,
@@ -373,11 +366,55 @@ def main() -> None:
             print(f"\n[{grupo}]")
             grupo_atual = grupo
         print(f"  {'ok ' if ok else 'ERR'} {pergunta!r:50} → {obtido}")
+        if r["mensagem"]["meta"].get("tipo") == "incerto":
+            incertos.append((grupo, pergunta))
         if not ok:
-            falhas.append(pergunta)
+            falhas.append((grupo, pergunta))
             if args.verbose:
                 print("      " + r["mensagem"]["texto"][:160].replace("\n", " "))
-    print(f"\n{len(CASOS) - len(falhas)}/{len(CASOS)} ok")
+    rodar.incertos = incertos   # lido pelo resumo do main()
+    return falhas
+
+
+def main() -> None:
+    ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
+    ap.add_argument("loja", type=Path)
+    ap.add_argument("--busca", default="fuzzy")
+    ap.add_argument("--resposta", default="trabalhada")
+    ap.add_argument("-v", "--verbose", action="store_true")
+    ap.add_argument("--limiar", type=float,
+                    help="troca o limiar da busca escolhida só nesta rodada (ex.: 0.18)")
+    ap.add_argument("--pessoal", action="store_true",
+                    help="2.7: roda a base PESSOAL (ferramentas/dados/base_pessoal.json): "
+                         "fatos ensinados pelo dono e perguntas sobre eles, com os mesmos addons")
+    args = ap.parse_args()
+    if args.limiar is not None:
+        BUSCAS[args.busca].limiar = args.limiar
+
+    assistente = Assistente(Banco(str(Path(tempfile.mkdtemp()) / "homologacao.db")))
+    for id_ in ADDONS:
+        assistente.instalar_addon((args.loja / "addons" / f"{id_}.aprendiz").read_bytes())
+
+    casos = CASOS
+    if args.pessoal:
+        # O dono ensina como ensinaria pela tela (pergunta + resposta), por cima
+        # dos addons: é o uso principal do Aprendiz.
+        base = json.loads(BASE_PESSOAL.read_text(encoding="utf-8"))
+        for fato in base["fatos"]:
+            assistente.ensinar(fato["conteudo"], pergunta=fato["pergunta"])
+        casos = [tuple(c) for c in base["casos"]]
+
+    falhas = rodar(assistente, casos, args)
+    print(f"\n{len(casos) - len(falhas)}/{len(casos)} ok")
+    sem_resposta = [c for c in casos if c[0] == "sem resposta"]
+    if sem_resposta:
+        inventou = sum(1 for g, _ in falhas if g == "sem resposta")
+        avisou = sum(1 for g, _ in rodar.incertos if g == "sem resposta")
+        print(f"sem resposta: recusou {len(sem_resposta) - inventou - avisou}, avisou que não tem "
+              f"{avisou}, inventou {inventou} (de {len(sem_resposta)})")
+    com_aviso = sum(1 for g, _ in rodar.incertos if g != "sem resposta")
+    if com_aviso:
+        print(f"com resposta, mas com aviso de incerteza: {com_aviso}")
     sys.exit(1 if falhas else 0)
 
 

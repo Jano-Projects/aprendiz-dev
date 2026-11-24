@@ -335,7 +335,7 @@
     if (meta.tipo === "desconhecido") {
       acoes.appendChild(botaoAcao("ensinar", "Ensinar isso", () => abrirEnsinar({ pergunta: meta.pergunta }), "destaque"));
     }
-    if (meta.tipo === "conhecimento" && msg.id) {
+    if ((meta.tipo === "conhecimento" || meta.tipo === "incerto") && msg.id) {
       // 2.6: 👍/👎 viram exemplos para o ajuste pessoal da Calibrada.
       ["util", "nao_util"].forEach((valor) => {
         const b = botaoAcao(valor === "util" ? "util" : "nao-util", valor === "util" ? "Útil" : "Não ajudou",
@@ -353,7 +353,7 @@
         acoes.appendChild(b);
       });
     }
-    if (meta.tipo === "conhecimento") {
+    if ((meta.tipo === "conhecimento" || meta.tipo === "incerto")) {
       acoes.appendChild(botaoAcao(meta.corrigida_por ? "check" : "corrigir",
         meta.corrigida_por ? "Corrigida" : "Corrigir", () => abrirCorrigir(msg.id, meta.pergunta)));
     }

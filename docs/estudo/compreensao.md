@@ -166,6 +166,27 @@ do wifi" contam como a mesma pergunta: a comparação usa só as palavras de con
 acento ou plural. Sem esse começo, os dois fatos convivem, porque "o carro é azul" e "o carro é
 um Passat" são verdades juntas. Conhecimento de addon nunca é substituído pelo chat.
 
+### Especificador que falta: a resposta "incerto" (2.7)
+
+"Qual a senha do **banco**?" numa base que só tem "a senha do wifi": a busca acha "senha" e,
+antes da 2.7, respondia a senha do wifi como se fosse a mesma coisa. Agora, antes de montar a
+resposta, o Aprendiz procura na pergunta um **núcleo + de/do/da + especificador** ("senha do
+banco", "conta de água", "placa da moto"). Se o núcleo está no conhecimento escolhido e o
+especificador não, a resposta sai como **incerto**:
+
+> Não tenho nada sobre **banco**. O mais perto que tenho é sobre **senha do wifi**: …
+
+- **Fato do dono:** a regra vale sempre.
+- **Conhecimento de addon:** só se o núcleo está no **título** dele. Num texto didático, o exemplo
+  da pergunta ("juntar a tabela de **produtos**") não precisa aparecer; já "código do **alarme**"
+  contra "o que é código limpo" merece o aviso.
+- Palavras que não especificam nada ("de **cada** projeto", "uma do lado da **outra**") e
+  expressões de tempo ("sábado **de manhã**": dizem quando, não qual) são ignoradas, e a comparação usa radicais com sinônimos e correções.
+
+Uma resposta "incerto" tem 👍/👎 e **Corrigir**: é o melhor lugar para ensinar o que faltava, e a
+avaliação entra no ajuste pessoal da busca. A etapa "Incerteza" do painel "Por que respondi
+isso?" mostra o trecho e a palavra que faltou.
+
 ### Recomendação de addon
 
 O addon de compreensão leva uma cópia resumida do catálogo da loja oficial (id, nome,
@@ -307,3 +328,17 @@ cada fez agrupar contar por grupo". Se a reescrita não acha nada, vale a pergun
 
 Os conceitos precisam ser palavras que os addons de conteúdo usam nos assuntos (`A:`): é assim
 que a estrutura da frase chega ao fragmento certo.
+
+### Quando a pergunta original vence o padrão (2.7)
+
+A reescrita só fica se achar resposta, mas isso não basta: "os 3 primeiros caracteres de uma
+**string**" bate no padrão `<n> primeiros` (limitar resultados), e a reescrita acha o LIMIT do SQL,
+enquanto a pergunta original já achava "como fatiar string em python". Por isso a original vence
+quando o 1º lugar dela:
+
+1. tem no título uma palavra da pergunta que o título do 1º da reescrita não tem ("string"), **e**
+2. tem confiança maior que a do 1º da reescrita.
+
+As duas condições juntas: só a primeira deixava palavras comuns ("ver", "banco", "código")
+decidirem e piorava três casos da homologação. O painel "Por que respondi isso?" mostra, na etapa
+"Padrão de frase", a palavra que fez a original ficar.
