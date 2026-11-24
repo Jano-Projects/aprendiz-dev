@@ -42,6 +42,12 @@ def test_palavra_que_nao_especifica_e_ignorada(base):
     assert _msg(base, "a senha de cada wifi")["meta"]["tipo"] == "conhecimento"
 
 
+def test_expressao_de_tempo_nao_especifica(assistente):
+    assistente.ensinar("A farmácia abre às 8h de segunda a sábado.", pergunta="horário da farmácia")
+    assert _msg(assistente, "que horas abre a farmácia no sábado de manhã")["meta"]["tipo"] \
+        == "conhecimento"
+
+
 def test_da_para_avaliar_resposta_incerta(base):
     m = _msg(base, "qual a senha do banco?")
     assert base.avaliar(m["id"], False)["avaliacao"] == "nao_util"

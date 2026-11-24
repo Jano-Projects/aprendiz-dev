@@ -6,7 +6,11 @@ seguem o [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
 ## [Não lançado]
 
-Versão em preparação: **2.7.0** (branch `aprendiz-2.7`).
+## [2.7.0] - 2026-11-24
+
+O Aprendiz para de responder com segurança o que não sabe: quando falta a palavra que diferencia
+a pergunta ("senha do **banco**" com só a senha do wifi na base), ele avisa e mostra o mais perto.
+Uma homologação nova mede o uso principal, a base pessoal do dono.
 
 ### Adicionado
 - **Homologação da base pessoal** (`homologar.py --pessoal`): 16 fatos inventados ensinados

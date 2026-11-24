@@ -180,8 +180,8 @@ especificador não, a resposta sai como **incerto**:
 - **Conhecimento de addon:** só se o núcleo está no **título** dele. Num texto didático, o exemplo
   da pergunta ("juntar a tabela de **produtos**") não precisa aparecer; já "código do **alarme**"
   contra "o que é código limpo" merece o aviso.
-- Palavras que não especificam nada ("de **cada** projeto", "uma do lado da **outra**") são
-  ignoradas, e a comparação usa radicais com sinônimos e correções.
+- Palavras que não especificam nada ("de **cada** projeto", "uma do lado da **outra**") e
+  expressões de tempo ("sábado **de manhã**": dizem quando, não qual) são ignoradas, e a comparação usa radicais com sinônimos e correções.
 
 Uma resposta "incerto" tem 👍/👎 e **Corrigir**: é o melhor lugar para ensinar o que faltava, e a
 avaliação entra no ajuste pessoal da busca. A etapa "Incerteza" do painel "Por que respondi

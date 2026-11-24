@@ -1032,7 +1032,9 @@ class Assistente:
     _LIGA_ESPECIFICADOR = {"de", "do", "da", "dos", "das"}
     # Palavras que vêm depois da preposição mas não especificam nada.
     _NAO_ESPECIFICA = {"cada", "outro", "outra", "outros", "outras", "todo", "toda", "todos",
-                       "todas", "mesmo", "mesma", "algum", "alguma", "qualquer", "nenhum", "nenhuma"}
+                       "todas", "mesmo", "mesma", "algum", "alguma", "qualquer", "nenhum", "nenhuma",
+                       # tempo: "sábado DE MANHÃ" diz quando, não qual
+                       "manha", "tarde", "noite", "madrugada", "hoje", "ontem", "amanha"}
 
     def _especificador_ausente(self, mensagem: str, doc: dict[str, Any]) -> tuple[str, str] | None:
         """
