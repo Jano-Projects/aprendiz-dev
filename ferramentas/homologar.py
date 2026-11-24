@@ -337,6 +337,9 @@ def confere(r: dict, esperado: str) -> bool:
         return " encontrei" in msg["texto"][:200]
     if esperado.startswith("texto:"):
         return esperado[6:] in msg["texto"]
+    if esperado == "tipo:desconhecido":
+        # "incerto" (2.7) também não inventou: avisou que não tem e mostrou o mais perto.
+        return tipo in ("desconhecido", "incerto")
     if esperado.startswith("tipo:"):
         return tipo == esperado[5:]
     if esperado.startswith("!q:"):
@@ -349,7 +352,7 @@ BASE_PESSOAL = Path(__file__).parent / "dados" / "base_pessoal.json"
 
 def rodar(assistente: Assistente, casos: list, args) -> list[tuple[str, str]]:
     """Roda os casos e imprime cada um. Devolve as falhas como (grupo, pergunta)."""
-    falhas, conversa, grupo_atual = [], None, None
+    falhas, incertos, conversa, grupo_atual = [], [], None, None
     for grupo, pergunta, esperado in casos:
         if pergunta not in SEGUIR:
             conversa = None
@@ -363,10 +366,13 @@ def rodar(assistente: Assistente, casos: list, args) -> list[tuple[str, str]]:
             print(f"\n[{grupo}]")
             grupo_atual = grupo
         print(f"  {'ok ' if ok else 'ERR'} {pergunta!r:50} → {obtido}")
+        if r["mensagem"]["meta"].get("tipo") == "incerto":
+            incertos.append((grupo, pergunta))
         if not ok:
             falhas.append((grupo, pergunta))
             if args.verbose:
                 print("      " + r["mensagem"]["texto"][:160].replace("\n", " "))
+    rodar.incertos = incertos   # lido pelo resumo do main()
     return falhas
 
 
@@ -403,8 +409,12 @@ def main() -> None:
     sem_resposta = [c for c in casos if c[0] == "sem resposta"]
     if sem_resposta:
         inventou = sum(1 for g, _ in falhas if g == "sem resposta")
-        print(f"sem resposta: recusou {len(sem_resposta) - inventou}/{len(sem_resposta)}, "
-              f"inventou {inventou}")
+        avisou = sum(1 for g, _ in rodar.incertos if g == "sem resposta")
+        print(f"sem resposta: recusou {len(sem_resposta) - inventou - avisou}, avisou que não tem "
+              f"{avisou}, inventou {inventou} (de {len(sem_resposta)})")
+    com_aviso = sum(1 for g, _ in rodar.incertos if g != "sem resposta")
+    if com_aviso:
+        print(f"com resposta, mas com aviso de incerteza: {com_aviso}")
     sys.exit(1 if falhas else 0)
 
 

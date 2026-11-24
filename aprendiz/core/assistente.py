@@ -52,7 +52,7 @@ from aprendiz.core.teia import Teia
 from aprendiz.memoria.banco import agora as agora_iso, lista_json, teia_de
 from aprendiz.linguagem import ClassificadorIntencoes, Linguagem, extrair_entidades
 from aprendiz.linguagem.intencoes import corrigir_para_exemplos
-from aprendiz.linguagem.normalizador import VERSAO_NORMALIZACAO, normalizar
+from aprendiz.linguagem.normalizador import VERSAO_NORMALIZACAO, normalizar, remover_acentos
 from aprendiz.linguagem.stemmer import radical, singular
 from aprendiz.memoria import Banco
 
@@ -962,6 +962,16 @@ class Assistente:
             etapas.marcar("Modo estrito", {"motivo": "nenhum candidato acima do limiar"})
             return texto, "desconhecido", []
 
+        # 6b. Especificador que falta (2.7) -------------------------------------
+        # "senha do BANCO" com só "senha do wifi" na base: o núcleo ("senha")
+        # está no conhecimento, mas o que diferencia a pergunta ("banco") não.
+        # Em vez de responder como se fosse a mesma coisa, avisa e mostra o
+        # mais perto, marcado como "incerto" (o 👍/👎 nele ensina a busca).
+        faltou = self._especificador_ausente(mensagem, aceitos[0].conhecimento)
+        if faltou:
+            etapas.marcar("Incerteza", {"faltou": faltou[1], "trecho": faltou[0],
+                                        "conhecimento": self._titulo(aceitos[0].conhecimento)})
+
         # 7. Resposta ----------------------------------------------------------
         # Dicionário: se a pergunta é exatamente uma palavra com verbete, a
         # resposta junta TODOS os verbetes dessa palavra (ex.: "bué" em
@@ -988,7 +998,67 @@ class Assistente:
         if self.contexto.caminho is not None:   # fragmentos ligados pela teia também são fontes
             por_id.update({p.para["id"]: p.para for p in self.contexto.caminho.passos if p.para})
         fontes = [self._fonte(por_id[i]) for i in gerada.fontes if i in por_id]
+        if faltou:
+            aviso = (f"Não tenho nada sobre **{faltou[1]}**. O mais perto que tenho é sobre "
+                     f"**{self._titulo(aceitos[0].conhecimento)}**:\n\n")
+            return aviso + gerada.texto, "incerto", fontes
         return nota_sentido + gerada.texto, "conhecimento", fontes
+
+    # Preposições que ligam um núcleo ao que o especifica: "senha DO banco".
+    _LIGA_ESPECIFICADOR = {"de", "do", "da", "dos", "das"}
+    # Palavras que vêm depois da preposição mas não especificam nada.
+    _NAO_ESPECIFICA = {"cada", "outro", "outra", "outros", "outras", "todo", "toda", "todos",
+                       "todas", "mesmo", "mesma", "algum", "alguma", "qualquer", "nenhum", "nenhuma"}
+
+    def _especificador_ausente(self, mensagem: str, doc: dict[str, Any]) -> tuple[str, str] | None:
+        """
+        Procura na pergunta um "núcleo + de/do/da + especificador" ("conta de
+        água", "placa da moto") em que o NÚCLEO está no conhecimento escolhido
+        e o ESPECIFICADOR não. Devolve (trecho, especificador) ou None.
+
+        "senha do banco" contra "A senha do wifi é…": senha ✓, banco ✗ → aviso.
+        "senha do wifi" contra o mesmo: os dois estão → None (responde normal).
+        Compara radicais, já com sinônimos e correções; artigo entre a
+        preposição e o especificador é pulado ("preço de UM produto").
+
+        Fato do dono: vale sempre. Conhecimento de addon: só se o núcleo
+        está no TÍTULO (o conhecimento é sobre ele). Num conteúdo didático, o
+        exemplo da pergunta ("tabela de PRODUTOS") não precisa estar no texto;
+        já "código do ALARME" contra "o que é código limpo" merece o aviso.
+        """
+        proc = self.linguagem.processar(mensagem)
+        tokens, radicais = proc.tokens, proc.radicais_todos
+        if len(tokens) != len(radicais):
+            return None
+        texto = f"{doc.get('pergunta') or ''} {doc['conteudo']}"
+        do_doc = set(self.linguagem.processar(texto, corrigir=False).radicais_todos)
+        do_doc.update((doc.get("texto_busca") or "").split())
+        vazias = self.linguagem.stopwords
+        titulo = None
+        if doc.get("addon_id"):
+            titulo = set(self.linguagem.processar(self._titulo(doc), corrigir=False).radicais_todos)
+        for i, t in enumerate(tokens[1:-1], start=1):
+            if t not in self._LIGA_ESPECIFICADOR or tokens[i - 1] in vazias:
+                continue
+            j = i + 1
+            while j < len(tokens) - 1 and tokens[j] in vazias:
+                j += 1
+            esp = tokens[j]
+            if esp in vazias or esp in self._NAO_ESPECIFICA or len(esp) < 3 or esp.isdigit():
+                continue
+            if titulo is not None and radicais[i - 1] not in titulo:
+                continue
+            if radicais[i - 1] in do_doc and radicais[j] not in do_doc:
+                return (" ".join(tokens[i - 1:j + 1]), self._palavra_original(mensagem, esp))
+        return None
+
+    @staticmethod
+    def _palavra_original(mensagem: str, token: str) -> str:
+        """A palavra como o dono escreveu ("água"), a partir do token normalizado ("agua")."""
+        for palavra in re.findall(r"[\w-]+", mensagem):
+            if remover_acentos(palavra.lower()) == token:
+                return palavra
+        return token
 
     def _atualizar_pelo_chat(self, aplicar: bool) -> str:
         """Verifica (e, se pedido, aplica) as atualizações do app e dos addons oficiais."""
@@ -1252,7 +1322,8 @@ class Assistente:
 
         if acao == "outras_opcoes" and anterior:
             # 2.6: "não era isso" também é uma avaliação (👎) da resposta anterior.
-            if meta.get("tipo") == "conhecimento" and meta.get("fontes") and contexto.get("pergunta"):
+            if meta.get("tipo") in ("conhecimento", "incerto") and meta.get("fontes") \
+                    and contexto.get("pergunta"):
                 self._avaliar_fonte(contexto["pergunta"], meta["fontes"][0]["id"], False,
                                     "nao_era_isso")
             usados = {f["id"] for f in meta.get("fontes") or []}
@@ -1742,7 +1813,8 @@ class Assistente:
         if not msg or msg["papel"] != "assistente":
             raise ValueError("Mensagem não encontrada.")
         meta = msg["meta"] or {}
-        if meta.get("tipo") != "conhecimento" or not meta.get("fontes") or not meta.get("pergunta"):
+        if meta.get("tipo") not in ("conhecimento", "incerto") or not meta.get("fontes") \
+                or not meta.get("pergunta"):
             raise ValueError("Só dá para avaliar respostas que vieram de um conhecimento.")
         self._avaliar_fonte(meta["pergunta"], meta["fontes"][0]["id"], util,
                             "util" if util else "nao_util", treinar=False)

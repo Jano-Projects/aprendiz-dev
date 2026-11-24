@@ -12,6 +12,11 @@ Versão em preparação: **2.7.0** (branch `aprendiz-2.7`).
 - **Homologação da base pessoal** (`homologar.py --pessoal`): 16 fatos inventados ensinados
   pelo dono e 44 perguntas sobre eles, incluindo 12 sem resposta que medem quanto o Aprendiz
   inventa. Ponto de partida (2.6.0, Calibrada): 35/44, recusou 5 de 12 e inventou 7.
+- **Resposta "incerto"**: quando o núcleo da pergunta está no conhecimento mas o que a
+  especifica não ("senha do **banco**" com só "senha do wifi"), o Aprendiz avisa que não tem e
+  mostra o mais perto, com 👍/👎 e Corrigir. Em addons, só quando o núcleo está no título. Base
+  pessoal: 41/44 e inventou 1 de 12 (era 7); homologação dos addons sem mudança (234/249). Ver
+  [Compreensão](docs/estudo/compreensao.md#especificador-que-falta-a-resposta-incerto-27).
 
 ## [2.6.0] - 2026-11-23
 
