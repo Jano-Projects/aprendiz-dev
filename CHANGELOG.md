@@ -18,6 +18,13 @@ Versão em preparação: **2.7.0** (branch `aprendiz-2.7`).
   pessoal: 41/44 e inventou 1 de 12 (era 7); homologação dos addons sem mudança (234/249). Ver
   [Compreensão](docs/estudo/compreensao.md#especificador-que-falta-a-resposta-incerto-27).
 
+### Corrigido
+- **Padrão de frase não passa mais por cima de uma resposta melhor**: "os 3 primeiros
+  caracteres de uma string" era reescrita pelo padrão "<n> primeiros" e respondida com o LIMIT
+  do SQL. Agora a pergunta original vence quando o 1º lugar dela tem no título uma palavra da
+  pergunta que o 1º da reescrita não tem **e** confiança maior. Calibrada na homologação: 236/249
+  (era 234); Híbrido sem mudança (237).
+
 ## [2.6.0] - 2026-11-23
 
 O Aprendiz passa a aprender com o dono: cada 👍, 👎, "não era isso" e correção ajusta a busca

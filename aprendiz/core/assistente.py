@@ -847,8 +847,14 @@ class Assistente:
         if frase is not None:
             reescrita = self.linguagem.processar(frase.texto)
             _, achou, _ = self.buscar(reescrita, busca)
-            etapas.marcar("Padrão de frase", {**frase.como_dict(), "encontrou": len(achou)})
-            if achou:
+            # 2.7: a original vence se o 1º lugar dela é SOBRE uma palavra da
+            # pergunta que o 1º da reescrita não tem. "os 3 primeiros
+            # caracteres de uma STRING": "fatiar string" ganha de "limitar
+            # resultados em sql", que o padrão "<n> primeiros" puxaria.
+            fica = self._original_vence(consulta, achou, busca) if achou else None
+            etapas.marcar("Padrão de frase", {**frase.como_dict(), "encontrou": len(achou),
+                                              **({"ficou a original por": fica} if fica else {})})
+            if achou and not fica:
                 consulta = reescrita
 
         # 5. Busca -------------------------------------------------------------
@@ -1003,6 +1009,24 @@ class Assistente:
                      f"**{self._titulo(aceitos[0].conhecimento)}**:\n\n")
             return aviso + gerada.texto, "incerto", fontes
         return nota_sentido + gerada.texto, "conhecimento", fontes
+
+    def _original_vence(self, consulta: Any, achou_reescrita: list[Candidato],
+                        busca: str) -> str | None:
+        """
+        Palavras da pergunta que estão no título do 1º lugar da busca ORIGINAL
+        e não estão no título do 1º da reescrita (ou None se não há, ou se as
+        duas buscas concordam). Ver o passo 4d do _pipeline.
+        """
+        _, achou, _ = self.buscar(consulta, busca)
+        if not achou or achou[0].id == achou_reescrita[0].id \
+                or achou[0].confianca <= achou_reescrita[0].confianca:
+            return None
+
+        def do_titulo(c: Candidato) -> set[str]:
+            return set(self.linguagem.processar(self._titulo(c.conhecimento),
+                                                corrigir=False).radicais)
+        so_da_original = (set(consulta.radicais) & do_titulo(achou[0])) - do_titulo(achou_reescrita[0])
+        return ", ".join(sorted(so_da_original)) or None
 
     # Preposições que ligam um núcleo ao que o especifica: "senha DO banco".
     _LIGA_ESPECIFICADOR = {"de", "do", "da", "dos", "das"}

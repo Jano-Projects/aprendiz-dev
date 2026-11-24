@@ -85,11 +85,11 @@ Opcional (`--loja` ou a variável `APRENDIZ_LOJA`). Instala os addons publicados
 perguntas de [`ferramentas/homologar.py`](../../ferramentas/homologar.py). Cada busca tem um
 **piso** de acertos; cair abaixo dele é regressão:
 
-| Busca | Piso (2.6.0) |
+| Busca | Piso (2.7) |
 |---|---|
 | Híbrido | 231 |
 | BM25 | 227 |
-| Calibrado | 234 |
+| Calibrado | 236 |
 | TF-IDF | 211 |
 | Fuzzy | 162 |
 

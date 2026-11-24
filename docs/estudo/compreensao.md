@@ -328,3 +328,17 @@ cada fez agrupar contar por grupo". Se a reescrita não acha nada, vale a pergun
 
 Os conceitos precisam ser palavras que os addons de conteúdo usam nos assuntos (`A:`): é assim
 que a estrutura da frase chega ao fragmento certo.
+
+### Quando a pergunta original vence o padrão (2.7)
+
+A reescrita só fica se achar resposta, mas isso não basta: "os 3 primeiros caracteres de uma
+**string**" bate no padrão `<n> primeiros` (limitar resultados), e a reescrita acha o LIMIT do SQL,
+enquanto a pergunta original já achava "como fatiar string em python". Por isso a original vence
+quando o 1º lugar dela:
+
+1. tem no título uma palavra da pergunta que o título do 1º da reescrita não tem ("string"), **e**
+2. tem confiança maior que a do 1º da reescrita.
+
+As duas condições juntas: só a primeira deixava palavras comuns ("ver", "banco", "código")
+decidirem e piorava três casos da homologação. O painel "Por que respondi isso?" mostra, na etapa
+"Padrão de frase", a palavra que fez a original ficar.
